@@ -1,0 +1,155 @@
+\ProvidesFile{hibl.dbx}
+
+\ResetDatamodelEntrytypes
+\ResetDatamodelFields
+\ResetDatamodelEntryfields
+\ResetDatamodelConstraints
+
+\DeclareDatamodelEntrytypes{%
+    abbrev,
+    admincase,
+    alias,
+    article,
+    bill,
+    book,
+    casedoc,
+    citecontainer,
+    congdoc,
+    const,
+    constamend,
+    courtdoc,
+    govdoc,
+    hearing,
+    jurisdiction,
+    letter,
+    magart,
+    online,
+    patent,
+    pressrelease,
+    regcode,
+    statcode,
+    statsess,
+    stattitle,
+    treaty}
+
+\DeclareDatamodelFields[type=list, datatype=name]{%
+    author,
+    editor,
+    translator,
+    to,
+    % These exist to suppress Biblatex warnings
+    shortauthor,shorteditor}
+
+\DeclareDatamodelFields[type=list, datatype=literal]{%
+    country,
+    paren}
+
+\DeclareDatamodelFields[type=field, datatype=literal, nullok=true]{%
+    enbanc,
+    inlinedefendant,
+    noetal,
+    percuriam,
+    slip}
+
+\DeclareDatamodelFields[type=field, datatype=date]{%
+    urldate,
+    eventdate,
+    date,
+    issuedate,
+    origdate}
+
+\DeclareDatamodelFields[type=field, datatype=integer]{year}
+
+\DeclareDatamodelFields[type=field, datatype=literal]{%
+    agency,
+    citation,
+    committee,
+    congress,
+    court,
+    d,
+    datetext,
+    defaultopt,
+    docket,
+    edition,
+    hereinafter,
+    hyphenate,
+    in,
+    issue,
+    issuedatetext,
+    journaltitle,
+    number,
+    opturl,
+    origdatetext,
+    origsect,
+    p,
+    pages,
+    parallel,
+    reprinted,
+    shorttitle,
+    struct,
+    subsequent,
+    title,
+    type,
+    url,
+    volume,
+    % These exist just to stop biblatex warnings
+    sortkey,
+    sortname,
+    sorttitle,
+    sortyear}
+
+%
+% For now, every field is valid for every type.
+%
+\DeclareDatamodelEntryfields{%
+    agency,
+    author,
+    citation,
+    committee,
+    congress,
+    country,
+    court,
+    d,
+    datetext,
+    defaultopt,
+    docket,
+    edition,
+    editor,
+    enbanc,
+    hereinafter,
+    hyphenate,
+    in,
+    shorttitle,
+    inlinedefendant,
+    issue,
+    issuedatetext,
+    journaltitle,
+    noetal,
+    number,
+    opturl,
+    origdatetext,
+    origsect,
+    p,
+    pages,
+    parallel,
+    paren,
+    percuriam,
+    reprinted,
+    slip,
+    struct,
+    subsequent,
+    title,
+    to,
+    type,
+    url,
+    volume,
+    day, endday, endhour, endminute, endmonth, endsecond, endtimezone, endyear,
+    endyeardivision, hour, minute, month, second, timezone, year, 
+    issueday, issueendday, issueendhour, issueendminute, issueendmonth,
+    issueendsecond, issueendtimezone, issueendyear, issueendyeardivision,
+    issuehour, issueminute, issuemonth, issuesecond, issuetimezone, issueyear, 
+    origday, origendday, origendhour, origendminute, origendmonth,
+    origendsecond, origendtimezone, origendyear, origendyeardivision, orighour,
+    origminute, origmonth, origsecond, origtimezone, origyear%
+}
+

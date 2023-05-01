@@ -1,0 +1,286 @@
+%%
+%% \iffalse filename: intro.dtx \fi
+%%
+%<*doc>
+
+\section{Quick Start Guide}
+
+You've done the research, your stack of cases and articles is overflowing, the
+ideas are swimming in your head, and are ready to start writing. But as you open
+your document, a troubling question creeps in.
+
+\emph{Will you format citations as you
+write?} That will interrupt your train of thought every few minutes as you pull
+out the style guide. And as you edit and rearrange, your citations
+will need to be redone many times over. All those \emph{supra} and \emph{id.\@}
+citations will quickly become out of place and perhaps unintelligible as you
+polish the text.
+
+\emph{Or will you put off citation formatting
+for later?} In that case your coauthors and draft reviewers will see a mess of
+an unfinished paper. And you'll have to reserve hours or days before submitting
+for publication, to
+slog through an unrewarding round of citation formatting.
+
+\hia* offers a better way. With it, you can type citations in your writing
+concisely and efficiently, but with all the features of
+a rich legal citation system. You can edit and reorganize with almost no
+need to manually update existing citations in your document. And you can
+produce correctly formatted citations at any stage of the writing process, so
+that
+when you and others are reviewing drafts, you aren't distracted by incomplete
+formatting.
+
+I have been developing \hia* since I started law school in 2004. In the years
+since, I have used it to format tens of thousands of citations in hundreds of
+legal briefs, administrative comments, and journal articles. It produces tables
+of authorities without hesitation, handles lengthy law review pieces without
+difficulty, and even is compatible with widely used citation management
+software. Most
+importantly, when the computer handles the appearance of my writing, I get to
+focus on the substance, which has made my writing process far more rewarding and
+enjoyable. To me, \hia* is an indispensable tool for my legal writing, and
+I hope it will also become your choice hereinafter.
+
+
+This introductory guide will show the basic concepts you'll need to use \hia* to
+add citations to your document. As with other automated citation systems, you
+will need to do two things:
+\begin{enumerate}
+\item Define your references (cases, books, articles,
+and so on) by entering bibliographic information for them.
+\item Cite references by entering citation commands into your document.
+\end{enumerate}
+
+Importantly, these two steps do not need to be done in order. In my personal
+workflow, I will often first write, entering citation commands for references
+that I've read but have not defined. I find that this order preserves my train
+of thought best. \hia* displays a list of undefined references and other missing
+items at the end of document compilation, conveniently letting you know what
+needs to be fixed.
+
+
+\subsection{Prerequisites}
+
+At this stage, I assume that you have general knowledge both of legal citation
+and of the \LaTeX\ typesetting system. \hia* operates purely within \LaTeX, and
+is controlled by commands described below in this manual.
+
+To begin, you should include the package in the preamble of your document:
+\begin{quote}
+|\usepackage[|\meta{options}|]{hicite}|
+\end{quote}
+The \meta{options} are described in \sec{options}. The most important of these
+are the options \opt{review} and \opt{memo}, which determine whether the package
+will follow the rules for law review articles or for legal memoranda,
+respectively.
+
+
+
+
+\subsection{Defining References}
+
+A \emph{reference} is a single work of authority that you want to cite. In order
+to cite a reference in \hia*, you must ``define'' it by entering key information
+about the reference.
+
+To define a reference, you will need to (1) choose a nickname
+for the reference, (2) determine the type of reference, and (3)
+identify the relevant bibliographic information for the type.
+Part~\ref{p:alltypes} lists the available reference types; common ones are
+\rtype{book}, \rtype{case}, \rtype{website}, and \rtype{jrnart} (journal
+articles). The bibliographic information is entered as parameter-value pairs.
+For example:
+\begin{quote}
+|\defcase{wheaton}{| \\
+|    p=Wheaton,| \\
+|    d=Peters,| \\
+|    vol=33,| \\
+|    rep=U.S.,| \\
+|    page=591,| \\
+|    year=1834,| \\
+|}|
+\end{quote}
+defines a reference named |wheaton| for the famous lawsuit between two Supreme
+Court reporters.
+
+\hia* permits for various shortcuts to simplify the entry of references. The
+following are equivalent to the above definition:
+\begin{quote}
+|\defcase{wheaton}{| \\
+|    parties=Wheaton v. Peters,| \\
+|    cite=33 U.S. 591,| \\
+|    year=1834,| \\
+|}| \\
+|\defcase{wheaton}{| \\
+|    Wheaton v. Peters, 33 U.S. 591 (1834)| \\
+|}|
+\end{quote}
+
+There is also rich support for author names and dates. The following definition
+shows how to enter a report with an individual author and an institutional
+author:
+\begin{quote}
+|\defbook{ftc-pharma}{| \\
+|    author=Markus H. Meier et al.,| \\
+|    instauth=Federal Trade Commission,| \\
+|    title=Overview of FTC Actions [...],| \\
+|    date=june 2019,| \\
+|}|
+\end{quote}
+
+For a more detailed overview of how to define references, see \sec{refs-syntax}
+and the sections that follow. Shortcuts for reference entry are described in
+\sec{cparse}, and authors and dates in \sec{names} and \sec{dates} respectively.
+
+
+
+
+
+\subsection{Entering Citations}
+
+To cite references in a document, the key commands are |\sentence| and
+|\clause|, which produce sentence-style and clause-style citations. For law
+review articles, these commands should be used in footnotes, and the |\note|
+command creates a footnote with a sentence-style citation.
+
+All of these commands receive a single argument of a citation string following a
+syntax described in \sec{parse}. By design, the syntax looks like a simplified
+legal citation. The following would generate a two-element string-cite to
+\emph{Wheaton v.~Peters}, describing a (hypothetical) tension between two parts
+of the decision:
+\begin{quote}
+|\sentence{see, e.g., wheaton at 598 note 3 (Story, J.) (describing holding); but see wheaton at 600-602 (noting alternative views)}.|
+\end{quote}
+This produces:
+\begin{quote}
+\emph{See, e.g.}, \emph{Wheaton v.~Peters}, 33 U.S. 591, 598 n.3
+(1834) (Story, J.) (describing holding); \emph{but see} \emph{id.}~at 600--02
+(noting alternative views).
+\end{quote}
+
+This example shows a number of notable features of \hia*. First, references are
+always cited by identifier; any short or \emph{id.}~form is selected
+automatically without user intervention. This means that citations are portable:
+They largely can be moved around the document unchanged, simplifying
+reorganizations of one's writing.
+
+Second, there is rich support for signals, pin cites, and parentheticals in
+citations. In particular, pin cites can involve page numbers, section numbers,
+footnotes, and more, as described in \sec{pages}. They are abbreviated
+automatically, as shown above. Parentheticals and signals are
+also ordered, arranged, and formatted appropriately.
+
+Third and perhaps most importantly, nearly all the formatting work is hidden
+from the writer. Abbreviations, fonts, and keywords are automatically chosen to
+conform to a given citation system. Importantly, this makes it easy to conform
+an already-written document to another citation system. If one journal prefers
+small caps but another does not, it is simple to produce different documents for
+each.
+
+\paragraph{Inline Citations}
+In addition to sentence and clause citations, \hia* supports citing references
+as parts of the text: naming a case as the subject of a sentence, for example.
+The relevant commands are |\inline|, |\Inline|, |\adjective|, and |\Adjective|
+depending on whether the reference is being cited at the beginning of a sentence
+and the part of speech the reference is taking on:
+\begin{quote}
+|In \inline{wheaton}, the Court....| \\
+|\sentence{wheaton at 603}.| \\
+Produces: In \emph{Wheaton v.~Peters}, the Court\ldots. \emph{See} 33 U.S. 591,
+603 (1834).
+\end{quote}
+Note how the |\sentence| citation automatically omits the case name because it
+was displayed in with the previous |\inline| command.
+
+For more on the parts and syntax of sentence, clause, and inline citations, see
+Part~\ref{p:citations}.
+
+
+
+\subsection{Additional Features}
+
+Most of \hia* involves transforming reference definitions and citation commands
+into formatted text. However, the package provides a few additional features of
+interest: It can produce tables of authorities (see \sec{toa}), switch from
+footnotes to endnotes (see \sec{endnotes}), and manage abbreviations in text
+(see reference type \rtype{abbrev}).
+
+Perhaps the most important additional feature is cross-references, described in
+\sec{xref}. To mark a part of a document for cross-referencing:
+\begin{quote}
+|\hilabel{keypart}| \\
+|This is the key part!| \\
+|\hiendlabel{keypart}|
+\end{quote}
+The |\hilabel| command automatically chooses the best way to refer to the marked
+section depending on where it is used (in a footnote, in a figure, or in plain
+text). The |\hisectlabel| command can label sections by number.
+
+To insert a cross-reference, simply use a citation to the predefined reference
+\rtype{this} with the cross-reference label as the pincite:
+\begin{quote}
+|\sentence{see this at keypart}.|
+\end{quote}
+Again, the value of this cross-referencing system is that the cited numbers
+automatically update as the document is edited, minimizing the amount of manual
+updating.
+
+
+
+\section{Structure of This Manual}
+
+Besides simply describing how \hia* works, this manual is intended to explain my
+conceptual framework for legal citation that is embedded in the system.
+With that framework in mind, this manual on a
+more practical level then teaches writers how to write citation input commands
+that will produce formatted citations meeting their needs, and explains how
+those inputs are formatted. As a result, it has three main objectives:
+\begin{itemize}
+\item Describing the data model behind \hia*'s legal citations
+\item Specifying the input formats that writers must use
+\item To a lesser extent, explaining the algorithms for producing formatted
+citations
+\end{itemize}
+
+The manual is organized topically for different elements of legal citations,
+with each section covering these three objectives of the data model, input
+formats, and formatting algorithms (to the extent that each objective is
+relevant). There are five parts:
+\begin{enumerate}
+\item How references are defined, including common parameters of references such
+as authors and dates.
+\item How citations are entered into documents.
+\item General formatting algorithms used, such as keeping track of previous
+citations for short forms.
+\item All reference definition parameters.
+\item All reference types.
+\end{enumerate}
+
+As currently written, this manual is primarily for writers of legal
+documents who already have a baseline knowledge of legal citation, and
+secondarily for software developers who wish to learn how the system works so
+that they can modify it to produce different citation formats. It is not as
+useful for learning how to format legal citations, as most citation manuals are.
+First, it explains the formatting of citations in a manner that is useful to
+programmers but probably confusing to human cite-checkers. \unskip\footnote{In
+particular, a computer reads and formats citations sequentially, starting
+from the beginning and never looking backwards, so at any given point it must
+keep track of a great deal of information in memory about prior citations.
+Computers do this easily, but a person would have to write copious and
+error-prone notes to check the citations purely in forward order. A more
+reasonable approach for a person would be to read the citations backwards to
+find necessary information about previous citations.} Second, this manual does
+not discuss the meanings of citation elements: It does not explain what citation
+signals mean, when parentheticals are appropriate, or which edition of a book to
+cite, for example.
+
+It would not be difficult to revise this manual to address
+these deficiencies and turn it into a guide on manual citation formatting, by
+augmenting the data model sections to describe semantics and by rewriting the
+formatting algorithm sections. Were that work to be done, the hope is that
+presenting students with a data model and principles in tandem with formats
+would offer them a clearer, enriched view of the seemingly arcane world of legal
+citation.
+
+%</doc>

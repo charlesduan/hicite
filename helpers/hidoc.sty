@@ -1,0 +1,111 @@
+\ProvidesPackage{hidoc}
+\RequirePackage{xcolor}
+\RequirePackage{fontspec}
+\RequirePackage{unicode-math}
+\setmainfont{Libertinus Serif}
+\setmathfont{Libertinus Math}
+\setsansfont[Scale=MatchLowercase]{Source Sans 3}
+\setmonofont[Scale=MatchLowercase]{Source Code Pro}
+\RequirePackage{etoolbox}
+\RequirePackage{strings}
+\RequirePackage[pdfborder=0 0 0]{hyperref}
+%\setmonofont[Scale=MatchLowercase]{Source Code Pro}
+\sloppy
+\begingroup
+    \catcode`\<=\active
+    \gdef\ActivateBracket{%
+        \catcode`\<=\active
+        \def<{\futurelet\next\hidoc@check@bracket}%
+    }%
+\endgroup
+\def\hidoc@check@bracket{%
+    \if*\next \let\next\hidoc@star
+    \else \if/\next \let\next\hidoc@slash
+    \else \def\next{<}%
+    \fi\fi
+    \next
+}
+\def\hidoc@star*#1>{%
+    \@ifundefined{hidoc@module@\detokenize{#1}}{}{%
+        \begin{hidoc@module@\detokenize{#1}}%
+    }%
+}
+\def\hidoc@slash/#1>{%
+    \@ifundefined{hidoc@module@\detokenize{#1}}{}{%
+        \end{hidoc@module@\detokenize{#1}}%
+    }%
+}
+\newenvironment{hidoc@module@package}{%
+    \vskip 6pt\relax
+    \footnotesize \sffamily
+    \color{violet}%
+}{}
+\newenvironment{hidoc@module@test}{%
+    \hidoc@eattoendtest
+}{}
+\begingroup
+    \catcode`\<=\active
+    \MakePercentIgnore
+    \long\gdef\hidoc@eattoendtest#1%</test>{\hidoc@slash/test>}
+\endgroup
+\def\MacroFont{%
+    \fontencoding\encodingdefault
+    \fontfamily\ttdefault
+    \fontseries\mddefault
+    \fontshape\shapedefault
+    \def\@xobeysp{~}%
+    \tiny\color{gray}%
+}
+\MacroIndent=3em
+\AtBeginDocument{%
+    \ActivateBracket
+}
+\setcounter{secnumdepth}{100}
+\renewcommand\theparagraph{%
+    \ifnum\c@subsubsection>\z@
+        \thesubsubsection
+    \else
+        \ifnum\c@subsection>\z@
+            \thesubsection
+        \else
+            \thesection
+        \fi
+    \fi
+    (\@alph\c@paragraph)%
+}
+\def\sec#1{\find@in{-}{#1}{\@tworun\sec\@gobble}{\texttt{#1.dtx}}}
+\make@find@in{-}
+\def\hia*{\emph{Hereinafter}}
+\def\pt#1{the main documentation}
+\def\param#1{\hyperref[param:#1]{\texttt{\color{blue}#1}}}
+\def\opt#1{\hyperref[opt:#1]{\texttt{\color{violet}#1}}}
+\def\rtype#1{\hyperref[rtype:#1]{\texttt{\color{red}#1}}}
+\def\parameterlist#1#2#3\@stop{%
+    \par\hangindent=2\parindent\indent
+    \textbf{\parameterlist@params#1, \@stop}: #2\par
+    \ifblank{#3}{}{\parameterlist#3\@stop}%
+}
+\def\parameterlist@params#1, #2\@stop{%
+    \param{#1}%
+    \ifblank{#2}{}{, \parameterlist@params#2\@stop}%
+}
+\def\keyparameters#1{%
+    \par\vskip.5\baselineskip\noindent\textbf{Key Parameters:}\par
+    \parameterlist#1\@stop
+}
+\def\optparameters#1{%
+    \par\vskip.5\baselineskip\noindent\textbf{Optional Parameters:}\par
+    \parameterlist#1\@stop
+}
+\def\DescribeOption#1{%
+    \paragraph*{\texttt{#1}}\label{opt:#1}
+}
+\renewenvironment{quote}{%
+    \list{}{%
+        \rightmargin=\leftmargin
+        \@rightskip=\fill
+        \hyphenpenalty=\@M
+    }%
+    \item\relax
+}{\endlist}
+\def\@xobeysp{\leavevmode\spacefactor1000\relax\space}

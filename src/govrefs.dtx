@@ -1,0 +1,711 @@
+%%
+%% \iffalse filename: specrefs.dtx \fi
+%
+%<*doc>
+\input driver
+\thisis{govrefs}{Government Works}
+
+These references are for legislative and executive materials that do not fall
+into the above categories.
+
+\input docparams
+
+%</doc>
+\hi@newcite\defbill{An bill or resolution of Congress}{%
+    \hi@citetype{#1}\hi@type@other
+    \hi@inlinestatname{#1}%
+    \hi@ifset\hi@kv@congress{}{%
+        \PackageError\hi@pkgname{%
+            Definition of #1 is missing the Congress number%
+        }{Provide the number in the definition}%
+    }%
+    \hi@ifset\hi@kv@status{%
+        \@expand{\find@in{ by }}\hi@kv@status i{\hi@bill@abbrevstatus}{}%
+    }{}%
+    \hi@newcite@form{fc}{#1}{%
+        \hi@inline@never{%
+            \hi@citeguts{%
+                \hi@ifset\hi@kv@name{\@capnext\hi@kv@name, }{}%
+                \hi@kv@number,
+                \expandafter\hi@numtotxt@numeric\expandafter{\hi@kv@congress}~%
+                Cong.%
+                \hi@maybepage{ }%
+            }%
+            \hi@parens@add{\hi@paren@date}{%
+                \hi@ifset\hi@kv@status{as \hi@kv@status, }{}%
+                \hi@kv@year
+            }%
+            \the\hi@param@parens
+        }%
+        \hi@inline@only{%
+            \hi@citeguts{%
+                \hi@ifset\hi@kv@name{\hi@inline@the\hi@kv@name}{\hi@kv@number}%
+            }%
+        }%
+    }%
+    \hi@newcite@form{sc}{#1}{%
+        \hi@inline@never{%
+            \hi@citeguts{%
+                \hi@kv@number
+                \hi@maybepage{, \hi@page@atorsect}%
+            }%
+        }%
+        \hi@inline@only{%
+            \hi@citeguts{%
+                \hi@ifset\hi@kv@inline{\hi@kv@inline}{\hi@kv@number}%
+            }%
+        }%
+    }%
+}
+%<*doc>
+
+\keyparameters{
+    {number}{The serial number of the bill. This is used as-is, and must include
+    any prefix (e.g., ``S. 1234'').}
+    {congress}{The term number of the Congress in which the bill was introduced.
+    This should just be a number, and an ordinal suffix will be added
+    automatically.}
+    {year}{The date of the bill. By default, the date should be the date of
+    introduction. Otherwise, use a date qualifier or the \param{status}
+    parameter as described below.}
+}
+\optparameters{
+    {name, inline}{\statuteparamdesc}
+    {status}{The status of the version of the bill being cited, for example
+    ``introduced,'' ``reported by \meta{committee},'' or ``passed by Senate.''
+    This will be added before the date, so no qualifier should be added before
+    the date if this parameter is used. Text after ``by'' will be abbreviated
+    according to the \texttt{leg} abbreviation scheme (see \sec{abbrevs}).}
+}
+%</doc>
+%<*package>
+%    \begin{macrocode}
+\def\hi@bill@abbrevstatus#1#2{%
+    \def\hi@kv@status{#1 by }%
+    \hi@abbrev@leg{#2}{\appto\hi@kv@status}%
+}
+%    \end{macrocode}
+%</package>
+%
+\hi@newcite\defcongdoc{A Congressional numbered document}{%
+    \hi@citetype{#1}\hi@type@other
+    \hi@newcite@form{fc}{#1}{%
+        \hi@ifset\hi@kv@author{%
+            \noexpand\@gobble{\hi@kv@authln}%
+        }{}% For sorting purposes
+        \hi@citeguts{%
+            \hi@ifset\hi@kv@author{%
+                \noexpand\hi@fn@bookauthor{\hi@kv@author},
+            }{}%
+            \hi@ifset\hi@kv@name{%
+                \noexpand\hi@fn@booktitle{\hi@kv@name},
+            }{}%
+            \noexpand\hi@fn@congdoc{\hi@kv@number}%
+            \hi@ifset\hi@kv@page{%
+                , \@format@page@macro\hi@kv@page
+            }{}%
+            \hi@maybepage{, \hi@page@atorsect}%
+        }%
+        \hi@parens@add{\hi@paren@date}{\hi@kv@year}%
+        \the\hi@param@parens
+    }%
+    \protected@edef\reserved@a{%
+        \noexpand\hi@fn@congdoc{\hi@kv@number}%
+    }%
+    \@expand{\hi@supra@form{#1}}\reserved@a i%
+    \expandafter\hi@congdoc@expandnumber\expandafter{\hi@kv@number}%
+    \hi@newcite@form{lc}{#1}{%
+        \hi@ifset\hi@kv@author{%
+            \noexpand\@gobble{\hi@kv@authln}%
+        }{}% For sorting purposes
+        \hi@citeguts{%
+            \hi@ifset\hi@kv@author{%
+                \noexpand\hi@fn@bookauthor{\hi@kv@author},
+            }{}%
+            \hi@ifset\hi@kv@name{%
+                \noexpand\hi@fn@booktitle{\hi@kv@name},
+            }{}%
+            \noexpand\hi@fn@congdoc{\reserved@a}%
+            \hi@ifset\hi@kv@page{%
+                , \@format@page@macro\hi@kv@page
+            }{}%
+            \hi@maybepage{, \hi@page@atorsect}%
+        }%
+        \hi@parens@add{\hi@paren@date}{\hi@kv@year}%
+        \the\hi@param@parens
+    }%
+}
+%<*doc>
+This is for reports, and documents. Unnumbered documents should use
+\rtype{congprint}.
+
+\keyparameters{
+    {number}{The document number. This should include the abbreviated
+    description for the number (e.g., ``H.R. Rep. No.''). The description must
+    match a predefined list of permitted descriptions, and those descriptions
+    will be de-abbreviated to make inline citation forms.}
+    {year}{The date of the report.}
+}
+\optparameters{
+    {author, name}{The author(s) and title of the document.}
+    {page}{A pin cite that will be included in the full citation. This might be
+    used, for example, for multipart reports (i.e., \texttt{page} could be
+    \texttt{part~2}).}
+}
+%</doc>
+%
+%<*package>
+%    \begin{macrocode}
+\def\hi@congdoc@expandnumber#1{%
+    \@expand{\find@try\find@start}\hi@congdoc@list i{#1}{%
+        \PackageError\hi@pkgname{%
+            #1 is not a valid congressional document number
+        }{Use a valid name such as H.R. Rep. No. or S. Doc. No.}%
+    }%
+}
+\def\hi@congdoc@do#1#2{%
+    \def\reserved@a{#1#2}%
+}
+\def\hi@congdoc@list{}
+\def\hi@congdoc@add#1#2{%
+    \make@find@start{H.R. #1 No. }
+    \make@find@start{S. #1 No. }
+    \addto@macro\hi@congdoc@list{%
+        {H.R. #1 No. }{\hi@congdoc@do{House #2 No. }}%
+        {S. #1 No. }{\hi@congdoc@do{Senate #2 No. }}%
+    }%
+}
+\hi@congdoc@add{Rep.}{Report}
+\hi@congdoc@add{Conf. Rep.}{Conference Report}
+\hi@congdoc@add{Doc.}{Document}
+\hi@congdoc@add{Exec. Doc.}{Executive Document}
+\hi@congdoc@add{Misc. Doc.}{Miscellaneous Document}
+%    \end{macrocode}
+%</package>
+\hi@newcite\defcongprint{A Congressional unnumbered document}{%
+    \hi@citetype{#1}\hi@type@other
+    \hi@newcite@form{fc}{#1}{%
+        \hi@ifset\hi@kv@author{%
+            \noexpand\@gobble{\hi@kv@authln}%
+        }{}% For sorting purposes
+        \hi@citeguts{%
+            \hi@ifset\hi@kv@author{%
+                \noexpand\hi@fn@bookauthor{\hi@kv@author},
+            }{%
+                \hi@ifset\hi@kv@committee{%
+                    \hi@noexpand\hi@fn@bookauthor{%
+                        Staff of \hi@kv@committee,
+                    }%
+                }{}%
+            }%
+            \noexpand\hi@fn@bookauthor{%
+                \expandafter\hi@numtotxt@numeric\expandafter{\hi@kv@congress}%
+                ~Cong.,
+            },
+            \noexpand\hi@fn@booktitle{\hi@kv@name}%
+            \hi@maybepage{\hi@page@space\hi@kv@name}%
+        }%
+        \hi@parens@add\hi@paren@date{Comm. Print \hi@kv@year}%
+        \the\hi@param@parens
+    }%
+    \protected@edef\reserved@a{%
+        \noexpand\hi@fn@booktitle{\hi@kv@name}%
+    }%
+    \@expand{\hi@supra@form{#1}}\reserved@a i%
+}
+%<*doc>
+This is essentially a more structured citation to a book.
+
+\keyparameters{
+    {author}{Author(s) of the report or document.}
+    {committee}{If no author is given but this parameter is, then the author
+    becomes ``Staff of \meta{committee}.'' The committee name is abbreviated.}
+    {name}{The title of the document.}
+    {congress}{The term number of the Congress in which the bill was introduced.
+    This should just be a number, and an ordinal suffix will be added
+    automatically.}
+    {year}{The year of publication.}
+}
+%</doc>
+%
+\hi@newcite\defcongrec{A Congressional Record debate}{%
+    \expandafter\hi@congrec@testpg\hi@kv@page\@stop
+    \hi@book@pubparen
+    \hi@citetype{#1}\hi@type@other
+    \hi@newcite@form{fc}{#1}{%
+        \hi@citeguts{%
+            \hi@usevol{\hi@ifset\hi@kv@vol{\hi@kv@vol\space}{}}%
+            \noexpand\hi@fn@congdoc{\hi@kv@rep}\space
+            \hi@ifpage{\hi@maybepage{}}{\@format@page@macro\hi@kv@page}%
+        }%
+        \hi@parens@add\hi@paren@date{%
+            \hi@book@paren
+            \hi@pstruct@use{year}%
+        }%
+        \the\hi@param@parens
+    }%
+    \hi@newcite@form{sc}{#1}{%
+        \hi@citeguts{%
+            \hi@kv@vol\space
+            \hi@kv@rep\space at\space
+            \hi@ifpage{\hi@maybepage{}}{\hi@kv@page}%
+        }%
+    }%
+}
+%<*doc>
+This supports both the daily edition and the permanent edition, determined based
+on the page number. Note also the \rtype{cr} reference below.
+
+\keyparameters{
+    {vol}{The volume number.}
+    {rep}{The name of the record, typically ``Cong. Rec.''}
+    {page}{The page number where the relevant debate begins. For the daily
+    edition, include the letter prefix in the page number (preceded with ``!''
+    to ensure it is not treated as a division name, see \sec{pages-forms}). The
+    phrase ``daily ed.''\ will automatically be added to the date parenthetical
+    in this case.}
+    {year}{The date of the debate or of publication of the volume. It typically
+    is a full date for the daily edition, and a year for the permanent edition.}
+}
+\bookparenparameters\ This is primarily useful for volume 1 of the \emph{Annals
+of Congress}.
+
+%</doc>
+%
+%<*package>
+%
+% If the page number in a Congressional Record citation 
+%    \begin{macrocode}
+\def\hi@congrec@testpg#1#2\@stop{%
+    \@ifdigit{#1}{}{%
+        \def\hi@kv@edition{daily ed.}%
+    }%
+}
+%</package>
+%<*doc>
+
+\subsection{\texttt{cr}: The Congressional Record}
+
+\label{rtype:cr}
+
+As an alternative to \rtype{congrec} above, the predefined reference |cr| can be
+used to cite arbitrary pages in the \emph{Congressional Record} permanent
+edition. The date should be given as the optional argument:
+\begin{quote}
+|\sentence{see 123 cr[1977] 17147}.|
+Produces: \emph{See} 123 \textsc{Cong.\ Rec.}\ 17147 (1977).
+\end{quote}
+
+%</doc>
+%<*package>
+%    \begin{macrocode}
+\def\lc@cr{Congressional Record}
+\def\tcpg@cr{} % Note: not sure if the volumes will show up
+\def\fc@cr{%
+    \hi@citeguts{%
+        \@this@vol\space
+        \hi@fn@congdoc{Cong. Rec.}\space
+        \@this@page
+    }%
+    \ifx\@this@opt\relax\else
+        \hi@parens@add\hi@paren@date{\@expandarg\hi@date@parse\@this@opt}%
+    \fi
+}
+\hi@citetype{cr}\hi@type@other
+%    \end{macrocode}
+%</package>
+\hi@newcite\defhearing{A hearing in Congress}{%
+    \hi@citetype{#1}\hi@type@other
+    \hi@ifset\hi@kv@type{}{\def\hi@kv@type{Hearing}}%
+    \hi@newcite@form{fc}{#1}{%
+        \hi@citeguts{%
+            \noexpand\hi@usevol{}%
+            \noexpand\hi@fn@hearing{%
+                \hi@ifset\hi@kv@name{\hi@kv@name: }{}%
+                \hi@kv@type\space
+                \hi@ifset\hi@kv@number{on \hi@kv@number\space}{}%
+                Before the \hi@kv@committee
+            }\hi@font@comma
+            \expandafter\hi@numtotxt@numeric\expandafter{\hi@kv@congress}~Cong.%
+            \noexpand\@hi@dottrue
+            \hi@maybepage{ }%
+        }%
+        \hi@parens@add{\hi@paren@date}{\hi@kv@year}%
+        \the\hi@param@parens
+    }%
+    \protected@edef\reserved@a{%
+        \noexpand\hi@fn@hearing{%
+            \hi@ifset\hi@kv@name{%
+                \hi@kv@name
+            }{%
+                Hearing\space
+                \hi@ifset\hi@kv@bill{%
+                    on \hi@kv@bill
+                }{%
+                    Before the \hi@kv@committee
+                }%
+            }%
+        }%
+    }%
+    \@expand{\hi@supra@form{#1}}\reserved@a i%
+}
+%<*doc>
+These should be hearings where the Goverment Printing Office has printed a
+transcript of the proceedings. Use \rtype{testimony} to cite separately
+published testimony in a hearing.
+
+\keyparameters{
+    {committee}{The committee before which the hearing was held.}
+    {congress}{The term number of the Congress in which the bill was introduced.
+    This should just be a number, and an ordinal suffix will be added
+    automatically.}
+}
+\optparameters{
+    {type}{The nature of the proceeding, default ``Hearing.''}
+    {name}{A title to the hearing, if given.}
+    {number}{A bill number (same as the \rtype{bill} reference type), to be
+    given if the hearing deals with a specific bill.}
+}
+%</doc>
+%
+%<*package>
+%    \begin{macrocode}
+\make@find@in{, }
+%    \end{macrocode}
+%</package>
+\hi@newcite\defprespaper{A Presidential Paper}{%
+    \hi@citetype{#1}\hi@type@other
+    \hi@newcite@form{fc}{#1}{%
+        \hi@citeguts{%
+            \hi@kv@name, % Title
+            \hi@kv@vol\space % Volume
+            \hi@kv@rep\space % Title
+            \hi@kv@page % Page number
+            \hi@maybepage{, }%
+        }%
+        \hi@parens@add{\hi@paren@date}{\hi@kv@year}%
+        \the\hi@param@parens
+    }%
+}
+%<*doc>
+
+\keyparameters{
+    {name}{The title of the paper.}
+    {vol, rep, page, cite}{Citation information for the paper. Typically
+    \param{rep} is ``Pub. Papers'' or ``Weekly Comp.~Pres.~Doc.''}
+    {year}{The date of the document.}
+}
+%</doc>
+%
+\hi@newcite\defdcpd{Daily Compilation of Presidential Documents}{
+    \hi@citetype{#1}\hi@type@other
+    \hi@newcite@form{fc}{#1}{%
+        \hi@citeguts{%
+            \hi@kv@name,
+            \hi@fn@jrntitle{Daily Comp. Pres. Doc.} No. \hi@kv@number
+            \hi@maybepage{, at }%
+        }%
+        \hi@parens@add{\hi@paren@date}{\hi@kv@year}%
+        \the\hi@param@parens
+    }%
+    \hi@newcite@form{sc}{#1}{%
+        \hi@citeguts{%
+            \hi@kv@name,
+            \hi@fn@jrntitle{Daily Comp. Pres. Doc.} No. \hi@kv@number
+            \hi@maybepage{, at }%
+        }%
+    }%
+}
+%<*doc>
+Because documents in the DCPD are numbered rather than consecutively paginated,
+a different reference type is required.
+
+\keyparameters{
+    {name}{The name of the document.}
+    {number}{The number of the document.}
+    {year}{The date of the document.}
+}
+%</doc>
+%
+\hi@newcite\defpatent{A U.S. patent}{%
+    \hi@citetype{#1}\hi@type@other
+    \let\reserved@a\@empty
+    \@expand{\find@start{D}}\hi@kv@number i{%
+        \def\reserved@a{D}\def\hi@kv@number
+    }{}%
+    \ifnum\hi@kv@number<\@m
+        \let\hi@kv@inline\hi@kv@number
+    \else
+        \@tempcnta\hi@kv@number\relax
+        \divide\@tempcnta\@m \multiply\@tempcnta-\@m
+        \advance\@tempcnta\hi@kv@number\relax
+        \def\hi@kv@inline{'\the\@tempcnta}%
+    \fi
+    \edef\hi@kv@number{%
+        \expandafter\hi@numtotxt@comma\expandafter{\hi@kv@number}%
+    }%
+    %
+    % So long as the date contains some prefix, I don't really care if it's
+    % ``issued'' or ``filed''.
+    %
+    \@expand{%
+        \find@start@cs{/hi@fn@dateprefix}%
+    }{\hi@kv@year}{i}{\@gobble}{%
+        \PackageWarning\hi@pkgname{%
+            For patent citation #1, the date must include a\MessageBreak
+            qualifier such as `filed' or `issued'.\MessageBreak
+            This occurred%
+        }%
+    }%
+    \hi@newcite@form{fc}{#1}{%
+        \hi@citeguts{%
+            \hi@ifset\hi@kv@name{\@capnext\hi@kv@name, }\@empty
+            U.S. Patent No. \reserved@a\hi@kv@number
+            \hi@maybepage{ }%
+        }%
+        \hi@inline@never{%
+            \hi@parens@add{\hi@paren@date}{\hi@kv@year}%
+            \the\hi@param@parens
+        }%
+    }%
+    \hi@newcite@form{sc}{#1}{%
+        \hi@citeguts{%
+            \noexpand\hi@inline@the
+            \hi@kv@inline\space Patent%
+            \hi@maybepage{ }%
+        }%
+    }%
+}
+%<*doc>
+
+\keyparameters{
+    {number}{The patent number. It should be entered as an unpunctuated raw
+    number, preceded by ``D'' for design patents. Commas will be added to the
+    number, and the last three digits will be used for the short form.}
+    {year}{The date of the patent. The date \emph{must} contain a qualifier,
+    likely ``issued'' or ``filed.''}
+    {issueyear}{Equivalent to setting \param{year} to
+    \textsc{issued~}\meta{issueyear}.}
+}
+\optparameters{
+    {name}{The title of the patent, if relevant.}
+}
+%</doc>
+%
+%<*package>
+%    \begin{macrocode}
+\make@find@start{D}
+\make@find@start@cs{/hi@fn@dateprefix}{\hi@fn@dateprefix}
+%    \end{macrocode}
+%</package>
+\hi@newcite\defgovdoc{A government document}{%
+    \hi@ifset\hi@kv@court{}{%
+        \hi@ifset\hi@kv@author{\let\hi@kv@court\hi@kv@author}{}%
+    }%
+    \hi@cite@history
+    \hi@citetype{#1}\hi@type@other
+    \hi@newcite@form{fc}{#1}{%
+        \hi@citeguts{%
+            \hi@ifset\hi@kv@number{%
+                \@capnext\hi@kv@number,
+            }{}%
+            \hi@ifset\hi@kv@name{%
+                \@capnext\hi@kv@name
+            }{}%
+            \hi@ifset\hi@kv@rep{%
+                ,
+                \hi@ifset\hi@kv@vol{\hi@kv@vol\space}{}%
+                \hi@kv@rep\space \hi@kv@page
+                \hi@maybepage{, }%
+            }{%
+                \hi@ifset\hi@kv@docket{%
+                    , \hi@kv@docket
+                    \hi@maybepage{, }%
+                }{%
+                    \hi@maybepage{ }%
+                }%
+            }%
+        }%
+        \hi@case@dateparen{%
+            \hi@parens@add\hi@paren@date{%
+                \hi@param@optspc\hi@kv@court\hi@kv@year
+            }%
+        }y%
+        \the\hi@param@parens
+    }
+    % TODO think about the general case for the short form
+    \hi@ifset\hi@kv@rep{%
+        \hi@newcite@form{sc}{#1}{%
+            \hi@citeguts{%
+                \hi@ifset\hi@kv@vol{\hi@kv@vol\space}{}%
+                \hi@kv@rep
+                \hi@pageordefault{ at }{ \hi@kv@page}%
+            }%
+        }%
+    }{%
+        \@expand{\hi@supra@form{#1}}\hi@kv@name i%
+    }%
+}
+%<*doc>
+This is a generic reference type amenable primarily to two types of government
+documents. First, it can be used for \emph{Federal Register} notices and other
+government documents published in agency reporters or compilations. In this
+case, the abbreviated reporter and such information should be included as
+parameters. In most cases, this produces output not unlike \rtype{admincase},
+the main difference that the document title has no special font applied to it
+(\rtype{admincase} would apply whatever font is applied to case names).
+
+Second, this reference type can be used without the reporter parameter, to cite
+short government papers or promulgations. The traditional route is to cite such
+documents as \rtype{book} references, but for one-page fact sheets or brief
+policy statements this gives too much apparent authoritative weight. However,
+the agency or institution name is placed in the date parenthetical, consistent
+with other government or court documents, thereby emphasizing the governmental
+origin of the document.
+
+\keyparameters{
+    {name}{The title of the document.}
+    {author, instauth, agency, court}{The name of the agency or institution
+    issuing the document. It should be abbreviated according to the
+    \texttt{name} scheme (see \sec{abbrevs}). If \param{instauth} or
+    \param{agency} are used, this will be done automatically.}
+    {vol, rep, page, cite}{The citation locator information for the document, if
+    the document was published in a reporter. The reporter should be abbreviated
+    when entered.}
+    {docket}{If citation locator information is not entered, a docket number may
+    be given to aid in identifying the document.}
+    {year}{The date of the reference.}
+}
+\optparameters{
+    {prior, subsequent}{Procedural history associated with the document, as
+    described in \sec{caseref-history}.}
+    {number}{A serial number for the document, placed before the document
+    title.}
+}
+%</doc>
+%
+\hi@alias@cite\deffedreg\defgovdoc
+\hi@newcite\deftestimony{Testimony in a congressional hearing}{%
+    \hi@citetype{#1}\hi@type@other
+    \hi@ifset\hi@kv@type{}{\def\hi@kv@type{Testimony}}%
+    \hi@ifset\hi@kv@citation{}{%
+        \hi@ifset\hi@kv@in{\let\hi@kv@citation\hi@kv@in}{%
+            \PackageError\hi@pkgname{%
+                \string\deftestimony\space requires parameter `citation'%
+            }{Add the parameter}%
+        }%
+    }%
+    \hi@newcite@form{fc}{#1}{%
+        \hi@citeguts{%
+            \hi@kv@type\space of
+            \hi@ifset\hi@kv@author{\hi@kv@author@sortable}{}%
+            \hi@maybepage{ \hi@page@atorsect}%
+            ,\space
+            \noexpand\clause{\hi@kv@citation}\noexpand\hi@clause@endflag
+        }
+        \the\hi@param@parens
+    }%
+    \@expand{\hi@supra@form{#1}}\hi@kv@author i%
+}
+%<*doc>
+Many congressional hearings are not published today, given the availability of
+video recordings. As a result, to cite a witness's testimony at a hearing, it is
+often necessary to use the witness's own copy, usually made available online.
+There is no well-defined way to cite this testimony. One option, commonly used,
+is to cite the privately published testimony as a \rtype{hearing} reference.
+This is plainly wrong and confusing, especially if multiple witnesses'
+testimonies are to be cited. Another way would be as a \rtype{book} reference,
+but that obscures the testimony's legislative involvement. It is also not clear
+what the title should be or where the congressional subcommittee should be
+identified when taking this approach.
+
+This package defines a new reference type for these privately published
+testimony documents. It uses a \rtype{citecontainer}-like approach, with the
+hearing in which the testimony was delivered being defined separately as a
+reference to be used as part of the \rtype{testimony} definition. This has the
+benefit that, when two different witnesses' testimonies are cited, the hearing
+is cited with the short form for the second witness cited.
+
+
+\keyparameters{
+    {citation, in}{The \rtype{hearing} reference name or anonymous reference
+    definition.}
+    {author}{The witness testifying.}
+}
+\optparameters{
+    {type}{The nature of the testimony, by default ``Testimony.''}
+}
+%</doc>
+%
+\hi@newcite\defcomments{Comments on an agency proceeding}{%
+    \hi@citetype{#1}\hi@type@other
+    \hi@ifset\hi@kv@type{}{\def\hi@kv@type{Comments}}%
+    \hi@newcite@form{fc}{#1}{%
+        \hi@citeguts{%
+            \hi@ifset\hi@kv@author{\hi@kv@author@sortable, }{}%
+            \hi@kv@type\space of
+            \hi@kv@commenter
+            \hi@maybepage{ }%
+            ,\space
+            \noexpand\hi@fn@arttitle{%
+                \hi@kv@name
+            }%
+            \hi@ifset\hi@kv@rep{%
+                , \hi@kv@vol\space \hi@kv@rep\space \hi@kv@page
+            }{}%`
+        }%
+        \hi@parens@add{\hi@paren@date}{\hi@kv@court\space\hi@kv@year}%
+        \the\hi@param@parens
+    }%
+    \protected@edef\reserved@a{%
+        \noexpand\hi@fn@arttitle{Comments on \hi@kv@name}%
+    }%
+    \@expand{\hi@supra@form{#1}}\reserved@a i%
+}
+%<*doc>
+This is a mildly deprecated reference type for comments filed in an agency
+proceeding. (It remains here because it is used in the package author's CV\@.)
+The better option is actually to use \rtype{casedoc}, defining the agency
+proceeding in which the comments were filed as a separate reference
+(good choices would be \rtype{admincase} and \rtype{govdoc}). In that case, the
+title of the document would be given as ``Comments of \meta{party}.''
+
+\keyparameters{
+    {commenter}{Name of the entity filing the comments.}
+    {name}{The title of the proceeding in which the comments were filed.}
+    {vol, rep, page, cite}{Identifier information for the proceeding (typically
+    a \emph{Federal Register} citation if the comments were filed pursuant to
+    such a notice).}
+    {year}{The date of the comments.}
+}
+\optparameters{
+    {author}{The author of the comment, usually the signatory attorney. This
+    probably should not be included in most cases, in the same way that the
+    signing attorney is not identified for legal briefs in \rtype{casedoc}.}
+}
+%</doc>
+%
+\hi@newcite\defsecfiling{An SEC filing}{%
+    \hi@citetype{#1}\hi@type@other
+    \hi@newcite@form{fc}{#1}{%
+        \hi@citeguts{%
+            \hi@ifset\hi@kv@author{\hi@kv@author@sortable, }{}%
+            \hi@kv@name\space
+            (Form \hi@kv@number)%
+            \hi@maybepage{, at }%
+        }%
+        \hi@parens@add{\hi@paren@date}{\hi@kv@year}%
+        \the\hi@param@parens
+    }%
+}
+%<*doc>
+
+\keyparameters{
+    {instauth}{The company filing the report.}
+    {name}{The name of the report, typically along the lines of ``Annual
+    Report.''}
+    {number}{The number of the form filed (e.g., ``10-K'').}
+    {year}{The date of filing.}
+}
+%</doc>
+%

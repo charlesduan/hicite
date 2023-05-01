@@ -1,0 +1,64 @@
+%%
+%% \iffalse filename: intro.dtx \fi
+%%
+%<*doc>
+
+\documentclass{ltxdoc}
+
+\usepackage{hidoc}
+\EnableCrossrefs
+\CodelineIndex
+\RecordChanges
+
+\def\sec#1{section \ref{s:#1}}
+\def\pt#1{Part \ref{p:#1}}
+\def\partname{Part}
+
+
+\title{\emph{Hereinafter}: A Legal Citation Program}
+\author{Charles Duan}
+
+
+\begin{document}
+\maketitle
+\tableofcontents
+
+\makeatletter
+
+
+
+
+
+%</doc>
+%<*package>
+\ProvidesPackage{hicite}[2022/07/20 Legal citation formatting and management]
+\RequirePackage{etoolbox,strings,sortlist,keyval,abbrev}
+\def\hi@pkgname{hicite}
+%</package>
+%<*test>
+\documentclass{article}
+\usepackage[margin=1in]{geometry}
+\usepackage[review]{hicite}
+\usepackage{unittest}
+
+\makeatletter
+\def\hi@newparam#1#2{}
+\def\hi@newparam@noval#1#2{}
+\def\hi@defparam#1#2#3{}
+\def\hi@defparam@noval#1#2#3{}
+\def\hi@param@alias#1#2{}
+\def\hi@newcite#1#2#3{}
+\def\hi@alias@cite#1#2{}
+
+
+\title{Hicite Unit Tests}
+\author{Charles Duan}
+
+\begin{document}
+\maketitle
+
+\raggedright
+
+
+
+%</test>

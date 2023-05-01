@@ -1,0 +1,479 @@
+%%
+%% \iffalse filename: draw.dtx \fi
+%%
+%<*doc>
+\input driver
+\thisis{draw}{General Formatting}
+
+After parsing a citation string, the package must produce formatted text for
+each of the citation items in the string. This section describes the overall
+process of joining together citations, choosing among several possible citation
+forms for a given reference, and setting up any other requisite information for
+proper citation display.
+
+An important element of citation formatting is keeping track of ``state,''
+namely information about references cited so far that is needed for proper
+formatting of later citations in the document. As a simple example, it is
+necessary to keep track of the previously cited reference so that if the next
+reference is the same, text such as \emph{id.}\ can be written. This feature of
+legal citation is discussed in \sec{state}.
+
+%</doc>
+%<*package>
+%
+% To implement information capture from a citation data structure, recall that
+% the data structure itself uses macros |\hi@pse@cite|, |\hi@pse@page|, and so
+% on that delimit the components of citation items. We simply need to define
+% macros for each of those delimiters, thereby setting up all the necessary
+% information.
+%
+% \DescribeMacro\hi@draw@citation
+% This macro is the general entry point for user citation commands: It
+% sets up the overall citation environment, invokes the citation string parser
+% to obtain a data structure of parsed citation information, and then iterates
+% over that data structure to produce formatted text. \#1 and \#2 are hooks that
+% user citation commands can use to set up the citation environment, and \#3 is
+% the data structure received from |\hi@pse@parse|.
+%
+%    \begin{macrocode}
+\def\hi@draw@citation#1#2#3{%
+    %
+    % Set up the environment
+    \ifnum\hi@citelevel>\z@ \begingroup\fi
+    \advance\hi@citelevel\@ne
+    \hi@state@startstring
+    \@hi@dotfalse
+    \hi@signals@init
+    %
+    % The TOA sometimes needs to be in vertical mode.
+    \if@hi@in@toa\else \leavevmode \fi
+    %
+    % Allow pre-citation hooks from the caller.
+    #1%
+    %
+    % Execute the citation.
+    #3%
+    %
+    % Execute post-citation hooks.
+    #2%
+    %
+    % Clean up
+    \hi@state@endstring
+    \advance\hi@citelevel\m@ne
+    \ifnum\hi@citelevel>\z@
+        \if@hi@dot \aftergroup\@hi@dottrue \fi
+        \endgroup
+    \fi
+}
+%    \end{macrocode}
+%
+%
+% Counter for citation nesting level. This allows for citations inside citations
+% (e.g., in parentheticals).
+%    \begin{macrocode}
+\newcount\hi@citelevel
+%    \end{macrocode}
+%
+%
+%</package>
+%<*doc>
+
+
+\subsection{Drawing a Citation Item}
+
+The following tasks must be performed when drawing each citation item within a
+citation string. While this list of tasks is largely of importance only to
+software implementers, it may be of interest to some cite-checkers to see the
+full list of considerations that go into formatting a single citation item.
+
+\begin{enumerate}
+\item Citation state must be updated; see \sec{state}.
+\item Each citation item maintains a list of parentheticals, which come from
+either the reference definition or the user's citation string content.
+\item The citation item's components must be collected. Some references are able
+to modify the components afterwards.
+\item The punctuation that precedes the citation item must be determined,
+according to the previous and current signals.
+\item The short, long, or \emph{id.}\ form of the citation must be chosen. That
+choice must be accounted for in computations for future citations.
+\item If the citation is in a footnote, then how the citation affects this and
+other footnotes must be considered. See the discussion in \sec{state}.
+\item The citation must be recorded for indexing in a Table of Authorities.
+\item If the citation text ends with a period, then any period following the
+item must be suppressed. This is obvious to human editors but surprisingly
+difficult for computers.
+\item For a sentence-style citation, the first letter of each sentence must be
+capitalized. That could be the signal or a part of the citation text itself.
+\end{enumerate}
+
+%</doc>
+%<*package>
+%
+%
+% This macro is run for every citation item inside a citation string. It
+% performs the following tasks.
+%
+%    \begin{macrocode}
+\def\hi@pse@cite#1{%
+%    \end{macrocode}
+%
+%   First, it initializes the citation state and parentheticals list for this
+%   citation.
+%
+%
+%    \begin{macrocode}
+    \hi@state@startelt % Resets all the \@this@[x] macros to \relax
+    \hi@parens@reset
+%    \end{macrocode}
+%
+% Next, it runs all the |\hi@pse@|\meta{component} macros to collect necessary
+% citation information. Furthermore, if this citation has |\mc@|\meta{cite}
+% defined, then execute it at this point to allow the desired modifications to
+% the state variables.
+%
+%    \begin{macrocode}
+    #1%
+    \@ifundefined{mc@\@this@case}{}{\@nameuse{mc@\@this@case}}%
+%    \end{macrocode}
+%
+% Next it chooses the citation form to use according to |\hi@draw@choosecite|,
+% saving the desired form to a temporary macro.
+%
+%    \begin{macrocode}
+    \hi@draw@choosecite{\def\hi@draw@this@type}%
+%    \end{macrocode}
+%
+% The citation's effect on footnotes is next considered. See the discussion on
+% citation counts in footnotes. Also the citation must be added to the Table of
+% Authorities.
+%
+%    \begin{macrocode}
+    \@testcase
+        \ifx\hi@draw@this@type\hi@draw@idname\fi{\hi@note@advance@id}%
+        \if@hi@name\fi{\hi@note@advance}%
+        \default{\hi@note@advance@id}%
+    \hi@draw@addtotoa
+%    \end{macrocode}
+%
+% Finally, the preceding punctuation and the citation itself can be produced.
+%
+%    \begin{macrocode}
+    \hi@draw@this@punct
+    \@test\ifx\hi@draw@this@punct\@empty\fi{}{\hi@deferred@note@enditem\space}%
+    \@hi@dotfalse
+    \hi@draw@this@fmtsig
+    \hi@draw@cite
+%    \end{macrocode}
+%
+% After the citation text is produced, we record the use of the reference.
+% The recordation seems to need to come after producing the text because some
+% citation macros (inline statutes) call |\hi@record@choose| to figure out which
+% form to use. We also update the state variables as appropriate.
+%
+%    \begin{macrocode}
+    \hi@record@cite\@this@case
+    \hi@state@endelt
+%    \end{macrocode}
+%
+% Next, the parentheticals are displayed. They must be displayed \emph{after}
+% state variables are updated, because nested citations within the
+% parentheticals ought to take into account the main citation. For example, a
+% citation of \texttt{case at 100 (explaining: case at 150)} should be typeset
+% with an \emph{id.}\ form inside the parenthetical.
+%
+%    \begin{macrocode}
+    \hi@parens@show
+    \hi@nocap
+    \@hi@nametrue
+}
+%    \end{macrocode}
+%
+% Adds the citation to the Table of Authorities.
+%    \begin{macrocode}
+\def\hi@draw@addtotoa{%
+    \ifx\@this@page\relax
+        \hi@addtotoa{\@this@case}{}%
+    \else
+        \hi@addtotoa{\@this@case}{\@this@orig@page}%
+    \fi
+}
+%    \end{macrocode}
+%
+% Executes the appropriate drawing citation macro. The type has been set already
+% in the macro |\hi@draw@this@type|.
+%
+%    \begin{macrocode}
+\def\hi@draw@cite{%
+    \@test\ifx\hi@draw@this@type\hi@draw@idname\fi{%
+        \@ifundefined{\hi@draw@this@type @\@this@case}{%
+            \hi@draw@id
+        }{%
+            \@nameuse{\hi@draw@this@type @\@this@case}%
+        }%
+    }{%
+        \@ifundefined{\hi@draw@this@type @\@this@case}{%
+            \hi@draw@cite@undefined
+        }{%
+            \@nameuse{\hi@draw@this@type @\@this@case}%
+        }%
+    }%
+}
+%    \end{macrocode}
+%
+%    If there is no macro for the current reference and citation type, then this
+%    macro is run by default.
+%
+%    \begin{macrocode}
+\def\hi@draw@cite@undefined{%
+    \expandafter\hi@missing@cite\expandafter{\@this@case}%
+    \textbf{\hi@usevol{}\@this@case\hi@maybepage{ at }}\hi@nocap
+}
+%    \end{macrocode}
+%
+% Draws \emph{id.}\ citations, which consist of a volume number, keyword
+% (defined as |\hi@id|), and page number.
+%
+%    \begin{macrocode}
+\def\hi@id{\hi@fn@latin{id.}\protect\@hi@dottrue}%
+\def\hi@draw@idname{idc}
+\def\hi@draw@id{%
+    \hi@citeguts{%
+        \@testcase
+            \ifx\@this@vol\relax\fi{}%
+            \ifx\@this@vol\@last@vol\fi{}%
+            \default{\@this@vol\hi@nocap\space}%
+        \hi@id
+        \@test\ifx\@this@page\@last@page\fi{}{%
+            \hi@pageordefault{%
+                ~\hi@page@atorsect
+            }{}%
+        }%
+    }%
+}
+%    \end{macrocode}
+%
+%
+%
+% \paragraph{Reading Citation Item Components} These are macros corresponding to
+% each of the components from the citation state machine.
+%
+% Reads the optional argument, setting the appropriate state variable.
+%
+%    \begin{macrocode}
+\def\hi@pse@opt#1{\def\@this@opt{#1}}
+%    \end{macrocode}
+%
+% Reads the signal, volume number, and reference name, setting state variables
+% as appropriate.
+%
+%    \begin{macrocode}
+\def\hi@pse@svr#1{\hi@pse@sigvolref{#1}\hi@draw@sigvolref}
+\def\hi@draw@sigvolref#1#2#3{%
+    %
+    % Set the next signal, and receive the punctuation and formatted signal to
+    % draw in the two given macros.
+    %
+    \hi@signals@set{#1}{\@twodef\hi@draw@this@punct\hi@draw@this@fmtsig}%
+    %
+    % Set the remaining state variables.
+    \ifstrempty{#2}{}{\def\@this@vol{#2}}%
+    \def\@this@case{#3}%
+}
+%    \end{macrocode}
+%
+%
+% Reads and formats the page number per |\@this@case| (which should already be
+% set).
+%
+%    \begin{macrocode}
+\def\hi@pse@page#1{%
+    \def\@this@orig@page{#1}%
+    \@ifundefined{pc@\@this@case}{%
+        \protected@edef\@this@page{\@format@pageno{#1}}%
+    }{%
+        \@nameuse{pc@\@this@case}{#1}%
+    }%
+}
+%    \end{macrocode}
+%
+%
+% Processes a parenthetical in a citation item. See the \sec{parens}.
+%
+%    \begin{macrocode}
+\def\hi@pse@paren#1{%
+    \hi@paren@parse{#1}%
+}
+%    \end{macrocode}
+%
+%
+%</package>
+%<*doc>
+
+\subsection{Choosing the Citation Form}
+
+When formatting a citation item, each reference can have up to four citation
+forms: a full citation, a table of authorities form, a short citation, and an
+\emph{id.}\ citation. Upon each citation to the reference, it is necessary to
+choose among these three forms. The following rules inform that choice.
+
+\begin{itemize}
+\item An \emph{id.}\ citation is appropriate only when the reference being cited
+matches the last reference, recorded as described in \sec{state}.
+In any event, it is never appropriate in an inline citation.
+
+\item The table of authorities form is chosen for non-nested citations inside a
+table of authorities. If no table of authorities form is present for a given
+reference, the full citation form is used instead. For nested citations inside a
+table of authorities, the full citation is always used.
+
+\item In other cases, a complex algorithm must be applied to choose between the
+short and full citation forms. \unskip\footnote{As described in \sec{short},
+the algorithm is complex because it depends on where previous citations were
+used: A full citation in a footnote, for example, does not justify a short form
+in main body text.} This algorithm is described in \sec{short}.
+In any event, if no short citation form is defined for a reference, the full
+citation form is used.
+\end{itemize}
+
+In addition to choosing a citation form, the package sometimes allows a
+``nameless'' variant of a citation form. For example, a citation to a case may
+omit the name of the case if the name was previously used in the text. In
+general, a nameless citation to a reference is permitted if the previous inline
+citation was to the same reference. There are some nuances to what constitutes
+the ``previous'' citation, as described in \sec{state}.
+
+
+%</doc>
+%<*package>
+% 
+% Chooses among the citation forms. \#1 is a callback that is given the prefix
+% of the chosen citation form: |fc| for full citations, |lc| for table of
+% authorities forms, |sc| for short citations, and |idc| for \emph{id.}\ forms.
+% Also sets |\hi@noname| as appropriate.
+%
+%    \begin{macrocode}
+\def\hi@draw@choosecite#1{%
+    \@testcase
+        \if@hi@inline\fi{\hi@draw@choosecite@{#1}}%
+        \ifx\@last@case\@this@case\fi{#1{idc}}%
+        \default{%
+            \ifx\@last@inline\@this@case \hi@noname \fi
+            \hi@draw@choosecite@{#1}%
+        }%
+}
+%    \end{macrocode}
+%
+% Chooses the citation form when it is certain not to be \emph{id.} This macro
+% distinguishes the table of authorities, and otherwise defers to
+% |\hi@record@choose|.
+%
+%    \begin{macrocode}
+\def\hi@draw@choosecite@#1{%
+    \@test\if@hi@in@toa\fi{%
+        \@test \ifnum\hi@citelevel=\@ne\fi{%
+            \hi@draw@choosecite@thatexists{lc}{fc}{#1}%
+        }{#1{fc}}%
+    }{%
+        \hi@record@choose{\@this@case}{%
+            #1{fc}%
+        }{%
+            \hi@draw@choosecite@thatexists{sc}{fc}{#1}%
+        }%
+    }%
+}%
+%    \end{macrocode}
+
+%
+% \#1 and \#2 are possible prefixes for a citation reference. The first one that
+% exists is chosen and passed to the callback of \#3.
+%
+%    \begin{macrocode}
+\def\hi@draw@choosecite@thatexists#1#2#3{%
+    \@ifundefined{#1@\@this@case}{#3{#2}}{#3{#1}}%
+}
+%    \end{macrocode}
+%
+%
+% In previous versions, the nameless variant of citations was chosen by the
+% pseudo-reference name |*|. The package now determines whether to use nameless
+% variants automatically, but still accepts |*| as a synonym for the previous
+% inline reference.
+%
+%    \begin{macrocode}
+\@namedef{mc@*}{%
+    \ifx\@last@inline\relax
+        \PackageError\hi@pkgname{Star citation must follow an inline
+        citation}{Probably change the star citation out}%
+        \def\@this@case{???}%
+    \else
+        % \hi@noname -- See \hi@draw@choosecite
+        \let\@this@case\@last@inline
+    \fi
+}
+%    \end{macrocode}
+%
+%</package>
+%<*doc>
+
+\subsection{Missing References}
+
+Sometimes it is desirable to cite to a reference that has not yet been defined.
+This allows authors familiar with a reference to cite it without having to stop
+immediately to enter the reference definition and parameters. The package
+formats the undefined references in bold and also compiles a list of undefined
+references, which is displayed at the end of document compilation.
+
+As a convenience, the package also keeps track of defined references that are
+missing page numbers. The user enters the unknown page number as a question
+mark, and the package displays a list of all unentered page numbers at the end
+of compilation. This tracking is turned on by default; if the
+\DescribeMacro{nomissing} |nomissing| option is given to the package then an
+error will be raised for missing reference definitions.
+
+%</doc>
+%<*package>
+%
+%
+%
+%    \begin{macrocode}
+\def\hi@missing@cites{}
+\def\hi@missing@pages{}
+%
+\def\hi@missing@cite#1{%
+    \expandafter\hi@missing@cite@\expandafter{\the\inputlineno}{#1}%
+}
+\def\hi@missing@cite@#1#2{%
+    \@ifundefined{hi@miss@cite@#2}{%
+        \g@addto@macro\hi@missing@cites{\hi@missing@display{#2}{l. #1}}%
+        \expandafter\let\csname hi@miss@cite@#2\endcsname\@empty
+    }{}%
+}
+\def\hi@missing@page#1{%
+    \expandafter\hi@missing@page@\expandafter{\the\inputlineno}{#1}%
+}
+\def\hi@missing@page@#1#2{%
+    \g@addto@macro\hi@missing@pages{\hi@missing@display{#2}{l. #1}}%
+}
+\def\hi@missing@display#1#2{%
+    \space\space\space\space\pad@string{#1}{iiiiiiiiiiiiiiiiiiiiiiii} #2%
+    \MessageBreak
+}
+\AtEndDocument{%
+    \ifx\hi@missing@cites\@empty\else
+        \PackageWarning\hi@pkgname{%
+            The following citations were undefined:\MessageBreak
+            \hi@missing@cites
+        }%
+    \fi
+    \ifx\hi@missing@pages\@empty\else
+        \PackageWarning\hi@pkgname{%
+            The following citations were missing page numbers:\MessageBreak
+            \hi@missing@pages
+        }%
+    \fi
+}
+%    \end{macrocode}
+%
+%
+%</package>
+%

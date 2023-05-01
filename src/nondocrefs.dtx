@@ -1,0 +1,228 @@
+%%
+%% \iffalse filename: nondocrefs.dtx \fi
+%%
+%<*doc>
+\input driver
+\thisis{nondocrefs}{Non-Document References}
+
+These references and reference types are not associated with documents or
+authorities, but serve other purposes in this package's system.
+
+
+\input docparams
+
+
+%</doc>
+\hi@newcite\defabbrev{An abbreviation for a name}{%
+    \hi@ifset\hi@kv@name{%
+        \hi@replacethe\hi@kv@name{\def\hi@kv@name}{}%
+        \@expandarg\hi@abbrev@name{\hi@kv@name}{\def\hi@kv@aname}%
+    }{%
+        \PackageError\hi@pkgname{%
+            For abbreviation #1, no name given%
+        }{You must provide the name}%
+    }%
+    \hi@ifset\hi@kv@inline{%
+        \hi@replacethe\hi@kv@inline{\def\hi@kv@inline}{}%
+        \@expand{\hi@short@register{#1}}\hi@kv@inline i{y}%
+        %
+        % Unless the user has explicitly rejected it, tack on a parenthetical of
+        % the short name to the full citation form.
+        %
+    }{%
+        \PackageError\hi@pkgname{%
+            For abbreviation #1, no inline given%
+        }{You must provide the inline form}%
+    }%
+    \hi@newcite@form{fc}{#1}{%
+        \hi@citeguts{%
+            \noexpand\if@hi@inline
+                \noexpand\@capnext\hi@kv@name
+            \noexpand\else
+                \noexpand\@capnext\hi@kv@aname
+            \noexpand\fi
+            \hi@ifset\hi@kv@noinlineparen{}{%
+                \hi@short@maybeshow{#1}{\space
+                    {\noexpand\@hi@adjectivetrue(``\hi@kv@inline'')}%
+                    \noexpand\@%
+                }%
+            }%
+        }%
+        \hi@invis@inline
+    }%
+    \hi@newcite@form{sc}{#1}{%
+        \hi@citeguts{\noexpand\@capnext\hi@kv@inline}%
+        \noexpand\@%
+        \hi@short@use{#1}%
+        \hi@invis@inline
+    }%
+}
+%<*doc>
+The full citation form produces the unabbreviated name and a definitional
+parenthetical, and the short citation form produces the abbreviated name. This
+reference type should only be used in inline citations. \unskip\footnote{In
+future versions, it is hoped that named abbreviations can be used as
+institutional author titles.} The abbreviation reference type makes use of the
+short name management features of this package described in \sec{short}. If an
+abbreviation is used only once, the parenthetical is automatically suppressed.
+It also manages use of ``The'' at the beginning of names correctly, in
+accordance with |\adjective| as described in \sec{iface}. Thus, if the following
+is defined:
+\begin{quote}
+|\defabbrev{fda}{|\\
+|    name=the Food and Drug Administration,|\\
+|    inline=the FDA|\\
+|}|
+\end{quote}
+then the following will be produced:
+\begin{center}
+\begin{tabular}{ll}
+\textbf{Input} & \textbf{Output} \\
+|\inline{fda}| (used only once) & the Food and Drug Administration \\
+|\inline{fda}| & the Food and Drug Administration (``FDA'') \\
+|\inline{fda}| & the FDA \\
+|\adjective{fda} regulations| & FDA regulations \\
+\end{tabular}
+\end{center}
+
+This reference type produces invisible inlines (see \sec{iface-invisible}) so
+that it does not affect \emph{id.}\ citations surrounding it.
+
+\keyparameters{
+    {name}{The unabbreviated name. Include ``The'' at the beginning if that is
+    how the full name is used in ordinary speech.}
+    {inline}{The short or abbreviated name. Include ``The'' at the beginning if
+    that is how the abbreviation is used in ordinary speech.}
+}
+%</doc>
+%
+\hi@newcite\defalias{An alias for a citation reference}{%
+    \hi@ifset\hi@kv@citation{}{%
+        \hi@ifset\hi@kv@rep{%
+            \let\hi@kv@citation\hi@kv@rep
+        }{%
+            \PackageError\hi@pkgname{%
+                In defining alias #1, you must provide citation or rep%
+            }{Add the requested parameter}%
+        }%
+    }%
+    %
+    % The full citation form should never be used
+    %
+    \hi@newcite@form{fc}{#1}{%
+        \noexpand\PackageError\noexpand\hi@pkgname{%
+            Reference #1 is an alias and should never be cited%
+        }{Something is wrong with the package}%
+    }%
+    %
+    % The modification macro should set the volume and reference name
+    %
+    \hi@newcite@form{mc}{#1}{%
+        \def\noexpand\@this@case{\hi@kv@citation}%
+        \hi@ifset\hi@kv@vol{%
+            \noexpand\ifx\noexpand\@this@vol\relax
+                \def\noexpand\@this@vol{\hi@kv@vol}%
+            \noexpand\fi
+        }{}%
+        \hi@ifset\hi@kv@page{%
+            \noexpand\ifx\noexpand\@this@page\relax
+                \def\noexpand\@this@orig@page{\expandonce\hi@kv@page}%
+                \def\@this@page{\@format@page@macro\hi@kv@page}%
+            \noexpand\fi
+        }{}%
+    }%
+    %
+    % The page number macro should combine page numbers and set \@this@orig@page
+    % and \@this@page appropriately
+    %
+    \hi@newcite@form{pc}{#1}##1{%
+        \hi@ifset\hi@kv@page{%
+            \noexpand\hi@pages@join{\expandonce\hi@kv@page}{##1}%
+        }{%
+            \noexpand\protected@edef\noexpand\@this@page{%
+                \noexpand\@format@pageno{##1}%
+            }%
+        }%
+    }%
+}
+%<*doc>
+
+Aliases a reference name to another. The main advantage is that the alias can
+have a default volume and pin cite. For example, consider the alias:
+\begin{quote}
+|\defalias{sec-5}{|\\
+|    name=ftc-act,|\\
+|    page=S 5|\\
+|}|
+\end{quote}
+with |ftc-act| defined as the relevant statute. Now, the following two are
+equivalent:
+\begin{quote}
+|\sentence{sec-5}.|\\
+|\sentence{ftc-act at S 5}.|
+\end{quote}
+Moreover, pin cites given for the alias in citations use the pin cite joining
+algorithm given in \sec{pages-join}. Thus:
+\begin{quote}
+|\sentence{sec-5 at /a}.|
+\end{quote}
+will cite \textsection~5(a) of the statute.
+
+\keyparameters{%
+    {citation, rep}{Reference name to be aliased.}
+    {page}{Pin cite to be used as the default pin cite for the alias.}
+}
+
+%</doc>
+%
+\newcount\hi@anonselfcitecount
+\hi@newcite\defselfcite{A self-citation}{%
+    \global\advance\hi@anonselfcitecount\@ne
+    \hi@newcite@form{fc}{#1}{%
+        \hi@citeguts{%
+            [Self-citation \#\the\hi@anonselfcitecount]%
+        }%
+    }%
+}%
+%<*doc>
+This is useful for quickly replacing self-citations when submitting to journals
+that require anonymity. No parameters are required; a unique name is
+automatically generated for the citation.
+
+\subsection{\texttt{this}}
+
+\label{rtype:this}
+
+Reference |this| is not a reference type but the name of a single predefined
+reference, used for cross-references. See \sec{xref}.
+
+\subsection{\texttt{verbatim}}
+
+\label{rtype:verbatim}
+
+Reference |verbatim| is not a reference type but the name of a single predefined
+reference, the purpose of which is to enable arbitrary text in a citation item.
+When using |verbatim| in a citation item, the pin cite text is not parsed but is
+used verbatim as the formatted citation text:
+\begin{quote}
+|\sentence{see verbatim at {the \textbf{Moon}} (shining)}.|
+Produces: \emph{See} the \textbf{Moon} (shining).
+\end{quote}
+Note how signals and parentheticals are still parsed and formatted around the
+user-defined citation text.
+
+%</doc>
+%<*package>
+%    \begin{macrocode}
+\def\fc@verbatim{%
+    \hi@citeguts{%
+        \@this@page
+    }%
+}
+\def\pc@verbatim#1{%
+    \def\@this@page{#1}%
+    \if@endswithdot{#1}{\addto@macro\@this@page{\@hi@dottrue}}%
+}
+\let\idc@verbatim\fc@verbatim
+%    \end{macrocode}
+%</package>

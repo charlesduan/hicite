@@ -1,0 +1,644 @@
+%%
+%% \iffalse filename: bookrefs.dtx \fi
+%%
+%<*doc>
+\input driver
+\thisis{bookrefs}{Books and Containers}
+
+This section describes two reference types for larger book-like works, and also
+a common parenthetical used across many citation types.
+
+
+\subsection{Publication Parentheticals}
+
+\label{s:bookrefs-pubparen}
+
+Many citation types accept a common parenthetical that contains a date of
+publication and other publication information, such as editions, editors, and
+publishers. This standard parenthetical accepts the following parameters, all of
+which are optional other than the year:
+
+\optparameters{
+    {editor}{Names of one or more editors of the book.}
+    {edtype}{The abbreviation to follow the editor names, by default ``ed.''\ or
+    ``eds.''}
+    {number}{A serial number for the book. The number must contain a comma,
+    separating the publisher from the serial number. (Books will use serial
+    numbers with no commas for another purpose.)}
+    {edition}{The edition number of the book. An ordinal suffix will be added.}
+    {publisher}{The name of the publisher.}
+    {forthcoming}{If set, the word ``forthcoming'' will be added to the
+    parenthetical.}
+    {year}{The year of publication.}
+}
+
+%</doc>
+%<*package>
+%
+% Reference type definers should call this macro before creating citation format
+% macros, to set up |\hi@book@paren|. They must then include |\hi@book@paren| in
+% the content for the date parenthetical.
+%
+%    \begin{macrocode}
+\def\hi@book@pubparen{%
+    \let\hi@book@paren\@empty  % Date parenthetical
+    \hi@ifset\hi@kv@editor{%
+        \hi@ifset\hi@kv@edtype{%
+            \ifstrempty\hi@kv@edtype{}{%
+                \addto@macro\hi@kv@editor{ }%
+                \add@macro@to@macro\hi@kv@editor\hi@kv@edtype
+            }%
+        }{%
+            \@expand{\find@in@cs{hi@namelist@and}}{\hi@kv@editor}{i}{%
+                \addto@macro\hi@kv@editor{ eds.}\@gobbletwo
+            }{%
+                \@expand{\find@end{ et al.}}{\hi@kv@editor}{i}{%
+                    \addto@macro\hi@kv@editor{ eds.}\@gobble
+                }{%
+                    \addto@macro\hi@kv@editor{ ed.}%
+                }%
+            }%
+        }%
+        \def\hi@book@paren{\hi@kv@editor, }%
+    }{}%
+    \hi@ifset\hi@kv@number{%
+        \@expand{\find@in{, }}\hi@kv@number i{\hi@book@serial}{}%
+    }{}%
+    % Previously there was a check to see if a year was present, but since this
+    % macro is now also used for statutes that might legitimately have no date,
+    % the year check was taken out.
+    \hi@ifset\hi@kv@edition{%
+        \addto@macro\hi@book@paren{%
+            \hi@kv@edition
+            \hi@ifset\hi@kv@publisher{, \hi@kv@publisher}{}%
+            \space}%
+    }{%
+        \hi@ifset\hi@kv@publisher{%
+            \addto@macro\hi@book@paren{\hi@kv@publisher\space}%
+        }{}%
+    }%
+    \hi@ifset\hi@kv@forthcoming{%
+        \addto@macro\hi@book@paren{forthcoming }%
+    }{}%
+}
+\def\hi@book@serial#1#2{%
+    \find@in{, }{#2}{%
+        \PackageWarning\hi@pkgname{%
+            Found comma in serial number:\MessageBreak
+            institution=#1,\MessageBreak
+            number \@spaces=#2.\MessageBreak
+            I use commas to delimit institutions from serial\MessageBreak
+            numbers, so you should use braces so I know which\MessageBreak
+            comma actually belongs to a part.\MessageBreak
+            This occurred%
+        }%
+        \@gobbletwo
+    }{}%
+    % Abbreviate the first part.
+    \hi@abbrev@name{#1}{\def\hi@kv@number}%
+    \addto@macro\hi@kv@number{, #2}%
+    \expandafter\addto@macro\expandafter\hi@book@paren\expandafter{%
+        \hi@kv@number, %
+    }%
+    \hi@undefine\hi@kv@number % Date parenthetical
+}
+\def\hi@book@lcpost{%
+    \hi@ifset\hi@kv@year{%
+        \hi@parens@add\hi@paren@date{%
+            \hi@book@paren
+            \hi@pstruct@use{year}%
+        }%
+    }{%
+        \ifx\hi@book@paren\@empty\else
+            \hi@parens@add\hi@paren@date{%
+                \hi@book@paren
+            }%
+        \fi
+    }%
+    \the\hi@param@parens
+}
+%    \end{macrocode}
+%</package>
+%<*doc>
+
+\input docparams
+
+%</doc>
+\hi@newcite\defbook{A book or non-periodic material}{%
+    \hi@citetype{#1}\hi@type@other
+    \hi@book@pubparen
+    \expandafter\hi@book@titlethe\expandafter{\hi@kv@name}%
+    \hi@newcite@form{ic}{#1}{%
+        \hi@citeguts{\hi@kv@author}%
+    }%
+    \hi@newcite@form{fc}{#1}{%
+        \hi@pstruct@initialize\@this@vol
+        \hi@ifset\hi@kv@author{%
+            \noexpand\@gobble{\hi@kv@authln}%
+        }{}% For sorting purposes
+        \noexpand\if@hi@inline
+            \expandafter\noexpand\csname ic@#1\endcsname
+        \noexpand\else
+            \hi@citeguts{%
+                \noexpand\hi@citecontainer@suppress{%
+                    \noexpand\hi@usevol{%
+                        \hi@ifset\hi@kv@vol{\hi@kv@vol\space}{}%
+                    }%
+                    \hi@ifset\hi@kv@author{%
+                        \hi@pstruct@use@font{author}\hi@fn@bookauthor, % space
+                    }{}%
+                }%
+                \hi@ifset\hi@kv@number{%
+                    \noexpand\hi@fn@booktitle{\hi@kv@number}, % space
+                }{}%
+                \hi@pstruct@use@font{name}\hi@fn@booktitle
+                \hi@maybepage{\hi@page@space\hi@kv@name}%
+            }%
+            \hi@parens@add\hi@paren@date{%
+                \hi@book@paren
+                \hi@pstruct@use{year}%
+            }%
+            \the\hi@param@parens
+        \noexpand\fi
+    }%
+    \hi@ifset\hi@kv@toapage{%
+        \hi@include@page@in@toa{#1}%
+        \hi@newcite@form{lc}{#1}{%
+            \noexpand\hi@toa@duptitle{}{%
+                \noexpand\hi@fn@bookauthor{\relax\hi@kv@author@sortable},\space
+                \noexpand\hi@usevol{\hi@ifset\hi@kv@vol{\hi@kv@vol\space}{}}%
+                \hi@ifset\hi@kv@number{%
+                    \noexpand\hi@fn@booktitle{\hi@kv@number}, % space
+                }{}%
+                \hi@fn@booktitle{\hi@kv@name}%
+            }{%
+                \hi@maybepage{\hi@page@space\hi@kv@name}%
+                % The \reserved@a is to get the parens outside of \hi@citeguts
+                % which is added kn \hi@toa@duptitle
+                \gdef\noexpand\reserved@a{\hi@book@lcpost}%
+                \noexpand\aftergroup\noexpand\reserved@a
+            }{%
+                \hi@maybepage{ }%
+            }%
+        }%
+    }{%
+        \hi@newcite@form{lc}{#1}{%
+            \hi@citeguts{%
+                \hi@ifset\hi@kv@author{%
+                    \hi@toa@dupauthor{\hi@fn@bookauthor}{%
+                        \hi@kv@author@sortable
+                    }%
+                }{\hi@toa@dupnone}%
+                \noexpand\hi@usevol{\hi@ifset\hi@kv@vol{\hi@kv@vol\space}{}}%
+                \hi@ifset\hi@kv@number{%
+                    \noexpand\hi@fn@booktitle{\hi@kv@number}, % space
+                }{}%
+                \hi@fn@booktitle{\hi@kv@name}%
+            }%
+            \hi@parens@add\hi@paren@date{%
+                \hi@book@paren
+                \hi@pstruct@use{year}%
+            }%
+            \the\hi@param@parens
+        }%
+    }%
+    \hi@ifset\hi@kv@authln{}{\let\hi@kv@usetitle\relax}%
+    \protected@edef\reserved@a{%
+        \hi@ifset\hi@kv@usetitle
+            {\noexpand\hi@fn@booktitle{\hi@kv@name}}%
+            {\noexpand\hi@fn@bookauthor{\hi@kv@authln}}%
+    }%
+    \@expand{\hi@supra@form{#1}}\reserved@a i%
+}
+%<*doc>
+
+\keyparameters{
+    {author, name}{The author(s) and title of the work.}
+    {vol}{A specific volume number being cited. Preferably, though, the volume
+    number would be included as part of the citation item information.}
+    {number}{A serial number for the book. If the serial number is attached to
+    the work's author (i.e., it's an institutional series), then enter the
+    serial number alone, protecting any commas with braces. If the serial number
+    is attached to a publisher's series, then use a comma as described with
+    regard to the publication parenthetical.}
+}
+\optparameters{
+    {struct}{If volumes of the work have different authors, titles, or other
+    information, provide the differing values in a struct as described in
+    \sec{struct}.}
+}
+\bookparenparameters
+
+%</doc>
+%<*package>
+%    \begin{macrocode}
+\make@find@start{The }
+\def\hi@book@titlethe#1{%
+    \find@start{The }{#1}{\hi@book@titlethe@}{}%
+}
+\def\hi@book@titlethe@#1{%
+    \def\hi@kv@name{\hi@book@the#1}%
+}
+\DeclareRobustCommand\hi@book@the{The }
+\make@find@in{, }
+%    \end{macrocode}
+%</package>
+\hi@newcite\defcitecontainer{A citation in another citation}{%
+    %
+    % Set the joining phrase.
+    %
+    \hi@citecontainer@settype
+    %
+    % Perform initial matters to set up the citecontainer; see the comment
+    % before \hi@citecontainer@init.
+    \edef\reserved@a{%
+        {#1}%
+        \expandafter\noexpand\csname tc@#1\endcsname
+        \hi@ifset\hi@kv@citation{%
+            \expandafter\noexpand\csname tc@\hi@kv@citation\endcsname
+            \expandafter\noexpand\csname fc@\hi@kv@citation\endcsname
+        }{\relax\relax}%
+    }%
+    \expandafter\hi@citecontainer@init\reserved@a
+    %
+    % Prepare the full citation form.
+    \edef\reserved@a{%
+        {#1}%
+        \expandafter\noexpand\csname fc@#1\endcsname
+        \expandafter\noexpand\csname tcpg@\hi@kv@in\endcsname
+    }%
+    \expandafter\hi@citecontainer@fc\reserved@a
+    %
+    % Prepare the short citation form.
+    \edef\reserved@a{%
+        {#1}%
+        \expandafter\noexpand\csname sc@#1\endcsname
+        \hi@ifset\hi@kv@citation{%
+            \expandafter\noexpand\csname sc@\hi@kv@citation\endcsname
+        }{\relax}%
+    }%
+    \expandafter\hi@citecontainer@sc\reserved@a
+    %
+    % Cite container TOA form.
+    %
+    \edef\reserved@a{%
+        {#1}%
+        \expandafter\noexpand\csname lc@#1\endcsname
+        \hi@ifset\hi@kv@citation{%
+            \expandafter\noexpand\csname
+                \@ifundefined{lc@\hi@kv@citation}{fc}{lc}@\hi@kv@citation
+            \endcsname
+        }{\relax}%
+        %
+        % We always use the fullcite form for the container, not the TOA form.
+        % This is because the TOA form is sometimes special in ways that are not
+        % appropriate to being the second citation in a string cite, and also
+        % because the TOA forms sometimes don't account for things like page
+        % numbers.
+        \expandafter\noexpand\csname fc@\hi@kv@in\endcsname
+        %
+        % This macro enables storing the volume/page number for the container
+        % citation.
+        \expandafter\noexpand\csname hi@citecontainer@data@#1\endcsname
+    }
+    \expandafter\hi@citecontainer@lc\reserved@a
+}
+%<*doc>
+A cite container is a highly flexible vehicle for citing works that are
+contained inside other larger works: chapters in edited volumes, introductions
+to books, letters reprinted in compilations, and documents in appendices to
+judicial opinions. The defining feature of the cite container is that the
+pagination of the contained work follows the pagination of the container, such
+that any pin cite needs to be attached to the container's locator information.
+
+There are two flavors of cite containers. First, the contained item may be a
+standalone reference with a type, such as a letter or case. If so, then the
+contained item is defined as a reference and passed to the citation container's
+\param{citation} parameter. \unskip\footnote{This may be done through anonymous
+references as described in \sec{anonymous}.}
+For example, the following would cite a letter in a volume of collected works:
+\begin{quote}
+\ttfamily
+|\defletter|\{ltr\}\{\\
+\hbox{}\quad author=Benjamin Franklin,\\
+\hbox{}\quad to=George Washington,\\
+\hbox{}\quad ...\\
+\} \\
+|\defbook|\{works\}\{\\
+\hbox{}\quad name=Collected Works of Franklin,\\
+\hbox{}\quad ...\\
+\} \\
+|\defcitecontainer|\{franklin-ltr\}\{\\
+\hbox{}\quad citation=ltr, \\
+\hbox{}\quad in=works, \\
+\hbox{}\quad page=107, \\
+\}
+\end{quote}
+A command of |\sentence{franklin-ltr at 109}| would produce something along the
+lines of ``Letter from Benjamin Franklin to George Washington, \emph{in}
+\textsc{Collected Works of Franklin} 107, 109.''
+
+Second, the contained item may not require a standalone definition, as would be
+the case for a book chapter. In that case, the cite container takes parameters
+\param{author}, \param{name}, and \param{year} to specify the contained work's
+information, instead of the \param{citation} parameter.
+
+\keyparameters{
+    {citation}{The reference name or anonymous reference definition for the
+    contained work.}
+    {author, name, year}{Information for the contained work, used in lieu of
+    \param{citation}.}
+    {in}{The reference name or anonymous reference definition for the container
+    work.}
+    {vol, page}{The pin cite information for the contained work inside the
+    container (e.g., for a chapter in an edited volume, the volume and page
+    number where the chapter begins).}
+}
+\optparameters{
+    {type}{The preposition that should join the contained work and the
+    container; default is ``in.'' If the word is ``to'' or ``of,'' then no comma
+    is prepended and the word is set in roman type, as is useful for
+    introductions or forewords.}
+    {singleauthor}{Indicates that all works in the contained volume are by the
+    same author, such that the author name should be set in the font used for
+    book authors.}
+    {inline}{A short form name for the citation. The \param{hereinafter}
+    parameter is probably better in most situations.}
+}
+
+%</doc>
+%<*package>
+%
+% Sets the type parameter, |\hi@kv@type|, as the connector phrase between the
+% contained and container citations. If it is ``to'' or ``of'', then it is set
+% in roman and no comma is prepended. Otherwise, it is set in roman and a comma
+% is prepended. If no connector is given, it defaults to ``in''.
+%
+%    \begin{macrocode}
+\def\hi@citecontainer@settype{%
+    \hi@ifset\hi@kv@type{%
+        \@expand{\find@try\find@eq{%
+            {to}{\def\hi@kv@type{ to}}%
+            {of}{\def\hi@kv@type{ of}}%
+        }}\hi@kv@type i{%
+            \@expand{\def\hi@kv@type}{\expandafter{\hi@kv@type}}i%
+            \prepend@macro\hi@kv@type{, \noexpand\hi@fn@sig}%
+        }%
+    }{%
+        \def\hi@kv@type{, \noexpand\hi@fn@sig{in}}%
+    }%
+}
+%    \end{macrocode}
+%
+%
+% Initializing a citecontainer involves two steps.
+% \begin{enumerate}
+% \item Set the TOA type |\tc@|\meta{\#1}, |\hi@citecontainer@toks| to the
+% contained citation matter, and |\hi@kv@inline| as necessary.
+% \item Set |\hi@kv@in|, if it was put into |\hi@kv@rep| instead.
+% \end{enumerate}
+% \#1 is the reference name; \#2 is the macro
+% |\tc@|\meta{\#1}, \#3 is the macro |\tc@|\meta{\string\hi@kv@citation}, \#4 is
+% |\fc@|\meta{\string\hi@kv@citation}.
+% (If there is no |\hi@kv@citation|, \#3 and \#4 are |\relax|.)
+%
+%    \begin{macrocode}
+\def\hi@citecontainer@init#1#2#3#4{%
+    %
+    % 2. If \hi@kv@citation is set, then the contained element is a citation.
+    % Otherwise, the contained element is a generic article within the work, so
+    % a citation form is constructed for it.
+    %
+    % The relevant contents from the contained citation are placed in
+    % \hi@citecontainer@toks, to be added subsequently to the \fc@[#1] macro.
+    %
+    \hi@ifset\hi@kv@citation{%
+        % In the case that the contained element is a citation:
+        %
+        % The TOA type for the citecontainer should be the TOA type of the
+        % contained element.
+        \global\let#2#3%
+        %
+        % No TOA entry should be made for the contained element alone.
+        \global\let#3\relax
+        %
+        % Set \hi@citecontainer@toks to the (already-created) full-cite material
+        % of \fc@[citation].
+        \expandafter\hi@citecontainer@toks\expandafter{#4}%
+    }{%
+        % In the case that no citation is provided:
+        %
+        % Set up citecontainer with the author, name, and date.
+        \protected@edef\reserved@a{%
+            \hi@citecontainer@toks={%
+                \hi@ifset\hi@kv@author{%
+                    \hi@ifset\hi@kv@singleauthor{%
+                        \noexpand\@gobble{\hi@kv@authln}%
+                        \hi@ifset\hi@kv@vol{\hi@kv@vol\space}{}%
+                        \noexpand\hi@fn@bookauthor{\hi@kv@author}%
+                    }{%
+                        \hi@kv@author@sortable
+                    }%
+                    ,\space
+                }{}%
+                \noexpand\hi@fn@arttitle{\hi@kv@name}%
+                \hi@ifset\hi@kv@year{%
+                    \noexpand\hi@parens@add\noexpand\hi@paren@date{\hi@kv@year}%
+                }{}%
+                %
+                % Any parentheticals attached to the citation itself get placed
+                % from here.
+                \the\hi@param@parens
+            }%
+        }\reserved@a
+        %
+        % Set up the short-form information for this citation.
+        \hi@ifset\hi@kv@inline{}{%
+            \hi@ifset\hi@kv@authln{%
+                \hi@ifset\hi@kv@singleauthor{%
+                    \protected@edef\hi@kv@inline{%
+                        \noexpand\hi@fn@bookauthor{\hi@kv@authln}%
+                    }%
+                }{%
+                    \let\hi@kv@inline\hi@kv@authln
+                }%
+            }{%
+                \protected@edef\hi@kv@inline{%
+                    \noexpand\hi@fn@arttitle{\hi@kv@name}%
+                }%
+            }%
+        }%
+        %
+        % Set the TOA cite type to 'other'.
+        \hi@citetype{#1}\hi@type@other
+    }%
+    %
+    % 3. The citation reference for the container should be in the citation
+    % parameter 'in' or 'rep'.
+    \hi@ifset\hi@kv@in{\let\hi@kv@rep\hi@kv@in}{%
+        \hi@ifset\hi@kv@rep{%
+            \let\hi@kv@in\hi@kv@rep
+        }{%
+            \PackageError\hi@pkgname{%
+                Missing `in' citation for citecontainer #1
+            }{%
+                A reference to a case is required for \string\defcitecontainer
+            }%
+        }%
+    }%
+}
+\make@find@in{ at }
+\make@find@eq{to}
+\make@find@eq{of}
+\newtoks\hi@citecontainer@toks
+%    \end{macrocode}
+%
+% Make a citecontainer full cite form. \#1 is the reference name, \#2 is
+% |\fc@|\meta{\#1}, \#3 is |\tcpg@|\meta{\string\hi@kv@in}.
+%
+%    \begin{macrocode}
+\def\hi@citecontainer@fc#1#2#3{%
+    %
+    % Insert the contained citation. This is done in a group, with pincite
+    % information omitted since that information pertains to the container.
+    %
+    \hi@newcite@form{fc}{#1}{%
+        \begingroup
+            \let\noexpand\@this@page\relax
+            \let\noexpand\@this@vol\relax
+            \let\noexpand\@this@opt\relax
+            %
+            % We reset the parentheticals list here, which clears out any
+            % citation-level parentheticals. \hi@citecontainer@toks will insert
+            % parentheticals associated with the contained reference, which will
+            % then be shown with the subsequent \hi@parens@show command.
+            \noexpand\hi@parens@reset
+            \the\hi@citecontainer@toks
+            \noexpand\hi@parens@show
+        \endgroup
+        %
+        % This is the end of the contained citation. Ensure that capitalization
+        % is turned off.
+        \hi@nocap
+        %
+        % Insert the transitional phrase between the container and contained
+        % material.
+        \hi@kv@type\space
+        \begingroup
+            % If singleauthor is set (which only makes sense if citation is not
+            % set), instruct the book citation to suppress display of the author
+            % and volume.
+            \hi@ifset\hi@kv@citation{}{\hi@ifset\hi@kv@singleauthor{%
+                \let\noexpand\hi@citecontainer@suppress\noexpand\@gobble
+            }{}}%
+            %
+            % Insert the contents of the container citation. This is delegated
+            % to the macro \hi@citecontainer@addpg.
+            \let\noexpand#3\relax % Turn off page numbers for TOA references
+            \hi@citecontainer@addpg{%
+                \hi@ifset\hi@kv@vol{\hi@kv@vol\space}{}%
+                \hi@kv@in
+            }{%
+                \space at\space
+                \hi@ifset\hi@kv@page{\hi@kv@page, }{}%
+            }{%
+                \hi@ifset\hi@kv@page{ at \hi@kv@page}{}%
+            }%
+        \endgroup
+        %
+        % Add short citation form records for the container, so that way other
+        % uses of the container use the short form.
+        \hi@ifset\hi@kv@citation{\hi@record@cite{\hi@kv@citation}}{}%
+        %
+        % This may be duplicative since |\clause| will already call
+        % |\hi@record@cite|; need to check
+        %
+        \hi@record@cite{\hi@kv@in}%
+    }%
+}
+%
+% This flag determines whether other citations should suppress display of the
+% volume number and author (because they've already been included in the
+% \citecontainer).
+\let\hi@citecontainer@suppress\@iden
+%
+% Cite container short form. #1 is the reference name, #2 is \sc@[#1], #3 is
+% \sc@[\hi@kv@citation] (or \relax).
+%
+\def\hi@citecontainer@sc#1#2#3{%
+    %
+    % Short citation form. If a form is given in the 'inline' parameter, use
+    % that. (If the contained material was an author/title, then 'inline' was
+    % set already above.) Otherwise, we want to copy the citation form for the
+    % contained reference.
+    \hi@ifset\hi@kv@inline{%
+        \@expand{\hi@supra@form{#1}}\hi@kv@inline i%
+    }{%
+        \hi@newcite@form{sc}{#1}{}%
+        \global\let#2#3%
+    }%
+}
+%
+% Cite container TOA form. #1 is the reference name, #2 is \lc@[#1], #3 is
+% \lc@[\hi@kv@citation] (or \fc@[\hi@kv@citation], or \relax, depending on what
+% is defined), #4 is \lc@[\hi@kv@in] (or \fc@[\hi@kv@in]).
+\def\hi@citecontainer@lc#1#2#3#4#5{%
+    %
+    % Set up the token lists
+    \hi@ifset\hi@kv@citation{%
+        \expandafter\hi@citecontainer@toks\expandafter{#3}%
+    }{}%
+    \expandafter\@temptokena\expandafter{#4}%
+    %
+    % Make the citation form
+    \hi@newcite@form{lc}{#1}{%
+        %
+        % Unlike with the fc form, \hi@parens@reset is not necessary here
+        % because there are no citation-level parentheticals.
+        \the\hi@citecontainer@toks
+        \noexpand\hi@parens@show
+        % Because the container citation is not separated from the contained by
+        % a group, we reset the parens here so that any of them shown thus far
+        % are not repeated.
+        \noexpand\hi@parens@reset
+        \noexpand\hi@nocap \hi@kv@type\space
+        %
+        % Make the container citation. To do so, we set the volume and page (in
+        % the macro for this citecontainer) and then dereference \@temptokena,
+        % which houses the container citation matter.
+        \hi@ifset\hi@kv@citation{}{\hi@ifset\hi@kv@singleauthor{%
+            \let\noexpand\hi@citecontainer@suppress\noexpand\@gobble
+        }{}}%
+        #5\the\@temptokena
+        \let\noexpand\hi@citecontainer@suppress\noexpand\@iden
+    }%
+    \global\let#2#2%
+    %
+    % Make the volume/page data.
+    \protected@edef#5{%
+        \hi@ifset\hi@kv@vol{\def\noexpand\@this@vol{\hi@kv@vol}}{}%
+        \hi@ifset\hi@kv@page{%
+            \def\noexpand\@this@orig@page{\hi@kv@page}%
+            \@ifundefined{pc@#1}{%
+                \def\noexpand\@this@page{\@format@page@macro\hi@kv@page}%
+            }{%
+                \@expand{\@nameuse{pc@#1}}\hi@kv@page i%
+            }%
+        }{}%
+    }%
+    \global\let#5#5%
+}
+%
+% #1 is the initial citation text; #2 is the text to add if a page number is
+% given; #3 is the text to add if no page number is given.
+\DeclareRobustCommand\hi@citecontainer@addpg[3]{%
+    \@test\ifx\@this@page\relax\fi{%
+        \clause{#1#3}\hi@clause@endflag
+    }{%
+        \def\reserved@a{#1#2}%
+        \add@macro@to@macro\reserved@a\@this@orig@page
+        \expandafter\clause\expandafter{\reserved@a}\hi@clause@endflag
+    }%
+}
+%    \end{macrocode}
+%</package>

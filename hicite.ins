@@ -1,0 +1,160 @@
+%
+% This is hicite.ins.
+%
+% Copyright 2013-2023 Charles Duan. This program is free software: you can
+% redistribute it and/or modify it under the terms of the GNU General Public
+% License as published by the Free Software Foundation, either version 3 of the
+% License, or (at your option) any later version.
+%
+% This program is distributed in the hope that it will be useful, but WITHOUT
+% ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
+% FOR A PARTICULAR PURPOSE. See the GNU General Public License for more details.
+%
+% You should have received a copy of the GNU General Public License along with
+% this program.  If not, see <http://www.gnu.org/licenses/>.
+%
+\input docstrip
+\keepsilent
+\askforoverwritefalse
+\preamble
+
+This is a generated file.
+
+Copyright 2013-2023 Charles Duan. This program is free software: you can
+redistribute it and/or modify it under the terms of the GNU General Public
+License as published by the Free Software Foundation, either version 3 of the
+License, or (at your option) any later version.
+
+This program is distributed in the hope that it will be useful, but WITHOUT
+ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
+FOR A PARTICULAR PURPOSE. See the GNU General Public License for more details.
+
+You should have received a copy of the GNU General Public License along with
+this program.  If not, see <http://www.gnu.org/licenses/>.
+
+\endpreamble
+
+\def\userlist{}
+\def\pkglist{}
+\def\testlist{}
+\def\supportlist{}
+
+\def\appto#1#2{\expandafter\def\expandafter#1\expandafter{#1#2}}
+
+\def\addtolist#1{%
+    \appto\userlist{\from{src/#1.dtx}{doc}}%
+    \appto\pkglist{\from{src/#1.dtx}{package}}%
+    \appto\testlist{\from{src/#1.dtx}{test}}%
+}
+\def\addsupport#1{%
+    \appto\userlist{\from{src/#1.dtx}{doc}}%
+    \appto\testlist{\from{src/#1.dtx}{test}}%
+    \appto\supportlist{\file{support/#1.sty}{\from{src/#1.dtx}{package}}}%
+}
+\def\addpart#1{\appto\userlist{\from{src/parts.dtx}{#1}}}
+
+
+\addtolist{intro}
+
+\addtolist{quickstart}
+
+\addtolist{options}
+
+
+
+\addpart{references}
+
+\addtolist{refs}
+\addtolist{cparse}
+\addtolist{names}
+\addtolist{dates}
+\addtolist{xref}
+\addtolist{urls}
+\addtolist{struct}
+\addtolist{anonymous}
+
+
+
+\addpart{citations}
+
+\addtolist{iface}
+\addtolist{parse}
+\addtolist{signals}
+\addtolist{pages}
+\addtolist{parens}
+
+
+
+
+\addpart{features}
+
+\addtolist{toa}
+\addtolist{endnotes}
+\addtolist{short}
+
+
+
+\addpart{formatting}
+
+\addtolist{draw}
+\addtolist{abbrevs}
+\addtolist{fonts}
+\addtolist{state}
+\addtolist{supra}
+\addtolist{format}
+
+
+
+\addpart{alltypes}
+
+\addtolist{caseref}
+\addtolist{constrefs}
+\addtolist{statrefs}
+\addtolist{govrefs}
+\addtolist{bookrefs}
+\addtolist{artrefs}
+\addtolist{foreignrefs}
+\addtolist{specrefs}
+\addtolist{otherrefs}
+\addtolist{nondocrefs}
+
+\addpart{allparams}
+
+\addtolist{genparams}
+\addtolist{commparams}
+\addtolist{caseparams}
+\addtolist{legparams}
+\addtolist{bookparams}
+\addtolist{refparams}
+
+\addpart{support}
+
+\addsupport{strings}
+\addsupport{abbrev}
+\addsupport{sortlist}
+\addsupport{hibib}
+
+\addtolist{conclusion}
+
+\generate{%
+    \file{hicite.tex}{%
+        \userlist
+    }
+}
+
+\generate{%
+    \file{hicite.sty}{%
+        \pkglist
+    }
+}
+
+\generate{
+    \file{test.tex}{%
+        \testlist
+    }
+}
+
+\generate{
+    \supportlist
+}
+\endbatchfile

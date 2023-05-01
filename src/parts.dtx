@@ -1,0 +1,109 @@
+%
+% \iffalse meta-comment
+%
+% Copyright 2013-2022 Charles Duan. This program is free software: you can
+% redistribute it and/or modify it under the terms of the GNU General Public
+% License as published by the Free Software Foundation, either version 3 of the
+% License, or (at your option) any later version.
+%
+% This program is distributed in the hope that it will be useful, but WITHOUT
+% ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
+% FOR A PARTICULAR PURPOSE. See the GNU General Public License for more details.
+%
+% You should have received a copy of the GNU General Public License along with
+% this program.  If not, see <http://www.gnu.org/licenses/>.
+%
+%
+%<references>\part{References}
+%<references>\label{p:references}
+%
+%<*citations>
+\part{Citations}
+\label{p:citations}
+
+A citation to a reference in a document consists of a \emph{citation command}
+followed by a \emph{citation string} as the argument to the command. Citation
+commands are described in \sec{iface}, and citation strings are explained
+generally in \sec{parse}. The remainder of this Part then describes individual
+components of citation strings in more detail.
+
+%</citations>
+%
+%<features>\part{Additional Features}
+%<features>\label{p:features}
+%
+%<formatting>\part{Formatting Algorithms}
+%<formatting>\label{p:formatting}
+%
+%<*allparams>
+\part{Reference Parameters}
+\label{p:allparams}
+
+These are all of the parameters that may be given when defining a reference.
+Parameters in \emph{italics} are aliases for others.
+
+The long history of development of this package has meant that some parameter
+names do not conform with the naming conventions otherwise followed in this
+package. In particular, \param{inline} and related parameters relate not to
+inline citations but to short reference names (see \sec{short}), and date
+parameters typically end in |year| even though full date specifications are
+permitted (see \sec{dates}). Generally, aliases to properly conforming names are
+provided.
+
+%</allparams>
+%
+%<*alltypes>
+
+\part{Reference Types}
+\label{p:alltypes}
+
+Parameters in \emph{italics} are aliases for others.
+
+\section{Completeness of This List}
+
+These are the reference types that are currently defined. The available
+reference types are incomplete, as they reflect the package author's own
+citation needs over the years. Having used this package many times to write a
+diverse range of works involving technical, historical, judicial, political, and
+media references, he has covered nearly every type of conventionally cited work.
+Nevertheless, in the event that a writer needs to cite a reference type not
+specifically defined here, the package makes several affordances.
+
+First, several reference types are designed to be catch-all types. For
+government documents, \rtype{govdoc} provides a generic format for references
+cited in the \emph{Federal Register} and other reporters, and for miscellaneous
+agency promulgations that are essentially unpublished. For non-governmental
+works published in some periodical format, \rtype{website} works as a generic
+format, especially since it accepts any publication parameters that can be
+attached to a book (\param{editor}, \param{publisher}, etc.; see
+\sec{bookrefs-pubparen}). Works that are part of a published book or volume can
+generally be defined using the highly flexible \rtype{citecontainer} type.
+
+If truly nothing works, then the reference \rtype{verbatim} can be used to
+inject arbitrary text into a citation. Even when that is used, the writer still
+enjoys most of the structural capabilities of this package: signals management,
+string citations, and so on.
+
+Finally, writers faced with a class of unexpected reference types are encouraged
+to develop new citation macros. The syntax and programming conventions for
+reference type definer macros are not simple, so it may be easiest to make small
+tweaks to the existing reference definitions. In doing so, the package author
+recommends using more specific, uncommon reference types as a starting point,
+such as those in \sec{specrefs}. The widely used reference types such as
+\rtype{case} and \rtype{book} require a great deal of code to deal with many
+different inputs and the idiosyncractic historical rules of legal citation for
+those types, and would be difficult for would-be package improvers to understand
+at first. Reference types such as \rtype{procart}, designed to cover a narrower
+class of references and that include fewer features, would be easier to revise
+to one's tastes.
+
+%</alltypes>
+%<*support>
+\part{Supporting Packages}
+\label{p:support}
+
+\hia* includes several supporting packages, primarily consisting of lower-level
+tools for macro writing. They are distributed in standalone form in case they
+are useful for other package authors.
+
+%</support>

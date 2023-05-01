@@ -1,0 +1,225 @@
+%%
+%% \iffalse filename: options.dtx \fi
+%%
+%<*doc>
+\input driver
+\thisis{options}{Package Options}
+
+The following options are accepted by this package.
+
+\DescribeOption{review} Law review formatting: selects law review fonts, expects
+footnotes, formats \emph{supra} cites with note numbers, and so on.
+
+%</doc>
+%<*package>
+%    \begin{macrocode}
+\DeclareOption{review}{\hi@hooks@review}
+%    \end{macrocode}
+%</package>
+%<*doc>
+
+\DescribeOption{journal} Alias for \opt{review}.
+
+%</doc>
+%<*package>
+%    \begin{macrocode}
+\DeclareOption{journal}{\hi@hooks@review}
+%    \end{macrocode}
+%</package>
+%<*doc>
+
+\DescribeOption{journalfonts} Selects law review fonts. Same as
+|\UseFontPack{review}|. Other formatting aspects are not changed.
+
+%</doc>
+%<*package>
+%    \begin{macrocode}
+\DeclareOption{journalfonts}{\UseFontPack{review}}
+%    \end{macrocode}
+%</package>
+%<*doc>
+
+\DescribeOption{memofonts} Selects legal memorandum fonts. Same as
+|\UseFontPack{memo}|. Other formatting aspects are not changed.
+
+%</doc>
+%<*package>
+%    \begin{macrocode}
+\DeclareOption{memofonts}{\UseFontPack{memo}}
+%    \end{macrocode}
+%</package>
+%<*doc>
+
+\DescribeOption{memo} Legal memorandum formatting: selects memorandum fonts,
+expects citations in text, and so on.
+
+%</doc>
+%<*package>
+%    \begin{macrocode}
+\DeclareOption{memo}{\hi@hooks@memo}
+%    \end{macrocode}
+%</package>
+%<*doc>
+
+\DescribeOption{brief} Alias for \opt{memo}.
+
+
+%</doc>
+%<*package>
+%    \begin{macrocode}
+\DeclareOption{brief}{\hi@hooks@memo}
+%    \end{macrocode}
+%</package>
+%<*doc>
+
+\DescribeOption{endnote} Uses endnotes rather than footnotes for formatting.
+
+%</doc>
+%<*package>
+%    \begin{macrocode}
+\DeclareOption{endnote}{\hi@useendnotes}
+%    \end{macrocode}
+%</package>
+%<*doc>
+
+\DescribeOption{endnotes} Same as \opt{endnote}.
+
+%</doc>
+%<*package>
+%    \begin{macrocode}
+\DeclareOption{endnotes}{\hi@useendnotes}
+%    \end{macrocode}
+%</package>
+%<*doc>
+
+\DescribeOption{fullurl} URLs are displayed with their full text.
+
+%</doc>
+%<*package>
+%    \begin{macrocode}
+\DeclareOption{fullurl}{\hi@urlstyle@full}
+%    \end{macrocode}
+%</package>
+%<*doc>
+
+\DescribeOption{toaurl} URLs are displayed with their full text in the table of
+authorities and a shortcut otherwise, as described in \sec{urls-appearance}.
+
+%</doc>
+%<*package>
+%    \begin{macrocode}
+\DeclareOption{toaurl}{\hi@urlstyle@toa}
+%    \end{macrocode}
+%</package>
+%<*doc>
+
+\DescribeOption{linkurl} URLs are displayed as a linked word, as described in
+\sec{urls-appearance}.
+
+%</doc>
+%<*package>
+%    \begin{macrocode}
+\DeclareOption{linkurl}{\hi@urlstyle@link}
+%    \end{macrocode}
+%</package>
+%<*doc>
+
+\DescribeOption{italcase} Case names are italicized regardless of font packs
+previously chosen.
+
+%</doc>
+%<*package>
+%    \begin{macrocode}
+\DeclareOption{italcase}{\UseFontPack{italcase}}
+%    \end{macrocode}
+%</package>
+%<*doc>
+
+\DescribeOption{toastar} Stars are added to common references in the table of
+authorities, as described in \sec{toa-star}.
+
+%</doc>
+%<*package>
+%    \begin{macrocode}
+\DeclareOption{toastar}{\hi@toa@starcount=4\relax}
+%    \end{macrocode}
+%</package>
+%<*doc>
+
+\DescribeOption{somenotename} In general, if a case is named inline in text and
+a citation to the case is made immediately thereafter, then the case name is
+suppressed in the citation so as to avoid redundancy. This option makes an
+exception where the citation to the case is the first citation in a footnote. In
+such cases, the inline use was in text potentially distant from the footnote, so
+naming the case again in the footnote is less redundant and potentially helpful
+to readers.
+
+%</doc>
+%<*package>
+%    \begin{macrocode}
+\DeclareOption{somenotename}{\hi@noname@sometimes}
+%    \end{macrocode}
+%</package>
+%<*doc>
+
+\DescribeOption{nonotename} Suppresses case names even in citations at the
+start of footnotes. This is typical of most legal journals.
+
+%</doc>
+%<*package>
+%    \begin{macrocode}
+\DeclareOption{nonotename}{\hi@noname@always}
+%    \end{macrocode}
+%</package>
+%<*doc>
+
+\DescribeOption{useopturl} Redefines the \param{opturl} parameter to be the same
+as \param{url}, as described in the documentation for the former parameter.
+
+%</doc>
+%<*package>
+%    \begin{macrocode}
+\DeclareOption{useopturl}{\hi@param@alias{opturl}{url}}
+%    \end{macrocode}
+%
+%</package>
+%<*doc>
+
+\DescribeOption{noterefs} Cross-references to text will refer to the closest
+footnote numbers. This is typical of law reviews and is the standard when the
+\opt{review} option is selected.
+
+%</doc>
+%<*package>
+%    \begin{macrocode}
+\DeclareOption{noterefs}{\hi@xref@opt@noterefs}
+%    \end{macrocode}
+%
+%
+%</package>
+%<*doc>
+
+\DescribeOption{pagerefs} Cross-references to text will refer to the page
+numbers on which the relevant text is found. This is typical of legal memoranda
+and is the standard when the \opt{memo} option is selected.
+
+%</doc>
+%<*package>
+%    \begin{macrocode}
+\DeclareOption{pagerefs}{\hi@xref@opt@pagerefs}
+%    \end{macrocode}
+%
+%
+%
+%
+% \paragraph{Hooks for Memo and Review Formats}
+% The choice between review and memo style triggers a variety of differences in
+% citation processing, so provided here are two hooks that other components of
+% this package can add to for special processing depending on style. The hooks
+% will be executed at the end of the package.
+%
+%    \begin{macrocode}
+\def\hi@hooks@review{}
+\def\hi@hooks@memo{}
+%    \end{macrocode}
+%</package>

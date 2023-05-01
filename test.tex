@@ -1,0 +1,3434 @@
+%%
+%% This is file `test.tex',
+%% generated with the docstrip utility.
+%%
+%% The original source files were:
+%%
+%% src/intro.dtx  (with options: `test')
+%% src/quickstart.dtx  (with options: `test')
+%% src/options.dtx  (with options: `test')
+%% src/refs.dtx  (with options: `test')
+%% src/cparse.dtx  (with options: `test')
+%% src/names.dtx  (with options: `test')
+%% src/dates.dtx  (with options: `test')
+%% src/xref.dtx  (with options: `test')
+%% src/urls.dtx  (with options: `test')
+%% src/struct.dtx  (with options: `test')
+%% src/anonymous.dtx  (with options: `test')
+%% src/iface.dtx  (with options: `test')
+%% src/parse.dtx  (with options: `test')
+%% src/signals.dtx  (with options: `test')
+%% src/pages.dtx  (with options: `test')
+%% src/parens.dtx  (with options: `test')
+%% src/toa.dtx  (with options: `test')
+%% src/endnotes.dtx  (with options: `test')
+%% src/short.dtx  (with options: `test')
+%% src/draw.dtx  (with options: `test')
+%% src/abbrevs.dtx  (with options: `test')
+%% src/fonts.dtx  (with options: `test')
+%% src/state.dtx  (with options: `test')
+%% src/supra.dtx  (with options: `test')
+%% src/format.dtx  (with options: `test')
+%% src/caseref.dtx  (with options: `test')
+%% src/constrefs.dtx  (with options: `test')
+%% src/statrefs.dtx  (with options: `test')
+%% src/govrefs.dtx  (with options: `test')
+%% src/bookrefs.dtx  (with options: `test')
+%% src/artrefs.dtx  (with options: `test')
+%% src/foreignrefs.dtx  (with options: `test')
+%% src/specrefs.dtx  (with options: `test')
+%% src/otherrefs.dtx  (with options: `test')
+%% src/nondocrefs.dtx  (with options: `test')
+%% src/genparams.dtx  (with options: `test')
+%% src/commparams.dtx  (with options: `test')
+%% src/caseparams.dtx  (with options: `test')
+%% src/legparams.dtx  (with options: `test')
+%% src/bookparams.dtx  (with options: `test')
+%% src/refparams.dtx  (with options: `test')
+%% src/strings.dtx  (with options: `test')
+%% src/abbrev.dtx  (with options: `test')
+%% src/sortlist.dtx  (with options: `test')
+%% src/hibib.dtx  (with options: `test')
+%% src/conclusion.dtx  (with options: `test')
+%% 
+%% This is a generated file.
+%% 
+%% Copyright 2013-2023 Charles Duan. This program is free software: you can
+%% redistribute it and/or modify it under the terms of the GNU General Public
+%% License as published by the Free Software Foundation, either version 3 of the
+%% License, or (at your option) any later version.
+%% 
+%% This program is distributed in the hope that it will be useful, but WITHOUT
+%% ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
+%% FOR A PARTICULAR PURPOSE. See the GNU General Public License for more details.
+%% 
+%% You should have received a copy of the GNU General Public License along with
+%% this program.  If not, see <http://www.gnu.org/licenses/>.
+%% 
+%%
+%% \iffalse filename: intro.dtx \fi
+%%
+\documentclass{article}
+\usepackage[margin=1in]{geometry}
+\usepackage[review]{hicite}
+\usepackage{unittest}
+
+\makeatletter
+\def\hi@newparam#1#2{}
+\def\hi@newparam@noval#1#2{}
+\def\hi@defparam#1#2#3{}
+\def\hi@defparam@noval#1#2#3{}
+\def\hi@param@alias#1#2{}
+\def\hi@newcite#1#2#3{}
+\def\hi@alias@cite#1#2{}
+
+\title{Hicite Unit Tests}
+\author{Charles Duan}
+
+\begin{document}
+\maketitle
+
+\raggedright
+
+%%
+%% \iffalse filename: intro.dtx \fi
+%%
+%%
+%% \iffalse filename: options.dtx \fi
+%%
+%%
+%% \iffalse filename: refs.dtx \fi
+%%
+
+\section{refs.dtx}
+
+\begingroup
+
+    \let\testregister\@empty
+    \def\deftest#1#2{\appto\testregister{{#1}{#2}}}
+    \defcitegroup\deftest{Prefix }{a, b, c}
+    \AssertMacro\testregister{{a}{Prefix a}{b}{Prefix b}{c}{Prefix c}}
+
+\endgroup
+
+%%
+%% \iffalse filename: cparse.dtx \fi
+%%
+
+\section{cparse.dtx}
+
+\subsection{Volume/Reporter/Page}
+
+\begingroup
+
+    \def\swapargs#1#2#3{#1{#3}{#2}}
+    \def\testvrpnoyear#1#2#3#4{%
+        \hi@cp@cite{#1}%
+            {\swapargs\AssertEqual{#2}}%
+            {\swapargs\AssertEqual{#3}}%
+            {\swapargs\AssertEqual{#4}}%
+            {\swapargs\AssertEqual{\relax}}%
+    }
+
+    \testvrpnoyear{123/F.3d/456}{123}{F.3d}{456}%
+    \testvrpnoyear{123 F.3d 456}{123}{F.3d}{456}%
+    \testvrpnoyear{123/U.S.C./S 456}{123}{U.S.C.}{S 456}%
+    \testvrpnoyear{123 U.S.C. S 456}{123}{U.S.C.}{S 456}%
+
+    \def\testvrpwithyear#1#2#3#4#5{%
+        \let\testyear\relax
+        \hi@cp@cite{#1}%
+            {\swapargs\AssertEqual{#2}}%
+            {\swapargs\AssertEqual{#3}}%
+            {\swapargs\AssertEqual{#4}}%
+            {\def\testyear}%
+        \AssertFalse{\@test \ifx\testyear\relax \fi}%
+        \AssertMacro\testyear{#5}%
+    }
+
+    \testvrpwithyear{123/F.3d/456 (2000)}{123}{F.3d}{456}{2000}%
+    \testvrpwithyear{123 F.3d 456 (2000)}{123}{F.3d}{456}{2000}%
+    \testvrpwithyear{123/U.S.C./S 456 (2000)}{123}{U.S.C.}{S 456}{2000}%
+    \testvrpwithyear{123 U.S.C. S 456 (2000)}{123}{U.S.C.}{S 456}{2000}%
+
+\endgroup
+
+%%
+%% \iffalse filename: names.dtx \fi
+%%
+
+\section{names.dtx}
+
+\subsection{Name Splitting}
+
+\def\TestNameSplit#1#2#3#4#5#6{#6{#1/#2/#3/#4/#5}}
+\AssertCallback{\hi@namesplit{Aristotle}\TestNameSplit}{Aristotle////}
+\AssertCallback{\hi@namesplit{Aristotle Jr.}\TestNameSplit}
+    {Aristotle//Jr.//}
+\AssertCallback{\hi@namesplit{Aristotle et al.}\TestNameSplit}
+    {Aristotle////\hi@etal}
+\AssertCallback{\hi@namesplit{Aristotle, Platonian Academy}\TestNameSplit}
+    {Aristotle///Platonian Academy/}
+\AssertCallback{\hi@namesplit{Aristotle III, Academy}\TestNameSplit}
+    {Aristotle//III/Academy/}
+\AssertCallback{\hi@namesplit{John Doe}\TestNameSplit}
+    {John/Doe///}
+\AssertCallback{\hi@namesplit{John Doe et al.}\TestNameSplit}
+    {John/Doe///\hi@etal}
+\AssertCallback{\hi@namesplit{John Doe II et al.}\TestNameSplit}
+    {John/Doe/II//\hi@etal}
+\AssertCallback{\hi@namesplit{John Doe II, Firm et al.}\TestNameSplit}
+    {John/Doe/II/Firm/\hi@etal}
+\AssertCallback{\hi@namesplit{Georg von Trapp}\TestNameSplit}
+    {Georg/von Trapp///}
+\AssertCallback{\hi@namesplit{Georg von Trapp, Austria}\TestNameSplit}
+    {Georg/von Trapp//Austria/}
+\AssertCallback{\hi@namesplit{Georg von Trapp Jr., Austria}\TestNameSplit}
+    {Georg/von Trapp/Jr./Austria/}
+\AssertCallback{\hi@namesplit{Jane {Double Barrelled}}\TestNameSplit}
+    {Jane/Double Barrelled///}
+\AssertCallback{\hi@namesplit{Jane {Double Barrelled Jr.}}\TestNameSplit}
+    {Jane/Double Barrelled/Jr.//}
+\AssertCallback{\hi@namesplit{Jane {Double Barrelled {bis}}}\TestNameSplit}
+    {Jane/Double Barrelled/bis//}
+
+\AssertCallback{\hi@nameproc@inst{Federal Trade Commission}}
+    {Fed. Trade Comm'n}
+\def\TestNameprocPerson#1#2#3{#3{#1/#2}}
+\AssertCallback
+    {\hi@nameproc@person{John Q. Public}\TestNameprocPerson}
+    {John Q. Public/Public}
+\AssertCallback
+    {\hi@nameproc@person{John Q. Public et al.}\TestNameprocPerson}
+    {John Q. Public\hi@etal/Public\hi@etal}
+\AssertCallback
+    {\hi@nameproc@person{Martin Luther King Jr. et al.}\TestNameprocPerson}
+    {Martin Luther King Jr.\hi@etal/King\hi@etal}
+\AssertCallback
+    {\hi@nameproc@person{John Doe, United States Army}\TestNameprocPerson}
+    {John Doe, U.S. Army/Doe}
+
+\subsection{Name List Arrangement}
+
+\begingroup
+
+\hi@undefine\hi@kv@test
+\let\hi@param@set@hooks\relax
+\hi@namelist@add{A}\hi@kv@test
+\AssertMacro\hi@kv@test{A}
+\hi@namelist@add{B}\hi@kv@test
+\AssertMacro\hi@kv@test{A\hi@namelist@and B}
+\hi@namelist@add{C}\hi@kv@test
+\AssertMacro\hi@kv@test{A\hi@namelist@comma B\hi@namelist@and C}
+\hi@namelist@addinst{Z}\hi@kv@test
+\AssertMacro\hi@kv@test{A\hi@namelist@comma B\hi@namelist@and
+C, \hi@namelist@insts Z}
+\hi@namelist@addinst{Y}\hi@kv@test
+\AssertMacro\hi@kv@test{A\hi@namelist@comma B\hi@namelist@and
+C, \hi@namelist@insts Z\hi@namelist@and Y}
+
+\hi@undefine\hi@kv@test
+\hi@namelist@addinst{Z}\hi@kv@test
+\hi@namelist@addinst{Y}\hi@kv@test
+\AssertMacro\hi@kv@test{\hi@namelist@insts Z\hi@namelist@and Y}
+\hi@namelist@add{A}\hi@kv@test
+\hi@namelist@add{B}\hi@kv@test
+\hi@namelist@add{C}\hi@kv@test
+\AssertMacro\hi@kv@test{A\hi@namelist@comma B\hi@namelist@and
+C, \hi@namelist@insts Z\hi@namelist@and Y}
+
+\hi@undefine\hi@kv@test
+\hi@namelist@add{A}\hi@kv@test
+\hi@namelist@addinst{Z}\hi@kv@test
+\hi@namelist@add{B}\hi@kv@test
+\AssertMacro\hi@kv@test{A\hi@namelist@and B, \hi@namelist@insts Z}
+\hi@namelist@addinst{Y}\hi@kv@test
+\hi@namelist@add{C}\hi@kv@test
+\AssertMacro\hi@kv@test{A\hi@namelist@comma B\hi@namelist@and
+C, \hi@namelist@insts Z\hi@namelist@and Y}
+
+\endgroup
+
+%%
+%% \iffalse filename: dates.dtx \fi
+%%
+
+\section{dates.dtx}
+
+\AssertCallback{\hi@date@parse{!foobar baz}}       {foobar baz}
+\AssertCallback{\hi@date@parse{feb 15 2021}}       {Feb. 15, 2021}
+\AssertCallback{\hi@date@parse{15 feb 2021}}       {Feb. 15, 2021}
+\AssertCallback{\hi@date@parse{2021 15 feb}}       {Feb. 15, 2021}
+\AssertCallback{\hi@date@parse{2021 feb 15}}       {Feb. 15, 2021}
+\AssertCallback{\hi@date@parse{feb 15-20 2021}}    {Feb. 15--20, 2021}
+\AssertCallback{\hi@date@parse{feb 2021}}          {Feb. 2021}
+\AssertCallback{\hi@date@parse{feb-april 2021}}    {Feb.--Apr. 2021}
+\AssertCallback{\hi@date@parse{2021}}              {2021}
+\AssertCallback{\hi@date@parse{2021-2022}}         {2021--2022}
+\AssertCallback{\hi@date@parse{538 bc}}            {538 \BC}
+\AssertCallback{\hi@date@parse{538 ad}}            {\AD~538}
+\AssertCallback{\hi@date@parse{c 538 ad}}          {c.~\AD~538}
+\AssertCallback{\hi@date@parse{c 538 ace}}         {c.~538 \ACE}
+\AssertCallback{\hi@date@parse{nd}}                {n.d\@.}
+\AssertCallback{\hi@date@parse{signed feb 15 2021}}
+    {\hi@fn@dateprefix{signed} Feb. 15, 2021}
+\AssertCallback{\hi@date@parse{{may} feb 15 2021}}
+    {\hi@fn@dateprefix{may} Feb. 15, 2021}
+\AssertCallback{\hi@date@parse{signed into law feb 15 2021}}
+    {\hi@fn@dateprefix{signed into law} Feb. 15, 2021}
+\AssertCallback{\hi@date@parse[issued]{feb 15 2021}}
+    {\hi@fn@dateprefix{issued} Feb. 15, 2021}
+\AssertCallback{\hi@date@parse[issued]{filed feb 15 2021}}
+    {\hi@fn@dateprefix{filed} Feb. 15, 2021}
+%%
+%% \iffalse filename: xref.dtx \fi
+%%
+
+\section{xref.dtx}
+
+\let\WrittenText\relax
+\let\OrigProtectedWrite\protected@write
+\def\protected@write#1#2#3{%
+    \begingroup
+        \let\thepage\relax
+        #2%
+        \let\protect\@unexpandable@protect
+        \xdef\WrittenText{#3}%
+    \endgroup
+}
+
+\begingroup
+    \@hi@notetrue
+    \c@footnote=3
+    \AssertBox{%
+        \footnote{a \hilabel{lbl} b}%
+    }{\@footnotemark[a b]}%
+    \AssertMacro[\AssertExpandedEqual]\WrittenText{%
+        \string\newlabel{lbl}{{}{note }{4}{}}%
+    }
+    \AssertMacro{\hir@lbl}{{note }{}}
+\endgroup
+
+\begingroup
+    \@hi@notetrue
+    \c@footnote=3
+    \AssertBox{%
+        \footnote{a \hilabel[discussion]{lbl} b}%
+    }{\@footnotemark[a b]}%
+    \AssertMacro[\AssertExpandedEqual]\WrittenText{%
+        \string\newlabel{lbl}{{discussion}{note }{4}{}}%
+    }
+    \AssertMacro{\hir@lbl}{{note }{}}
+\endgroup
+
+\begingroup
+    \@hi@notetrue
+    \c@footnote=3
+    \hilabel[discussion]{lbl}%
+    \AssertBox{%
+        \footnote{a \hiendlabel{lbl} b}%
+    }{\@footnotemark[a b]}%
+    \AssertMacro[\AssertExpandedEqual]\WrittenText{%
+        \string\newlabel{end:lbl}{{notes }{4}}%
+    }
+    \AssertMacro{\hir@lbl}{{note }{}}
+\endgroup
+
+\subsection{In Text}
+
+\begingroup
+    \c@footnote=3
+    \AssertBox{%
+        a \hilabel{lbl} b%
+    }{a b}%
+    \AssertMacro[\AssertExpandedEqual]\WrittenText{%
+        \string\newlabel{lbl}{{}{text accompanying note }{4}{}}%
+    }
+    \AssertMacro{\hir@lbl}{{text accompanying note }{}}
+\endgroup
+
+\begingroup
+    \c@footnote=2 \hilabel{lbl}
+    \c@footnote=3
+    \AssertBox{%
+        a \hiendlabel{lbl} b%
+    }{a b}%
+    \AssertMacro[\AssertExpandedEqual]\WrittenText{%
+        \string\newlabel{end:lbl}{{text accompanying notes }{3}}%
+    }
+    \AssertMacro{\hir@lbl}{{text accompanying note }{}}
+\endgroup
+
+\begingroup
+    \c@footnote=3
+    \AssertBox{%
+        a \hitanlabel{lbl} b%
+    }{a b}%
+    \AssertMacro[\AssertExpandedEqual]\WrittenText{%
+        \string\newlabel{lbl}{{}{note }{4}{ and accompanying text}}%
+    }
+    \AssertMacro{\hir@lbl}{{note }{ and accompanying text}}
+\endgroup
+
+\begingroup
+    \c@footnote=2 \hitanlabel{lbl}
+    \c@footnote=3
+    \AssertBox{%
+        a \hiendtanlabel{lbl} b%
+    }{a b}%
+    \AssertMacro[\AssertExpandedEqual]\WrittenText{%
+        \string\newlabel{end:lbl}{{notes }{3}}%
+    }
+    \AssertMacro{\hir@lbl}{{note }{ and accompanying text}}
+\endgroup
+
+\subsection{Floats}
+
+\begingroup
+    \def\@currentlabel{4}
+    \def\@captype{figure}%
+    \AssertBox{%
+        a \hilabel{lbl} b%
+    }{a b}%
+    \AssertMacro[\AssertExpandedEqual]\WrittenText{%
+        \string\newlabel{lbl}{{}{Figure }{4}{}}%
+    }
+    \AssertMacro{\hir@lbl}{{Figure }{}}
+\endgroup
+
+\begingroup
+    \def\@captype{figure}%
+    \def\@currentlabel{3}
+    \hilabel{lbl}
+    \def\@currentlabel{4}
+    \AssertBox{%
+        a \hiendlabel{lbl} b%
+    }{a b}%
+    \AssertMacro[\AssertExpandedEqual]\WrittenText{%
+        \string\newlabel{end:lbl}{{Figures }{4}}%
+    }
+    \AssertMacro{\hir@lbl}{{Figure }{}}
+\endgroup
+
+\subsection{Sections}
+
+\begingroup
+    \def\@currentlabel{III.A}
+    \AssertBox{%
+        a \hisectlabel[background]{lbl} b%
+    }{a b}%
+    \AssertMacro[\AssertExpandedEqual]\WrittenText{%
+        \string\newlabel{lbl}{{background}{Section }{III.A}{}}%
+    }
+    \AssertMacro{\hir@lbl}{{Section }{}}
+
+    \def\@currentlabel{III}
+    \AssertBox{%
+        a \hisectlabel[background]{lbl} b%
+    }{a b}%
+    \AssertMacro[\AssertExpandedEqual]\WrittenText{%
+        \string\newlabel{lbl}{{background}{Part }{III}{}}%
+    }
+    \AssertMacro{\hir@lbl}{{Part }{}}
+\endgroup
+
+\begingroup
+    \def\@currentlabel{III.A}
+    \hisectlabel{lbl}
+    \def\@currentlabel{III.B}
+    \AssertBox{%
+        a \hiendsectlabel{lbl} b%
+    }{a b}%
+    \AssertMacro[\AssertExpandedEqual]\WrittenText{%
+        \string\newlabel{end:lbl}{{Sections }{III.B}}%
+    }
+    \AssertMacro{\hir@lbl}{{Section }{}}
+\endgroup
+
+\let\protected@write\OrigProtectedWrite
+
+\subsection{Parsing}
+
+\global\let\hir@lbl\relax
+
+\begingroup
+
+    \def\r@lbl{{discussion}{note }{3}{ and accompanying text}}
+    \pc@this{lbl}
+    \AssertMacro\@this@page{%
+        {discussion}{\hi@fn@sig{infra}}{note 3 and accompanying text}%
+    }%
+
+    \@namedef{r@end:lbl}{{notes }{3}}
+    \pc@this{lbl}
+    \AssertMacro\@this@page{%
+        {discussion}{\hi@fn@sig{infra}}{note 3 and accompanying text}%
+    }%
+
+    \@namedef{r@end:lbl}{{notes }{5}}
+    \pc@this{lbl}
+    \AssertMacro\@this@page{%
+        {discussion}{\hi@fn@sig{infra}}{notes 3--5 and accompanying text}%
+    }%
+
+    \def\hir@lbl{{note }{ and accompanying text}}%
+    \pc@this{lbl}
+    \AssertMacro\@this@page{%
+        {discussion}{\hi@fn@sig{supra}}{notes 3--5 and accompanying text}%
+    }%
+
+\endgroup
+
+\subsection{Formatting}
+
+\begingroup
+
+    \let\@this@opt\relax
+
+    \def\@this@page{{}{\hi@fn@sig{infra}}{Section III}}
+    \AssertBox{\fc@this}{\emph{infra} Section III}
+    \def\@this@page{{discussion}{\hi@fn@sig{supra}}{notes 2--3}}
+    \AssertBox{\fc@this}{discussion \emph{supra} notes 2--3}
+
+\endgroup
+
+\begingroup
+
+    \def\@this@opt{remarks}
+    \def\@this@page{{}{\hi@fn@sig{infra}}{Section III}}
+    \AssertBox{\fc@this}{remarks \emph{infra} Section III}
+    \def\@this@page{{discussion}{\hi@fn@sig{supra}}{notes 2--3}}
+    \AssertBox{\fc@this}{remarks \emph{supra} notes 2--3}
+
+\endgroup
+
+\begingroup
+
+    \let\@this@opt\relax
+    \@hi@inlinetrue
+    \def\@this@page{{}{\hi@fn@sig{infra}}{Section III}}
+    \AssertBox{\fc@this}{Section III}
+    \def\@this@page{{discussion}{\hi@fn@sig{supra}}{notes 2--3}}
+    \AssertBox{\fc@this}{discussion}
+
+\endgroup
+
+%%
+%% \iffalse filename: urls.dtx \fi
+%%
+%%
+%% \iffalse filename: struct.dtx \fi
+%%
+%%
+%% \iffalse filename: anonymous.dtx \fi
+%%
+%%
+%% \iffalse filename: iface.dtx \fi
+%%
+%%
+%% \iffalse filename: parse.dtx \fi
+%%
+
+\section{parse.dtx}
+
+\subsection{Citation Parts}
+
+\AssertCallback{\hi@pse@parse{ref}}{%
+    \hi@pse@cite{%
+        \hi@pse@svr{ref}%
+    }%
+}
+
+\AssertCallback{\hi@pse@parse{ref at 3}}{%
+    \hi@pse@cite{%
+        \hi@pse@svr{ref}%
+        \hi@pse@page{3}%
+    }%
+}
+
+\AssertCallback{\hi@pse@parse{see 15 ref[opt] at 3 (paren1) (paren2)}}{%
+    \hi@pse@cite{%
+        \hi@pse@svr{see 15 ref}%
+        \hi@pse@opt{opt}%
+        \hi@pse@page{3}%
+        \hi@pse@paren{paren1}%
+        \hi@pse@paren{paren2}%
+    }%
+}
+
+\subsection{Multiple Items}
+
+\AssertCallback{\hi@pse@parse{ref1; see ref2; ref3; but see ref4; ref5}}{%
+    \hi@pse@cite{\hi@pse@svr{ref1}}%
+    \hi@pse@cite{\hi@pse@svr{see ref2}}%
+    \hi@pse@cite{\hi@pse@svr{ref3}}%
+    \hi@pse@cite{\hi@pse@svr{but see ref4}}%
+    \hi@pse@cite{\hi@pse@svr{ref5}}%
+}
+
+\subsection{Delimiters Inside Parentheticals}
+
+\AssertCallback{%
+    \hi@pse@parse{%
+        ref1 (paren (inside paren) more paren) (paren; with semicolon)%
+    }%
+}{%
+    \hi@pse@cite{%
+        \hi@pse@svr{ref1}%
+        \hi@pse@paren{paren (inside paren) more paren}%
+        \hi@pse@paren{paren; with semicolon}%
+    }%
+}
+
+\subsection{Signal, Volume, and Reference Parsing}
+
+\def\TestSVR#1#2#3#4{#4{#1/#2/#3}}
+\AssertCallback{\hi@pse@sigvolref{ref}\TestSVR}{//ref}
+\AssertCallback{\hi@pse@sigvolref{1 ref}\TestSVR}{/1/ref}
+\AssertCallback{\hi@pse@sigvolref{cf. 1 ref}\TestSVR}{cf./1/ref}
+\AssertCallback{\hi@pse@sigvolref{cf. ref}\TestSVR}{cf.//ref}
+\AssertCallback{\hi@pse@sigvolref{see also also ref}\TestSVR}{see also/also/ref}
+
+%%
+%% \iffalse filename: signals.dtx \fi
+%%
+%%
+%% \iffalse filename: pages.dtx \fi
+%%
+
+\section{pages.dtx}
+
+\subsection{Formatting}
+
+\AssertExpand{\@format@pageno{15}}{15}
+\AssertExpand{\@format@pageno{15,,,}}{15}
+\AssertExpand{\@format@pageno{15, 20}}{15, 20}
+\AssertExpand{\@format@pageno{15,,, 20}}{15, 20}
+\AssertExpand{\@format@pageno{15-20, 25-30}}{15--20, 25--30}
+\AssertExpand{\@format@pageno{115-120, 1425-1530}}{115--20, 1425--530}
+\AssertExpand{\@format@pageno{paragraph 15}}{para.~15}
+\AssertExpand{\@format@pageno{paragraphs 15}}{para.~15}
+\AssertExpand{\@format@pageno{paragraph 15-20}}{paras.~15--20}
+\AssertExpand{\@format@pageno{paragraph 15, 20}}{paras.~15, 20}
+\AssertExpand{\@format@pageno{paragraph 15, at 25-30}}{para.~15, at 25--30}
+\AssertExpand{\@format@pageno{paragraph 15/a1}}
+    {para.~15(a)\hi@psize@penalty(1)}
+\AssertExpand{\@format@pageno{paragraph 15/a1, /a2}}
+    {para.~15(a)\hi@psize@penalty(1), (a)\hi@psize@penalty(2)}
+\AssertExpand{\@format@pageno{paragraph 15, table 4-5, at 36}}
+    {para.~15, tbls.4--5, at 36}
+\AssertExpand{\@format@pageno{15 note 6}}{15 n.6}
+\AssertExpand{\@format@pageno{15 note 5, 6, 7}}{15 nn.5, 6 \& 7}
+\AssertExpand{\@format@pageno{15 & note 5, 6, 7}}{15 \& nn.5, 6 \& 7}
+\AssertExpand{\@format@pageno{S 5-6}}{\textsection\textsection~5--6}
+\AssertExpand{\@format@pageno{P 5-6}}{\textparagraph\textparagraph~5--6}
+\AssertExpand{\@format@pageno{-34/a}}{34(a)}
+\AssertExpand{\@format@pageno{!A5}}{\hi@pgnum@raw A5}
+\AssertExpand{\@format@pageno{*123-125}}{*123--25}
+
+\subsection{Spacing}
+
+\AssertBox{\def\@this@page{15}\hi@page@space{Title}}{ }
+\AssertBox{\def\@this@page{15}\hi@page@space{Title 5}}{, at }
+\AssertBox{\def\@this@page{\hi@pgnum@raw A1}\hi@page@space{Title}}{ }
+\AssertBox{\def\@this@page{\hi@pgnum@raw A1}\hi@page@space{Title 5}}{, at }
+\AssertBox{\def\@this@page{\textsection~3}\hi@page@space{Title 5}}{, }
+\AssertBox{\def\@this@page{para.~3}\hi@page@space{Title}}{ }
+\AssertBox{\def\@this@page{para.~3}\hi@page@space{Title 5}}{, }
+\AssertBox{\def\@this@page{para.~3}\hi@page@space{R.}}{ at }
+\AssertBox{\def\@this@page{3}\hi@page@space{R.}}{ at }
+%%
+%% \iffalse filename: parens.dtx \fi
+%%
+
+\section{parens.dtx}
+
+\subsection{Ordering}
+
+\begingroup
+
+\hi@parens@reset
+\hi@parens@add\@ne{One}
+\hi@parens@add\tw@{Two}
+\hi@parens@add\z@{Zero}
+\AssertMacro\hi@parens{%
+    \@paren{\z@}{Zero}\@paren{\@ne}{One}\@paren{\tw@}{Two}%
+}
+
+\hi@parens@reset
+\hi@paren@parse{generic}
+\AssertMacro\hi@parens{%
+    \@paren{\hi@paren@cite}{generic}%
+}
+
+\hi@paren@parse{discussed in: a}
+\AssertMacro\hi@parens{%
+    \@paren{\hi@paren@cite}{generic}%
+    \@paren{\hi@paren@comment}{\hi@fn@sig{discussed in} \clause{a}}%
+}
+
+\hi@paren@parse{quoting: b}
+\AssertMacro\hi@parens{%
+    \@paren{\hi@paren@cite}{generic}%
+    \@paren{\hi@paren@cite}{quoting \clause{b}}%
+    \@paren{\hi@paren@comment}{\hi@fn@sig{discussed in} \clause{a}}%
+}
+
+\def\hi@defer@content#1{\def\TestDefer{Deferred #1}}
+\def\TestDefer{failed}
+\hi@paren@parse{footnote: c}
+\AssertMacro\hi@parens{%
+    \@paren{\hi@paren@cite}{generic}%
+    \@paren{\hi@paren@cite}{quoting \clause{b}}%
+    \@paren{\hi@paren@comment}{\hi@fn@sig{discussed in} \clause{a}}%
+}
+\AssertMacro\TestDefer{Deferred c}
+
+\endgroup
+
+\subsection{Deferred Notes}
+
+\begingroup
+
+\AssertBox{\hi@deferred@note@enditem}{}
+\AssertBox{\hi@deferred@note@endstring}{}
+\AssertBox{\hi@deferred@note@endnote}{}
+
+\hi@defer@content{abc}
+\AssertBox{\hi@deferred@note@enditem}{\InFootnote{abc}}
+
+\hi@defer@content{def}
+\AssertBox{\hi@deferred@note@enditem}{\InFootnote{def}}
+\AssertBox{\hi@deferred@note@enditem}{}
+
+\hi@defer@content{ghi}
+\AssertBox{\hi@deferred@note@endstring}{\InFootnote{ghi}}
+
+\@hi@notetrue
+\hi@defer@content{jkl}
+\AssertBox{\hi@deferred@note@enditem}{}
+\AssertBox{\hi@deferred@note@endstring}{}
+\hi@defer@content{mno}
+\AssertBox{\hi@deferred@note@endstring}{}
+\AssertBox{\hi@deferred@note@endnote}{ jkl mno}
+
+\endgroup
+
+\subsection{Trailing Dots}
+
+\AssertBox{%
+    \def\hi@parens{\@paren{\hi@paren@cite}{abc}}%
+    \hi@parens@show\if@hi@dot\else.\fi
+}{ (abc).}
+\AssertBox{%
+    \def\hi@parens{\@paren{\hi@paren@cite}{abc.}}%
+    \hi@parens@show\if@hi@dot\else.\fi
+}{ (abc.).}
+\AssertBox{%
+    \def\hi@parens{\@paren{\hi@paren@comment}{abc}}%
+    \hi@parens@show\if@hi@dot\else.\fi
+}{, abc.}
+\AssertBox{%
+    \def\hi@parens{\@paren{\hi@paren@comment}{abc.}}%
+    \hi@parens@show\if@hi@dot\else.\fi
+}{, abc.}
+\AssertBox{%
+    \def\hi@parens{\@paren{\hi@paren@comment}{\emph{abc.}\@hi@dottrue}}%
+    \hi@parens@show\if@hi@dot\else.\fi
+}{, \emph{abc.}}
+
+%%
+%% \iffalse filename: toa.dtx \fi
+%%
+
+\section{toa.dtx}
+
+\subsection{Aux File Writing}
+
+\let\WrittenText\@empty
+\let\OrigProtectedWrite\protected@write
+\def\protected@write#1#2#3{%
+    \begingroup
+        \let\thepage\relax
+        #2%
+        \let\protect\@unexpandable@protect
+        \xdef\WrittenText{#3}%
+    \endgroup
+    \begingroup
+        \let\protect\noexpand
+        \xdef\WrittenText{\WrittenText}%
+    \endgroup
+}
+
+\begingroup
+
+    \def\tc@ref{other:Other Source/s}
+    \let\tcpg@ref\relax
+    \@hi@in@toafalse
+    \@hi@toa@disabledfalse
+    \def\thepage{\csname @roman\endcsname \c@page}
+
+    \begingroup
+        \let\WrittenText\@empty
+        \AssertBox{%
+            \c@page=5
+            \hi@addtotoa{ref}{15}%
+        }{}
+        \AssertMacro[\AssertExpandedEqual]{\WrittenText}{%
+            \string\@writefile{toa}{%
+                \noexpand\contentsline {hi@toa}{ref}{%
+                    {\detokenize{v}}%
+                    {5}%
+                    {%
+                        \noexpand\csname @roman\noexpand\endcsname
+                        \noexpand\c@page
+                    }%
+                    {other:Other Source/s}%
+                }{}%
+            }%
+        }%
+    \endgroup
+
+    \begingroup
+        \let\WrittenText\@empty
+        \let\tcpg@ref\@empty
+        \AssertBox{%
+            \c@page=5
+            \hi@addtotoa{ref}{15}%
+        }{}
+        \AssertMacro[\AssertExpandedEqual]{\WrittenText}{%
+            \string\@writefile{toa}{%
+                \noexpand\contentsline {hi@toa}{ref at 15}{%
+                    {\detokenize{v}}%
+                    {5}%
+                    {%
+                        \noexpand\csname @roman\noexpand\endcsname
+                        \noexpand\c@page
+                    }%
+                    {other:Other Source/s}%
+                }{}%
+            }%
+        }%
+    \endgroup
+
+    \begingroup
+        \let\WrittenText\@empty
+        \@hi@in@toatrue
+        \AssertBox{%
+            \hi@addtotoa{ref}{15}%
+        }{}
+        \AssertMacro[\AssertEqual]{\WrittenText}{}
+    \endgroup
+
+    \begingroup
+        \let\WrittenText\@empty
+        \@hi@toa@disabledtrue
+        \AssertBox{%
+            \hi@addtotoa{ref}{15}%
+        }{}
+        \AssertMacro[\AssertEqual]{\WrittenText}{}
+    \endgroup
+
+\endgroup
+
+\let\protected@write\OrigProtectedWrite
+
+\subsection{Aux File Reading}
+
+\begingroup
+    \def\hi@toa@addtolist#1#2#3{%
+        \edef\ListTestResult{{\unexpanded{#1}}{#2}{#3}}%
+    }
+    \def\hi@toa@addpg#1#2#3#4{%
+        \def\PageTestResult{{#1}{#2}{#3}{#4}}%
+    }
+
+    \let\ListTestResult\relax
+    \let\PageTestResult\relax
+
+    \contentsline {hi@toa}{ref}{%
+        {v}%
+        {5}%
+        {\csname @roman\endcsname \c@page}%
+        {other:Other Source/s}%
+    }{}%
+    \AssertMacro\PageTestResult{%
+        {\hi@pg@ref}{v}{5}{\csname @roman\endcsname\c@page}%
+    }
+    \AssertMacro\ListTestResult{{ref}{other}{Other Source/s}}
+
+\endgroup
+
+\subsection{Canonicalization}
+
+\begingroup
+
+    \def\fc@ref{\emph{a b} Cde 12 Fg. ({hij})}
+
+    \AssertCallback[\AssertCharEqual]{\hi@toa@makesortable{ref}}{%
+        ABCDE...12FGHIJ%
+    }
+
+    \AssertCallback[\AssertCharEqual]{\hi@toa@makesortable{ref at 15/a2b}}{%
+        ABCDE...12FGHIJ...15A....2B%
+    }
+
+    \def\lc@ref{\emph{k l} Mno 25 Pq. ({rst})}
+
+    \AssertCallback[\AssertCharEqual]{\hi@toa@makesortable{ref}}{%
+        KLMNO...25PQRST%
+    }
+
+\endgroup
+
+\subsection{Sublists}
+
+\begingroup
+
+    \hi@toa@sublist@add{stat}{Regulation/s}
+    \AssertBox{\hi@toa@sublist@show{stat}}{Regulation}
+
+    \hi@toa@sublist@add{stat}{Regulation/s}
+    \AssertBox{\hi@toa@sublist@show{stat}}{Regulations}
+
+    \hi@toa@sublist@add{stat}{Treat/y/ies}
+    \AssertBox{\hi@toa@sublist@show{stat}}{Regulations and Treaty}
+
+    \hi@toa@sublist@add{stat}{Statute/s}
+    \AssertBox{\hi@toa@sublist@show{stat}}{Regulations, Treaty and Statute}
+
+    \hi@toa@sublist@add{stat}{Treat/y/ies}
+    \AssertBox{\hi@toa@sublist@show{stat}}{Regulations, Treaties and Statute}
+
+\endgroup
+
+\subsection{List Addition}
+
+\begingroup
+
+    \def\fc@refA{A}
+    \def\fc@refI{I}
+    \def\fc@refM{M}
+    \AssertFalse{\IfKnownList{hi@toa@list}}
+
+    \hi@toa@addtolist{refM}{list}{item/s}
+    \AssertTrue{\IfKnownList{hi@toa@list}}
+
+    \AssertBox{\ShowList{hi@toa@list}{#1, }}{refM, }
+    \AssertBox{\hi@toa@sublist@show{list}}{item}
+
+    \AssertTrue{\IfListContains{hi@toa@list}{refM}}
+
+    \hi@toa@addtolist{refM}{list}{item/s}
+    \AssertBox{\ShowList{hi@toa@list}{#1, }}{refM, }
+    \AssertBox{\hi@toa@sublist@show{list}}{item}
+
+    \hi@toa@addtolist{refA}{list}{item/s}
+    \AssertBox{\ShowList{hi@toa@list}{#1, }}{refA, refM, }
+    \AssertBox{\hi@toa@sublist@show{list}}{items}
+
+    \hi@toa@addtolist{refI}{list}{element/s}
+    \AssertBox{\ShowList{hi@toa@list}{#1, }}{refA, refI, refM, }
+    \AssertBox{\hi@toa@sublist@show{list}}{items and element}
+
+    \hi@toa@addtolist{refA}{list}{item/s}
+    \AssertBox{\ShowList{hi@toa@list}{#1, }}{refA, refI, refM, }
+    \AssertBox{\hi@toa@sublist@show{list}}{items and element}
+
+\endgroup
+
+\subsection{Page Numbers and Star Counting}
+
+\begingroup
+    \StarCount{4}
+    \everypar{}
+    \let\hi@pg@ref\relax
+    \hi@toa@addpg\hi@pg@ref{ii}{2}{roman}
+    \AssertCallback{\hi@toa@usepg{ref}}{ii}
+    \AssertCallback{\hi@toa@refcount{ref}}{1}
+
+    \hi@toa@star{ref}
+    \AssertExpand{\the\everypar}{}
+
+    \hi@toa@addpg\hi@pg@ref{iii}{3}{roman}
+    \AssertCallback{\hi@toa@usepg{ref}}{ii--iii}
+    \AssertCallback{\hi@toa@refcount{ref}}{2}
+
+    \hi@toa@star{ref}
+    \AssertExpand{\the\everypar}{}
+
+    \hi@toa@addpg\hi@pg@ref{iii}{3}{roman}
+    \AssertCallback{\hi@toa@usepg{ref}}{ii--iii}
+    \AssertCallback{\hi@toa@refcount{ref}}{3}
+
+    \hi@toa@star{ref}
+    \AssertExpand{\the\everypar}{}
+
+    \hi@toa@addpg\hi@pg@ref{iv}{4}{roman}
+    \AssertCallback{\hi@toa@usepg{ref}}{ii--iv}
+    \AssertCallback{\hi@toa@refcount{ref}}{4}
+
+    Stars should now show up at the start of every first test paragraph.
+
+    \hi@toa@star{ref}
+    \AssertExpand{\the\everypar}{\noexpand\StarMark\noexpand\everypar{}}
+
+    \hi@toa@addpg\hi@pg@ref{4}{4}{arabic}
+    \AssertCallback{\hi@toa@usepg{ref}}{ii--iv, 4}
+    \AssertCallback{\hi@toa@refcount{ref}}{5}
+
+    \hi@toa@star{ref}
+    \AssertExpand{\the\everypar}{\noexpand\StarMark\noexpand\everypar{}}
+
+    \hi@toa@addpg\hi@pg@ref{5}{5}{arabic}
+    \AssertCallback{\hi@toa@usepg{ref}}{ii--iv, 4--5}
+    \AssertCallback{\hi@toa@refcount{ref}}{6}
+
+    \hi@toa@star{ref}
+    \AssertExpand{\the\everypar}{\noexpand\StarMark\noexpand\everypar{}}
+
+    \hi@toa@addpg\hi@pg@ref{7}{7}{arabic}
+    \AssertCallback{\hi@toa@usepg{ref}}{ii--iv, 4--5, 7}
+    \AssertCallback{\hi@toa@refcount{ref}}{7}
+
+    \hi@toa@star{ref}
+    \AssertExpand{\the\everypar}{\noexpand\StarMark\noexpand\everypar{}}
+
+    \c@passimnum=2
+    \AssertCallback{\hi@toa@usepg{ref}}{\PassimText}
+
+    \c@passimnum=3
+    \AssertCallback{\hi@toa@usepg{ref}}{\PassimText}
+
+    \c@passimnum=4
+    \AssertCallback{\hi@toa@usepg{ref}}{ii--iv, 4--5, 7}
+\endgroup
+
+\subsection{Formatting}
+
+\AssertBox{\hbox{\hi@toa@brkpg{1--2, 3--4, 5}}}{\hbox{1--2, 3--4, 5}}
+
+The following can only be tested visually. Make sure that these look acceptable.
+\def\testbox#1#2{\vrule\vtop{%
+    \hsize=1.25in\relax \hi@toa@par@settings
+    #1\nobreak\TOALeader\nobreak\hi@toa@brkpg{#2}\par
+}\vrule\allowbreak\space}
+
+\leavevmode
+\testbox{A}{1--2, 3, 4, 5}
+\testbox{AB}{1--2, 3, 4, 5}
+\testbox{ABC}{1--2, 3, 4, 5}
+\testbox{ABCD}{1--2, 3, 4, 5}
+\testbox{ABCDE}{1--2, 3, 4, 5}
+\testbox{ABCDEF}{1--2, 3, 4, 5}
+\testbox{ABCDEFG}{1--2, 3, 4, 5}
+\testbox{ABCDEFGH}{1--2, 3, 4, 5}
+
+%%
+%% \iffalse filename: endnotes.dtx \fi
+%%
+%%
+%% \iffalse filename: short.dtx \fi
+%%
+%%
+%% \iffalse filename: draw.dtx \fi
+%%
+%%
+%% \iffalse filename: abbrevs.dtx \fi
+%%
+
+\section{abbrevs.dtx}
+
+\AssertBox{\hi@abbrev@journal{American University Law Review}\@iden}{Am. U.
+L. Rev.}
+
+\AssertBox{\hi@abbrev@journal{Boston University Law Journal}\@iden}{B.U.
+L.J.}
+
+\AssertBox{\hi@abbrev@journal{American Law Weekly}\@iden}{Am. L. Wkly.}
+\AssertBox{\hi@abbrev@journal{American Lawyer}\@iden}{Am. Law.}
+\AssertBox{\hi@abbrev@journal{Law Weekly}\@iden}{Law Wkly.}
+
+\AssertBox{\hi@abbrev@journal{California Law Review}\@iden}{Calif. L. Rev.}
+\AssertBox{\hi@abbrev@journal{California Law Review Online}\@iden}{Calif. L.
+Rev. Online}
+\AssertBox{\hi@abbrev@journal{Southern California Law Review}\@iden}{S. Cal. L.
+Rev.}
+
+%%
+%% \iffalse filename: fonts.dtx \fi
+%%
+
+\section{fonts.dtx}
+
+\begingroup
+    \UseFontPack{memo}
+    \AssertBox{\UseFontFor{booktitle}{Book Title}}{\emph{Book Title}}
+\endgroup
+
+\begingroup
+    \UseFontPack{review}
+    \AssertBox{\UseFontFor{booktitle}{Book Title}}{\textsc{Book Title}}
+    \AssertBox{\UseFontFor{casefc}{Case Title}}{Case Title}
+
+    \UseFontPack{italcase}
+    \AssertBox{\UseFontFor{casefc}{Case Title}}{\emph{Case Title}}
+\endgroup
+
+%%
+%% \iffalse filename: state.dtx \fi
+%%
+%%
+%% \iffalse filename: supra.dtx \fi
+%%
+%%
+%% \iffalse filename: format.dtx \fi
+%%
+%%
+%% \iffalse filename: caseref.dtx \fi
+%%
+\hi@newcite\defcase{A case citation}{%
+    \hi@citetype{#1}\hi@type@case
+    \hi@case@def{#1}%
+}
+\hi@newcite\defadmincase{An administrative decision}{%
+    \hi@citetype{#1}\hi@type@admin
+    \hi@case@def{#1}%
+}
+\hi@newcite\defcasedoc{Document used in a case}{%
+    \hi@citetype{#1}\hi@type@other
+    \hi@ifset\hi@kv@citation{}{%
+        \PackageError\hi@pkgname{%
+            Missing citation for casedoc #1
+        }{%
+            A reference to a case is required for \string\defcasedoc
+        }%
+    }%
+    \hi@newcite@form{fc}{#1}{%
+        \hi@citeguts{%
+            \noexpand\@capnext
+            \hi@kv@name
+            \hi@maybepage{ at }%
+            ,
+            \def\noexpand\hi@casedoc@docket{\hi@kv@docket}%
+            \def\noexpand\hi@casedoc@date{\hi@kv@year}%
+            \noexpand\hi@noid
+            \let\noexpand\@last@inline\relax
+            \noexpand\clause{\hi@kv@citation}\noexpand\hi@clause@endflag
+        }%
+        \hi@inline@never{%
+            \hi@record@cite{\hi@kv@citation}%
+            \hi@ifset\hi@kv@number{%
+                \hi@parens@add\hi@paren@docno{Doc.\ No.\ \hi@kv@number}%
+            }{}%
+            \the\hi@param@parens
+        }%
+    }%
+    \hi@newcite@form{sc}{#1}{%
+        \hi@citeguts{%
+            \hi@kv@name
+            \hi@maybepage{ at }%
+            ,
+            \def\noexpand\hi@casedoc@docket{\hi@kv@docket}%
+            \noexpand\hi@noid
+            \noexpand\clause{\hi@kv@citation}\noexpand\hi@clause@endflag
+        }%
+    }%
+}
+\hi@newcite\defcourtdoc{A document in the docket of current litigation}{
+    \@expand\hi@abbrev@cdoc\hi@kv@name i{\def\hi@kv@name}%
+    \hi@ifset\hi@kv@inline{%
+        \@expand\hi@abbrev@cdoc\hi@kv@inline i{\def\hi@kv@inline}%
+    }{%
+        \hi@ifset\hi@kv@number{%
+            \protected@edef\hi@kv@inline{Doc.\ No.\ \hi@kv@number}%
+        }{%
+            \let\hi@kv@inline\hi@kv@name
+        }%
+    }%
+    \hi@newcite@form{fc}{#1}{%
+        \hi@citeguts{%
+            \hi@kv@name
+            \hi@testfordot\hi@kv@name
+            \hi@maybepage{\hi@page@space\hi@kv@name}%
+            \hi@ifset\hi@kv@year{, \hi@kv@year\noexpand\@hi@dotfalse}{}%
+        }%
+        \hi@ifset\hi@kv@number{%
+            \hi@parens@add\hi@paren@docno{Doc.\ No.\ \hi@kv@number}%
+        }{}%
+        \the\hi@param@parens
+    }%
+    \hi@newcite@form{sc}{#1}{%
+        \hi@citeguts{%
+            \hi@kv@inline
+            \hi@testfordot\hi@kv@inline
+            \hi@maybepage{\hi@page@space\hi@kv@inline}%
+        }%
+    }%
+}
+
+\section{caseref.dtx}
+
+\subsection{Short Name Utilities}
+
+\AssertTrue{\hi@iffirstwordcaps{HELLO}}
+\AssertFalse{\hi@iffirstwordcaps{Hello}}
+
+\AssertCallback{\hi@case@shortfmt{Test}}{Test}
+\AssertCallback{\hi@case@shortfmt{Test, Inc.}}{Test}
+\AssertCallback{\hi@case@shortfmt{Test USA, Inc.}}{Test}
+
+\AssertCallback[\AssertNum]{\hi@case@scorename{Wheaton}}{>0}
+\AssertCallback[\AssertNum]{\hi@case@scorename{}}{<0}
+\AssertCallback[\AssertNum]{\hi@case@scorename{Wheaton}}{>0}
+\AssertCallback[\AssertNum]{\hi@case@scorename{Bank of America}}{>0}
+\AssertCallback[\AssertNum]{\hi@case@scorename{FTC}}{>0}
+
+\subsection{Name Formatting}
+
+\subsubsection{Named Parties}
+
+\begingroup
+    \hi@undefine\hi@kv@name
+    \hi@undefine\hi@kv@inline
+    \def\hi@kv@p{Wheaton}
+    \def\hi@kv@d{Peters}
+    \hi@case@proc
+    \AssertMacro\hi@kv@name{\hi@fn@casefc{Wheaton\hi@versus Peters}}
+    \AssertMacro\hi@kv@lname{\hi@fn@casefc{Wheaton\hi@versus Peters}}
+    \AssertMacro\hi@kv@aname{\hi@fn@casefc{Wheaton\hi@versus Peters}}
+    \AssertMacro\hi@kv@ainline{\hi@fn@casesc{Wheaton}}
+    \AssertMacro\hi@kv@inline{\hi@fn@casesc{Wheaton}}
+\endgroup
+
+\subsubsection{Ex Rel.\ Party}
+
+\begingroup
+    \hi@undefine\hi@kv@name
+    \hi@undefine\hi@kv@inline
+    \def\hi@kv@p{Commonwealth ex rel. Wheaton}
+    \def\hi@kv@d{Board of Trade}
+    \hi@case@proc
+    \AssertMacro\hi@kv@name{%
+        \hi@fn@casefc{%
+            Commonwealth\hi@case@exrel Wheaton\hi@versus Board of Trade%
+        }%
+    }%
+    \AssertMacro\hi@kv@lname{%
+        \hi@fn@casefc{%
+            Commonwealth\hi@case@exrel Wheaton\hi@versus Board of Trade%
+        }%
+    }%
+    \AssertMacro\hi@kv@aname{%
+        \hi@fn@casefc{%
+            Commonwealth\hi@case@exrel Wheaton\hi@versus Bd. of Trade%
+        }%
+    }%
+    \AssertMacro\hi@kv@ainline{\hi@fn@casesc{Wheaton}}
+    \AssertMacro\hi@kv@inline{\hi@fn@casesc{Wheaton}}
+\endgroup
+
+\subsubsection{Parties Only}
+
+\begingroup
+    \hi@undefine\hi@kv@name
+    \hi@undefine\hi@kv@inline
+    \def\hi@kv@p{Federal Trade Commission}
+    \def\hi@kv@d{Actavis, Incorporated}
+    \hi@case@proc
+    \AssertMacro\hi@kv@name
+        {\hi@fn@casefc{Federal Trade Commission\hi@versus Actavis,
+        Inc.}\protect\@hi@dottrue}
+    \AssertMacro\hi@kv@lname
+        {\hi@fn@casefc{Federal Trade Commission\hi@versus Actavis,
+        Inc.}\protect\@hi@dottrue}
+    \AssertMacro\hi@kv@aname
+        {\hi@fn@casefc{Fed. Trade Comm'n\hi@versus Actavis, Inc.}}
+    \AssertMacro\hi@kv@ainline{\hi@fn@casesc{Fed. Trade Comm'n}}
+    \AssertMacro\hi@kv@inline{\hi@fn@casesc{Federal Trade Commission}}
+\endgroup
+
+\subsubsection{Parties Only, Capitalized Name}
+
+\begingroup
+    \hi@undefine\hi@kv@name
+    \hi@undefine\hi@kv@inline
+    \def\hi@kv@p{FTC}
+    \def\hi@kv@d{Actavis, Incorporated}
+    \hi@case@proc
+    \AssertMacro\hi@kv@name
+        {\hi@fn@casefc{FTC\hi@versus Actavis, Inc.}\protect\@hi@dottrue}
+    \AssertMacro\hi@kv@lname
+        {\hi@fn@casefc{FTC\hi@versus Actavis, Inc.}\protect\@hi@dottrue}
+    \AssertMacro\hi@kv@aname
+        {\hi@fn@casefc{FTC\hi@versus Actavis, Inc.}}
+    \AssertMacro\hi@kv@ainline{\hi@fn@casesc{Actavis}}
+    \AssertMacro\hi@kv@inline{\hi@fn@casesc{Actavis}}
+\endgroup
+
+\subsubsection{Parties and User-Defined Inline}
+
+\begingroup
+    \hi@undefine\hi@kv@name
+    \def\@this@case{actavis}
+    \def\hi@kv@inline{Actavis II}
+    \def\hi@kv@p{FTC}
+    \def\hi@kv@d{Actavis, Incorporated}
+    \hi@case@proc
+    \AssertMacro\hi@kv@name{%
+        \hi@fn@casefc{FTC\hi@versus Actavis, Inc.}\protect\@hi@dottrue
+        \hi@short@maybeshow{actavis}{ % space
+            (``\hi@fn@casesc{Actavis II}'')%
+            \protect\@hi@dotfalse
+        }%
+    }%
+    \AssertMacro\hi@kv@lname
+        {\hi@fn@casefc{FTC\hi@versus Actavis, Inc.}\protect\@hi@dottrue}
+    \AssertMacro\hi@kv@aname{%
+        \hi@case@choosefullorainline{%
+            \hi@fn@casefc{FTC\hi@versus Actavis, Inc.}%
+        }{%
+            \hi@fn@casesc{Actavis II}%
+        }%
+    }
+    \AssertMacro\hi@kv@ainline{\hi@fn@casesc{Actavis II}}
+    \AssertMacro\hi@kv@inline{\hi@fn@casesc{Actavis II}}
+\endgroup
+
+\subsubsection{Parties and Name}
+
+\begingroup
+    \def\hi@kv@name{The Reverse Settlement Litigation}
+    \hi@undefine\hi@kv@inline
+    \def\hi@kv@p{FTC}
+    \def\hi@kv@d{Actavis, Incorporated}
+    \hi@case@proc
+    \AssertMacro\hi@kv@name{%
+        \hi@fn@casefc{FTC\hi@versus Actavis, Inc.} % space
+        (\hi@fn@casefc{The Reverse Settlement Litigation})%
+    }%
+    \AssertMacro\hi@kv@lname{%
+        \hi@fn@casefc{FTC\hi@versus Actavis, Inc.} % space
+        (\hi@fn@casefc{The Reverse Settlement Litigation})%
+    }
+    \AssertMacro\hi@kv@aname{%
+        \hi@fn@casefc{FTC\hi@versus Actavis, Inc.} % space
+        (\hi@fn@casefc{The Reverse Settlement Litig.})%
+    }
+    \AssertMacro\hi@kv@inline{%
+        \hi@fn@casesc{\hi@inline@the Reverse Settlement Litigation}%
+    }
+    \AssertMacro\hi@kv@ainline{%
+        \hi@fn@casesc{\hi@inline@the Reverse Settlement Litig.}%
+    }
+\endgroup
+
+\subsubsection{Name Only, with Prefix}
+
+\begingroup
+    \def\hi@kv@name{In re Wands}
+    \hi@undefine\hi@kv@inline
+    \hi@undefine\hi@kv@p
+    \hi@undefine\hi@kv@d
+    \hi@case@proc
+    \AssertMacro\hi@kv@name{%
+        \hi@fn@caseproc{In re} \hi@fn@casefc{Wands}%
+    }%
+    \AssertMacro\hi@kv@lname{%
+        \hi@fn@casefc{Wands}, \hi@fn@caseproc{In re}%
+    }
+    \AssertMacro\hi@kv@aname{%
+        \hi@fn@caseproc{In re} \hi@fn@casefc{Wands}%
+    }
+    \AssertMacro\hi@kv@inline{%
+        \hi@fn@casesc{Wands}%
+    }
+    \AssertMacro\hi@kv@ainline{%
+        \hi@fn@casesc{Wands}%
+    }
+\endgroup
+
+\subsubsection{Name Only, with Prefix and The}
+
+\begingroup
+    \def\hi@kv@name{In re The United States Ship}
+    \hi@undefine\hi@kv@inline
+    \hi@undefine\hi@kv@p
+    \hi@undefine\hi@kv@d
+    \hi@case@proc
+    \AssertMacro\hi@kv@name{%
+        \hi@fn@caseproc{In re} \hi@fn@casefc{The United States Ship}%
+    }%
+    \AssertMacro\hi@kv@lname{%
+        \hi@fn@casefc{The United States Ship}, \hi@fn@caseproc{In re}%
+    }
+    \AssertMacro\hi@kv@aname{%
+        \hi@fn@caseproc{In re} \hi@fn@casefc{The U.S. Ship}%
+    }
+    \AssertMacro\hi@kv@inline{%
+        \hi@fn@casesc{The United States Ship}%
+    }
+    \AssertMacro\hi@kv@ainline{%
+        \hi@fn@casesc{The U.S. Ship}%
+    }
+\endgroup
+
+\subsubsection{Name Only, with The}
+
+\begingroup
+    \def\hi@kv@name{The Slaughter-House Cases}
+    \hi@undefine\hi@kv@inline
+    \hi@undefine\hi@kv@p
+    \hi@undefine\hi@kv@d
+    \hi@case@proc
+    \AssertMacro\hi@kv@name{%
+        \hi@fn@casefc{\hi@inline@the Slaughter-House Cases}%
+    }%
+    \AssertMacro\hi@kv@lname{%
+        \hi@fn@casefc{Slaughter-House Cases}, \hi@fn@casefc{The}%
+    }
+    \AssertMacro\hi@kv@aname{%
+        \hi@fn@casefc{The Slaughter-House Cases}%
+    }
+    \AssertMacro\hi@kv@inline{%
+        \hi@fn@casesc{\hi@inline@the Slaughter-House Cases}%
+    }
+    \AssertMacro\hi@kv@ainline{%
+        \hi@fn@casesc{\hi@inline@the Slaughter-House Cases}%
+    }
+\endgroup
+
+\subsection{Nominative Reporters}
+
+\begingroup
+    \def\hi@kv@rep{U.S.}
+    \def\hi@kv@vol{21}
+    \hi@case@updaterep
+    \AssertMacro\hi@kv@rep{U.S. (8 Wheat.)}
+\endgroup
+
+\subsection{Date Parenthetical}
+
+\begingroup
+
+    \def\hi@kv@rep{U.S.}
+    \protected@edef\TestParen{%
+        \hi@case@dateparen{\hi@parens@add\hi@paren@date{1900}}{y}%
+    }
+    \hi@parens@reset
+    \TestParen
+    \AssertMacro\hi@parens{\@paren{\hi@paren@date}{1900}}
+
+    \def\hi@casedoc@docket{No. 12-345}
+    \def\hi@casedoc@date{Jan. 5, 1899}
+    \hi@parens@reset
+    \TestParen
+    \AssertMacro\hi@parens{%
+        \@paren{\hi@paren@date}{\hi@casedoc@date}%
+        \@paren{\hi@paren@casedocdocket}{\hi@casedoc@docket}%
+    }%
+
+    \hi@undefine\hi@kv@rep
+    \protected@edef\TestParen{%
+        \hi@case@dateparen{\hi@parens@add\hi@paren@date{1900}}{y}%
+    }
+    \hi@parens@reset
+    \TestParen
+    \AssertMacro\hi@parens{%
+        \@paren{\hi@paren@date}{\hi@casedoc@date}%
+    }%
+
+\endgroup
+
+\subsection{Reference Citation Tests}
+
+\defcase{fsu}{
+Board of Education ex rel. Board of Trustees v.
+American Bioscience, Inc., 333 F.3d 1330 (Fed. Cir. 2003)
+}
+\AssertBox{\note{fsu}}{%
+    \InFootnote{Bd.\ of Educ.\ \emph{ex rel.}\ Bd.\ of Trs.\ v.\ Am.\
+    Bioscience, Inc., 333 F.3d 1330 (Fed.\ Cir.\ 2003).}%
+}
+
+\defcase{wheaton}{
+Wheaton v. Peters, 33 U.S. 591 (1834)
+}
+
+\AssertBox{\inline{wheaton}}{\emph{Wheaton v.\ Peters}}
+
+\AssertBox{\note{wheaton}}{%
+    \InFootnote{Wheaton v.\ Peters, 33 U.S. (8 Pet.)\ 591 (1834).}%
+}
+
+\defcasedoc{wheaton-brief}{
+name=Brief for Appellant,
+date=Jan. 1 1833,
+docket=No. 12-34,
+citation=wheaton,
+}
+\AssertBox{\note{wheaton-brief at 5}}{%
+    \InFootnote{Brief for Appellant at 5, \emph{Wheaton}, 33 U.S. (8
+    Pet.)\ 591 (Jan.\ 1, 1833) (No.\ 12-34).}%
+}
+
+\subsection{Procedural Phrases}
+
+\AssertCallback{\hi@abbrev@expl{certiorari denied}}{cert. denied,}
+\AssertCallback{\hi@abbrev@expl{certiorari denied,}}{cert. denied,}
+\AssertCallback{\hi@abbrev@expl{cert. denied}}{cert. denied,}
+\AssertCallback{\hi@abbrev@expl{cert. denied,}}{cert. denied,}
+
+\defcase{unocal-dct}{
+parties=Oil Co. v. Atlantic,
+cite=34 F. Supp. 2d 1208,
+court=C.D. Cal.,
+year=1998,
+subsequent=affirmed: unocal-cafc,
+}
+
+\defcase{unocal-cafc}{
+parties=Oil Co. v. Atlantic,
+cite=208 F.3d 989,
+court=Fed. Cir.,
+year=2000,
+}
+
+\defcase{unocal-rf-dct}{
+parties=Oil Co. v. Atlantic Richfield,
+cite=34 F. Supp. 2d 1208,
+court=C.D. Cal.,
+year=1998,
+subsequent=affirmed: unocal-cafc,
+}
+
+\defcase{unocal-rf-rd-dct}{
+parties=Oil Co. v. Atlantic Richfield,
+cite=34 F. Supp. 2d 1208,
+court=C.D. Cal.,
+year=1998,
+subsequent=rehearing denied: unocal-cafc,
+}
+
+\AssertBox{\note{unocal-dct}}{%
+    \InFootnote{Oil Co.\ v.\ Atlantic, 34 F. Supp.\
+    2d 1208 (C.D. Cal.\ 1998), \emph{aff'd}{}, 208 F.3d 989 (Fed.\ Cir.\
+    2000).}}
+
+\fullcite{unocal-cafc}
+
+\AssertBox{\tiny\note{unocal-rf-dct}}{%
+    \tiny
+    \InFootnote{Oil Co.\ v.\ Atl.\ Richfield, 34 F. Supp.\
+    2d 1208 (C.D. Cal.\ 1998), \emph{aff'd} \emph{sub nom.}\ Oil Co.\ v.\
+    Atlantic, 208 F.3d 989 (Fed.\ Cir.\ 2000).}}
+
+\fullcite{unocal-cafc}
+
+\AssertBox{\note{unocal-rf-rd-dct}}{%
+    \InFootnote{Oil Co.\ v.\ Atl.\ Richfield, 34 F. Supp.\
+    2d 1208 (C.D. Cal.\ 1998), \emph{reh'g denied}{}, 208 F.3d 989 (Fed.\ Cir.\
+    2000).}}
+
+\defcase{plessy}{
+Plessy v. Ferguson, 163 U.S. 537 (1896);
+subsequent=overruled by: brown,
+}
+\defcase{brown}{
+p=Brown,
+d=Board of Education of Topeka,
+cite=347 U.S. 483,
+year=1954,
+}
+
+\AssertBox{\note{plessy}}{%
+    \InFootnote{%
+        Plessy v.\ Ferguson, 163 U.S. 537 (1896), \emph{overruled by}
+        Brown v.\ Bd.\ of Educ.\ of Topeka, 347 U.S. 483 (1954).%
+    }%
+}
+
+%%
+%% \iffalse filename: constrefs.dtx \fi
+%%
+\hi@newcite\defconst{Citation to a constitution}{%
+    \hi@citetype{#1}\hi@type@const
+    \hi@ifset\hi@kv@name\relax{%
+        \PackageWarning\hi@pkgname{%
+            Constitution citation requires "name" argument
+        }%
+        \let\hi@kv@name\@empty
+    }%
+    \hi@replacethe\hi@kv@name{\hi@const@part{#1}}{%
+        \hi@const@part{#1}{\@capnext\hi@kv@name}%
+    }%
+}
+\hi@newcite\defconstamend{A Constitutional amendment}{%
+    \hi@citetype{#1}\hi@type@const
+    \edef\hi@kv@page{amendment \expandafter\@Roman\hi@kv@number}%
+    \hi@const@part{#1}{%
+        \hi@inline@the
+        \@expandarg\hi@numtotxt{\hi@kv@number}
+        Amendment%
+    }%
+}
+\hi@newcite\deffounding{A national founding document}{%
+    \hi@citetype{#1}\hi@type@found
+    \hi@statcode@setup@idpc{#1}% Set up id. and page numbering
+    \hi@include@page@in@toa{#1}
+    \hi@newcite@form{fc}{#1}{%
+        \hi@citeguts{%
+            \noexpand\hi@fn@const{\hi@kv@name}%
+            \hi@pageordefault{ }{%
+                \hi@ifset\hi@kv@page{ \@format@page@macro\hi@kv@page}{}%
+            }%
+        }%
+        \the\hi@param@parens
+        \hi@ifset\hi@kv@year{%
+            \hi@parens@add{\hi@paren@date}{\hi@kv@year}%
+        }{}%
+    }%
+    \hi@newcite@form{lc}{#1}{%
+        \noexpand\hi@toa@duptitle{}{\hi@fn@const{\hi@kv@name}}{%
+            \hi@pageordefault{ }{%
+                \hi@ifset\hi@kv@page{ \@format@page@macro\hi@kv@page}{}%
+            }%
+            \the\hi@param@parens
+            \hi@ifset\hi@kv@year{%
+                \hi@parens@add{\hi@paren@date}{\hi@kv@year}%
+            }{}%
+        }{%
+            \hi@pageordefault{ }{%
+                \hi@ifset\hi@kv@page{ \@format@page@macro\hi@kv@page}{}%
+            }%
+        }%
+        \the\hi@param@parens
+        \hi@ifset\hi@kv@year{%
+            \hi@parens@add{\hi@paren@date}{\hi@kv@year}%
+        }{}%
+    }%
+}
+\hi@newcite\deffederalist{A Federalist paper}{%
+    \hi@citetype{#1}\hi@type@other
+    % TODO: add editor info
+    \hi@newcite@form{fc}{#1}{%
+        \hi@citeguts{%
+            \hi@fn@booktitle{\hi@book@the Federalist No.~\hi@kv@number}%
+            \space(\hi@kv@author)%
+        }%
+    }
+    \protected@edef\reserved@a{%
+        {\noexpand\hi@fn@booktitle{The Federalist No.~\hi@kv@number}}%
+    }
+    \@expand{\hi@supra@form{#1}}\reserved@a i%
+}
+%%
+%% \iffalse filename: statrefs.dtx \fi
+%%
+\hi@newcite\defstatcode{A statute in a code}{%
+    \hi@citetype{#1}\hi@type@statute
+    \hi@statcode@setup{#1}%
+}
+\hi@newcite\defregcode{A regulation in a code}{%
+    \hi@citetype{#1}\hi@type@regulation
+    \hi@statcode@setup{#1}%
+}
+\hi@newcite\defstatsess{A statute in session laws}{%
+    \hi@citetype{#1}\hi@type@statute
+    \hi@statsess@name
+    \hi@inlinestatname{#1}%
+    \hi@ifset\hi@kv@type{}{\def\hi@kv@type{Pub. L. No.}}%
+    \hi@ifset\hi@kv@rep{\hi@ifset\hi@kv@vol\relax{\let\hi@kv@vol\hi@kv@year}}{}%
+    \hi@ifset\hi@kv@year{%
+        \def\reserved@a{}%
+        \hi@ifset\hi@kv@name{\add@macro@to@macro\reserved@a{\hi@kv@name,}}{}%
+        \hi@ifset\hi@kv@vol{\add@macro@to@macro\reserved@a{\hi@kv@vol,}}{}%
+        \hi@ifset\hi@kv@rep{\add@macro@to@macro\reserved@a{\hi@kv@rep,}}{}%
+        \@expand{\expandafter\in@\expandafter{\hi@kv@year}}\reserved@a i%
+        \ifin@ \hi@undefine\hi@kv@year \fi
+    }{}%
+    \hi@ifset\hi@kv@in{%
+        \hi@statsess@contained{#1}%
+    }{%
+        \hi@statsess@normal{#1}%
+    }%
+    \hi@statsess@shortforms{#1}%
+}
+\hi@newcite\defstattitle{A titled statutory citation}{%
+    \hi@citetype{#1}\hi@type@statute
+    \hi@include@page@in@toa{#1}%
+    \hi@inlinestatname{#1}% Set up \hi@kv@inline based on \hi@kv@name
+    \@expand\hi@abbrev@name{\hi@kv@rep}i{\def\hi@kv@rep}%
+    \hi@book@pubparen
+    \hi@newcite@form{fc}{#1}{%
+        \noexpand\hi@stattitle@choppageslash
+        \hi@pstruct@initialize\hi@stattitle@choppedpage
+        \hi@inline@never{%
+            \hi@citeguts{%
+                \hi@kv@name
+                \hi@maybepage{ },\space
+                \hi@pstruct@use{vol}\space
+                \hi@pstruct@use@font{rep}\hi@fn@statute\space
+                \hi@pstruct@call{page}{\noexpand\@format@page@macro}%
+            }%
+            \hi@book@lcpost
+        }%
+        \hi@inline@only{%
+            \hi@citeguts{%
+                \hi@ifpage{%
+                    \noexpand\expandafter\noexpand\@capnext\noexpand\@this@page
+                    \space of the \hi@kv@name
+                }{%
+                    \hi@inline@the\@capnext\hi@kv@name
+                }%
+            }%
+        }%
+    }%
+    \hi@newcite@form{sc}{#1}{%
+        \noexpand\hi@stattitle@choppageslash
+        \hi@pstruct@initialize\hi@stattitle@choppedpage
+        \hi@short@use{#1}%
+        \hi@citeguts{%
+            \hi@inline@never{%
+                \noexpand\if@hi@name
+                    \hi@kv@inline
+                    \hi@maybepage{ },\space
+                \noexpand\else
+                    \hi@ifpage{\noexpand\@this@page, }{}%
+                \noexpand\fi
+                \hi@pstruct@use{vol}\space
+                \hi@pstruct@use@font{rep}\hi@fn@statute\space
+                \hi@pstruct@call{page}{\noexpand\@format@page@macro}%
+            }%
+            \hi@inline@only{%
+                \hi@ifpage{%
+                    \noexpand\@hi@adjectivetrue
+                    \hi@kv@inline\space
+                    \noexpand\@this@page
+                }{%
+                    \hi@kv@inline
+                }%
+            }%
+        }%
+    }%
+    \hi@newcite@form{idc}{#1}{%
+        \noexpand\hi@stattitle@choppageslash
+        \hi@pstruct@initialize\hi@stattitle@choppedpage
+        \hi@citeguts{%
+            \noexpand\hi@id
+            \noexpand\@test
+                \noexpand\ifx\noexpand\@this@page\noexpand\@last@page
+            \noexpand\fi{}{%
+                \noexpand\@hi@dotfalse
+                \hi@maybepage{ },\space
+                \hi@pstruct@use{vol}\space
+                \hi@pstruct@use@font{rep}\hi@fn@statute\space
+                \hi@pstruct@call{page}{\noexpand\@format@page@macro}%
+            }%
+        }%
+    }%
+}%
+\hi@newcite\defrule{A rule of evidence or procedure}{%
+    \hi@citetype{#1}\hi@type@rule
+    \hi@statcode@setup@idpc{#1}% Set up id. and page numbering
+    \hi@include@page@in@toa{#1}%
+    \hi@newcite@form{fc}{#1}{%
+        \hi@citeguts{%
+            \hi@ifset\hi@kv@name{\noexpand\@capnext\hi@kv@name, }%
+            \noexpand\hi@fn@statute{\hi@kv@rep}%
+            \hi@pageordefault{ }{%
+                \hi@ifset\hi@kv@page{ \@format@page@macro\hi@kv@page}{}%
+            }%
+        }%
+        \hi@ifeitherset\hi@kv@year\hi@kv@court{%
+            \hi@addparen{\hi@paren@date}{%
+                \hi@param@optspc\hi@kv@court\hi@kv@year
+            }%
+        }{}%
+        \the\hi@param@parens
+    }%
+}
+
+\section{statrefs.dtx}
+
+\defstatcode{271}{35 U.S.C. S 271}
+
+\AssertBox{\note{271 at /b}}{%
+    \InFootnote{35 \textsc{U.S.C.} \textsection~271(b).}%
+}
+
+%%
+%% \iffalse filename: specrefs.dtx \fi
+\hi@newcite\defbill{An bill or resolution of Congress}{%
+    \hi@citetype{#1}\hi@type@other
+    \hi@inlinestatname{#1}%
+    \hi@ifset\hi@kv@congress{}{%
+        \PackageError\hi@pkgname{%
+            Definition of #1 is missing the Congress number%
+        }{Provide the number in the definition}%
+    }%
+    \hi@ifset\hi@kv@status{%
+        \@expand{\find@in{ by }}\hi@kv@status i{\hi@bill@abbrevstatus}{}%
+    }{}%
+    \hi@newcite@form{fc}{#1}{%
+        \hi@inline@never{%
+            \hi@citeguts{%
+                \hi@ifset\hi@kv@name{\@capnext\hi@kv@name, }{}%
+                \hi@kv@number,
+                \expandafter\hi@numtotxt@numeric\expandafter{\hi@kv@congress}~%
+                Cong.%
+                \hi@maybepage{ }%
+            }%
+            \hi@parens@add{\hi@paren@date}{%
+                \hi@ifset\hi@kv@status{as \hi@kv@status, }{}%
+                \hi@kv@year
+            }%
+            \the\hi@param@parens
+        }%
+        \hi@inline@only{%
+            \hi@citeguts{%
+                \hi@ifset\hi@kv@name{\hi@inline@the\hi@kv@name}{\hi@kv@number}%
+            }%
+        }%
+    }%
+    \hi@newcite@form{sc}{#1}{%
+        \hi@inline@never{%
+            \hi@citeguts{%
+                \hi@kv@number
+                \hi@maybepage{, \hi@page@atorsect}%
+            }%
+        }%
+        \hi@inline@only{%
+            \hi@citeguts{%
+                \hi@ifset\hi@kv@inline{\hi@kv@inline}{\hi@kv@number}%
+            }%
+        }%
+    }%
+}
+\hi@newcite\defcongdoc{A Congressional numbered document}{%
+    \hi@citetype{#1}\hi@type@other
+    \hi@newcite@form{fc}{#1}{%
+        \hi@ifset\hi@kv@author{%
+            \noexpand\@gobble{\hi@kv@authln}%
+        }{}% For sorting purposes
+        \hi@citeguts{%
+            \hi@ifset\hi@kv@author{%
+                \noexpand\hi@fn@bookauthor{\hi@kv@author},
+            }{}%
+            \hi@ifset\hi@kv@name{%
+                \noexpand\hi@fn@booktitle{\hi@kv@name},
+            }{}%
+            \noexpand\hi@fn@congdoc{\hi@kv@number}%
+            \hi@ifset\hi@kv@page{%
+                , \@format@page@macro\hi@kv@page
+            }{}%
+            \hi@maybepage{, \hi@page@atorsect}%
+        }%
+        \hi@parens@add{\hi@paren@date}{\hi@kv@year}%
+        \the\hi@param@parens
+    }%
+    \protected@edef\reserved@a{%
+        \noexpand\hi@fn@congdoc{\hi@kv@number}%
+    }%
+    \@expand{\hi@supra@form{#1}}\reserved@a i%
+    \expandafter\hi@congdoc@expandnumber\expandafter{\hi@kv@number}%
+    \hi@newcite@form{lc}{#1}{%
+        \hi@ifset\hi@kv@author{%
+            \noexpand\@gobble{\hi@kv@authln}%
+        }{}% For sorting purposes
+        \hi@citeguts{%
+            \hi@ifset\hi@kv@author{%
+                \noexpand\hi@fn@bookauthor{\hi@kv@author},
+            }{}%
+            \hi@ifset\hi@kv@name{%
+                \noexpand\hi@fn@booktitle{\hi@kv@name},
+            }{}%
+            \noexpand\hi@fn@congdoc{\reserved@a}%
+            \hi@ifset\hi@kv@page{%
+                , \@format@page@macro\hi@kv@page
+            }{}%
+            \hi@maybepage{, \hi@page@atorsect}%
+        }%
+        \hi@parens@add{\hi@paren@date}{\hi@kv@year}%
+        \the\hi@param@parens
+    }%
+}
+\hi@newcite\defcongprint{A Congressional unnumbered document}{%
+    \hi@citetype{#1}\hi@type@other
+    \hi@newcite@form{fc}{#1}{%
+        \hi@ifset\hi@kv@author{%
+            \noexpand\@gobble{\hi@kv@authln}%
+        }{}% For sorting purposes
+        \hi@citeguts{%
+            \hi@ifset\hi@kv@author{%
+                \noexpand\hi@fn@bookauthor{\hi@kv@author},
+            }{%
+                \hi@ifset\hi@kv@committee{%
+                    \hi@noexpand\hi@fn@bookauthor{%
+                        Staff of \hi@kv@committee,
+                    }%
+                }{}%
+            }%
+            \noexpand\hi@fn@bookauthor{%
+                \expandafter\hi@numtotxt@numeric\expandafter{\hi@kv@congress}%
+                ~Cong.,
+            },
+            \noexpand\hi@fn@booktitle{\hi@kv@name}%
+            \hi@maybepage{\hi@page@space\hi@kv@name}%
+        }%
+        \hi@parens@add\hi@paren@date{Comm. Print \hi@kv@year}%
+        \the\hi@param@parens
+    }%
+    \protected@edef\reserved@a{%
+        \noexpand\hi@fn@booktitle{\hi@kv@name}%
+    }%
+    \@expand{\hi@supra@form{#1}}\reserved@a i%
+}
+\hi@newcite\defcongrec{A Congressional Record debate}{%
+    \expandafter\hi@congrec@testpg\hi@kv@page\@stop
+    \hi@book@pubparen
+    \hi@citetype{#1}\hi@type@other
+    \hi@newcite@form{fc}{#1}{%
+        \hi@citeguts{%
+            \hi@usevol{\hi@ifset\hi@kv@vol{\hi@kv@vol\space}{}}%
+            \noexpand\hi@fn@congdoc{\hi@kv@rep}\space
+            \hi@ifpage{\hi@maybepage{}}{\@format@page@macro\hi@kv@page}%
+        }%
+        \hi@parens@add\hi@paren@date{%
+            \hi@book@paren
+            \hi@pstruct@use{year}%
+        }%
+        \the\hi@param@parens
+    }%
+    \hi@newcite@form{sc}{#1}{%
+        \hi@citeguts{%
+            \hi@kv@vol\space
+            \hi@kv@rep\space at\space
+            \hi@ifpage{\hi@maybepage{}}{\hi@kv@page}%
+        }%
+    }%
+}
+\hi@newcite\defhearing{A hearing in Congress}{%
+    \hi@citetype{#1}\hi@type@other
+    \hi@ifset\hi@kv@type{}{\def\hi@kv@type{Hearing}}%
+    \hi@newcite@form{fc}{#1}{%
+        \hi@citeguts{%
+            \noexpand\hi@usevol{}%
+            \noexpand\hi@fn@hearing{%
+                \hi@ifset\hi@kv@name{\hi@kv@name: }{}%
+                \hi@kv@type\space
+                \hi@ifset\hi@kv@number{on \hi@kv@number\space}{}%
+                Before the \hi@kv@committee
+            }\hi@font@comma
+            \expandafter\hi@numtotxt@numeric\expandafter{\hi@kv@congress}~Cong.%
+            \noexpand\@hi@dottrue
+            \hi@maybepage{ }%
+        }%
+        \hi@parens@add{\hi@paren@date}{\hi@kv@year}%
+        \the\hi@param@parens
+    }%
+    \protected@edef\reserved@a{%
+        \noexpand\hi@fn@hearing{%
+            \hi@ifset\hi@kv@name{%
+                \hi@kv@name
+            }{%
+                Hearing\space
+                \hi@ifset\hi@kv@bill{%
+                    on \hi@kv@bill
+                }{%
+                    Before the \hi@kv@committee
+                }%
+            }%
+        }%
+    }%
+    \@expand{\hi@supra@form{#1}}\reserved@a i%
+}
+\hi@newcite\defprespaper{A Presidential Paper}{%
+    \hi@citetype{#1}\hi@type@other
+    \hi@newcite@form{fc}{#1}{%
+        \hi@citeguts{%
+            \hi@kv@name, % Title
+            \hi@kv@vol\space % Volume
+            \hi@kv@rep\space % Title
+            \hi@kv@page % Page number
+            \hi@maybepage{, }%
+        }%
+        \hi@parens@add{\hi@paren@date}{\hi@kv@year}%
+        \the\hi@param@parens
+    }%
+}
+\hi@newcite\defdcpd{Daily Compilation of Presidential Documents}{
+    \hi@citetype{#1}\hi@type@other
+    \hi@newcite@form{fc}{#1}{%
+        \hi@citeguts{%
+            \hi@kv@name,
+            \hi@fn@jrntitle{Daily Comp. Pres. Doc.} No. \hi@kv@number
+            \hi@maybepage{, at }%
+        }%
+        \hi@parens@add{\hi@paren@date}{\hi@kv@year}%
+        \the\hi@param@parens
+    }%
+    \hi@newcite@form{sc}{#1}{%
+        \hi@citeguts{%
+            \hi@kv@name,
+            \hi@fn@jrntitle{Daily Comp. Pres. Doc.} No. \hi@kv@number
+            \hi@maybepage{, at }%
+        }%
+    }%
+}
+\hi@newcite\defpatent{A U.S. patent}{%
+    \hi@citetype{#1}\hi@type@other
+    \let\reserved@a\@empty
+    \@expand{\find@start{D}}\hi@kv@number i{%
+        \def\reserved@a{D}\def\hi@kv@number
+    }{}%
+    \ifnum\hi@kv@number<\@m
+        \let\hi@kv@inline\hi@kv@number
+    \else
+        \@tempcnta\hi@kv@number\relax
+        \divide\@tempcnta\@m \multiply\@tempcnta-\@m
+        \advance\@tempcnta\hi@kv@number\relax
+        \def\hi@kv@inline{'\the\@tempcnta}%
+    \fi
+    \edef\hi@kv@number{%
+        \expandafter\hi@numtotxt@comma\expandafter{\hi@kv@number}%
+    }%
+    %
+    % So long as the date contains some prefix, I don't really care if it's
+    % ``issued'' or ``filed''.
+    %
+    \@expand{%
+        \find@start@cs{/hi@fn@dateprefix}%
+    }{\hi@kv@year}{i}{\@gobble}{%
+        \PackageWarning\hi@pkgname{%
+            For patent citation #1, the date must include a\MessageBreak
+            qualifier such as `filed' or `issued'.\MessageBreak
+            This occurred%
+        }%
+    }%
+    \hi@newcite@form{fc}{#1}{%
+        \hi@citeguts{%
+            \hi@ifset\hi@kv@name{\@capnext\hi@kv@name, }\@empty
+            U.S. Patent No. \reserved@a\hi@kv@number
+            \hi@maybepage{ }%
+        }%
+        \hi@inline@never{%
+            \hi@parens@add{\hi@paren@date}{\hi@kv@year}%
+            \the\hi@param@parens
+        }%
+    }%
+    \hi@newcite@form{sc}{#1}{%
+        \hi@citeguts{%
+            \noexpand\hi@inline@the
+            \hi@kv@inline\space Patent%
+            \hi@maybepage{ }%
+        }%
+    }%
+}
+\hi@newcite\defgovdoc{A government document}{%
+    \hi@ifset\hi@kv@court{}{%
+        \hi@ifset\hi@kv@author{\let\hi@kv@court\hi@kv@author}{}%
+    }%
+    \hi@cite@history
+    \hi@citetype{#1}\hi@type@other
+    \hi@newcite@form{fc}{#1}{%
+        \hi@citeguts{%
+            \hi@ifset\hi@kv@number{%
+                \@capnext\hi@kv@number,
+            }{}%
+            \hi@ifset\hi@kv@name{%
+                \@capnext\hi@kv@name
+            }{}%
+            \hi@ifset\hi@kv@rep{%
+                ,
+                \hi@ifset\hi@kv@vol{\hi@kv@vol\space}{}%
+                \hi@kv@rep\space \hi@kv@page
+                \hi@maybepage{, }%
+            }{%
+                \hi@ifset\hi@kv@docket{%
+                    , \hi@kv@docket
+                    \hi@maybepage{, }%
+                }{%
+                    \hi@maybepage{ }%
+                }%
+            }%
+        }%
+        \hi@case@dateparen{%
+            \hi@parens@add\hi@paren@date{%
+                \hi@param@optspc\hi@kv@court\hi@kv@year
+            }%
+        }y%
+        \the\hi@param@parens
+    }
+    % TODO think about the general case for the short form
+    \hi@ifset\hi@kv@rep{%
+        \hi@newcite@form{sc}{#1}{%
+            \hi@citeguts{%
+                \hi@ifset\hi@kv@vol{\hi@kv@vol\space}{}%
+                \hi@kv@rep
+                \hi@pageordefault{ at }{ \hi@kv@page}%
+            }%
+        }%
+    }{%
+        \@expand{\hi@supra@form{#1}}\hi@kv@name i%
+    }%
+}
+\hi@alias@cite\deffedreg\defgovdoc
+\hi@newcite\deftestimony{Testimony in a congressional hearing}{%
+    \hi@citetype{#1}\hi@type@other
+    \hi@ifset\hi@kv@type{}{\def\hi@kv@type{Testimony}}%
+    \hi@ifset\hi@kv@citation{}{%
+        \hi@ifset\hi@kv@in{\let\hi@kv@citation\hi@kv@in}{%
+            \PackageError\hi@pkgname{%
+                \string\deftestimony\space requires parameter `citation'%
+            }{Add the parameter}%
+        }%
+    }%
+    \hi@newcite@form{fc}{#1}{%
+        \hi@citeguts{%
+            \hi@kv@type\space of
+            \hi@ifset\hi@kv@author{\hi@kv@author@sortable}{}%
+            \hi@maybepage{ \hi@page@atorsect}%
+            ,\space
+            \noexpand\clause{\hi@kv@citation}\noexpand\hi@clause@endflag
+        }
+        \the\hi@param@parens
+    }%
+    \@expand{\hi@supra@form{#1}}\hi@kv@author i%
+}
+\hi@newcite\defcomments{Comments on an agency proceeding}{%
+    \hi@citetype{#1}\hi@type@other
+    \hi@ifset\hi@kv@type{}{\def\hi@kv@type{Comments}}%
+    \hi@newcite@form{fc}{#1}{%
+        \hi@citeguts{%
+            \hi@ifset\hi@kv@author{\hi@kv@author@sortable, }{}%
+            \hi@kv@type\space of
+            \hi@kv@commenter
+            \hi@maybepage{ }%
+            ,\space
+            \noexpand\hi@fn@arttitle{%
+                \hi@kv@name
+            }%
+            \hi@ifset\hi@kv@rep{%
+                , \hi@kv@vol\space \hi@kv@rep\space \hi@kv@page
+            }{}%`
+        }%
+        \hi@parens@add{\hi@paren@date}{\hi@kv@court\space\hi@kv@year}%
+        \the\hi@param@parens
+    }%
+    \protected@edef\reserved@a{%
+        \noexpand\hi@fn@arttitle{Comments on \hi@kv@name}%
+    }%
+    \@expand{\hi@supra@form{#1}}\reserved@a i%
+}
+\hi@newcite\defsecfiling{An SEC filing}{%
+    \hi@citetype{#1}\hi@type@other
+    \hi@newcite@form{fc}{#1}{%
+        \hi@citeguts{%
+            \hi@ifset\hi@kv@author{\hi@kv@author@sortable, }{}%
+            \hi@kv@name\space
+            (Form \hi@kv@number)%
+            \hi@maybepage{, at }%
+        }%
+        \hi@parens@add{\hi@paren@date}{\hi@kv@year}%
+        \the\hi@param@parens
+    }%
+}
+%%
+%% \iffalse filename: bookrefs.dtx \fi
+%%
+\hi@newcite\defbook{A book or non-periodic material}{%
+    \hi@citetype{#1}\hi@type@other
+    \hi@book@pubparen
+    \expandafter\hi@book@titlethe\expandafter{\hi@kv@name}%
+    \hi@newcite@form{ic}{#1}{%
+        \hi@citeguts{\hi@kv@author}%
+    }%
+    \hi@newcite@form{fc}{#1}{%
+        \hi@pstruct@initialize\@this@vol
+        \hi@ifset\hi@kv@author{%
+            \noexpand\@gobble{\hi@kv@authln}%
+        }{}% For sorting purposes
+        \noexpand\if@hi@inline
+            \expandafter\noexpand\csname ic@#1\endcsname
+        \noexpand\else
+            \hi@citeguts{%
+                \noexpand\hi@citecontainer@suppress{%
+                    \noexpand\hi@usevol{%
+                        \hi@ifset\hi@kv@vol{\hi@kv@vol\space}{}%
+                    }%
+                    \hi@ifset\hi@kv@author{%
+                        \hi@pstruct@use@font{author}\hi@fn@bookauthor, % space
+                    }{}%
+                }%
+                \hi@ifset\hi@kv@number{%
+                    \noexpand\hi@fn@booktitle{\hi@kv@number}, % space
+                }{}%
+                \hi@pstruct@use@font{name}\hi@fn@booktitle
+                \hi@maybepage{\hi@page@space\hi@kv@name}%
+            }%
+            \hi@parens@add\hi@paren@date{%
+                \hi@book@paren
+                \hi@pstruct@use{year}%
+            }%
+            \the\hi@param@parens
+        \noexpand\fi
+    }%
+    \hi@ifset\hi@kv@toapage{%
+        \hi@include@page@in@toa{#1}%
+        \hi@newcite@form{lc}{#1}{%
+            \noexpand\hi@toa@duptitle{}{%
+                \noexpand\hi@fn@bookauthor{\relax\hi@kv@author@sortable},\space
+                \noexpand\hi@usevol{\hi@ifset\hi@kv@vol{\hi@kv@vol\space}{}}%
+                \hi@ifset\hi@kv@number{%
+                    \noexpand\hi@fn@booktitle{\hi@kv@number}, % space
+                }{}%
+                \hi@fn@booktitle{\hi@kv@name}%
+            }{%
+                \hi@maybepage{\hi@page@space\hi@kv@name}%
+                % The \reserved@a is to get the parens outside of \hi@citeguts
+                % which is added kn \hi@toa@duptitle
+                \gdef\noexpand\reserved@a{\hi@book@lcpost}%
+                \noexpand\aftergroup\noexpand\reserved@a
+            }{%
+                \hi@maybepage{ }%
+            }%
+        }%
+    }{%
+        \hi@newcite@form{lc}{#1}{%
+            \hi@citeguts{%
+                \hi@ifset\hi@kv@author{%
+                    \hi@toa@dupauthor{\hi@fn@bookauthor}{%
+                        \hi@kv@author@sortable
+                    }%
+                }{\hi@toa@dupnone}%
+                \noexpand\hi@usevol{\hi@ifset\hi@kv@vol{\hi@kv@vol\space}{}}%
+                \hi@ifset\hi@kv@number{%
+                    \noexpand\hi@fn@booktitle{\hi@kv@number}, % space
+                }{}%
+                \hi@fn@booktitle{\hi@kv@name}%
+            }%
+            \hi@parens@add\hi@paren@date{%
+                \hi@book@paren
+                \hi@pstruct@use{year}%
+            }%
+            \the\hi@param@parens
+        }%
+    }%
+    \hi@ifset\hi@kv@authln{}{\let\hi@kv@usetitle\relax}%
+    \protected@edef\reserved@a{%
+        \hi@ifset\hi@kv@usetitle
+            {\noexpand\hi@fn@booktitle{\hi@kv@name}}%
+            {\noexpand\hi@fn@bookauthor{\hi@kv@authln}}%
+    }%
+    \@expand{\hi@supra@form{#1}}\reserved@a i%
+}
+\hi@newcite\defcitecontainer{A citation in another citation}{%
+    %
+    % Set the joining phrase.
+    %
+    \hi@citecontainer@settype
+    %
+    % Perform initial matters to set up the citecontainer; see the comment
+    % before \hi@citecontainer@init.
+    \edef\reserved@a{%
+        {#1}%
+        \expandafter\noexpand\csname tc@#1\endcsname
+        \hi@ifset\hi@kv@citation{%
+            \expandafter\noexpand\csname tc@\hi@kv@citation\endcsname
+            \expandafter\noexpand\csname fc@\hi@kv@citation\endcsname
+        }{\relax\relax}%
+    }%
+    \expandafter\hi@citecontainer@init\reserved@a
+    %
+    % Prepare the full citation form.
+    \edef\reserved@a{%
+        {#1}%
+        \expandafter\noexpand\csname fc@#1\endcsname
+        \expandafter\noexpand\csname tcpg@\hi@kv@in\endcsname
+    }%
+    \expandafter\hi@citecontainer@fc\reserved@a
+    %
+    % Prepare the short citation form.
+    \edef\reserved@a{%
+        {#1}%
+        \expandafter\noexpand\csname sc@#1\endcsname
+        \hi@ifset\hi@kv@citation{%
+            \expandafter\noexpand\csname sc@\hi@kv@citation\endcsname
+        }{\relax}%
+    }%
+    \expandafter\hi@citecontainer@sc\reserved@a
+    %
+    % Cite container TOA form.
+    %
+    \edef\reserved@a{%
+        {#1}%
+        \expandafter\noexpand\csname lc@#1\endcsname
+        \hi@ifset\hi@kv@citation{%
+            \expandafter\noexpand\csname
+                \@ifundefined{lc@\hi@kv@citation}{fc}{lc}@\hi@kv@citation
+            \endcsname
+        }{\relax}%
+        %
+        % We always use the fullcite form for the container, not the TOA form.
+        % This is because the TOA form is sometimes special in ways that are not
+        % appropriate to being the second citation in a string cite, and also
+        % because the TOA forms sometimes don't account for things like page
+        % numbers.
+        \expandafter\noexpand\csname fc@\hi@kv@in\endcsname
+        %
+        % This macro enables storing the volume/page number for the container
+        % citation.
+        \expandafter\noexpand\csname hi@citecontainer@data@#1\endcsname
+    }
+    \expandafter\hi@citecontainer@lc\reserved@a
+}
+%%
+%% \iffalse filename: artrefs.dtx \fi
+%%
+\hi@newcite\defjrnart{A consecutively paginated journal article}{%
+    \hi@citetype{#1}\hi@type@other
+    \hi@abbrev@journal@check
+    \@expand{\find@eq{forthcoming}}{\hi@kv@page}{i}{%
+        \hi@undefine\hi@kv@page
+        \KV@hi@forthcoming\relax
+    }{}%
+    \hi@ifset\hi@kv@vol{}{\let\hi@kv@vol\hi@kv@year}%
+    \hi@ifset\hi@kv@page{}{\def\hi@kv@page{?}}%
+    \hi@newcite@form{fc}{#1}{%
+        \hi@inline@never{%
+            \hi@citeguts{%
+                \hi@ifset\hi@kv@author{%
+                    \hi@toa@dupauthor{\noexpand\@iden}{\hi@kv@author@sortable}%
+                }{}%
+                \hi@ifset\hi@kv@type{\@capnext\hi@kv@type, }{}%
+                \hi@ifset\hi@kv@name{% Title
+                    \noexpand\hi@fn@arttitle{\hi@kv@name}\hi@font@comma
+                }{%
+                    % If no title set, if there's a citation, use that as the
+                    % title
+                    \hi@ifset\hi@kv@citation{%
+                        \noexpand\hi@fn@arttitle{%
+                            \protect\inline{\hi@kv@citation}%
+                        },
+                    }{}%
+                }%
+                \hi@ifset\hi@kv@vol{\hi@kv@vol\space}{%
+                    % Prompt error unless forthcoming
+                    \hi@ifset\hi@kv@forthcoming{}{\hi@kv@vol\space}%
+                }% Volume
+                \noexpand\hi@fn@jrntitle{\hi@kv@rep}% Magazine title
+                \hi@ifset\hi@kv@forthcoming{}{%
+                    \space
+                    \hi@ifset\hi@kv@useissue{%
+                        No.~\hi@kv@issue, at\space
+                    }{}%
+                    \@format@page@macro\hi@kv@page % First page
+                    \hi@maybepage{, }% Pin cite page
+                }%
+            }%
+            \the\hi@param@parens
+            \hi@ifset\hi@kv@forthcoming{%
+                \hi@parens@add\hi@paren@date{%
+                    forthcoming%
+                    \hi@ifset\hi@kv@year{ \hi@kv@year}{}%
+                }%
+                \noexpand\ifx\noexpand\@this@page\relax\noexpand\else
+                    \hi@parens@add\hi@paren@forthcomingms{%
+                        manuscript at \noexpand\@this@page
+                    }%
+                \noexpand\fi
+            }{%
+                \hi@ifset\hi@kv@vol{%
+                    \ifx\hi@kv@vol\hi@kv@year\else
+                        \hi@parens@add\hi@paren@date{\hi@kv@year}%
+                    \fi
+                }{}%
+            }%
+        }%
+        \hi@inline@only{%
+            \hi@citeguts{\hi@kv@author}%
+        }%
+    }%
+    \protected@edef\reserved@a{%
+        \hi@ifset\hi@kv@authln{\@capnext\hi@kv@authln}{%
+            \hi@ifset\hi@kv@type{\@capnext\hi@kv@type}{%
+                \noexpand\hi@fn@arttitle{\hi@kv@name}%
+            }%
+        }%
+    }%
+    \@expand{\hi@supra@form{#1}}\reserved@a i%
+}
+\hi@newcite\defprocart{A non-consecutively paginated proceedings article}{%
+    \hi@citetype{#1}\hi@type@other
+    \hi@abbrev@journal@check
+    \hi@ifset\hi@kv@vol{}{\let\hi@kv@vol\hi@kv@year}%
+    \hi@ifset\hi@kv@page{}{%
+        \hi@ifset\hi@kv@issue{%
+            \edef\hi@kv@page{No. \expandonce\hi@kv@issue}%
+        }{}%
+    }%
+    \hi@newcite@form{fc}{#1}{%
+        \hi@citeguts{%
+            \hi@ifset\hi@kv@author{%
+                \hi@toa@dupauthor{\noexpand\@iden}{\hi@kv@author@sortable}%
+            }{}%
+            \hi@ifset\hi@kv@type{\@capnext\hi@kv@type, }{}%
+            \noexpand\hi@fn@arttitle{\hi@kv@name}%
+            \hi@maybepage{ }\hi@font@comma
+            \noexpand\hi@fn@sig{in}\space
+            \hi@ifset\hi@kv@vol{\hi@kv@vol}{\hi@kv@year} % Volume
+            \noexpand\hi@fn@jrntitle{\hi@kv@rep}%
+            \hi@ifset\hi@kv@page{\space \@format@page@macro\hi@kv@page}{}%
+        }%
+        \hi@ifset\hi@kv@vol{%
+            \hi@parens@add\hi@paren@date{\hi@kv@year}%
+        }{}%
+        \the\hi@param@parens
+    }%
+    \protected@edef\reserved@a{%
+        \hi@ifset\hi@kv@authln{\@capnext\hi@kv@authln}{%
+            \hi@ifset\hi@kv@type{\@capnext\hi@kv@type}{%
+                \noexpand\hi@fn@arttitle{\hi@kv@name}%
+            }%
+        }%
+    }%
+    \@expand{\hi@supra@form{#1}}\reserved@a i%
+}%
+\hi@newcite\defmagart{A magazine article}{%
+    \hi@citetype{#1}\hi@type@other
+    \hi@abbrev@journal@check
+    \hi@ifset\hi@kv@page{%
+        \protected@edef\hi@kv@page{\@format@page@macro\hi@kv@page}%
+    }{}%
+    \hi@newcite@form{fc}{#1}{%
+        \hi@citeguts{%
+            \hi@ifset\hi@kv@author{\hi@kv@author@sortable, }{}%
+            \noexpand\hi@fn@arttitle{\hi@kv@name}\hi@font@comma % Title
+            \noexpand\hi@fn@jrntitle{\hi@kv@rep}% Magazine title
+            \hi@ifset\hi@kv@publisher{ (\hi@kv@publisher)}{}%
+            \hi@font@comma
+            \hi@kv@year
+            \hi@ifset\hi@kv@page{%
+                ,
+                \expandafter\hi@atorsect\expandafter{\hi@kv@page}%
+                \hi@kv@page % First page number; already formatted above
+                \hi@maybepage{, }%
+            }{%
+                \hi@maybepage{, \hi@page@atorsect}%
+            }%
+        }%
+        \the\hi@param@parens
+    }%
+    \protected@edef\reserved@a{%
+        \hi@ifset\hi@kv@authln{\@capnext\hi@kv@authln}{%
+            \noexpand\hi@fn@arttitle{\hi@kv@name}%
+        }%
+    }%
+    \@expand{\hi@supra@form{#1}}\reserved@a i%
+}
+\hi@alias@cite\defnewsart\defmagart
+\hi@newcite\defwebsite{A web site or generic citation}{%
+    \hi@citetype{#1}\hi@type@other
+    \hi@book@pubparen
+    \hi@ifset\hi@kv@rep{\hi@abbrev@journal@check}{}%
+    \hi@newcite@form{fc}{#1}{%
+        \hi@citeguts{%
+            \hi@ifset\hi@kv@author{%
+                \hi@toa@dupauthor{\noexpand\@iden}{\hi@kv@author@sortable}%
+            }{}%
+            \hi@ifset\hi@kv@name{\noexpand\hi@fn@webtitle{\hi@kv@name}}{}%
+            \hi@ifset\hi@kv@rep{%
+                \hi@ifset\hi@kv@name{\hi@font@comma}{}%
+                \noexpand\hi@fn@jrntitle{\hi@kv@rep}%
+            }{}%
+            \hi@maybepage{ }%
+        }%
+        \hi@ifset\hi@kv@year{%
+            \hi@parens@add\hi@paren@date{%
+                \hi@book@paren
+                \hi@pstruct@use{year}%
+            }%
+        }{}%
+        \the\hi@param@parens
+    }%
+    \protected@edef\reserved@a{%
+        \hi@ifset\hi@kv@authln{\hi@kv@authln}{%
+            \noexpand\hi@fn@webtitle{\hi@kv@name}%
+        }%
+    }%
+    \@expand{\hi@supra@form{#1}}\reserved@a i%
+}
+\hi@newcite\defmanuscript{An unpublished manuscript}{%
+    \hi@citetype{#1}\hi@type@other
+    \hi@ifset\hi@kv@type{}{\def\hi@kv@type{manuscript}}
+    \hi@newcite@form{fc}{#1}{%
+        \hi@citeguts{%
+            \hi@ifset\hi@kv@author{\hi@kv@author@sortable, }{}%
+            \hi@kv@name
+            \hi@maybepage{\hi@page@space\hi@kv@name}%
+        }%
+        \the\hi@param@parens
+        \hi@parens@add\hi@paren@manuscript{%
+            unpublished \hi@kv@type
+            \hi@ifset\hi@kv@onfile{, on file with \hi@kv@onfile}{}%
+        }%
+        \hi@parens@add\hi@paren@date{\hi@kv@year}%
+    }%
+    \protected@edef\reserved@a{%
+        \hi@ifset\hi@kv@authln{\@capnext\hi@kv@authln}{\hi@kv@name}%
+    }%
+    \@expand{\hi@supra@form{#1}}\reserved@a i%
+}
+\hi@newcite\defworkingpaper{A working paper}{%
+    \hi@citetype{#1}\hi@type@other
+    \hi@newcite@form{fc}{#1}{%
+        \hi@citeguts{%
+            \hi@ifset\hi@kv@author{\hi@kv@author@sortable, }{}%
+            \noexpand\hi@fn@arttitle{\hi@kv@name}%
+            \hi@maybepage{ }%
+        }%
+        \hi@parens@add{\hi@paren@date}{%
+            \hi@kv@publisher, \hi@kv@number, \hi@kv@year
+        }%
+        \the\hi@param@parens
+    }%
+    \protected@edef\reserved@a{%
+        \hi@ifset\hi@kv@authln{\@capnext\hi@kv@authln}{%
+            \hi@ifset\hi@kv@type{\@capnext\hi@kv@type}{%
+                \noexpand\hi@fn@arttitle{\hi@kv@name}%
+            }%
+        }%
+    }%
+    \@expand{\hi@supra@form{#1}}\reserved@a i%
+}
+%%
+%% \iffalse filename: foreignrefs.dtx \fi
+%%
+\hi@newcite\defengdebate{An English parliamentary debate}{%
+    \hi@citetype{#1}\hi@type@other
+    \hi@newcite@form{sc}{#1}{%
+        \hi@citeguts{%
+            \hi@usevol{\hi@ifset\hi@kv@vol{\hi@kv@vol\space}{}}%
+            \noexpand\hi@fn@statute{\hi@kv@rep}\space
+            \hi@ifset\hi@kv@number{%
+                (\hi@kv@number
+                \expandafter\hi@numtoord\expandafter{\hi@kv@number} ser.)\space
+            }{}%
+            (\hi@kv@year)\space
+            \hi@pageordefault{}{%
+                \@format@page@macro\hi@kv@page
+            }%
+        }%
+    }%
+    \hi@newcite@form{fc}{#1}{%
+        \hi@citeguts{%
+            \hi@usevol{\hi@ifset\hi@kv@vol{\hi@kv@vol\space}{}}%
+            \noexpand\hi@fn@statute{\hi@kv@rep}\space
+            \hi@ifset\hi@kv@number{%
+                (\hi@kv@number
+                \expandafter\hi@numtoord\expandafter{\hi@kv@number} ser.)\space
+            }{}%
+            (\hi@kv@year)\space
+            \hi@pageordefault{}{%
+                \@format@page@macro\hi@kv@page
+            }%
+        }%
+        \the\hi@param@parens
+    }%
+}
+\hi@newcite\defengstat{An English statute}{%
+    \hi@citetype{#1}\hi@type@statute
+    \hi@statcode@setup@idpc{#1}% Set up id. and page numbering
+    %\hi@include@page@in@toa{#1}
+    \hi@newcite@form{ic}{#1}{%
+        \hi@ifset\hi@kv@name{\hi@inline@the\@capnext\hi@kv@name}{}%
+    }%
+    \hi@newcite@form{fc}{#1}{%
+        \hi@inline@only{\hi@citeguts{\noexpand\@nameuse{ic@#1}}}%
+        \hi@inline@never{%
+            \hi@citeguts{%
+                \hi@name@only{%
+                    \hi@ifset\hi@kv@name{\@capnext\hi@kv@name, \hi@kv@year, }{}%
+                }%
+                \hi@ifset\hi@kv@regnal{\@capnext\hi@kv@regnal, }{}%
+                \@capnext c. \hi@kv@number
+                \hi@pageordefault{, }{%
+                    % Don't put the page here if \hi@kv@rep is set because the
+                    % page is assumed to refer to the code book, not a statutory
+                    % section.
+                    \hi@ifset\hi@kv@rep{}{%
+                        \hi@ifset\hi@kv@page{%
+                            , \@format@page@macro\hi@kv@page
+                        }{}%
+                    }%
+                }%
+                \hi@ifset\hi@kv@rep{%
+                    ,\space
+                    \hi@ifset\hi@kv@vol{\hi@kv@vol\space}{}%
+                    \noexpand\hi@fn@statute{\hi@kv@rep}\space
+                    \@format@page@macro\hi@kv@page
+                }{}%
+            }%
+            \hi@ifset\hi@kv@name{%
+                \noexpand\if@hi@name\noexpand\else
+                    \hi@ifset\hi@kv@year{%
+                        \hi@parens@add\hi@paren@date{\hi@kv@year}%
+                    }{}%
+                \noexpand\fi
+            }{%
+                \hi@ifset\hi@kv@year{\hi@addparen\hi@paren@date{\hi@kv@year}}{}%
+            }%
+            \the\hi@param@parens
+        }%
+    }%
+    \hi@newcite@form{sc}{#1}{%
+        \hi@inline@only{\hi@citeguts{\noexpand\@nameuse{ic@#1}}}%
+        \hi@inline@never{%
+            \hi@citeguts{%
+                \hi@name@only{%
+                    \hi@ifset\hi@kv@name{\@capnext\hi@kv@name}{}%
+                }%
+                \hi@pageordefault{\hi@name@only{ \hi@page@atorsect}}{}%
+            }%
+        }%
+    }%
+}
+\hi@newcite\defengcommand{A command paper in England}{%
+    \hi@citetype{#1}\hi@type@other
+    \hi@newcite@form{fc}{#1}{%
+        \hi@ifset\hi@kv@author{%
+            \noexpand\@gobble{\hi@kv@authln}%
+        }{}% For sorting purposes
+        \hi@citeguts{%
+            \noexpand\hi@fn@bookauthor{\hi@kv@author},
+            \noexpand\hi@fn@booktitle{\hi@kv@name},
+            \hi@kv@year,
+            \hi@kv@number
+            \hi@maybepage{, \hi@page@atorsect}%
+        }%
+        \the\hi@param@parens
+    }%
+}
+\hi@newcite\defforeignconst{A foreign constitution}{%
+    \hi@citetype{#1}\hi@type@const
+    \hi@newcite@form{fc}{#1}{%
+        \hi@citeguts{%
+            \noexpand\hi@fn@const{\hi@kv@name}%
+            \hi@ifset\hi@kv@page{ \hi@kv@page}{}%
+            \hi@maybepage{ }%
+        }%
+        \hi@invis@inline
+        \the\hi@param@parens
+    }%
+}
+\hi@newcite\deftreaty{A treaty or international agreement}{%
+    \hi@citetype{#1}\hi@type@treaty
+    \hi@ifset\hi@kv@inline{%
+        \hi@replacethe\hi@kv@inline{\def\hi@kv@inline}{}%
+        \expandafter\KV@hi@hereinafter\expandafter{\hi@kv@inline}%
+    }{%
+        \@expand{\hi@supra@form{#1}}{\expandafter\hi@inline@the\hi@kv@name}i%
+    }%
+    \hi@newcite@form{fc}{#1}{%
+        \hi@inline@only{%
+            \hi@citeguts{%
+                \hi@inline@the\hi@kv@name
+            }%
+        }%
+        \hi@inline@never{%
+            \hi@citeguts{%
+                % The treaty name can only be suppressed in a star citation if a
+                % country is given.
+                \hi@ifset\hi@kv@countries{%
+                    \hi@name@only{\hi@kv@name, }\hi@kv@countries
+                }{\hi@kv@name}%
+                \hi@maybepage{, },\space
+                \hi@italdateprefix{\hi@kv@year}%
+                \hi@ifset\hi@kv@rep{%
+                    ,\space
+                    \hi@ifset\hi@kv@vol{\hi@kv@vol\space}{}%
+                    \noexpand\hi@fn@statute{\hi@kv@rep}%
+                    \hi@ifset\hi@kv@page{%
+                        \space\@format@page@macro\hi@kv@page
+                    }{}%
+                }{}%
+            }%
+            \the\hi@param@parens
+        }%
+    }%
+}
+\hi@newcite\defeucase{A European Union case}{%
+    \hi@citetype{#1}\hi@type@case
+    \hi@case@setparties{#1}%
+    \hi@ifset\hi@kv@inline{%
+        \@expand{\hi@short@register{#1}}\hi@kv@inline i{y}%
+    }{}%
+    \hi@case@proc
+    \@expand{\hi@short@register{#1}}\hi@kv@inline i{n}%
+    \hi@newcite@form{fc}{#1}{%
+        \hi@inline@only{\hi@citeguts{\hi@kv@name}}%
+        \hi@inline@never{%
+            \hi@citeguts{%
+                Case \hi@kv@docket
+                \hi@name@only{\hi@font@comma \hi@kv@aname}%
+                \hi@ifset\hi@kv@rep{%
+                    \hi@name@comma
+                    \hi@kv@vol\space \hi@kv@rep\space \hi@kv@page
+                    \hi@maybepage{, }%
+                }{\hi@maybepage{\hi@name@comma}}%
+            }%
+            \the\hi@param@parens
+            \hi@case@dateparen{%
+                \hi@parens@add{\hi@paren@date}{%
+                    \hi@param@optspc\hi@kv@court\hi@kv@year
+                }%
+            }y%
+        }%
+    }
+    \hi@newcite@form{lc}{#1}{%
+        \hi@citeguts{%
+            \hi@name@only{\@capnext\hi@kv@lname\unkern,\hfill\break}%
+            Case \hi@kv@docket
+            \hi@ifset\hi@kv@rep{%
+                , \hi@kv@vol\space\hi@kv@rep\space\hi@kv@page% Reporter and page
+            }{}%
+        }%
+        \hi@case@dateparen{%
+            \hi@parens@add{\hi@paren@date}{%
+                \hi@param@optspc\hi@kv@court\hi@kv@year
+            }%
+        }y%
+        \the\hi@param@parens
+    }%
+    \hi@newcite@form{sc}{#1}{%
+        \hi@short@use{#1}%
+        \hi@citeguts{%
+            \hi@inline@only{\hi@citeguts{\hi@kv@inline}}%
+            \hi@inline@never{%
+                \hi@name@only{%
+                    \hi@kv@ainline
+                    \hi@font@comma
+                }%
+                \hi@ifset\hi@kv@rep{%
+                    \hi@kv@vol\space\hi@kv@rep\space %
+                    \hi@ifpage{\hi@maybepage{\hi@page@atorsect}}{\hi@kv@page}%
+                }{%
+                    \hi@ifset{\hi@kv@dbid}{\hi@kv@dbid}{\hi@kv@docket}%
+                    \hi@maybepage{, \hi@kv@slip\hi@page@atorsect}%
+                }%
+            }%
+        }%
+        \hi@case@dateparen{}n%
+    }%
+}
+\hi@newcite\defunresolution{A U.N. resolution}{%
+    \hi@citetype{#1}\hi@type@other
+    \hi@ifset\hi@kv@type{}{\def\hi@kv@type{U.N.}}%
+    \hi@newcite@form{fc}{#1}{%
+        \hi@citeguts{%
+            \hi@ifset\hi@kv@name{%
+                \hi@inline@the\@capnext\hi@kv@name\hi@font@comma
+            }{}%
+            \hi@kv@number
+            \hi@maybepage{, \hi@page@atorsect}%
+            , \hi@kv@type\space Doc. \hi@kv@intdoc
+        }%
+        \the\hi@param@parens
+        \hi@parens@add{\hi@paren@date}{\hi@kv@year}%
+    }%
+    \@expand{\hi@supra@form{#1}}\hi@kv@number i%
+}
+\hi@newcite\defintdoc{A U.N. or international document}{%
+    \hi@citetype{#1}\hi@type@other
+    \hi@ifset\hi@kv@type{}{\def\hi@kv@type{U.N.}}%
+    \hi@newcite@form{fc}{#1}{%
+        \hi@citeguts{%
+            \hi@ifset\hi@kv@author{%
+                \hi@namelist@instpart\hi@kv@author{\@iden},\space
+            }{}%
+            \noexpand\hi@fn@arttitle{\hi@kv@name}%
+            \hi@maybepage{\hi@font@comma}%
+            \hi@font@comma
+            \hi@kv@type\space Doc. \hi@kv@intdoc
+        }%
+        \the\hi@param@parens
+        \hi@parens@add{\hi@paren@date}{\hi@kv@year}%
+        \hi@ifset\hi@kv@author{%
+            \hi@namelist@personpart\hi@kv@author{\hi@intdoc@personauth}%
+        }{}%
+    }%
+    \protected@edef\reserved@a{\hi@kv@type\space Doc. \hi@kv@intdoc}%
+    \@expand{\hi@supra@form{#1}}\reserved@a i%
+}
+\hi@newcite\deffrcase{A French case}{%
+    \hi@citetype{#1}\hi@type@case
+    \hi@newcite@form{fc}{#1}{%
+        \hi@citeguts{%
+            \hi@kv@court\space
+            decision no.\ \hi@kv@number,
+            \hi@kv@year,
+            \hi@kv@rep\space\hi@kv@page
+            \hi@maybepage{, }%
+        }%
+        \the\hi@param@parens
+    }%
+    \protected@edef\reserved@a{\hi@kv@court\space decision no.\ \hi@kv@number}%
+    \@expand{\hi@supra@form{#1}}\reserved@a i%
+}
+\hi@newcite\deffrstat{A French statute}{%
+    \hi@citetype{#1}\hi@type@statute
+    \hi@newcite@form{fc}{#1}{%
+        \hi@citeguts{%
+            Law No. \hi@kv@number\space
+            of \hi@kv@year,
+            \hi@kv@rep,
+            \hi@kv@pubyear, % This parameter does not exist; needs to be defined
+            p. \hi@kv@page
+            \hi@maybepage{, }%
+        }%
+        \the\hi@param@parens
+    }%
+}
+%%
+%% \iffalse filename: specrefs.dtx \fi
+\hi@newcite\defcjs{Corpus Juris Secondum}{%
+    \hi@citetype{#1}\hi@type@other
+    \hi@newcite@form{fc}{#1}{%
+        \hi@citeguts{%
+            \hi@kv@vol\space
+            C.J.S.
+            \hi@fn@arttitle{\hi@kv@name}%
+            \hi@maybepage{ }%
+        }%
+        \hi@parens@add{\hi@paren@date}{\hi@kv@year}%
+        \the\hi@param@parens
+    }
+    \protected@edef\reserved@a{%
+        \hi@kv@vol\space C.J.S. \hi@fn@arttitle{\hi@kv@name}%
+    }%
+    \@expand{\hi@supra@form{#1}}\reserved@a i%
+}
+\hi@newcite\defrfc{An IETF Request for Comments}{%
+    \hi@citetype{#1}\hi@type@other
+    \expandafter\hi@book@titlethe\expandafter{\hi@kv@name}%
+    \protected@edef\reserved@a{%
+        https://www.rfc-editor.org/rfc\hi@kv@number.txt%
+    }
+    \@expand{\hi@defkey@url{}}\reserved@a i\@empty
+    \hi@newcite@form{ic}{#1}{%
+        RFC \hi@kv@number
+    }%
+    \protected@edef\reserved@a{%
+        RFC \hi@kv@number
+    }
+    \@expand{\hi@supra@form{#1}}\reserved@a i%
+    %
+    % Full cite is done last because \hi@kv@number is modified by
+    % \hi@book@pubparen
+    %
+    \protected@edef\hi@kv@number{%
+        Internet Engineering Task Force, RFC \hi@kv@number
+    }%
+    \hi@book@pubparen
+    \hi@newcite@form{fc}{#1}{%
+        \hi@ifset\hi@kv@author{%
+            \noexpand\@gobble{\hi@kv@authln}%
+        }{}% For sorting purposes
+        \noexpand\if@hi@inline
+            \expandafter\noexpand\csname ic@#1\endcsname
+        \noexpand\else
+            \hi@citeguts{%
+                \hi@ifset\hi@kv@author{%
+                    \hi@fn@bookauthor{\hi@kv@author}, % space
+                }{}%
+                \hi@fn@booktitle{\hi@kv@name}%
+                \hi@maybepage{\hi@page@space\hi@kv@name}%
+            }%
+            \hi@parens@add\hi@paren@date{%
+                \hi@book@paren
+                \hi@kv@year
+            }%
+            \the\hi@param@parens
+        \noexpand\fi
+    }%
+}
+%%
+%% \iffalse filename: otherrefs.dtx \fi
+%%
+\hi@newcite\defletter{A letter or memorandum}{%
+    \hi@citetype{#1}\hi@type@other
+    \hi@ifset\hi@kv@type{}{\def\hi@kv@type{Letter}}
+    \@expand{\find@in{, }}{\hi@kv@author}i{%
+        \def\reserved@a{, }\@gobbletwo
+    }{\def\reserved@a{ }}%
+    \hi@newcite@form{fc}{#1}{%
+        \hi@citeguts{%
+            \@capnext\hi@kv@type
+            \hi@ifset\hi@kv@author{ from \hi@kv@author}{}%
+            \hi@ifset\hi@kv@to{\reserved@a to \hi@kv@to}{}%
+            \hi@ifset\hi@kv@name{, \noexpand\hi@fn@arttitle{\hi@kv@name}}{}%
+            \hi@maybepage{ }%
+        }%
+        \hi@parens@add{\hi@paren@date}{\hi@kv@year}%
+        \the\hi@param@parens
+    }%
+    \hi@newcite@form{lc}{#1}{%
+        \hi@citeguts{%
+            \hi@ifset\hi@kv@author{%
+                \hi@toa@dupauthor{}{\hi@kv@author@sortable}\hi@kv@type
+            }{%
+                \@capnext\hi@kv@type
+            }%
+            \hi@ifset\hi@kv@to{ to \hi@kv@to}{}%
+            \hi@ifset\hi@kv@name{, \noexpand\hi@fn@arttitle{\hi@kv@name}}{}%
+        }%
+        \hi@parens@add{\hi@paren@date}{\hi@kv@year}%
+        \the\hi@param@parens
+    }%
+    \@expand{\hi@supra@form{#1}}\hi@kv@authln i%
+}
+\hi@newcite\defpressrelease{A press release}{%
+    \hi@citetype{#1}\hi@type@other
+    \hi@ifset\hi@kv@type{}{\def\hi@kv@type{Press Release}}%
+    \hi@newcite@form{fc}{#1}{%
+        \hi@citeguts{%
+            \hi@kv@type,
+            \hi@ifset\hi@kv@author{\hi@kv@author@sortable, }{}%
+            \hi@ifset\hi@kv@name{\noexpand\hi@fn@arttitle{\hi@kv@name}}{}% Title
+            \hi@maybepage{ }%
+        }%
+        \hi@parens@add{\hi@paren@date}{\hi@kv@year}%
+        \the\hi@param@parens
+    }%
+    \protected@edef\reserved@a{%
+        \hi@ifset\hi@kv@authln{\@capnext\hi@kv@authln}{%
+            \noexpand\hi@fn@arttitle{\hi@kv@name}%
+        }%
+    }%
+    \@expand{\hi@supra@form{#1}}\reserved@a i%
+}
+\hi@newcite\defspeech{A speech, address, or presentation}{%
+    \hi@citetype{#1}\hi@type@other
+    \hi@ifset\hi@kv@type{}{\def\hi@kv@type{Address}}
+    \hi@newcite@form{fc}{#1}{%
+        \hi@citeguts{%
+            \hi@ifset\hi@kv@author{\hi@kv@author@sortable, }{}%
+            \hi@kv@type
+            \hi@ifset\hi@kv@place{\space at the \hi@kv@place}{}%
+            \hi@ifset\hi@kv@name{: \hi@kv@name}{}%
+            \hi@maybepage{\hi@page@space\hi@kv@name}%
+        }%
+        \the\hi@param@parens
+        \hi@parens@add\hi@paren@date{\hi@kv@year}%
+    }%
+    \protected@edef\reserved@a{%
+        \hi@ifset\hi@kv@authln{\@capnext\hi@kv@authln}{\hi@kv@name}%
+    }%
+    \@expand{\hi@supra@form{#1}}\reserved@a i%
+}
+\hi@newcite\deffilm{A film (movie/motion picture)}{%
+    \hi@citetype{#1}\hi@type@other
+    \hi@newcite@form{fc}{#1}{%
+        \hi@citeguts{%
+            \noexpand\hi@fn@booktitle{\hi@kv@name}%
+        }%
+        \hi@parens@add{\hi@paren@date}{\hi@kv@publisher\space\hi@kv@year}%
+        \the\hi@param@parens
+    }%
+    \protected@edef\reserved@a{%
+        \noexpand\hi@fn@booktitle{\hi@kv@name}%
+    }%
+    \@expand{\hi@supra@form{#1}}\reserved@a i%
+}
+\hi@newcite\deftvshow{A television show}{%
+    \hi@citetype{#1}\hi@type@other
+    \hi@newcite@form{fc}{#1}{%
+        \hi@citeguts{%
+            \hi@fn@arttitle{\hi@kv@name}%
+        }%
+        \the\hi@param@parens
+        \hi@parens@add{\hi@paren@date}{%
+            \hi@param@optspc\hi@kv@publisher\hi@kv@year
+        }%
+    }%
+    \protected@edef\reserved@a{%
+        \noexpand\hi@fn@arttitle{\hi@kv@name}%
+    }%
+    \@expand{\hi@supra@form{#1}}\reserved@a i%
+}
+\hi@newcite\defopinion{An ethics or other opinion}{%
+    \hi@citetype{#1}\hi@type@other
+    \hi@ifset\hi@kv@type{}{\def\hi@kv@type{Formal Opinion}}%
+    \@expand\hi@abbrev@cdoc\hi@kv@type i{\def\hi@kv@type}%
+    \hi@newcite@form{fc}{#1}{%
+        \hi@citeguts{%
+            \hi@kv@author,
+            \hi@kv@type\space \hi@kv@number
+            \hi@maybepage{, \hi@page@atorsect}%
+        }%
+        \hi@parens@add{\hi@paren@date}{\hi@kv@year}%
+        \the\hi@param@parens
+    }%
+    \protected@edef\reserved@a{\hi@kv@type\space \hi@kv@number}%
+    \@expand{\hi@supra@form{#1}}\reserved@a i%
+}
+%%
+%% \iffalse filename: nondocrefs.dtx \fi
+%%
+\hi@newcite\defabbrev{An abbreviation for a name}{%
+    \hi@ifset\hi@kv@name{%
+        \hi@replacethe\hi@kv@name{\def\hi@kv@name}{}%
+        \@expandarg\hi@abbrev@name{\hi@kv@name}{\def\hi@kv@aname}%
+    }{%
+        \PackageError\hi@pkgname{%
+            For abbreviation #1, no name given%
+        }{You must provide the name}%
+    }%
+    \hi@ifset\hi@kv@inline{%
+        \hi@replacethe\hi@kv@inline{\def\hi@kv@inline}{}%
+        \@expand{\hi@short@register{#1}}\hi@kv@inline i{y}%
+        %
+        % Unless the user has explicitly rejected it, tack on a parenthetical of
+        % the short name to the full citation form.
+        %
+    }{%
+        \PackageError\hi@pkgname{%
+            For abbreviation #1, no inline given%
+        }{You must provide the inline form}%
+    }%
+    \hi@newcite@form{fc}{#1}{%
+        \hi@citeguts{%
+            \noexpand\if@hi@inline
+                \noexpand\@capnext\hi@kv@name
+            \noexpand\else
+                \noexpand\@capnext\hi@kv@aname
+            \noexpand\fi
+            \hi@ifset\hi@kv@noinlineparen{}{%
+                \hi@short@maybeshow{#1}{\space
+                    {\noexpand\@hi@adjectivetrue(``\hi@kv@inline'')}%
+                    \noexpand\@%
+                }%
+            }%
+        }%
+        \hi@invis@inline
+    }%
+    \hi@newcite@form{sc}{#1}{%
+        \hi@citeguts{\noexpand\@capnext\hi@kv@inline}%
+        \noexpand\@%
+        \hi@short@use{#1}%
+        \hi@invis@inline
+    }%
+}
+\hi@newcite\defalias{An alias for a citation reference}{%
+    \hi@ifset\hi@kv@citation{}{%
+        \hi@ifset\hi@kv@rep{%
+            \let\hi@kv@citation\hi@kv@rep
+        }{%
+            \PackageError\hi@pkgname{%
+                In defining alias #1, you must provide citation or rep%
+            }{Add the requested parameter}%
+        }%
+    }%
+    %
+    % The full citation form should never be used
+    %
+    \hi@newcite@form{fc}{#1}{%
+        \noexpand\PackageError\noexpand\hi@pkgname{%
+            Reference #1 is an alias and should never be cited%
+        }{Something is wrong with the package}%
+    }%
+    %
+    % The modification macro should set the volume and reference name
+    %
+    \hi@newcite@form{mc}{#1}{%
+        \def\noexpand\@this@case{\hi@kv@citation}%
+        \hi@ifset\hi@kv@vol{%
+            \noexpand\ifx\noexpand\@this@vol\relax
+                \def\noexpand\@this@vol{\hi@kv@vol}%
+            \noexpand\fi
+        }{}%
+        \hi@ifset\hi@kv@page{%
+            \noexpand\ifx\noexpand\@this@page\relax
+                \def\noexpand\@this@orig@page{\expandonce\hi@kv@page}%
+                \def\@this@page{\@format@page@macro\hi@kv@page}%
+            \noexpand\fi
+        }{}%
+    }%
+    %
+    % The page number macro should combine page numbers and set \@this@orig@page
+    % and \@this@page appropriately
+    %
+    \hi@newcite@form{pc}{#1}##1{%
+        \hi@ifset\hi@kv@page{%
+            \noexpand\hi@pages@join{\expandonce\hi@kv@page}{##1}%
+        }{%
+            \noexpand\protected@edef\noexpand\@this@page{%
+                \noexpand\@format@pageno{##1}%
+            }%
+        }%
+    }%
+}
+\newcount\hi@anonselfcitecount
+\hi@newcite\defselfcite{A self-citation}{%
+    \global\advance\hi@anonselfcitecount\@ne
+    \hi@newcite@form{fc}{#1}{%
+        \hi@citeguts{%
+            [Self-citation \#\the\hi@anonselfcitecount]%
+        }%
+    }%
+}%
+%%
+%% \iffalse filename: genparams.dtx \fi
+%%
+\hi@defparam{accessdate}{URL access date}{%
+    \hi@date@parse[last visited]{#1}{\def\reserved@a}%
+    \expandafter\hi@param@addparen\expandafter\hi@paren@accessdate
+        \expandafter{\reserved@a}%
+}
+\hi@defparam@noval{bookreview}{Indicator that an article is a book review}{%
+    \ifstrempty{#1}{%
+        \hi@param@addparen\hi@paren@bookreview{book review}%
+    }{%
+        \hi@param@addparen\hi@paren@bookreview{reviewing \clause{#1}}%
+    }%
+}
+\hi@defparam{citetype}{Table of Authorities category for this citation}{%
+    \@ifundefined{hi@type@#1}{%
+        \PackageError\hi@pkgname{Invalid Table of Authorities section #1}{%
+            Please enter a valid section identifier.
+        }%
+    }{%
+        \@expand{\hi@citetype{\@this@case}}{\csname hi@type@#1\endcsname}{i}%
+    }%
+}
+\hi@param@alias{comment}{paren}
+\hi@defparam{country}{Country for citation}{%
+    \@ifundefined{hi@ctry@#1}{\hi@param@addparen\hi@paren@country{#1}}{%
+        \@expand{\hi@param@addparen\hi@paren@country}{%
+            \csname hi@ctry@#1\endcsname
+        }{ii}%
+    }%
+}
+\hi@newparam{defaultopt}{The default optional parameter}
+\hi@defparam{hereinafter}{Text to use for hereinafter citation form}{%
+    \expandafter\hi@short@register\expandafter{\@this@case}{#1}{y}%
+    \hi@supra@form\@this@case{#1}%
+    \hi@param@addparen\hi@paren@hia{#1}%
+}
+\hi@defparam{hyphenate}{Set hyphenation for a word}{%
+    \hyphenation{#1}%
+}
+\hi@param@alias{hyphenation}{hyphenate}
+\hi@newparam{kind}{Type of reference}
+\hi@newparam@noval{noetal}{No et al. with 3 or more authors}
+\hi@defparam@noval{notoa}{Do not include in the table of authorities}{%
+    \hi@citetype\@this@case\@empty
+}
+\hi@newparam{opturl}{Optional URL}
+\hi@defparam{origyear}{Year of original publication of the reference}{%
+    \hi@date@parse{#1}{\hi@param@addparen\hi@paren@origdate}%
+}
+\hi@param@alias{origdate}{origyear}
+\hi@defparam{parallel}{Parallel citation}{%
+    \find@in{: }{#1}{\hi@defkey@parallel}{%
+        \PackageError\hi@pkgname{%
+            Parameter `parallel' must include a page segment\MessageBreak
+            key name, followed by a colon%
+        }{It should look like `key: 123 Rep. 456'}%
+    }%
+}
+\hi@defparam{paren}{A parenthetical to be included with citation}{%
+    \find@try\find@in{%
+        { in: }{\hi@defkey@cmt{ in}}%
+        { by: }{\hi@defkey@cmt{ by}}%
+        { at: }{\hi@defkey@cmt{ at}}%
+    }{#1}{%
+        \hi@param@addparen\hi@paren@doc{#1}%
+    }%
+}
+\hi@defparam{parse}{Apply automatic citation parser}{\hi@cparse{#1}}
+\hi@defparam{reprinted}{Reprinted in parenthetical}{%
+    \hi@anonref{#1}{\hi@reprinted}%
+}
+\hi@defparam{supplement}{Year/date of a supplement to the reference}{%
+    \hi@date@parse[Supp.]{#1}{\def\hi@kv@supplement}%
+    \hi@param@addhook{%
+        \hi@ifset\hi@kv@year{%
+            \addto@macro\hi@kv@year{ \& }%
+            \expandafter\addto@macro\expandafter\hi@kv@year\expandafter{%
+                \hi@kv@supplement
+            }%
+        }{%
+            \let\hi@kv@year\hi@kv@supplement
+        }%
+    }%
+}
+\hi@defparam@noval{toapage}{Include page numbers in Table of Authorities}{%
+    \hi@include@page@in@toa{\@this@case}%
+    \def\hi@kv@toapage{}%
+}
+\hi@defparam{url}{URL for reference}{%
+    \find@try\find@start{%
+        {available at }{\hi@urlprefixwarn\KV@hi@url}%
+        {at }{\hi@urlprefixwarn\KV@hi@url}%
+    }{#1}{%
+        \hi@parseurl{#1}\hi@kv@url
+        \@expandarg\hi@defkey@url{\hi@kv@url}%
+    }%
+}
+%%
+%% \iffalse filename: commparams.dtx \fi
+%%
+\hi@newparam{authln}{Last name of the first author, for short citations}
+\hi@defparam{author}{Author of the reference}{%
+    \hi@nameproc@person{#1}{\hi@namelist@addtwo\hi@kv@author\hi@kv@authln}%
+}
+\hi@defparam{cite}{Volume-reporter-page citation}{%
+    \hi@cp@cite{#1}\KV@hi@vol\KV@hi@rep\KV@hi@page\KV@hi@year
+}
+\hi@param@alias{date}{year}
+\hi@newparam{inline}{Short name for the reference}
+\hi@defparam{instauth}{Institutional author}{%
+    \hi@nameproc@inst{#1}{\hi@namelist@addinst}{\hi@kv@author}%
+    \hi@nameproc@inst{#1}{\hi@namelist@addinst@ln}{\hi@kv@authln}%
+}
+\hi@param@alias{jcite}{cite}
+\hi@param@alias{journal}{rep}
+\hi@param@alias{journaltitle}{rep}
+\hi@param@alias{booktitle}{rep}
+\hi@newparam{name}{Name of the reference}
+\hi@newparam{number}{Number (for constitutional amendments, session laws)}
+\hi@newparam{page}{Page number}
+\hi@param@alias{pages}{page}
+\hi@newparam{rep}{Reporter or journal name}%
+\hi@param@alias{serial}{number}
+\hi@param@alias{series}{number}
+\hi@param@alias{short}{inline}
+\hi@param@alias{shorttitle}{inline}
+\hi@param@alias{src}{rep}
+\hi@param@alias{subdiv}{page}
+\hi@param@alias{title}{name}
+\hi@newparam{type}{Type of work}
+\hi@defparam{vol}{Volume number}{%
+    \find@in{:}{#1}{\@twodef\hi@kv@vol\hi@kv@issue}{\def\hi@kv@vol{#1}}
+}
+\hi@param@alias{volume}{vol}
+\hi@defparam{year}{Year/date of the case, article, regulation}{%
+    \hi@date@parse{#1}{\def\hi@kv@year}%
+}
+%%
+%% \iffalse filename: caseparams.dtx \fi
+%%
+\hi@defparam{agency}{Administrative agency name}{%
+    \hi@abbrev@name{#1}{\KV@hi@court}%
+}
+\hi@newparam{court}{Court deciding the case}
+\hi@newparam{d}{Second party name in the case}
+\hi@newparam{dbid}{Database identifier for an online case}
+\hi@defparam{docket}{Docket number of the case}{%
+    \hi@defkey@docket#1\@stop{#1}%
+}
+\hi@defparam@noval{enbanc}{En banc case parenthetical}{%
+    \hi@param@addparen\hi@paren@opinion{en banc}%
+}
+\hi@newparam@noval{inlinedefendant}{Don't use the first party as main party}
+\hi@defparam@noval{mem}{Memorandum opinion parenthetical}{%
+    \hi@param@addparen\hi@paren@opinion{mem.}%
+}
+\hi@newparam{p}{First party name in the case}
+\hi@defparam{parties}{Named parties to a case, separated by `` v. ''}{%
+    \find@in{ v. }{#1}{\@tworun\KV@hi@p\KV@hi@d}{\KV@hi@name{#1}}%
+}
+\hi@defparam@noval{percuriam}{Per curiam opinion}{%
+    \hi@param@addparen\hi@paren@opinion{per curiam}%
+}
+\hi@newparam{prior}{Prior history for a case}
+\hi@defparam@noval{revparties}{Parties to this case are reverse of named case}{%
+    \@ifundefined{case@#1@p}{}{%
+        \@expand\KV@hi@d{\csname case@#1@p\endcsname}{ii}%
+    }%
+    \@ifundefined{case@#1@d}{}{%
+        \@expand\KV@hi@p{\csname case@#1@d\endcsname}{ii}%
+    }%
+    \@ifundefined{case@#1@name}{}{%
+        \@expand\KV@hi@name{\csname case@#1@name\endcsname}{ii}%
+    }%
+}
+\hi@defparam@noval{sameparties}{Parties to this case are same as named case}{%
+    \@ifundefined{case@#1@p}{}{%
+        \@expand\KV@hi@p{\csname case@#1@p\endcsname}{ii}%
+    }%
+    \@ifundefined{case@#1@d}{}{%
+        \@expand\KV@hi@d{\csname case@#1@d\endcsname}{ii}%
+    }%
+    \@ifundefined{case@#1@name}{}{%
+        \@expand\KV@hi@name{\csname case@#1@name\endcsname}{ii}%
+    }%
+}
+\hi@newparam@noval{slip}{Slip opinion or law}
+\hi@param@alias{slipop}{slip}
+\hi@newparam{subsequent}{Subsequent history for a case}
+%%
+%% \iffalse filename: legparams.dtx \fi
+%%
+\hi@param@alias{bill}{number}
+\hi@defparam{chapter}{Session law chapter}{%
+    \KV@hi@sesslawid{ch.}%
+    \def\hi@kv@number{#1}%
+}
+\hi@defparam{codified}{Citation for codification of law or regulation}{%
+    \hi@defkey@codified{codified at}{#1}%
+}
+\hi@defparam{codifiedamended}{Citation for codification of law or regulation}{%
+    \hi@defkey@codified{codified as amended at}{#1}%
+}
+\hi@defparam{committee}{House or Senate committee}{%
+    \hi@abbrev@leg{#1}{\def\hi@kv@committee}%
+}
+\hi@newparam{congress}{Congressional session number}
+\hi@newparam{origsect}{Original section number of a statute in a code}
+\hi@param@alias{publiclaw}{number}
+\hi@param@alias{publno}{number}
+\hi@param@alias{sesslawid}{type}
+\hi@newparam{regnal}{Regnal citation for English pre-1963 statutes}
+\hi@newparam{status}{Status of bill}
+%%
+%% \iffalse filename: bookparams.dtx \fi
+%%
+\hi@defparam{edition}{Edition number of book}{%
+    \protected@edef\reserved@a{\ifnum\m@ne<0#1 \fi}%
+    \ifx\reserved@a\@empty
+        \edef\hi@kv@edition{#1\hi@numtoord{#1} ed.}%
+    \else
+        \find@in{ }{#1}{%
+            \def\hi@kv@edition{#1}\@gobbletwo
+        }{%
+            \def\hi@kv@edition{#1 ed.}%
+        }%
+    \fi
+}
+\hi@defparam{editor}{Editor(s) of book}{%
+    \hi@nameproc@person{#1}{\hi@namelist@addtwo\hi@kv@editor\relax}%
+}
+\hi@newparam{edtype}{Editor type (default ed.)}
+\hi@newparam@noval{forthcoming}{Journal article is forthcoming}
+\hi@defparam{in}{Reference name of a citation that the current item is in}{%
+    \hi@anonref{#1}{\def\hi@kv@in}%
+}
+\hi@defparam{insted}{Institutional editor}{%
+    \hi@nameproc@inst{#1}{\hi@namelist@addinst}{\hi@kv@editor}%
+}
+\hi@newparam{issue}{Issue number of journal}
+\hi@param@alias{issuer}{publisher}
+\hi@newparam@noval{noabbrevjrn}{Don't abbreviate the journal name}
+\hi@defparam{publisher}{Publisher of book}{%
+    \hi@abbrev@name{#1}{\def\hi@kv@publisher}%
+}
+\hi@newparam@noval{singleauthor}{All works in a collection are by one author}
+\hi@newparam@noval{usetitle}{Use title rather than author in short cites}
+\hi@newparam@noval{useissue}{Include issue number in journal citations}
+%%
+%% \iffalse filename: refparams.dtx \fi
+%%
+\hi@param@alias{broadcaster}{instauth}
+\hi@defparam{citation}{Citation to another reference}{%
+    \hi@anonref{#1}{\def\hi@kv@citation}%
+}
+\hi@newparam{commenter}{Names of parties submitting agency comments}
+\hi@defparam{countries}{Countries to a treaty}{%
+    \hi@abbrev@name{#1}{\def\hi@kv@countries}%
+}
+\hi@newparam@noval{inlineparen}{Always include a parenthetical for inline form}
+\hi@defparam{instto}{Institutional recipient of letter, memorandum, etc.}{%
+    \hi@nameproc@inst{#1}{\hi@namelist@addinst}{\hi@kv@to}%
+}
+\hi@newparam{intdoc}{Document number for international documents}
+\hi@param@alias{issuedate}{issueyear}
+\hi@defparam{issueyear}{Date a patent was issued}{%
+    \hi@date@parse[issued]{#1}{\def\hi@kv@year}%
+}
+\hi@newparam@noval{noinlineparen}{Never include a parenthetical for inline form}
+\hi@newparam@noval{noshorttitle}{Do not include title for short cites}
+\hi@newparam{onfile}{Where the document is on file}
+\hi@newparam{place}{Place (for speeches, constitutions, statutes)}
+\hi@param@alias{producer}{instauth}
+\hi@param@alias{sponsor}{publisher}
+\hi@param@alias{state}{place}
+\hi@defparam{struct}{Structure for data of multivolume works}{%
+    \global\@namedef{hi@struct@set@\@this@case}{#1}%
+    \expandafter\def\expandafter\hi@kv@struct\expandafter{%
+        \csname hi@struct@set@\@this@case\endcsname
+    }%
+}
+\hi@defparam{to}{Recipient of a letter}{%
+    \hi@nameproc@person{#1}{\hi@namelist@addtwo\hi@kv@to\relax}%
+}
+%%
+%% \iffalse filename: strings.dtx \fi
+%%
+%%
+%% \iffalse filename: abbrev.dtx \fi
+%%
+
+\section{abbrev.dtx}
+
+\begingroup
+    \abb@new{test}
+    \abb@add{test}{Company}{Co.}
+    \abb@add{test}{Big Company}{BigCo.}
+    \abb@add{test}{Really Big}{R.B.}
+    \abb@add{test}{Big Company Machines}{B.C.M.}
+    \abb@add{test}{Enormous Example}{Really Big Ex.}
+    \abb@add{test}{{}First Company}{FiComp.}
+
+    \def\abbrevtest#1#2{\AssertCallback{\abb@abbrev{test}{#1}}{#2}}
+
+    \abbrevtest{Company}{Co.}
+    \abbrevtest{The Company}{The Co.}
+    \abbrevtest{Company Treasure}{Co. Treasure}
+    \abbrevtest{The Company Treasure}{The Co. Treasure}
+    \abbrevtest{The Companying Art}{The Companying Art}
+    \abbrevtest{Companying Art}{Companying Art}
+    \abbrevtest{AcCompany Art}{AcCompany Art}
+    \abbrevtest{An AcCompany Art}{An AcCompany Art}
+    \abbrevtest{An Ac{}Company Art}{An Ac{}Co. Art}
+
+    \abbrevtest{Big Company}{BigCo.}
+    \abbrevtest{The Big Company}{The BigCo.}
+    \abbrevtest{The Big Company Treasure}{The BigCo. Treasure}
+    \abbrevtest{The Big Company's Treasure}{The BigCo.'s Treasure}
+    \abbrevtest{The Big Company-Treasure}{The BigCo.-Treasure}
+
+    \abbrevtest{Really Big Company}{R.B. Co.}
+    \abbrevtest{The Really Big Company Treasure}{The R.B. Co. Treasure}
+
+    \abbrevtest{Big Company Machines}{B.C.M.}
+    \abbrevtest{The Big Company Machines}{The B.C.M.}
+    \abbrevtest{The Big Company Machines Works}{The B.C.M. Works}
+    \abbrevtest{The Big Company Machinesys}{The BigCo. Machinesys}
+
+    % Should not re-abbreviate Really Big
+    \abbrevtest{Enormous Example}{Really Big Ex.}
+
+    \meaning\abb@class@test@
+
+    \abbrevtest{First Company}{FiComp.}
+    \abbrevtest{First Company Treasure}{FiComp. Treasure}
+    \abbrevtest{The First Company}{The First Co.}
+    \abbrevtest{The First Company Treasure}{The First Co. Treasure}
+\endgroup
+
+%%
+%% \iffalse filename: sortlist.dtx \fi
+%%
+%%
+%% \iffalse filename: hibib.dtx \fi
+%%
+%%
+%% \iffalse filename: conclusion.dtx \fi
+%%
+\end{document}
+\endinput
+%%
+%% End of file `test.tex'.

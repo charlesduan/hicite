@@ -1,0 +1,233 @@
+%%
+%% \iffalse filename: constrefs.dtx \fi
+%%
+%<*doc>
+\input driver
+\thisis{constrefs}{U.S. Constitutions and Founding Documents}
+
+These references cover the U.S. Constitution, state constitutions, and other
+founding documents such as the \emph{Federalist} papers and the Declaration of
+Independence.
+
+\input docparams
+
+%</doc>
+\hi@newcite\defconst{Citation to a constitution}{%
+    \hi@citetype{#1}\hi@type@const
+    \hi@ifset\hi@kv@name\relax{%
+        \PackageWarning\hi@pkgname{%
+            Constitution citation requires "name" argument
+        }%
+        \let\hi@kv@name\@empty
+    }%
+    \hi@replacethe\hi@kv@name{\hi@const@part{#1}}{%
+        \hi@const@part{#1}{\@capnext\hi@kv@name}%
+    }%
+}
+%<*doc>
+Because of the intensive way in which parts of constitutions are analyzed, this
+package provides that each \emph{part} of a constitution to be cited should be
+defined as a separate reference.
+
+\keyparameters{
+    {name}{The textual name of the constitution part being cited. This can be a
+    textual representation of the pin cite (e.g., ``Article II'') or a common
+    name (e.g., ``the Equal Protection Clause'').}
+    {page}{The pin cite specification for the constitution part for this
+    reference. Typically this will be a listing of named divisions:
+    \texttt{article 1, S 8, clause 8}, for example.}
+}
+\optparameters{
+    {place, state}{The state from which this constitution originates, if not
+    ``U.S\@.'' The place will be abbreviated using the \texttt{name} scheme.}
+    {year}{The year of adoption, for superseded constitutions. To enter years
+    for adoption of specific amendments or provisions, use \param{paren}.}
+}
+
+\pagejoining
+
+%</doc>
+%
+\hi@newcite\defconstamend{A Constitutional amendment}{%
+    \hi@citetype{#1}\hi@type@const
+    \edef\hi@kv@page{amendment \expandafter\@Roman\hi@kv@number}%
+    \hi@const@part{#1}{%
+        \hi@inline@the
+        \@expandarg\hi@numtotxt{\hi@kv@number}
+        Amendment%
+    }%
+}
+%<*doc>
+This is just a shortcut for \rtype{const} when defining whole amendments. The
+parameters and usage are identical to \rtype{const} except the \param{name} and
+\param{page} parameters are automatically set to ``the \meta{ordinal-number}
+Amendment\\ and ``amendment \meta{number}'' respectively.
+
+\keyparameters{
+    {number}{The number of the amendment. This should be a regular Arabic
+    number; it will be converted to Roman numerals for the citation form and
+    ordinal number text for the inline form.}
+}
+%</doc>
+%
+%<*package>
+%
+% Generic macro for setting up constitution part citations. \#1 is the name, \#2
+% the inline text. |\hi@kv@page| must be set as well.
+%    \begin{macrocode}
+\def\hi@const@part#1#2{%
+    \hi@ifset\hi@kv@place{%
+        \@expandarg\hi@abbrev@name{\def\hi@kv@place}%
+    }{\def\hi@kv@place{U.S.}}%
+    \hi@statcode@setup@idpc{#1}% Set up id. and page numbering
+    \hi@newcite@form{fc}{#1}{%
+        \hi@citeguts{%
+            \hi@inline@never{%
+                \noexpand\hi@fn@const{%
+                    \hi@kv@place\space % State, and space
+                    Const.%
+                }\noexpand\@hi@dottrue
+                \hi@ifset\hi@kv@year{%
+                    \noexpand\@hi@dotfalse\space
+                    of \hi@kv@year
+                }{}%
+                \hi@pageordefault{%
+                    \noexpand\@hi@dotfalse
+                    \hi@ifset\hi@kv@year{,}{}\space
+                }{%
+                    \hi@ifset\hi@kv@page{%
+                        \hi@ifset\hi@kv@year{,}{}\space
+                        \noexpand\@hi@dotfalse
+                        \@format@page@macro\hi@kv@page
+                    }{}%
+                }%
+            }%
+            \hi@inline@only{#2}%
+        }%
+        \hi@invis@inline
+        \the\hi@param@parens
+    }%
+    \hi@newcite@form{lc}{#1}{%
+        \noexpand\hi@toa@duptitle{}{%
+            \hi@fn@const{\hi@kv@place\space Const.}%
+            \hi@ifset\hi@kv@year{\space of \hi@kv@year}{}%
+        }{%
+            \hi@pageordefault{%
+                \hi@ifset\hi@kv@year{, }{ }%
+            }{%
+                \hi@ifset\hi@kv@page{%
+                    \hi@ifset\hi@kv@year{, }{ }%
+                    \@format@page@macro\hi@kv@page
+                }{}%
+            }%
+        }{%
+            \hi@pageordefault{%
+                \hi@ifset\hi@kv@year{, }{ }%
+            }{%
+                \hi@ifset\hi@kv@page{%
+                    \hi@ifset\hi@kv@year{, }{ }%
+                    \@format@page@macro\hi@kv@page
+                }{}%
+            }%
+        }%
+        \the\hi@param@parens
+    }%
+}
+%    \end{macrocode}
+%</package>
+\hi@newcite\deffounding{A national founding document}{%
+    \hi@citetype{#1}\hi@type@found
+    \hi@statcode@setup@idpc{#1}% Set up id. and page numbering
+    \hi@include@page@in@toa{#1}
+    \hi@newcite@form{fc}{#1}{%
+        \hi@citeguts{%
+            \noexpand\hi@fn@const{\hi@kv@name}%
+            \hi@pageordefault{ }{%
+                \hi@ifset\hi@kv@page{ \@format@page@macro\hi@kv@page}{}%
+            }%
+        }%
+        \the\hi@param@parens
+        \hi@ifset\hi@kv@year{%
+            \hi@parens@add{\hi@paren@date}{\hi@kv@year}%
+        }{}%
+    }%
+    \hi@newcite@form{lc}{#1}{%
+        \noexpand\hi@toa@duptitle{}{\hi@fn@const{\hi@kv@name}}{%
+            \hi@pageordefault{ }{%
+                \hi@ifset\hi@kv@page{ \@format@page@macro\hi@kv@page}{}%
+            }%
+            \the\hi@param@parens
+            \hi@ifset\hi@kv@year{%
+                \hi@parens@add{\hi@paren@date}{\hi@kv@year}%
+            }{}%
+        }{%
+            \hi@pageordefault{ }{%
+                \hi@ifset\hi@kv@page{ \@format@page@macro\hi@kv@page}{}%
+            }%
+        }%
+        \the\hi@param@parens
+        \hi@ifset\hi@kv@year{%
+            \hi@parens@add{\hi@paren@date}{\hi@kv@year}%
+        }{}%
+    }%
+}
+%<*doc>
+This generalizes the form for citing the Declaration of Independence, for
+which the reference type is otherwise unclear. \unskip\footnote{The
+\emph{Bluebook} does not define a type for the Declaration of
+Independence but gives it as an example of how to cite subdivisions.
+Nevertheless, the chosen format is puzzling. It puts ``The'' in front of the
+name, even though ``The'' is typically omitted from titles of statutes. (``The''
+is not omitted from book titles that actually start with ``The,'' but the
+Declaration does not have an official title on its face.)
+
+It then puts ``U.S.'' in the date parenthetical. Putting aside the question of
+whether the United States existed at the time the Declaration was signed, it is
+unclear why the country is included in the parenthetical rather than as part of
+the title. Typically, that placement of a jurisdiction would identify a court or
+similar tribunal issuing a decision, but it is a stretch to say that the
+Declaration is an adjudicated result. If it is to identify the country issuing
+the Declaration to distinguish from other nations' declarations of independence,
+then ``U.S.'' ought to be added in a separate parenthetical based on the usual
+rule for foreign materials. The best interpretation perhaps is that the
+Declaration is being cited as a book, explaining the superfluous ``The,'' and
+that the United States is being identified as the publisher of a pre-1900
+work---a strange approach for many reasons.}
+Mainly, this form provides a flexible citation container that sets the given
+title in the same font as that for constitutions.
+
+\keyparameters{
+    {name}{The name of the document.}
+}
+\optparameters{
+    {year}{The relevant year of the document.}
+}
+
+\pagejoining
+
+%</doc>
+%
+\hi@newcite\deffederalist{A Federalist paper}{%
+    \hi@citetype{#1}\hi@type@other
+    % TODO: add editor info
+    \hi@newcite@form{fc}{#1}{%
+        \hi@citeguts{%
+            \hi@fn@booktitle{\hi@book@the Federalist No.~\hi@kv@number}%
+            \space(\hi@kv@author)%
+        }%
+    }
+    \protected@edef\reserved@a{%
+        {\noexpand\hi@fn@booktitle{The Federalist No.~\hi@kv@number}}%
+    }
+    \@expand{\hi@supra@form{#1}}\reserved@a i%
+}
+%<*doc>
+
+\keyparameters{
+    {number}{The number of the paper.}
+}
+\optparameters{
+    {author}{The author of the paper.}
+}
+%</doc>
+%

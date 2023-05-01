@@ -1,0 +1,440 @@
+%%
+%% \iffalse filename: foreignrefs.dtx \fi
+%%
+%<*doc>
+\input driver
+\thisis{foreignrefs}{Foreign and International Materials}
+
+The selection of reference types defined here is very much incomplete. To the
+extent it is necessary, use \rtype{verbatim}.
+
+\input docparams
+%</doc>
+%
+\hi@newcite\defengdebate{An English parliamentary debate}{%
+    \hi@citetype{#1}\hi@type@other
+    \hi@newcite@form{sc}{#1}{%
+        \hi@citeguts{%
+            \hi@usevol{\hi@ifset\hi@kv@vol{\hi@kv@vol\space}{}}%
+            \noexpand\hi@fn@statute{\hi@kv@rep}\space
+            \hi@ifset\hi@kv@number{%
+                (\hi@kv@number
+                \expandafter\hi@numtoord\expandafter{\hi@kv@number} ser.)\space
+            }{}%
+            (\hi@kv@year)\space
+            \hi@pageordefault{}{%
+                \@format@page@macro\hi@kv@page
+            }%
+        }%
+    }%
+    \hi@newcite@form{fc}{#1}{%
+        \hi@citeguts{%
+            \hi@usevol{\hi@ifset\hi@kv@vol{\hi@kv@vol\space}{}}%
+            \noexpand\hi@fn@statute{\hi@kv@rep}\space
+            \hi@ifset\hi@kv@number{%
+                (\hi@kv@number
+                \expandafter\hi@numtoord\expandafter{\hi@kv@number} ser.)\space
+            }{}%
+            (\hi@kv@year)\space
+            \hi@pageordefault{}{%
+                \@format@page@macro\hi@kv@page
+            }%
+        }%
+        \the\hi@param@parens
+    }%
+}
+%<*doc>
+
+\keyparameters{
+    {vol, rep, page, cite}{The locator information for the debate. The reporter
+    should include the House of Parliament abbreviated.}
+}
+
+%</doc>
+%
+\hi@newcite\defengstat{An English statute}{%
+    \hi@citetype{#1}\hi@type@statute
+    \hi@statcode@setup@idpc{#1}% Set up id. and page numbering
+    %\hi@include@page@in@toa{#1}
+    \hi@newcite@form{ic}{#1}{%
+        \hi@ifset\hi@kv@name{\hi@inline@the\@capnext\hi@kv@name}{}%
+    }%
+    \hi@newcite@form{fc}{#1}{%
+        \hi@inline@only{\hi@citeguts{\noexpand\@nameuse{ic@#1}}}%
+        \hi@inline@never{%
+            \hi@citeguts{%
+                \hi@name@only{%
+                    \hi@ifset\hi@kv@name{\@capnext\hi@kv@name, \hi@kv@year, }{}%
+                }%
+                \hi@ifset\hi@kv@regnal{\@capnext\hi@kv@regnal, }{}%
+                \@capnext c. \hi@kv@number
+                \hi@pageordefault{, }{%
+                    % Don't put the page here if \hi@kv@rep is set because the
+                    % page is assumed to refer to the code book, not a statutory
+                    % section.
+                    \hi@ifset\hi@kv@rep{}{%
+                        \hi@ifset\hi@kv@page{%
+                            , \@format@page@macro\hi@kv@page
+                        }{}%
+                    }%
+                }%
+                \hi@ifset\hi@kv@rep{%
+                    ,\space
+                    \hi@ifset\hi@kv@vol{\hi@kv@vol\space}{}%
+                    \noexpand\hi@fn@statute{\hi@kv@rep}\space
+                    \@format@page@macro\hi@kv@page
+                }{}%
+            }%
+            \hi@ifset\hi@kv@name{%
+                \noexpand\if@hi@name\noexpand\else
+                    \hi@ifset\hi@kv@year{%
+                        \hi@parens@add\hi@paren@date{\hi@kv@year}%
+                    }{}%
+                \noexpand\fi
+            }{%
+                \hi@ifset\hi@kv@year{\hi@addparen\hi@paren@date{\hi@kv@year}}{}%
+            }%
+            \the\hi@param@parens
+        }%
+    }%
+    \hi@newcite@form{sc}{#1}{%
+        \hi@inline@only{\hi@citeguts{\noexpand\@nameuse{ic@#1}}}%
+        \hi@inline@never{%
+            \hi@citeguts{%
+                \hi@name@only{%
+                    \hi@ifset\hi@kv@name{\@capnext\hi@kv@name}{}%
+                }%
+                \hi@pageordefault{\hi@name@only{ \hi@page@atorsect}}{}%
+            }%
+        }%
+    }%
+}
+%<*doc>
+This supports both modern statutes that are arranged by section numbers, and
+historical statutes that are reported in \emph{Statutes of the Realm}. Note the
+difference in \param{page} for each.
+
+\keyparameters{
+    {name}{The name of the statute.}
+    {year}{The year of enactment. The year is assumed to be part of the name,
+    appended to the name after a comma as is conventional for U.K. statutes.}
+    {regnal}{The regnal year specification.}
+    {chapter, number}{The chapter number of the statute.}
+    {vol, rep}{The volume and code name for codified statute publications
+    (primarily ``Stat.~Realm'').}
+    {page}{If \param{rep} is given, then this parameter should receive the page
+    number in the reporter for the statute. Otherwise, it should receive a
+    section number of the statute if any.}
+}
+
+\pagejoining
+
+%</doc>
+%
+\hi@newcite\defengcommand{A command paper in England}{%
+    \hi@citetype{#1}\hi@type@other
+    \hi@newcite@form{fc}{#1}{%
+        \hi@ifset\hi@kv@author{%
+            \noexpand\@gobble{\hi@kv@authln}%
+        }{}% For sorting purposes
+        \hi@citeguts{%
+            \noexpand\hi@fn@bookauthor{\hi@kv@author},
+            \noexpand\hi@fn@booktitle{\hi@kv@name},
+            \hi@kv@year,
+            \hi@kv@number
+            \hi@maybepage{, \hi@page@atorsect}%
+        }%
+        \the\hi@param@parens
+    }%
+}
+%<*doc>
+
+
+\keyparameters{
+    {instauth}{The government department issuing the paper.}
+    {name}{Title of the paper.}
+    {year}{Year the paper was issued.}
+    {number}{The command paper number. This must be prefixed with the
+    appropriate ``Command'' abbreviation that identifies the series, as is
+    conventional in U.K. practice.}
+}
+
+%</doc>
+%
+\hi@newcite\defforeignconst{A foreign constitution}{%
+    \hi@citetype{#1}\hi@type@const
+    \hi@newcite@form{fc}{#1}{%
+        \hi@citeguts{%
+            \noexpand\hi@fn@const{\hi@kv@name}%
+            \hi@ifset\hi@kv@page{ \hi@kv@page}{}%
+            \hi@maybepage{ }%
+        }%
+        \hi@invis@inline
+        \the\hi@param@parens
+    }%
+}
+%<*doc>
+
+\keyparameters{
+    {name}{The name of the constitution. A translation may be given in square
+    brackets.}
+    {page}{A pin cite for the part of the constitution being cited.}
+}
+
+%</doc>
+%
+\hi@newcite\deftreaty{A treaty or international agreement}{%
+    \hi@citetype{#1}\hi@type@treaty
+    \hi@ifset\hi@kv@inline{%
+        \hi@replacethe\hi@kv@inline{\def\hi@kv@inline}{}%
+        \expandafter\KV@hi@hereinafter\expandafter{\hi@kv@inline}%
+    }{%
+        \@expand{\hi@supra@form{#1}}{\expandafter\hi@inline@the\hi@kv@name}i%
+    }%
+    \hi@newcite@form{fc}{#1}{%
+        \hi@inline@only{%
+            \hi@citeguts{%
+                \hi@inline@the\hi@kv@name
+            }%
+        }%
+        \hi@inline@never{%
+            \hi@citeguts{%
+                % The treaty name can only be suppressed in a star citation if a
+                % country is given.
+                \hi@ifset\hi@kv@countries{%
+                    \hi@name@only{\hi@kv@name, }\hi@kv@countries
+                }{\hi@kv@name}%
+                \hi@maybepage{, },\space
+                \hi@italdateprefix{\hi@kv@year}%
+                \hi@ifset\hi@kv@rep{%
+                    ,\space
+                    \hi@ifset\hi@kv@vol{\hi@kv@vol\space}{}%
+                    \noexpand\hi@fn@statute{\hi@kv@rep}%
+                    \hi@ifset\hi@kv@page{%
+                        \space\@format@page@macro\hi@kv@page
+                    }{}%
+                }{}%
+            }%
+            \the\hi@param@parens
+        }%
+    }%
+}
+%<*doc>
+
+\keyparameters{
+    {name, inline}{\statuteparamdesc}
+    {countries}{Countries that are parties to the treaty. They will be
+    abbreviated. The names should be separated with en dashes. Countries need
+    not be named for large multilateral treaties.}
+    {year}{Date the treaty was signed. Use qualifiers ``done'' or ``opened for
+    signature'' if there is no single signing date.}
+    {vol, rep, page, cite}{Locator information for the treaty, if available.}
+}
+
+%</doc>
+%
+\hi@newcite\defeucase{A European Union case}{%
+    \hi@citetype{#1}\hi@type@case
+    \hi@case@setparties{#1}%
+    \hi@ifset\hi@kv@inline{%
+        \@expand{\hi@short@register{#1}}\hi@kv@inline i{y}%
+    }{}%
+    \hi@case@proc
+    \@expand{\hi@short@register{#1}}\hi@kv@inline i{n}%
+    \hi@newcite@form{fc}{#1}{%
+        \hi@inline@only{\hi@citeguts{\hi@kv@name}}%
+        \hi@inline@never{%
+            \hi@citeguts{%
+                Case \hi@kv@docket
+                \hi@name@only{\hi@font@comma \hi@kv@aname}%
+                \hi@ifset\hi@kv@rep{%
+                    \hi@name@comma
+                    \hi@kv@vol\space \hi@kv@rep\space \hi@kv@page
+                    \hi@maybepage{, }%
+                }{\hi@maybepage{\hi@name@comma}}%
+            }%
+            \the\hi@param@parens
+            \hi@case@dateparen{%
+                \hi@parens@add{\hi@paren@date}{%
+                    \hi@param@optspc\hi@kv@court\hi@kv@year
+                }%
+            }y%
+        }%
+    }
+    \hi@newcite@form{lc}{#1}{%
+        \hi@citeguts{%
+            \hi@name@only{\@capnext\hi@kv@lname\unkern,\hfill\break}%
+            Case \hi@kv@docket
+            \hi@ifset\hi@kv@rep{%
+                , \hi@kv@vol\space\hi@kv@rep\space\hi@kv@page% Reporter and page
+            }{}%
+        }%
+        \hi@case@dateparen{%
+            \hi@parens@add{\hi@paren@date}{%
+                \hi@param@optspc\hi@kv@court\hi@kv@year
+            }%
+        }y%
+        \the\hi@param@parens
+    }%
+    \hi@newcite@form{sc}{#1}{%
+        \hi@short@use{#1}%
+        \hi@citeguts{%
+            \hi@inline@only{\hi@citeguts{\hi@kv@inline}}%
+            \hi@inline@never{%
+                \hi@name@only{%
+                    \hi@kv@ainline
+                    \hi@font@comma
+                }%
+                \hi@ifset\hi@kv@rep{%
+                    \hi@kv@vol\space\hi@kv@rep\space %
+                    \hi@ifpage{\hi@maybepage{\hi@page@atorsect}}{\hi@kv@page}%
+                }{%
+                    \hi@ifset{\hi@kv@dbid}{\hi@kv@dbid}{\hi@kv@docket}%
+                    \hi@maybepage{, \hi@kv@slip\hi@page@atorsect}%
+                }%
+            }%
+        }%
+        \hi@case@dateparen{}n%
+    }%
+}
+%<*doc>
+
+\keyparameters{
+    {name, inline}{The full and short names of the case.}
+    {docket}{The number of the case.}
+    {vol, rep, page, cite}{Locator information for the case.}
+    {court}{The court issuing the decision.}
+    {year}{The year of decision.}
+}
+
+%</doc>
+%
+\hi@newcite\defunresolution{A U.N. resolution}{%
+    \hi@citetype{#1}\hi@type@other
+    \hi@ifset\hi@kv@type{}{\def\hi@kv@type{U.N.}}%
+    \hi@newcite@form{fc}{#1}{%
+        \hi@citeguts{%
+            \hi@ifset\hi@kv@name{%
+                \hi@inline@the\@capnext\hi@kv@name\hi@font@comma
+            }{}%
+            \hi@kv@number
+            \hi@maybepage{, \hi@page@atorsect}%
+            , \hi@kv@type\space Doc. \hi@kv@intdoc
+        }%
+        \the\hi@param@parens
+        \hi@parens@add{\hi@paren@date}{\hi@kv@year}%
+    }%
+    \@expand{\hi@supra@form{#1}}\hi@kv@number i%
+}
+%<*doc>
+
+\keyparameters{
+    {name}{The name of the resolution.}
+    {number}{The serial number of the resolution, with the body and abbreviation
+    for the resolution (e.g., ``G.A. Res. 123'').}
+    {type}{The institution issuing the document control number, default
+    ``U.N.''}
+    {intdoc}{The international institution control number, typically containing
+    slashes.}
+    {year}{The date of the document.}
+}
+
+%</doc>
+%
+\hi@newcite\defintdoc{A U.N. or international document}{%
+    \hi@citetype{#1}\hi@type@other
+    \hi@ifset\hi@kv@type{}{\def\hi@kv@type{U.N.}}%
+    \hi@newcite@form{fc}{#1}{%
+        \hi@citeguts{%
+            \hi@ifset\hi@kv@author{%
+                \hi@namelist@instpart\hi@kv@author{\@iden},\space
+            }{}%
+            \noexpand\hi@fn@arttitle{\hi@kv@name}%
+            \hi@maybepage{\hi@font@comma}%
+            \hi@font@comma
+            \hi@kv@type\space Doc. \hi@kv@intdoc
+        }%
+        \the\hi@param@parens
+        \hi@parens@add{\hi@paren@date}{\hi@kv@year}%
+        \hi@ifset\hi@kv@author{%
+            \hi@namelist@personpart\hi@kv@author{\hi@intdoc@personauth}%
+        }{}%
+    }%
+    \protected@edef\reserved@a{\hi@kv@type\space Doc. \hi@kv@intdoc}%
+    \@expand{\hi@supra@form{#1}}\reserved@a i%
+}
+%<*doc>
+Typically these are reports.
+
+\keyparameters{
+    {author, instauth}{The author of the document. The institutional author will
+    be separated from the human author, with the latter placed in a
+    parenthetical.}
+    {name}{Title of the document.}
+    {type}{The institution issuing the document control number, default
+    ``U.N.''}
+    {intdoc}{The international institution control number, typically containing
+    slashes.}
+    {year}{The date of the document.}
+}
+
+%</doc>
+%
+%<*package>
+%    \begin{macrocode}
+\def\hi@intdoc@personauth#1{%
+    \hi@parens@add{\hi@paren@preparedby}{\noexpand\hi@fn@sig{prepared by} #1}%
+}
+%    \end{macrocode}
+%</package>
+\hi@newcite\deffrcase{A French case}{%
+    \hi@citetype{#1}\hi@type@case
+    \hi@newcite@form{fc}{#1}{%
+        \hi@citeguts{%
+            \hi@kv@court\space
+            decision no.\ \hi@kv@number,
+            \hi@kv@year,
+            \hi@kv@rep\space\hi@kv@page
+            \hi@maybepage{, }%
+        }%
+        \the\hi@param@parens
+    }%
+    \protected@edef\reserved@a{\hi@kv@court\space decision no.\ \hi@kv@number}%
+    \@expand{\hi@supra@form{#1}}\reserved@a i%
+}
+%<*doc>
+
+\keyparameters{
+    {court}{The name of the court.}
+    {number}{The decision number.}
+    {year}{The year of decision.}
+    {rep, page}{The locator information for the decision.}
+}
+
+%</doc>
+%
+\hi@newcite\deffrstat{A French statute}{%
+    \hi@citetype{#1}\hi@type@statute
+    \hi@newcite@form{fc}{#1}{%
+        \hi@citeguts{%
+            Law No. \hi@kv@number\space
+            of \hi@kv@year,
+            \hi@kv@rep,
+            \hi@kv@pubyear, % This parameter does not exist; needs to be defined
+            p. \hi@kv@page
+            \hi@maybepage{, }%
+        }%
+        \the\hi@param@parens
+    }%
+}
+%<*doc>
+
+\keyparameters{
+    {number}{The law number.}
+    {year}{The year of enactment.}
+    {rep}{The statutory compilation.}
+    {pubyear}{The year of publication of the statutory compilation.}
+    {page}{The page in the compilation.}
+}
+%</doc>
+%

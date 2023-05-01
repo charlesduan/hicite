@@ -1,0 +1,318 @@
+%%
+%% \iffalse filename: fonts.dtx \fi
+%%
+%<*doc>
+\input driver
+\thisis{fonts}{Fonts}
+
+Legal citations use a variety of fonts in formatting citations. Complicating
+matters, there is not consistency in which fonts are used in any given context.
+Case names are italicized in legal memoranda but not in law review articles;
+journal titles are set in small caps in some law review articles but in roman in
+legal memoranda and some journals. Yet despite this variance across dialects of
+legal citation, there tends to be much consistency within a single dialect:
+Article titles tend to be formatted identically across a variety of article-like
+references, as are book authors, signals, and so on.
+
+To deal with this variance, the package introduces a layer of abstraction for
+fonts. It first defines a set of font contexts: case names, article titles, book
+authors, and so on. It then introduces a concept of ``font packs,'' namely
+mappings between the font contexts and the actual fonts to be used. Reference
+type definition macros do not invoke fonts directly, but rather specify font
+contexts, which are then translated into actual fonts based on the font packs
+the user chooses. This way, a variety of font conventions can be supported
+without the need to revise reference definitions.
+
+%</doc>
+%<*package>
+%
+% \DescribeMacro\hi@font@context@list
+% This is a list of all the permitted font contexts.
+%    \begin{macrocode}
+\let\hi@font@context@list\@empty
+\def\hi@font@context@add#1#2{%
+    \listadd\hi@font@context@list{#1}%
+}
+%    \end{macrocode}
+%</package>
+%<*doc>
+
+\subsection{Font Contexts}
+
+The following is a table of all font contexts supported.
+
+\begin{center}
+\def\hi@font@context@add#1#2{#1&#2\\}
+\begin{tabular}{ll}
+\textbf{Name} & \textbf{Description} \\
+%</doc>
+%<*doc|package>
+%
+% \iffalse [This code is performed in both doc and package] \fi
+%
+\hi@font@context@add{bookauthor}{Author of a book}
+\hi@font@context@add{booktitle}{Title of a book}
+\hi@font@context@add{congdoc}{Congressional document number}
+\hi@font@context@add{hearing}{Hearing title}
+\hi@font@context@add{arttitle}{Journal article title}
+\hi@font@context@add{webtitle}{Website page title}
+\hi@font@context@add{jrntitle}{Journal title}
+\hi@font@context@add{caseproc}{Procedural phrase in a case}
+\hi@font@context@add{casefc}{Case full name}
+\hi@font@context@add{casesc}{Case short name}
+\hi@font@context@add{const}{Constitution name}
+\hi@font@context@add{statute}{Codified statute}
+\hi@font@context@add{sig}{Signal}
+\hi@font@context@add{comment}{Signal before commentary}
+\hi@font@context@add{ell}{The letter (l) in subsections}
+\hi@font@context@add{dateprefix}{The qualifier words before a date}
+\hi@font@context@add{latin}{Latin words that are typically italicized}
+%
+%</doc|package>
+%<*doc>
+\end{tabular}
+\end{center}
+
+%
+% Note that the above table was produced by executing source code, meaning that
+% several lines of source code are not displayed. Consult the |dtx| or |sty|
+% files to see the code itself.
+%
+
+
+\subsection{Fonts}
+
+Next, the available font commands that will be linked with font
+contexts are defined. Standard \LaTeX\ font commands are not used. This is to
+help with keeping track of which font is being used, to manage
+capitalization, and to provide a few special features.
+
+The fonts provided are emph, empht, rm, and sc. All have meanings identical
+to typical \LaTeX, except for empht which is like emph except that it does not
+turn internal emph into roman.
+
+%</doc>
+%<*package>
+%
+% \DescribeMacro\@capemph
+% Emphasizes the argument text, capitalizes the first letter, and sets a flag
+% for tracking italics.
+%    \begin{macrocode}
+\DeclareRobustCommand\@capemph[1]{%
+    \emph{\@hi@emphtrue\@capnext#1}\hi@nocap
+}
+\newif\if@hi@emph
+%    \end{macrocode}
+%
+% \DescribeMacro\@capempht
+% Like |\@capemph| but prevents internal |\emph| commands from de-italicizing
+% text.
+%    \begin{macrocode}
+\DeclareRobustCommand\@capempht[1]{%
+    \@test\if@hi@emph\fi{%
+        \@caprm{#1}%
+    }{%
+        \emph{\@hi@emphtrue\let\eminnershape\relax\@capnext#1}\hi@nocap
+    }%
+}
+%    \end{macrocode}
+%
+% Font of emph when non-emph, does nothing when emph.
+%    \begin{macrocode}
+\DeclareRobustCommand\hi@maybeemph{%
+    \if@hi@emph\expandafter\@iden\else\expandafter\@capemph\fi
+}
+%    \end{macrocode}
+%
+% \DescribeMacro\@capsc \DescribeMacro\@caprm
+% Like |\@capemph| but for different fonts.
+%    \begin{macrocode}
+\DeclareRobustCommand\@capsc{\@capfont\textsc}
+\DeclareRobustCommand\@caprm{\@capfont\@iden}
+%    \end{macrocode}
+%
+%</package>
+%<*doc>
+
+\subsection{Font Packs}
+
+\DescribeMacro\MakeFontPack
+A font pack associates font contexts with font commands. Each context receives
+two font commands: one for use in non-inline citations, and one for use with
+inline texts. The syntax for defining a font pack is as follows:
+\begin{quote}
+|\MakeFontPack|\marg{name}|{| \meta{font-spec} [ |,| \meta{font-spec} ]* |}| \\
+\meta{font-spec} := \meta{context} |:| \meta{font} |/| \meta{font} \\
+\meta{font} := |emph| \| |empht| \| |rm| \| |sc| \\
+Example: |\MakeFontPack{new}{booktitle: sc/empht, bookauthor: sc/rm}|
+\end{quote}
+A font pack need not define every font context, since a user can select multiple
+font packs. In the case of two font packs containing the same font context, the
+last selected pack overrides earlier ones.
+
+\DescribeMacro\UseFontPack
+To invoke a font pack, call |\UseFontPack|\marg{name}.
+
+%</doc>
+%<*package>
+%
+%    \begin{macrocode}
+\def\MakeFontPack#1#2{%
+    \csgdef{hi@fontpack@#1}{\forcsvlist\hi@font@dopack{#2}}%
+}
+\def\UseFontPack#1{\csname hi@fontpack@#1\endcsname}
+%    \end{macrocode}
+%
+% These macros create the font macros themselves. The macros are structured as
+% |\hi@fn@|\meta{context}, which is defined robustly to select the right font
+% between citation and inline contexts. |\hi@font@dopack| is run for each item
+% in the pack; it parses the content, constructs the context and font macros,
+% and then defines the font context macro accordingly.
+%
+%    \begin{macrocode}
+\def\hi@font@dopack#1{\ifblank{#1}{}{\hi@font@dopack@#1\par}}
+% Use |\par| as the delimiter to catch errors early
+\def\hi@font@dopack@#1: #2/#3\par{%
+    \edef\reserved@a{%
+        \noexpand\hi@font@dopack@elt
+            \expandonce{\csname hi@fn@#1\endcsname}%
+            \expandonce{\csname @cap#2\endcsname}%
+            \expandonce{\csname @cap#3\endcsname}%
+    }\reserved@a
+}
+% \#1 is |\hi@fn@|\meta{context}, \#2 is the cite font macro, \#3 is the inline
+% font macro
+\def\hi@font@dopack@elt#1#2#3{%
+    \DeclareRobustCommand#1{\@test \if@hi@inline \fi{#3}{#2}}%
+}
+%    \end{macrocode}
+%
+%</package>
+%<*doc>
+
+The following font packs are predefined:
+\begin{itemize}
+\item \textbf{review}: Law review fonts.
+\item \textbf{memo}: Legal memorandum fonts.
+\item \textbf{italcase}: Full case names are always italicized. Select this
+after review or memo.
+\end{itemize}
+
+%</doc>
+%<*package>
+%
+% Make the font packs.
+%
+%    \begin{macrocode}
+\MakeFontPack{review}{%
+    bookauthor: sc/rm,
+    booktitle: sc/rm,
+    congdoc: sc/empht,
+    hearing: empht/empht,
+    arttitle: empht/empht,
+    webtitle: empht/empht,
+    jrntitle: sc/empht,
+    caseproc: empht/empht,
+    casefc: rm/empht,
+    casesc: empht/empht,
+    const: sc/rm,
+    statute: sc/rm,
+    sig: emph/rm,
+    comment: emph/rm,
+    ell: emph/emph,
+    dateprefix: rm/rm,
+    latin: emph/emph%
+}
+\MakeFontPack{memo}{%
+    bookauthor: rm/rm,
+    booktitle: empht/empht,
+    congdoc: empht/empht,
+    hearing: empht/empht,
+    arttitle: empht/empht,
+    webtitle: empht/empht,
+    jrntitle: rm/empht,
+    caseproc: empht/empht,
+    casefc: empht/empht,
+    casesc: empht/empht,
+    const: rm/rm,
+    statute: rm/rm,
+    sig: emph/rm,
+    comment: emph/rm,
+    ell: emph/emph,
+    dateprefix: rm/rm,
+    latin: emph/emph%
+}
+\MakeFontPack{italcase}{%
+    caseproc: empht/empht,
+    casefc: empht/empht,
+    casesc: empht/empht,
+}
+\MakeFontPack{italdateprefix}{%
+    dateprefix: empht/empht,
+}
+%    \end{macrocode}
+%
+% Install hooks for the font packs, and call memo fonts by default.
+%
+%    \begin{macrocode}
+\UseFontPack{memo}
+\appto\hi@hooks@review{\UseFontPack{review}}
+\appto\hi@hooks@memo{\UseFontPack{memo}}
+%    \end{macrocode}
+%
+% \DescribeMacro\hi@italdateprefix
+% Given an argument, temporarily chooses the italdateprefix font pack (so that
+% date qualifier words are italicized) and executes the argument.
+%
+%    \begin{macrocode}
+\DeclareRobustCommand\hi@italdateprefix[1]{%
+    \begingroup
+        \UseFontPack{italdateprefix}#1%
+    \endgroup
+}
+%    \end{macrocode}
+%
+%</package>
+%<*doc>
+
+\subsection{Shortcut Commands for Fonts}
+
+\DescribeMacro\UseFontFor
+Occasionally, the user needs to select a font manually, for example when
+defining a hereinafter form that includes a part of a journal article's title.
+The command |\UseFontFor|\marg{context}\marg{text} selects the font for
+\meta{context} and sets \meta{text} in that font.
+
+%</doc>
+%<*package>
+%    \begin{macrocode}
+\DeclareRobustCommand\UseFontFor[2]{%
+    \ifinlist{#1}{\hi@font@context@list}{%
+        \csname hi@fn@#1\endcsname{#2}%
+    }{%
+        \PackageWarning\hi@pkgname{Font context `#1' is unknown}%
+        #2%
+    }%
+}
+%    \end{macrocode}
+%
+%</package>
+%<*test>
+
+\section{fonts.dtx}
+
+\begingroup
+    \UseFontPack{memo}
+    \AssertBox{\UseFontFor{booktitle}{Book Title}}{\emph{Book Title}}
+\endgroup
+
+\begingroup
+    \UseFontPack{review}
+    \AssertBox{\UseFontFor{booktitle}{Book Title}}{\textsc{Book Title}}
+    \AssertBox{\UseFontFor{casefc}{Case Title}}{Case Title}
+
+    \UseFontPack{italcase}
+    \AssertBox{\UseFontFor{casefc}{Case Title}}{\emph{Case Title}}
+\endgroup
+
+%</test>

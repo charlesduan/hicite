@@ -1,0 +1,622 @@
+%%
+%% \iffalse filename: xref.dtx \fi
+%%
+%<*doc>
+\input driver
+\thisis{xref}{Cross-References}
+
+\hia* offers comprehensive support for cross-references in citations. The model
+is conceptually similar to \LaTeX, in which the writer uses commands to label
+parts of the document and then references those labels. However, legal citation
+requires and \hia* supports much more complex cross-referencing. It is possible
+to label ranges of a document in addition to specific points, and the package
+automatically determines the best wording to describe the labeled regions. More
+importantly, use of cross-references is integrated into the citation system, so
+cross-references can include signals, parentheticals, and other features of
+citations.
+
+
+\subsection{Types of Cross-References}
+
+A cross-reference citation points to another part of the document, but the
+writer must specify whether that other part is a page, footnote, section, or
+other element of the document. Thus, the package must support different types of
+cross-references. The following types are currently supported.
+
+\begin{itemize}
+\item Points in or ranges of body text. In legal memoranda, these are cited by
+the page numbers where the range lies. For law review articles, they are cited
+with reference to the footnote numbers that the range encompasses.
+
+\item Footnotes, cited by the footnote number or range of numbers.
+
+\item Sections, cited by the fully qualified section number (e.g., ``Section
+II.A.3'').
+
+\item Floats (tables or figures), cited by the float type and number (e.g.,
+``Figure 3'').
+\end{itemize}
+
+\subsection{Labeling Document Parts}
+
+The following commands are used to mark parts of a document with labels.
+
+\DescribeMacro\hilabel
+\cmd\hilabel\oarg{text}\marg{label} labels the current point in text. It detects
+whether it is inside a footnote, table, figure, or body text, and adjusts the
+label accordingly.
+
+\DescribeMacro\hiendlabel
+\cmd\hiendlabel\marg{label} closes a labeled range opened with |\hilabel|. Note
+that the type of text marked at the beginning and end must be the same (e.g.,
+|\hilabel| called in a footnote cannot be followed by |\hiendlabel| in body
+text). Currently, only contiguous ranges can be labeled, although a desirable
+additional feature for the package would be support for non-contiguous
+cross-reference ranges.
+
+\DescribeMacro\hitanlabel
+\DescribeMacro\hiendtanlabel
+\DescribeMacro\hiflabel
+\DescribeMacro\hinotelabel
+Particularly for law review articles, it is sometimes desirable to
+cross-reference ``notes $x$--$y$ and accompanying text.'' This is done with
+\cmd\hitanlabel\ and \cmd\hiendtanlabel. There are also provided commands
+|\hiflabel| and |\hinotelabel| for labeling floats and footnotes, respectively.
+
+%</doc>
+%<*package>
+%    \begin{macrocode}
+\newcommand*\hilabel[2][]{%
+    \@bsphack
+    \@testcase
+        \if@hi@note\fi{\hi@xref@writenote}%
+        \ifx\@captype\@undefined\fi{\hi@xref@writetext}%
+        \default{\hi@xref@writefloat}%
+    {#2}{#1}%
+    \@esphack
+}
+\newcommand*\hiendlabel[1]{%
+    \hilabel{end:#1}%
+}
+\newcommand*\hitanlabel[2][]{%
+    \@bsphack
+    \hi@xref@writetan{#2}{#1}%
+    \@esphack
+}
+\newcommand*\hiendtanlabel[1]{%
+    \hitanlabel{end:#1}%
+}
+% Legacy code
+\newcommand*\hiflabel[2][]{%
+    \@bsphack
+    \hi@xref@writefloat{#2}{#1}%
+    \@esphack
+}
+\newcommand*\hinotelabel[2][]{%
+    \@bsphack
+    \hi@xref@writenote{#2}{#1}%
+    \@esphack
+}
+%    \end{macrocode}
+%
+%</package>
+%<*doc>
+
+\DescribeMacro\hisectlabel
+\cmd\hisectlabel\marg{label} labels the current section.
+\DescribeMacro\hiendsectlabel
+\cmd\hiendsectlabel\marg{label} labels an end of a section range.
+
+For law review articles, top-level cross-references will use the word ``Part''
+while other cross-references will use ``Section.'' (The distinction is
+determined by whether the section number contains a dot.) For legal memoranda,
+``Section'' will always be used. To change this, redefine the internal macro
+|\hi@xref@sect@choose|.
+
+%</doc>
+%<*package>
+% 
+%    \begin{macrocode}
+\newcommand*\hisectlabel[2][]{%
+    \@bsphack
+    \@expand{\hi@xref@sect@choose{#1}{#2}}{\@currentlabel}{i}%
+    \@esphack
+}
+\def\hiendsectlabel#1{\hisectlabel{end:#1}}
+%    \end{macrocode}
+%
+% Chooses the prefix word for section cross-references. This adds separate hooks
+% for review-style and memorandum-style documents. \#1 is the optional
+% pre-supra/infra text, \#2 the cross-reference name, and \#3 the expanded
+% section number.
+%
+%    \begin{macrocode}
+\appto\hi@hooks@review{%
+    \def\hi@xref@sect@choose#1#2#3{%
+        \find@in{.}{#3}{%
+            \@firstofthree{\hi@xref@sect@add{Section}{Sections}}%
+        }{%
+            \hi@xref@sect@add{Part}{Parts}%
+        }{#1}{#2}{#3}%
+    }%
+}
+\appto\hi@hooks@memo{%
+    \def\hi@xref@sect@choose#1#2#3{%
+        \hi@xref@sect@add{Section}{Sections}{#1}{#2}{#3}%
+    }%
+}
+\make@find@in{.}
+%    \end{macrocode}
+%
+% Adds the section cross-reference to the aux file. \#1 is the singular section
+% name, \#2 the plural, \#3 the pre-supra/infra text, \#4 the reference name,
+% and \#5 the expanded section number.
+%
+%    \begin{macrocode}
+\def\hi@xref@sect@add#1#2#3#4#5{%
+    \hi@xref@writetoaux{#4}{#3}{#1 }{#2 }{#5}{}{}%
+}
+%    \end{macrocode}
+%
+% \subsection{Internal Cross-Reference Tracking}
+%
+% Internally, we use the following to store cross-reference labeling
+% information. For a given reference \meta{name}, we define |\hir@|\meta{name}
+% to be not |\relax|, which determines whether to use \emph{supra} or
+% \emph{infra}. We also write to the aux file a |\newlabel| command, defining
+% reference \meta{name} as a four-group value:
+% \begin{itemize}
+% \item Text before \emph{supra}/\emph{infra}
+% \item Text before the reference number
+% \item The reference number
+% \item Text after the reference number
+% \end{itemize}
+% 
+% For ranges, we also emit to the aux file a second |\newlabel| command,
+% defining reference |end:|\meta{name} as a two-group value:
+% \begin{itemize}
+% \item Text before the reference number if a plural form is needed
+% \item The reference number at the end of the range
+% \end{itemize}
+%
+% This macro constructs and writes the relevant line to the aux file. \#1 is the
+% name, \#2 the pre-supra/infra text, \#3 the pre-number text, \#4 the plural
+% pre-number text, \#5 the number, \#6 the post-number text, and \#7 any
+% pre-write command to execute on non-end cross-references (done within a
+% group).
+%
+%    \begin{macrocode}
+\def\hi@xref@writetoaux#1#2#3#4#5#6#7{%
+    \begingroup
+        \find@start{end:}{#1}{%
+            \protected@write\@auxout{}{\string\newlabel{#1}{{#4}{#5}}}%
+            \hi@xref@checktype{#3}{#6}%
+        }{%
+            \protected@csxdef{hir@#1}{{#3}{#6}}%
+            #7%
+            \protected@write\@auxout{}{\string\newlabel{#1}{{#2}{#3}{#5}{#6}}}%
+        }%
+    \endgroup
+}
+\make@find@start{end:}
+%    \end{macrocode}
+%
+% Checks that the type of |end:|\meta{label} matches the type of \meta{label}.
+% \#1 and \#2 are the text surrounding the note number to use for checking; \#3
+% is \meta{label}.
+%
+%    \begin{macrocode}
+\def\hi@xref@checktype#1#2#3{%
+    \protected@edef\reserved@a{{#1}{#2}}%
+    \expandafter\ifx\csname hir@#3\endcsname\reserved@a \else
+        \hi@xref@checktype@err{#3}%
+    \fi
+}
+\def\hi@xref@checktype@err#1{%
+    \PackageError\hi@pkgname{%
+        Cross-reference #1 was ended with a different type than it was
+        opened with%
+    }{%
+        Make sure your \string\hilabel\space and \string\hiendlabel\space
+        commands are placed in matching contexts (figures, footnotes, etc.)%
+    }%
+}
+%    \end{macrocode}
+%
+% The following |\hi@xref@write|\meta{type} macros all write a particular data
+% element to the aux file. \#1 is the reference name, \#2 the pre-supra/infra
+% text.
+%
+%    \begin{macrocode}
+\def\hi@xref@opt@noterefs{%
+    \def\hi@xref@writetext##1##2{%
+        \hi@xref@writetoaux{##1}{##2}{%
+            text accompanying note
+        }{%
+            text accompanying notes
+        }{\thefootnote}{}{\advance\c@footnote\@ne}%
+    }
+    \def\hi@xref@writetan##1##2{%
+        \hi@xref@writetoaux{##1}{##2}{note }{notes }{\thefootnote}{ % space
+            and accompanying text%
+        }{\advance\c@footnote\@ne}%
+    }
+}
+\def\hi@xref@opt@pagerefs{%
+    \def\hi@xref@writetext##1##2{%
+        \hi@xref@writetoaux{##1}{##2}{p. }{pp. }{\thepage}{}{}%
+    }
+    \def\hi@xref@writetan##1##2{%
+        \hi@xref@writetoaux{##1}{##2}{p. }{pp. }{\thepage}{ and notes}{}%
+    }
+}
+\appto\hi@hooks@review{\hi@xref@opt@noterefs}
+\appto\hi@hooks@memo{\hi@xref@opt@pagerefs}
+\def\hi@xref@writenote#1#2{%
+    \hi@xref@writetoaux{#1}{#2}{note }{notes }{\thefootnote}{}{}%
+}
+\def\hi@xref@writefloat#1#2{%
+    \hi@xref@writetoaux{#1}{#2}%
+        {\csname \@captype name\endcsname\space}% Both Table and Figure can
+        {\csname \@captype name\endcsname s }%    be pluralized with just `s'
+        {\@currentlabel}{}{}%
+}
+%    \end{macrocode}
+%
+%</package>
+%<*doc>
+
+
+\subsection{Using Cross-References}
+
+The ordinary citation commands are used to produce a cross-reference citation,
+using the pseudo-reference \rtype{this} with the ``page number'' being the
+cross-reference label. For example, assuming that |section-i| is defined as a
+label:
+\begin{quote}
+\ttfamily
+|\sentence|\{see this at section-i (providing background)\}.
+\end{quote}
+As this example suggests, cross-reference citation items can include
+parentheticals and signals, just like ordinary citation items.
+
+Cross-references to floats and sections can also be used inline, producing text
+like ``Figure $X$.'' Again, the syntax mirrors inline citations for other
+references:
+\begin{quote}
+\ttfamily
+Data is shown in |\inline|\{this at section-i\}.
+\end{quote}
+
+%</doc>
+%<*package>
+%
+% Defines the pseudo-reference macro for cross-citations. Note that there are no
+% \emph{id.}\ citations for cross-references, so that form is set to be the same
+% as the full citation.
+%
+%    \begin{macrocode}
+\def\fc@this{%
+    \ifx\@this@page\relax \hi@xref@nopageerr \else
+        \if@hi@inline
+            \expandafter\hi@xref@inline\@this@page
+        \else
+            \expandafter\hi@xref@cite\@this@page
+        \fi
+    \fi
+}
+\def\hi@xref@nopageerr{%
+    \PackageError\hi@pkgname{No page number given for cross-reference}{%
+        Give the name of the cross-reference label as the page number%
+    }%
+}
+\def\hi@xref@inline#1#2#3{%
+    \ifblank{#1}{#3}{#1}%
+}
+\def\hi@xref@cite#1#2#3{%
+    \ifx\@this@opt\relax
+        \hi@name@only{\ifblank{#1}{}{#1 }}%
+    \else
+        \@this@opt\space
+    \fi
+    #2 #3%
+}
+\let\idc@this\fc@this
+%    \end{macrocode}
+%
+% |\@this@page| will be defined as a three-element macro: first, the text going
+% before supra/infra, second, the word supra or infra, and third, the numbers
+% going after.
+%
+%    \begin{macrocode}
+\def\pc@this#1{%
+    \@ifundefined{r@#1}{%
+        \G@refundefinedtrue
+        \PackageWarning\hi@pkgname{Reference `#1' undefined}%
+        \def\@this@page{{}{}{\textbf{??#1}}}%
+    }{%
+        \@ifundefined{r@end:#1}{%
+            \@expand{%
+                \@unbrace{\hi@xref@noend{#1}}%
+            }{\csname r@#1\endcsname}{ii}%
+        }{%
+            \@expand{%
+                \@unbrace{%
+                    \@expand{%
+                        \@unbrace{\hi@xref@withend{#1}}%
+                    }{\csname r@#1\endcsname}{ii}%
+                }%
+            }{\csname r@end:#1\endcsname}{ii}%
+        }%
+    }%
+}
+%    \end{macrocode}
+%
+% \#1 is the reference name, \#2--\#5 are the parameters of the label.
+%    \begin{macrocode}
+\def\hi@xref@noend#1#2#3#4#5{%
+    \hi@xref@withend{#1}{#2}{#3}{#4}{#5}{#3}{#4}%
+}
+%    \end{macrocode}
+%
+% \#1 is the reference name, \#2--\#5 are the parameters of the label, \#6-\#7
+% are the parameters of the end label.
+%    \begin{macrocode}
+\def\hi@xref@withend#1#2#3#4#5#6#7{%
+    \def\@this@page{{#2}}%
+    \@ifundefined{hir@#1}{%
+        \appto\@this@page{{\hi@fn@sig{infra}}}%
+    }{%
+        \appto\@this@page{{\hi@fn@sig{supra}}}%
+    }%
+    \def\reserved@a{#4}\def\reserved@b{#7}%
+    \ifx\reserved@a\reserved@b
+        \appto\@this@page{{#3#4#5}}%
+    \else
+        \appto\@this@page{{#6#4--#7#5}}%
+    \fi
+}
+%    \end{macrocode}
+%
+%</package>
+%<*test>
+
+\section{xref.dtx}
+
+\let\WrittenText\relax
+\let\OrigProtectedWrite\protected@write
+\def\protected@write#1#2#3{%
+    \begingroup
+        \let\thepage\relax
+        #2%
+        \let\protect\@unexpandable@protect
+        \xdef\WrittenText{#3}%
+    \endgroup
+}
+
+\begingroup
+    \@hi@notetrue
+    \c@footnote=3
+    \AssertBox{%
+        \footnote{a \hilabel{lbl} b}%
+    }{\@footnotemark[a b]}%
+    \AssertMacro[\AssertExpandedEqual]\WrittenText{%
+        \string\newlabel{lbl}{{}{note }{4}{}}%
+    }
+    \AssertMacro{\hir@lbl}{{note }{}}
+\endgroup
+
+
+\begingroup
+    \@hi@notetrue
+    \c@footnote=3
+    \AssertBox{%
+        \footnote{a \hilabel[discussion]{lbl} b}%
+    }{\@footnotemark[a b]}%
+    \AssertMacro[\AssertExpandedEqual]\WrittenText{%
+        \string\newlabel{lbl}{{discussion}{note }{4}{}}%
+    }
+    \AssertMacro{\hir@lbl}{{note }{}}
+\endgroup
+
+
+\begingroup
+    \@hi@notetrue
+    \c@footnote=3
+    \hilabel[discussion]{lbl}%
+    \AssertBox{%
+        \footnote{a \hiendlabel{lbl} b}%
+    }{\@footnotemark[a b]}%
+    \AssertMacro[\AssertExpandedEqual]\WrittenText{%
+        \string\newlabel{end:lbl}{{notes }{4}}%
+    }
+    \AssertMacro{\hir@lbl}{{note }{}}
+\endgroup
+
+\subsection{In Text}
+
+\begingroup
+    \c@footnote=3
+    \AssertBox{%
+        a \hilabel{lbl} b%
+    }{a b}%
+    \AssertMacro[\AssertExpandedEqual]\WrittenText{%
+        \string\newlabel{lbl}{{}{text accompanying note }{4}{}}%
+    }
+    \AssertMacro{\hir@lbl}{{text accompanying note }{}}
+\endgroup
+
+\begingroup
+    \c@footnote=2 \hilabel{lbl}
+    \c@footnote=3
+    \AssertBox{%
+        a \hiendlabel{lbl} b%
+    }{a b}%
+    \AssertMacro[\AssertExpandedEqual]\WrittenText{%
+        \string\newlabel{end:lbl}{{text accompanying notes }{3}}%
+    }
+    \AssertMacro{\hir@lbl}{{text accompanying note }{}}
+\endgroup
+
+
+\begingroup
+    \c@footnote=3
+    \AssertBox{%
+        a \hitanlabel{lbl} b%
+    }{a b}%
+    \AssertMacro[\AssertExpandedEqual]\WrittenText{%
+        \string\newlabel{lbl}{{}{note }{4}{ and accompanying text}}%
+    }
+    \AssertMacro{\hir@lbl}{{note }{ and accompanying text}}
+\endgroup
+
+\begingroup
+    \c@footnote=2 \hitanlabel{lbl}
+    \c@footnote=3
+    \AssertBox{%
+        a \hiendtanlabel{lbl} b%
+    }{a b}%
+    \AssertMacro[\AssertExpandedEqual]\WrittenText{%
+        \string\newlabel{end:lbl}{{notes }{3}}%
+    }
+    \AssertMacro{\hir@lbl}{{note }{ and accompanying text}}
+\endgroup
+
+
+
+\subsection{Floats}
+
+\begingroup
+    \def\@currentlabel{4}
+    \def\@captype{figure}%
+    \AssertBox{%
+        a \hilabel{lbl} b%
+    }{a b}%
+    \AssertMacro[\AssertExpandedEqual]\WrittenText{%
+        \string\newlabel{lbl}{{}{Figure }{4}{}}%
+    }
+    \AssertMacro{\hir@lbl}{{Figure }{}}
+\endgroup
+
+\begingroup
+    \def\@captype{figure}%
+    \def\@currentlabel{3}
+    \hilabel{lbl}
+    \def\@currentlabel{4}
+    \AssertBox{%
+        a \hiendlabel{lbl} b%
+    }{a b}%
+    \AssertMacro[\AssertExpandedEqual]\WrittenText{%
+        \string\newlabel{end:lbl}{{Figures }{4}}%
+    }
+    \AssertMacro{\hir@lbl}{{Figure }{}}
+\endgroup
+
+
+\subsection{Sections}
+
+
+\begingroup
+    \def\@currentlabel{III.A}
+    \AssertBox{%
+        a \hisectlabel[background]{lbl} b%
+    }{a b}%
+    \AssertMacro[\AssertExpandedEqual]\WrittenText{%
+        \string\newlabel{lbl}{{background}{Section }{III.A}{}}%
+    }
+    \AssertMacro{\hir@lbl}{{Section }{}}
+
+
+    \def\@currentlabel{III}
+    \AssertBox{%
+        a \hisectlabel[background]{lbl} b%
+    }{a b}%
+    \AssertMacro[\AssertExpandedEqual]\WrittenText{%
+        \string\newlabel{lbl}{{background}{Part }{III}{}}%
+    }
+    \AssertMacro{\hir@lbl}{{Part }{}}
+\endgroup
+
+\begingroup
+    \def\@currentlabel{III.A}
+    \hisectlabel{lbl}
+    \def\@currentlabel{III.B}
+    \AssertBox{%
+        a \hiendsectlabel{lbl} b%
+    }{a b}%
+    \AssertMacro[\AssertExpandedEqual]\WrittenText{%
+        \string\newlabel{end:lbl}{{Sections }{III.B}}%
+    }
+    \AssertMacro{\hir@lbl}{{Section }{}}
+\endgroup
+
+\let\protected@write\OrigProtectedWrite
+
+\subsection{Parsing}
+
+\global\let\hir@lbl\relax
+
+\begingroup
+
+    \def\r@lbl{{discussion}{note }{3}{ and accompanying text}}
+    \pc@this{lbl}
+    \AssertMacro\@this@page{%
+        {discussion}{\hi@fn@sig{infra}}{note 3 and accompanying text}%
+    }%
+
+    \@namedef{r@end:lbl}{{notes }{3}}
+    \pc@this{lbl}
+    \AssertMacro\@this@page{%
+        {discussion}{\hi@fn@sig{infra}}{note 3 and accompanying text}%
+    }%
+
+    \@namedef{r@end:lbl}{{notes }{5}}
+    \pc@this{lbl}
+    \AssertMacro\@this@page{%
+        {discussion}{\hi@fn@sig{infra}}{notes 3--5 and accompanying text}%
+    }%
+
+    \def\hir@lbl{{note }{ and accompanying text}}%
+    \pc@this{lbl}
+    \AssertMacro\@this@page{%
+        {discussion}{\hi@fn@sig{supra}}{notes 3--5 and accompanying text}%
+    }%
+
+
+\endgroup
+
+\subsection{Formatting}
+
+\begingroup
+
+    \let\@this@opt\relax
+
+    \def\@this@page{{}{\hi@fn@sig{infra}}{Section III}}
+    \AssertBox{\fc@this}{\emph{infra} Section III}
+    \def\@this@page{{discussion}{\hi@fn@sig{supra}}{notes 2--3}}
+    \AssertBox{\fc@this}{discussion \emph{supra} notes 2--3}
+
+\endgroup
+
+\begingroup
+
+    \def\@this@opt{remarks}
+    \def\@this@page{{}{\hi@fn@sig{infra}}{Section III}}
+    \AssertBox{\fc@this}{remarks \emph{infra} Section III}
+    \def\@this@page{{discussion}{\hi@fn@sig{supra}}{notes 2--3}}
+    \AssertBox{\fc@this}{remarks \emph{supra} notes 2--3}
+
+\endgroup
+
+\begingroup
+
+    \let\@this@opt\relax
+    \@hi@inlinetrue
+    \def\@this@page{{}{\hi@fn@sig{infra}}{Section III}}
+    \AssertBox{\fc@this}{Section III}
+    \def\@this@page{{discussion}{\hi@fn@sig{supra}}{notes 2--3}}
+    \AssertBox{\fc@this}{discussion}
+
+\endgroup
+
+%</test>

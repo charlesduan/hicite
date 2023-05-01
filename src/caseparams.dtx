@@ -1,0 +1,114 @@
+%%
+%% \iffalse filename: caseparams.dtx \fi
+%%
+%<*doc>
+\input driver
+\thisis{caseparams}{Parameters for Cases}
+
+These parameters are specifically for \rtype{case} and similar references.
+
+\input docparams
+
+%</doc>
+\hi@defparam{agency}{Administrative agency name}{%
+    \hi@abbrev@name{#1}{\KV@hi@court}%
+}
+%<*doc>
+Essentially the same as \param{court} except the name will be abbreviated.
+%</doc>
+%
+\hi@newparam{court}{Court deciding the case}
+%<*doc>
+The court name will \emph{not} be abbreviated, at least currently.
+%</doc>
+%
+\hi@newparam{d}{Second party name in the case}
+%<*doc>
+See \sec{caseref-parties} for the input syntax for this parameter.
+%</doc>
+%
+\hi@newparam{dbid}{Database identifier for an online case}
+\hi@defparam{docket}{Docket number of the case}{%
+    \hi@defkey@docket#1\@stop{#1}%
+}
+%<*doc>
+If the value starts with a number, the word ``No.\@'' will be automatically
+prepended to the docket number.
+%</doc>
+%
+%<*package>
+%    \begin{macrocode}
+\def\hi@defkey@docket#1#2\@stop#3{%
+    \@ifdigit{#1}{\def\hi@kv@docket{No.~#3}}{\def\hi@kv@docket{#3}}%
+}
+%    \end{macrocode}
+%</package>
+%
+\hi@defparam@noval{enbanc}{En banc case parenthetical}{%
+    \hi@param@addparen\hi@paren@opinion{en banc}%
+}
+%<*doc>
+Although intended for cases, this parameter can be attached to any reference.
+%</doc>
+%
+\hi@newparam@noval{inlinedefendant}{Don't use the first party as main party}
+%<*doc>
+For \rtype{case} citations, the first party named is typically used as the short
+name (with some exceptions). This parameter forces the second party to be used.
+%</doc>
+\hi@defparam@noval{mem}{Memorandum opinion parenthetical}{%
+    \hi@param@addparen\hi@paren@opinion{mem.}%
+}
+%<*doc>
+Although intended for cases, this parameter can be attached to any reference.
+%</doc>
+%
+\hi@newparam{p}{First party name in the case}
+%<*doc>
+See \sec{caseref-parties} for the input syntax for this parameter.
+%</doc>
+%
+\hi@defparam{parties}{Named parties to a case, separated by `` v. ''}{%
+    \find@in{ v. }{#1}{\@tworun\KV@hi@p\KV@hi@d}{\KV@hi@name{#1}}%
+}
+%<*doc>
+This is a shortcut for setting parameters \param{p} and \param{d}.
+%</doc>
+%
+\hi@defparam@noval{percuriam}{Per curiam opinion}{%
+    \hi@param@addparen\hi@paren@opinion{per curiam}%
+}
+\hi@newparam{prior}{Prior history for a case}
+%<*doc>
+The syntax for this parameter is described in \sec{caseref-history}.
+%</doc>
+%
+\hi@defparam@noval{revparties}{Parties to this case are reverse of named case}{%
+    \@ifundefined{case@#1@p}{}{%
+        \@expand\KV@hi@d{\csname case@#1@p\endcsname}{ii}%
+    }%
+    \@ifundefined{case@#1@d}{}{%
+        \@expand\KV@hi@p{\csname case@#1@d\endcsname}{ii}%
+    }%
+    \@ifundefined{case@#1@name}{}{%
+        \@expand\KV@hi@name{\csname case@#1@name\endcsname}{ii}%
+    }%
+}
+\hi@defparam@noval{sameparties}{Parties to this case are same as named case}{%
+    \@ifundefined{case@#1@p}{}{%
+        \@expand\KV@hi@p{\csname case@#1@p\endcsname}{ii}%
+    }%
+    \@ifundefined{case@#1@d}{}{%
+        \@expand\KV@hi@d{\csname case@#1@d\endcsname}{ii}%
+    }%
+    \@ifundefined{case@#1@name}{}{%
+        \@expand\KV@hi@name{\csname case@#1@name\endcsname}{ii}%
+    }%
+}
+\hi@newparam@noval{slip}{Slip opinion or law}
+\hi@param@alias{slipop}{slip}
+\hi@newparam{subsequent}{Subsequent history for a case}
+%<*doc>
+The syntax for this parameter is described in \sec{caseref-history}.
+%</doc>
+%

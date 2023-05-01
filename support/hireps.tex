@@ -1,0 +1,788 @@
+% hireps.tex
+%
+% Case reporter name conversions
+%
+% The script used to generate this file was:
+%
+% #!/usr/bin/ruby
+% 
+% reps = {
+%   'U.S.' => {
+%     1..4 => 'Dall.',
+%     5..13 => 'Cranch',
+%     14..25 => 'Wheat.',
+%     26..41 => 'Pet.',
+%     42..65 => 'How.',
+%     66..67 => 'Black',
+%     68..90 => 'Wall.',
+%   },
+%   'Del.' => {
+%     1..5 => 'Harr.',
+%     6..14 => 'Houst.',
+%     15..16 => 'Marv.',
+%     17..23 => 'Penne.',
+%     24..30 => 'Boyce'
+%   },
+%   'D.C.' => {
+%     1..5 => 'Cranch',
+%     6..7 => 'Mackey',
+%     8..10 => 'MacArth.',
+%     11..11 => 'MacArth. \& M.',
+%     12..20 => 'Mackey',
+%     21..21 => 'Tuck. \& Cl.'
+%   },
+%   'Ill.' => {
+%     1..1 => 'Breese',
+%     2..5 => 'Scam.',
+%     6..10 => 'Glim.'
+%   },
+%   'Ky.' => {
+%     1..1 => 'Hughes',
+%     2..2 => 'Sneed',
+%     3..3 => 'Hard.',
+%     4..7 => 'Bibb',
+%     8..10 => 'A.K. Marsh.',
+%     11..15 => 'Litt.',
+%     16..16 => 'Litt. Sel. Cas.',
+%     17..23 => 'T.B. Mon.',
+%     24..30 => 'J.J. Marsh.',
+%     31..39 => 'Dana',
+%     40..57 => 'B. Mon.',
+%     58..61 => 'Met.',
+%     62..63 => 'Duv.',
+%     64..77 => 'Bush'
+%   },
+%   'Mass.' => {
+%     18..41 => 'Pick.',
+%     42..54 => 'Met.',
+%     55..66 => 'Cush.',
+%     67..82 => 'Gray',
+%     83..96 => 'Allen'
+%   },
+%   'Miss.' => {
+%     1..1 => 'Walker',
+%     2..8 => 'How.',
+%     9..22 => 'S. \& M.'
+%   },
+%   'N.C.' => {
+%     1..1 => '\\ambiguous',
+%     2..3 => 'Hayw.',
+%     4..4 => '\\ambiguous',
+%     5..7 => 'Mur.',
+%     8..11 => 'Hawks',
+%     12..15 => 'Dev.',
+%     16..17 => 'Dev. Eq.',
+%     18..20 => '\\ambiguous',
+%     21..22 => 'Dev. \& Bat. Eq.',
+%     23..35 => 'Ired.',
+%     36..43 => 'Ired. Eq.',
+%     44..44 => 'Busb.',
+%     45..45 => 'Busb. Eq.',
+%     46..53 => 'Jones',
+%     54..59 => 'Jones Eq.',
+%     60..60 => 'Win.',
+%     61..61 => 'Phil. Law',
+%     62..62 => 'Phil. Eq.'
+%   },
+%   'S.C.L.' => {
+%     1..2 => 'Bay',
+%     3..5 => 'Brev.',
+%     6..7 => 'Tread.',
+%     8..9 => 'Mill',
+%     10..11 => 'Nott \& McC.',
+%     12..15 => 'McCord',
+%     16..16 => 'Harp.',
+%     17..17 => [ 'Bail.', 1 ],
+%     18..18 => '\\ambiguous',
+%     19..21 => 'Hill',
+%     22..22 => 'Ril.',
+%     23..23 => 'Dud.',
+%     24..24 => 'Rice',
+%     25..25 => 'Chev.',
+%     26..27 => 'McMul.',
+%     28..29 => 'Speers',
+%     30..31 => 'Rich.',
+%     32..36 => 'Strob.',
+%     37..49 => [ 'Rich.', 4 ]
+%   },
+%   'S.C. Eq.' => {
+%     1..4 => 'Des.',
+%     5..5 => 'Harp. Eq.',
+%     5..7 => 'McCord Eq.',
+%     8..8 => 'Bail. Eq',
+%     9..9 => 'Rich. Cas.',
+%     10..11 => 'Hill Eq.',
+%     12..12 => 'Ril.',
+%     13..13 => 'Dud. Eq.',
+%     14..14 => 'Rice Eq.',
+%     15..15 => 'Chev. Eq.',
+%     16..16 => 'McMul. Eq.',
+%     17..17 => 'Speers Eq.',
+%     18..19 => 'Rich. Eq.',
+%     20..23 => 'Strob. Eq.',
+%     24..35 => [ 'Rich. Eq.', 3 ]
+%   },
+%   'Tenn.' => {
+%     1..2 => 'Overt.',
+%     3..3 => 'Cooke',
+%     4..6 => 'Hayw.',
+%     7..7 => 'Peck',
+%     8..8 => 'Mart. \& Yer.',
+%     9..18 => 'Yer.',
+%     19..19 => 'Melgs',
+%     20..30 => 'Hum.',
+%     31..32 => 'Swan',
+%     33..37 => 'Sneed',
+%     38..40 => 'Head',
+%     41..47 => 'Cold.',
+%     48..59 => 'Helsk.'
+%   },
+%   'Va.' => {
+%     1..2 => 'Wash.',
+%     3..4 => 'Va. Cas.',
+%     5..10 => 'Call',
+%     11..14 => 'Hen. \& M.',
+%     15..20 => 'Munf.',
+%     21..21 => 'Gilmer',
+%     22..28 => 'Rand.',
+%     28..39 => 'Leigh',
+%     40..41 => 'Rob.',
+%     42..74 => 'Gratt.'
+%   }
+% }
+% 
+% puts <<EOF
+% % hireps.tex
+% %
+% % Case reporter name conversions
+% %
+% % The script used to generate this file was:
+% %
+% EOF
+% 
+% open(__FILE__) do |f|
+%   f.each do |l|
+%     puts "% #{l}"
+%   end
+% end
+% 
+% reps.map { |rep, data|
+%   data.map { |range, name|
+%     range.map { |x|
+%       name, s = [ name ].flatten
+%       s ||= 1 unless range.size == 1
+%       "\\hi@abbrev{#{x}}{#{rep}}{#{"#{x - range.min + s} " if s}#{name}}"
+%     }
+%   }
+% }.flatten.each { |x| puts x }
+% 
+\hi@abbrev{1}{U.S.}{1 Dall.}
+\hi@abbrev{2}{U.S.}{2 Dall.}
+\hi@abbrev{3}{U.S.}{3 Dall.}
+\hi@abbrev{4}{U.S.}{4 Dall.}
+\hi@abbrev{5}{U.S.}{1 Cranch}
+\hi@abbrev{6}{U.S.}{2 Cranch}
+\hi@abbrev{7}{U.S.}{3 Cranch}
+\hi@abbrev{8}{U.S.}{4 Cranch}
+\hi@abbrev{9}{U.S.}{5 Cranch}
+\hi@abbrev{10}{U.S.}{6 Cranch}
+\hi@abbrev{11}{U.S.}{7 Cranch}
+\hi@abbrev{12}{U.S.}{8 Cranch}
+\hi@abbrev{13}{U.S.}{9 Cranch}
+\hi@abbrev{14}{U.S.}{1 Wheat.}
+\hi@abbrev{15}{U.S.}{2 Wheat.}
+\hi@abbrev{16}{U.S.}{3 Wheat.}
+\hi@abbrev{17}{U.S.}{4 Wheat.}
+\hi@abbrev{18}{U.S.}{5 Wheat.}
+\hi@abbrev{19}{U.S.}{6 Wheat.}
+\hi@abbrev{20}{U.S.}{7 Wheat.}
+\hi@abbrev{21}{U.S.}{8 Wheat.}
+\hi@abbrev{22}{U.S.}{9 Wheat.}
+\hi@abbrev{23}{U.S.}{10 Wheat.}
+\hi@abbrev{24}{U.S.}{11 Wheat.}
+\hi@abbrev{25}{U.S.}{12 Wheat.}
+\hi@abbrev{26}{U.S.}{1 Pet.}
+\hi@abbrev{27}{U.S.}{2 Pet.}
+\hi@abbrev{28}{U.S.}{3 Pet.}
+\hi@abbrev{29}{U.S.}{4 Pet.}
+\hi@abbrev{30}{U.S.}{5 Pet.}
+\hi@abbrev{31}{U.S.}{6 Pet.}
+\hi@abbrev{32}{U.S.}{7 Pet.}
+\hi@abbrev{33}{U.S.}{8 Pet.}
+\hi@abbrev{34}{U.S.}{9 Pet.}
+\hi@abbrev{35}{U.S.}{10 Pet.}
+\hi@abbrev{36}{U.S.}{11 Pet.}
+\hi@abbrev{37}{U.S.}{12 Pet.}
+\hi@abbrev{38}{U.S.}{13 Pet.}
+\hi@abbrev{39}{U.S.}{14 Pet.}
+\hi@abbrev{40}{U.S.}{15 Pet.}
+\hi@abbrev{41}{U.S.}{16 Pet.}
+\hi@abbrev{42}{U.S.}{1 How.}
+\hi@abbrev{43}{U.S.}{2 How.}
+\hi@abbrev{44}{U.S.}{3 How.}
+\hi@abbrev{45}{U.S.}{4 How.}
+\hi@abbrev{46}{U.S.}{5 How.}
+\hi@abbrev{47}{U.S.}{6 How.}
+\hi@abbrev{48}{U.S.}{7 How.}
+\hi@abbrev{49}{U.S.}{8 How.}
+\hi@abbrev{50}{U.S.}{9 How.}
+\hi@abbrev{51}{U.S.}{10 How.}
+\hi@abbrev{52}{U.S.}{11 How.}
+\hi@abbrev{53}{U.S.}{12 How.}
+\hi@abbrev{54}{U.S.}{13 How.}
+\hi@abbrev{55}{U.S.}{14 How.}
+\hi@abbrev{56}{U.S.}{15 How.}
+\hi@abbrev{57}{U.S.}{16 How.}
+\hi@abbrev{58}{U.S.}{17 How.}
+\hi@abbrev{59}{U.S.}{18 How.}
+\hi@abbrev{60}{U.S.}{19 How.}
+\hi@abbrev{61}{U.S.}{20 How.}
+\hi@abbrev{62}{U.S.}{21 How.}
+\hi@abbrev{63}{U.S.}{22 How.}
+\hi@abbrev{64}{U.S.}{23 How.}
+\hi@abbrev{65}{U.S.}{24 How.}
+\hi@abbrev{66}{U.S.}{1 Black}
+\hi@abbrev{67}{U.S.}{2 Black}
+\hi@abbrev{68}{U.S.}{1 Wall.}
+\hi@abbrev{69}{U.S.}{2 Wall.}
+\hi@abbrev{70}{U.S.}{3 Wall.}
+\hi@abbrev{71}{U.S.}{4 Wall.}
+\hi@abbrev{72}{U.S.}{5 Wall.}
+\hi@abbrev{73}{U.S.}{6 Wall.}
+\hi@abbrev{74}{U.S.}{7 Wall.}
+\hi@abbrev{75}{U.S.}{8 Wall.}
+\hi@abbrev{76}{U.S.}{9 Wall.}
+\hi@abbrev{77}{U.S.}{10 Wall.}
+\hi@abbrev{78}{U.S.}{11 Wall.}
+\hi@abbrev{79}{U.S.}{12 Wall.}
+\hi@abbrev{80}{U.S.}{13 Wall.}
+\hi@abbrev{81}{U.S.}{14 Wall.}
+\hi@abbrev{82}{U.S.}{15 Wall.}
+\hi@abbrev{83}{U.S.}{16 Wall.}
+\hi@abbrev{84}{U.S.}{17 Wall.}
+\hi@abbrev{85}{U.S.}{18 Wall.}
+\hi@abbrev{86}{U.S.}{19 Wall.}
+\hi@abbrev{87}{U.S.}{20 Wall.}
+\hi@abbrev{88}{U.S.}{21 Wall.}
+\hi@abbrev{89}{U.S.}{22 Wall.}
+\hi@abbrev{90}{U.S.}{23 Wall.}
+\hi@abbrev{1}{Del.}{1 Harr.}
+\hi@abbrev{2}{Del.}{2 Harr.}
+\hi@abbrev{3}{Del.}{3 Harr.}
+\hi@abbrev{4}{Del.}{4 Harr.}
+\hi@abbrev{5}{Del.}{5 Harr.}
+\hi@abbrev{6}{Del.}{1 Houst.}
+\hi@abbrev{7}{Del.}{2 Houst.}
+\hi@abbrev{8}{Del.}{3 Houst.}
+\hi@abbrev{9}{Del.}{4 Houst.}
+\hi@abbrev{10}{Del.}{5 Houst.}
+\hi@abbrev{11}{Del.}{6 Houst.}
+\hi@abbrev{12}{Del.}{7 Houst.}
+\hi@abbrev{13}{Del.}{8 Houst.}
+\hi@abbrev{14}{Del.}{9 Houst.}
+\hi@abbrev{15}{Del.}{1 Marv.}
+\hi@abbrev{16}{Del.}{2 Marv.}
+\hi@abbrev{17}{Del.}{1 Penne.}
+\hi@abbrev{18}{Del.}{2 Penne.}
+\hi@abbrev{19}{Del.}{3 Penne.}
+\hi@abbrev{20}{Del.}{4 Penne.}
+\hi@abbrev{21}{Del.}{5 Penne.}
+\hi@abbrev{22}{Del.}{6 Penne.}
+\hi@abbrev{23}{Del.}{7 Penne.}
+\hi@abbrev{24}{Del.}{1 Boyce}
+\hi@abbrev{25}{Del.}{2 Boyce}
+\hi@abbrev{26}{Del.}{3 Boyce}
+\hi@abbrev{27}{Del.}{4 Boyce}
+\hi@abbrev{28}{Del.}{5 Boyce}
+\hi@abbrev{29}{Del.}{6 Boyce}
+\hi@abbrev{30}{Del.}{7 Boyce}
+\hi@abbrev{1}{D.C.}{1 Cranch}
+\hi@abbrev{2}{D.C.}{2 Cranch}
+\hi@abbrev{3}{D.C.}{3 Cranch}
+\hi@abbrev{4}{D.C.}{4 Cranch}
+\hi@abbrev{5}{D.C.}{5 Cranch}
+\hi@abbrev{6}{D.C.}{1 Mackey}
+\hi@abbrev{7}{D.C.}{2 Mackey}
+\hi@abbrev{8}{D.C.}{1 MacArth.}
+\hi@abbrev{9}{D.C.}{2 MacArth.}
+\hi@abbrev{10}{D.C.}{3 MacArth.}
+\hi@abbrev{11}{D.C.}{MacArth. \& M.}
+\hi@abbrev{12}{D.C.}{1 Mackey}
+\hi@abbrev{13}{D.C.}{2 Mackey}
+\hi@abbrev{14}{D.C.}{3 Mackey}
+\hi@abbrev{15}{D.C.}{4 Mackey}
+\hi@abbrev{16}{D.C.}{5 Mackey}
+\hi@abbrev{17}{D.C.}{6 Mackey}
+\hi@abbrev{18}{D.C.}{7 Mackey}
+\hi@abbrev{19}{D.C.}{8 Mackey}
+\hi@abbrev{20}{D.C.}{9 Mackey}
+\hi@abbrev{21}{D.C.}{Tuck. \& Cl.}
+\hi@abbrev{1}{Ill.}{Breese}
+\hi@abbrev{2}{Ill.}{1 Scam.}
+\hi@abbrev{3}{Ill.}{2 Scam.}
+\hi@abbrev{4}{Ill.}{3 Scam.}
+\hi@abbrev{5}{Ill.}{4 Scam.}
+\hi@abbrev{6}{Ill.}{1 Glim.}
+\hi@abbrev{7}{Ill.}{2 Glim.}
+\hi@abbrev{8}{Ill.}{3 Glim.}
+\hi@abbrev{9}{Ill.}{4 Glim.}
+\hi@abbrev{10}{Ill.}{5 Glim.}
+\hi@abbrev{1}{Ky.}{Hughes}
+\hi@abbrev{2}{Ky.}{Sneed}
+\hi@abbrev{3}{Ky.}{Hard.}
+\hi@abbrev{4}{Ky.}{1 Bibb}
+\hi@abbrev{5}{Ky.}{2 Bibb}
+\hi@abbrev{6}{Ky.}{3 Bibb}
+\hi@abbrev{7}{Ky.}{4 Bibb}
+\hi@abbrev{8}{Ky.}{1 A.K. Marsh.}
+\hi@abbrev{9}{Ky.}{2 A.K. Marsh.}
+\hi@abbrev{10}{Ky.}{3 A.K. Marsh.}
+\hi@abbrev{11}{Ky.}{1 Litt.}
+\hi@abbrev{12}{Ky.}{2 Litt.}
+\hi@abbrev{13}{Ky.}{3 Litt.}
+\hi@abbrev{14}{Ky.}{4 Litt.}
+\hi@abbrev{15}{Ky.}{5 Litt.}
+\hi@abbrev{16}{Ky.}{Litt. Sel. Cas.}
+\hi@abbrev{17}{Ky.}{1 T.B. Mon.}
+\hi@abbrev{18}{Ky.}{2 T.B. Mon.}
+\hi@abbrev{19}{Ky.}{3 T.B. Mon.}
+\hi@abbrev{20}{Ky.}{4 T.B. Mon.}
+\hi@abbrev{21}{Ky.}{5 T.B. Mon.}
+\hi@abbrev{22}{Ky.}{6 T.B. Mon.}
+\hi@abbrev{23}{Ky.}{7 T.B. Mon.}
+\hi@abbrev{24}{Ky.}{1 J.J. Marsh.}
+\hi@abbrev{25}{Ky.}{2 J.J. Marsh.}
+\hi@abbrev{26}{Ky.}{3 J.J. Marsh.}
+\hi@abbrev{27}{Ky.}{4 J.J. Marsh.}
+\hi@abbrev{28}{Ky.}{5 J.J. Marsh.}
+\hi@abbrev{29}{Ky.}{6 J.J. Marsh.}
+\hi@abbrev{30}{Ky.}{7 J.J. Marsh.}
+\hi@abbrev{31}{Ky.}{1 Dana}
+\hi@abbrev{32}{Ky.}{2 Dana}
+\hi@abbrev{33}{Ky.}{3 Dana}
+\hi@abbrev{34}{Ky.}{4 Dana}
+\hi@abbrev{35}{Ky.}{5 Dana}
+\hi@abbrev{36}{Ky.}{6 Dana}
+\hi@abbrev{37}{Ky.}{7 Dana}
+\hi@abbrev{38}{Ky.}{8 Dana}
+\hi@abbrev{39}{Ky.}{9 Dana}
+\hi@abbrev{40}{Ky.}{1 B. Mon.}
+\hi@abbrev{41}{Ky.}{2 B. Mon.}
+\hi@abbrev{42}{Ky.}{3 B. Mon.}
+\hi@abbrev{43}{Ky.}{4 B. Mon.}
+\hi@abbrev{44}{Ky.}{5 B. Mon.}
+\hi@abbrev{45}{Ky.}{6 B. Mon.}
+\hi@abbrev{46}{Ky.}{7 B. Mon.}
+\hi@abbrev{47}{Ky.}{8 B. Mon.}
+\hi@abbrev{48}{Ky.}{9 B. Mon.}
+\hi@abbrev{49}{Ky.}{10 B. Mon.}
+\hi@abbrev{50}{Ky.}{11 B. Mon.}
+\hi@abbrev{51}{Ky.}{12 B. Mon.}
+\hi@abbrev{52}{Ky.}{13 B. Mon.}
+\hi@abbrev{53}{Ky.}{14 B. Mon.}
+\hi@abbrev{54}{Ky.}{15 B. Mon.}
+\hi@abbrev{55}{Ky.}{16 B. Mon.}
+\hi@abbrev{56}{Ky.}{17 B. Mon.}
+\hi@abbrev{57}{Ky.}{18 B. Mon.}
+\hi@abbrev{58}{Ky.}{1 Met.}
+\hi@abbrev{59}{Ky.}{2 Met.}
+\hi@abbrev{60}{Ky.}{3 Met.}
+\hi@abbrev{61}{Ky.}{4 Met.}
+\hi@abbrev{62}{Ky.}{1 Duv.}
+\hi@abbrev{63}{Ky.}{2 Duv.}
+\hi@abbrev{64}{Ky.}{1 Bush}
+\hi@abbrev{65}{Ky.}{2 Bush}
+\hi@abbrev{66}{Ky.}{3 Bush}
+\hi@abbrev{67}{Ky.}{4 Bush}
+\hi@abbrev{68}{Ky.}{5 Bush}
+\hi@abbrev{69}{Ky.}{6 Bush}
+\hi@abbrev{70}{Ky.}{7 Bush}
+\hi@abbrev{71}{Ky.}{8 Bush}
+\hi@abbrev{72}{Ky.}{9 Bush}
+\hi@abbrev{73}{Ky.}{10 Bush}
+\hi@abbrev{74}{Ky.}{11 Bush}
+\hi@abbrev{75}{Ky.}{12 Bush}
+\hi@abbrev{76}{Ky.}{13 Bush}
+\hi@abbrev{77}{Ky.}{14 Bush}
+\hi@abbrev{18}{Mass.}{1 Pick.}
+\hi@abbrev{19}{Mass.}{2 Pick.}
+\hi@abbrev{20}{Mass.}{3 Pick.}
+\hi@abbrev{21}{Mass.}{4 Pick.}
+\hi@abbrev{22}{Mass.}{5 Pick.}
+\hi@abbrev{23}{Mass.}{6 Pick.}
+\hi@abbrev{24}{Mass.}{7 Pick.}
+\hi@abbrev{25}{Mass.}{8 Pick.}
+\hi@abbrev{26}{Mass.}{9 Pick.}
+\hi@abbrev{27}{Mass.}{10 Pick.}
+\hi@abbrev{28}{Mass.}{11 Pick.}
+\hi@abbrev{29}{Mass.}{12 Pick.}
+\hi@abbrev{30}{Mass.}{13 Pick.}
+\hi@abbrev{31}{Mass.}{14 Pick.}
+\hi@abbrev{32}{Mass.}{15 Pick.}
+\hi@abbrev{33}{Mass.}{16 Pick.}
+\hi@abbrev{34}{Mass.}{17 Pick.}
+\hi@abbrev{35}{Mass.}{18 Pick.}
+\hi@abbrev{36}{Mass.}{19 Pick.}
+\hi@abbrev{37}{Mass.}{20 Pick.}
+\hi@abbrev{38}{Mass.}{21 Pick.}
+\hi@abbrev{39}{Mass.}{22 Pick.}
+\hi@abbrev{40}{Mass.}{23 Pick.}
+\hi@abbrev{41}{Mass.}{24 Pick.}
+\hi@abbrev{42}{Mass.}{1 Met.}
+\hi@abbrev{43}{Mass.}{2 Met.}
+\hi@abbrev{44}{Mass.}{3 Met.}
+\hi@abbrev{45}{Mass.}{4 Met.}
+\hi@abbrev{46}{Mass.}{5 Met.}
+\hi@abbrev{47}{Mass.}{6 Met.}
+\hi@abbrev{48}{Mass.}{7 Met.}
+\hi@abbrev{49}{Mass.}{8 Met.}
+\hi@abbrev{50}{Mass.}{9 Met.}
+\hi@abbrev{51}{Mass.}{10 Met.}
+\hi@abbrev{52}{Mass.}{11 Met.}
+\hi@abbrev{53}{Mass.}{12 Met.}
+\hi@abbrev{54}{Mass.}{13 Met.}
+\hi@abbrev{55}{Mass.}{1 Cush.}
+\hi@abbrev{56}{Mass.}{2 Cush.}
+\hi@abbrev{57}{Mass.}{3 Cush.}
+\hi@abbrev{58}{Mass.}{4 Cush.}
+\hi@abbrev{59}{Mass.}{5 Cush.}
+\hi@abbrev{60}{Mass.}{6 Cush.}
+\hi@abbrev{61}{Mass.}{7 Cush.}
+\hi@abbrev{62}{Mass.}{8 Cush.}
+\hi@abbrev{63}{Mass.}{9 Cush.}
+\hi@abbrev{64}{Mass.}{10 Cush.}
+\hi@abbrev{65}{Mass.}{11 Cush.}
+\hi@abbrev{66}{Mass.}{12 Cush.}
+\hi@abbrev{67}{Mass.}{1 Gray}
+\hi@abbrev{68}{Mass.}{2 Gray}
+\hi@abbrev{69}{Mass.}{3 Gray}
+\hi@abbrev{70}{Mass.}{4 Gray}
+\hi@abbrev{71}{Mass.}{5 Gray}
+\hi@abbrev{72}{Mass.}{6 Gray}
+\hi@abbrev{73}{Mass.}{7 Gray}
+\hi@abbrev{74}{Mass.}{8 Gray}
+\hi@abbrev{75}{Mass.}{9 Gray}
+\hi@abbrev{76}{Mass.}{10 Gray}
+\hi@abbrev{77}{Mass.}{11 Gray}
+\hi@abbrev{78}{Mass.}{12 Gray}
+\hi@abbrev{79}{Mass.}{13 Gray}
+\hi@abbrev{80}{Mass.}{14 Gray}
+\hi@abbrev{81}{Mass.}{15 Gray}
+\hi@abbrev{82}{Mass.}{16 Gray}
+\hi@abbrev{83}{Mass.}{1 Allen}
+\hi@abbrev{84}{Mass.}{2 Allen}
+\hi@abbrev{85}{Mass.}{3 Allen}
+\hi@abbrev{86}{Mass.}{4 Allen}
+\hi@abbrev{87}{Mass.}{5 Allen}
+\hi@abbrev{88}{Mass.}{6 Allen}
+\hi@abbrev{89}{Mass.}{7 Allen}
+\hi@abbrev{90}{Mass.}{8 Allen}
+\hi@abbrev{91}{Mass.}{9 Allen}
+\hi@abbrev{92}{Mass.}{10 Allen}
+\hi@abbrev{93}{Mass.}{11 Allen}
+\hi@abbrev{94}{Mass.}{12 Allen}
+\hi@abbrev{95}{Mass.}{13 Allen}
+\hi@abbrev{96}{Mass.}{14 Allen}
+\hi@abbrev{1}{Miss.}{Walker}
+\hi@abbrev{2}{Miss.}{1 How.}
+\hi@abbrev{3}{Miss.}{2 How.}
+\hi@abbrev{4}{Miss.}{3 How.}
+\hi@abbrev{5}{Miss.}{4 How.}
+\hi@abbrev{6}{Miss.}{5 How.}
+\hi@abbrev{7}{Miss.}{6 How.}
+\hi@abbrev{8}{Miss.}{7 How.}
+\hi@abbrev{9}{Miss.}{1 S. \& M.}
+\hi@abbrev{10}{Miss.}{2 S. \& M.}
+\hi@abbrev{11}{Miss.}{3 S. \& M.}
+\hi@abbrev{12}{Miss.}{4 S. \& M.}
+\hi@abbrev{13}{Miss.}{5 S. \& M.}
+\hi@abbrev{14}{Miss.}{6 S. \& M.}
+\hi@abbrev{15}{Miss.}{7 S. \& M.}
+\hi@abbrev{16}{Miss.}{8 S. \& M.}
+\hi@abbrev{17}{Miss.}{9 S. \& M.}
+\hi@abbrev{18}{Miss.}{10 S. \& M.}
+\hi@abbrev{19}{Miss.}{11 S. \& M.}
+\hi@abbrev{20}{Miss.}{12 S. \& M.}
+\hi@abbrev{21}{Miss.}{13 S. \& M.}
+\hi@abbrev{22}{Miss.}{14 S. \& M.}
+\hi@abbrev{1}{N.C.}{\ambiguous}
+\hi@abbrev{2}{N.C.}{1 Hayw.}
+\hi@abbrev{3}{N.C.}{2 Hayw.}
+\hi@abbrev{4}{N.C.}{\ambiguous}
+\hi@abbrev{5}{N.C.}{1 Mur.}
+\hi@abbrev{6}{N.C.}{2 Mur.}
+\hi@abbrev{7}{N.C.}{3 Mur.}
+\hi@abbrev{8}{N.C.}{1 Hawks}
+\hi@abbrev{9}{N.C.}{2 Hawks}
+\hi@abbrev{10}{N.C.}{3 Hawks}
+\hi@abbrev{11}{N.C.}{4 Hawks}
+\hi@abbrev{12}{N.C.}{1 Dev.}
+\hi@abbrev{13}{N.C.}{2 Dev.}
+\hi@abbrev{14}{N.C.}{3 Dev.}
+\hi@abbrev{15}{N.C.}{4 Dev.}
+\hi@abbrev{16}{N.C.}{1 Dev. Eq.}
+\hi@abbrev{17}{N.C.}{2 Dev. Eq.}
+\hi@abbrev{18}{N.C.}{1 \ambiguous}
+\hi@abbrev{19}{N.C.}{2 \ambiguous}
+\hi@abbrev{20}{N.C.}{3 \ambiguous}
+\hi@abbrev{21}{N.C.}{1 Dev. \& Bat. Eq.}
+\hi@abbrev{22}{N.C.}{2 Dev. \& Bat. Eq.}
+\hi@abbrev{23}{N.C.}{1 Ired.}
+\hi@abbrev{24}{N.C.}{2 Ired.}
+\hi@abbrev{25}{N.C.}{3 Ired.}
+\hi@abbrev{26}{N.C.}{4 Ired.}
+\hi@abbrev{27}{N.C.}{5 Ired.}
+\hi@abbrev{28}{N.C.}{6 Ired.}
+\hi@abbrev{29}{N.C.}{7 Ired.}
+\hi@abbrev{30}{N.C.}{8 Ired.}
+\hi@abbrev{31}{N.C.}{9 Ired.}
+\hi@abbrev{32}{N.C.}{10 Ired.}
+\hi@abbrev{33}{N.C.}{11 Ired.}
+\hi@abbrev{34}{N.C.}{12 Ired.}
+\hi@abbrev{35}{N.C.}{13 Ired.}
+\hi@abbrev{36}{N.C.}{1 Ired. Eq.}
+\hi@abbrev{37}{N.C.}{2 Ired. Eq.}
+\hi@abbrev{38}{N.C.}{3 Ired. Eq.}
+\hi@abbrev{39}{N.C.}{4 Ired. Eq.}
+\hi@abbrev{40}{N.C.}{5 Ired. Eq.}
+\hi@abbrev{41}{N.C.}{6 Ired. Eq.}
+\hi@abbrev{42}{N.C.}{7 Ired. Eq.}
+\hi@abbrev{43}{N.C.}{8 Ired. Eq.}
+\hi@abbrev{44}{N.C.}{Busb.}
+\hi@abbrev{45}{N.C.}{Busb. Eq.}
+\hi@abbrev{46}{N.C.}{1 Jones}
+\hi@abbrev{47}{N.C.}{2 Jones}
+\hi@abbrev{48}{N.C.}{3 Jones}
+\hi@abbrev{49}{N.C.}{4 Jones}
+\hi@abbrev{50}{N.C.}{5 Jones}
+\hi@abbrev{51}{N.C.}{6 Jones}
+\hi@abbrev{52}{N.C.}{7 Jones}
+\hi@abbrev{53}{N.C.}{8 Jones}
+\hi@abbrev{54}{N.C.}{1 Jones Eq.}
+\hi@abbrev{55}{N.C.}{2 Jones Eq.}
+\hi@abbrev{56}{N.C.}{3 Jones Eq.}
+\hi@abbrev{57}{N.C.}{4 Jones Eq.}
+\hi@abbrev{58}{N.C.}{5 Jones Eq.}
+\hi@abbrev{59}{N.C.}{6 Jones Eq.}
+\hi@abbrev{60}{N.C.}{Win.}
+\hi@abbrev{61}{N.C.}{Phil. Law}
+\hi@abbrev{62}{N.C.}{Phil. Eq.}
+\hi@abbrev{1}{S.C.L.}{1 Bay}
+\hi@abbrev{2}{S.C.L.}{2 Bay}
+\hi@abbrev{3}{S.C.L.}{1 Brev.}
+\hi@abbrev{4}{S.C.L.}{2 Brev.}
+\hi@abbrev{5}{S.C.L.}{3 Brev.}
+\hi@abbrev{6}{S.C.L.}{1 Tread.}
+\hi@abbrev{7}{S.C.L.}{2 Tread.}
+\hi@abbrev{8}{S.C.L.}{1 Mill}
+\hi@abbrev{9}{S.C.L.}{2 Mill}
+\hi@abbrev{10}{S.C.L.}{1 Nott \& McC.}
+\hi@abbrev{11}{S.C.L.}{2 Nott \& McC.}
+\hi@abbrev{12}{S.C.L.}{1 McCord}
+\hi@abbrev{13}{S.C.L.}{2 McCord}
+\hi@abbrev{14}{S.C.L.}{3 McCord}
+\hi@abbrev{15}{S.C.L.}{4 McCord}
+\hi@abbrev{16}{S.C.L.}{Harp.}
+\hi@abbrev{17}{S.C.L.}{1 Bail.}
+\hi@abbrev{18}{S.C.L.}{\ambiguous}
+\hi@abbrev{19}{S.C.L.}{1 Hill}
+\hi@abbrev{20}{S.C.L.}{2 Hill}
+\hi@abbrev{21}{S.C.L.}{3 Hill}
+\hi@abbrev{22}{S.C.L.}{Ril.}
+\hi@abbrev{23}{S.C.L.}{Dud.}
+\hi@abbrev{24}{S.C.L.}{Rice}
+\hi@abbrev{25}{S.C.L.}{Chev.}
+\hi@abbrev{26}{S.C.L.}{1 McMul.}
+\hi@abbrev{27}{S.C.L.}{2 McMul.}
+\hi@abbrev{28}{S.C.L.}{1 Speers}
+\hi@abbrev{29}{S.C.L.}{2 Speers}
+\hi@abbrev{30}{S.C.L.}{1 Rich.}
+\hi@abbrev{31}{S.C.L.}{2 Rich.}
+\hi@abbrev{32}{S.C.L.}{1 Strob.}
+\hi@abbrev{33}{S.C.L.}{2 Strob.}
+\hi@abbrev{34}{S.C.L.}{3 Strob.}
+\hi@abbrev{35}{S.C.L.}{4 Strob.}
+\hi@abbrev{36}{S.C.L.}{5 Strob.}
+\hi@abbrev{37}{S.C.L.}{4 Rich.}
+\hi@abbrev{38}{S.C.L.}{2 Rich.}
+\hi@abbrev{39}{S.C.L.}{3 Rich.}
+\hi@abbrev{40}{S.C.L.}{4 Rich.}
+\hi@abbrev{41}{S.C.L.}{5 Rich.}
+\hi@abbrev{42}{S.C.L.}{6 Rich.}
+\hi@abbrev{43}{S.C.L.}{7 Rich.}
+\hi@abbrev{44}{S.C.L.}{8 Rich.}
+\hi@abbrev{45}{S.C.L.}{9 Rich.}
+\hi@abbrev{46}{S.C.L.}{10 Rich.}
+\hi@abbrev{47}{S.C.L.}{11 Rich.}
+\hi@abbrev{48}{S.C.L.}{12 Rich.}
+\hi@abbrev{49}{S.C.L.}{13 Rich.}
+\hi@abbrev{1}{S.C. Eq.}{1 Des.}
+\hi@abbrev{2}{S.C. Eq.}{2 Des.}
+\hi@abbrev{3}{S.C. Eq.}{3 Des.}
+\hi@abbrev{4}{S.C. Eq.}{4 Des.}
+\hi@abbrev{5}{S.C. Eq.}{Harp. Eq.}
+\hi@abbrev{5}{S.C. Eq.}{1 McCord Eq.}
+\hi@abbrev{6}{S.C. Eq.}{2 McCord Eq.}
+\hi@abbrev{7}{S.C. Eq.}{3 McCord Eq.}
+\hi@abbrev{8}{S.C. Eq.}{Bail. Eq}
+\hi@abbrev{9}{S.C. Eq.}{Rich. Cas.}
+\hi@abbrev{10}{S.C. Eq.}{1 Hill Eq.}
+\hi@abbrev{11}{S.C. Eq.}{2 Hill Eq.}
+\hi@abbrev{12}{S.C. Eq.}{Ril.}
+\hi@abbrev{13}{S.C. Eq.}{Dud. Eq.}
+\hi@abbrev{14}{S.C. Eq.}{Rice Eq.}
+\hi@abbrev{15}{S.C. Eq.}{Chev. Eq.}
+\hi@abbrev{16}{S.C. Eq.}{McMul. Eq.}
+\hi@abbrev{17}{S.C. Eq.}{Speers Eq.}
+\hi@abbrev{18}{S.C. Eq.}{1 Rich. Eq.}
+\hi@abbrev{19}{S.C. Eq.}{2 Rich. Eq.}
+\hi@abbrev{20}{S.C. Eq.}{1 Strob. Eq.}
+\hi@abbrev{21}{S.C. Eq.}{2 Strob. Eq.}
+\hi@abbrev{22}{S.C. Eq.}{3 Strob. Eq.}
+\hi@abbrev{23}{S.C. Eq.}{4 Strob. Eq.}
+\hi@abbrev{24}{S.C. Eq.}{3 Rich. Eq.}
+\hi@abbrev{25}{S.C. Eq.}{2 Rich. Eq.}
+\hi@abbrev{26}{S.C. Eq.}{3 Rich. Eq.}
+\hi@abbrev{27}{S.C. Eq.}{4 Rich. Eq.}
+\hi@abbrev{28}{S.C. Eq.}{5 Rich. Eq.}
+\hi@abbrev{29}{S.C. Eq.}{6 Rich. Eq.}
+\hi@abbrev{30}{S.C. Eq.}{7 Rich. Eq.}
+\hi@abbrev{31}{S.C. Eq.}{8 Rich. Eq.}
+\hi@abbrev{32}{S.C. Eq.}{9 Rich. Eq.}
+\hi@abbrev{33}{S.C. Eq.}{10 Rich. Eq.}
+\hi@abbrev{34}{S.C. Eq.}{11 Rich. Eq.}
+\hi@abbrev{35}{S.C. Eq.}{12 Rich. Eq.}
+\hi@abbrev{1}{Tenn.}{1 Overt.}
+\hi@abbrev{2}{Tenn.}{2 Overt.}
+\hi@abbrev{3}{Tenn.}{Cooke}
+\hi@abbrev{4}{Tenn.}{1 Hayw.}
+\hi@abbrev{5}{Tenn.}{2 Hayw.}
+\hi@abbrev{6}{Tenn.}{3 Hayw.}
+\hi@abbrev{7}{Tenn.}{Peck}
+\hi@abbrev{8}{Tenn.}{Mart. \& Yer.}
+\hi@abbrev{9}{Tenn.}{1 Yer.}
+\hi@abbrev{10}{Tenn.}{2 Yer.}
+\hi@abbrev{11}{Tenn.}{3 Yer.}
+\hi@abbrev{12}{Tenn.}{4 Yer.}
+\hi@abbrev{13}{Tenn.}{5 Yer.}
+\hi@abbrev{14}{Tenn.}{6 Yer.}
+\hi@abbrev{15}{Tenn.}{7 Yer.}
+\hi@abbrev{16}{Tenn.}{8 Yer.}
+\hi@abbrev{17}{Tenn.}{9 Yer.}
+\hi@abbrev{18}{Tenn.}{10 Yer.}
+\hi@abbrev{19}{Tenn.}{Melgs}
+\hi@abbrev{20}{Tenn.}{1 Hum.}
+\hi@abbrev{21}{Tenn.}{2 Hum.}
+\hi@abbrev{22}{Tenn.}{3 Hum.}
+\hi@abbrev{23}{Tenn.}{4 Hum.}
+\hi@abbrev{24}{Tenn.}{5 Hum.}
+\hi@abbrev{25}{Tenn.}{6 Hum.}
+\hi@abbrev{26}{Tenn.}{7 Hum.}
+\hi@abbrev{27}{Tenn.}{8 Hum.}
+\hi@abbrev{28}{Tenn.}{9 Hum.}
+\hi@abbrev{29}{Tenn.}{10 Hum.}
+\hi@abbrev{30}{Tenn.}{11 Hum.}
+\hi@abbrev{31}{Tenn.}{1 Swan}
+\hi@abbrev{32}{Tenn.}{2 Swan}
+\hi@abbrev{33}{Tenn.}{1 Sneed}
+\hi@abbrev{34}{Tenn.}{2 Sneed}
+\hi@abbrev{35}{Tenn.}{3 Sneed}
+\hi@abbrev{36}{Tenn.}{4 Sneed}
+\hi@abbrev{37}{Tenn.}{5 Sneed}
+\hi@abbrev{38}{Tenn.}{1 Head}
+\hi@abbrev{39}{Tenn.}{2 Head}
+\hi@abbrev{40}{Tenn.}{3 Head}
+\hi@abbrev{41}{Tenn.}{1 Cold.}
+\hi@abbrev{42}{Tenn.}{2 Cold.}
+\hi@abbrev{43}{Tenn.}{3 Cold.}
+\hi@abbrev{44}{Tenn.}{4 Cold.}
+\hi@abbrev{45}{Tenn.}{5 Cold.}
+\hi@abbrev{46}{Tenn.}{6 Cold.}
+\hi@abbrev{47}{Tenn.}{7 Cold.}
+\hi@abbrev{48}{Tenn.}{1 Helsk.}
+\hi@abbrev{49}{Tenn.}{2 Helsk.}
+\hi@abbrev{50}{Tenn.}{3 Helsk.}
+\hi@abbrev{51}{Tenn.}{4 Helsk.}
+\hi@abbrev{52}{Tenn.}{5 Helsk.}
+\hi@abbrev{53}{Tenn.}{6 Helsk.}
+\hi@abbrev{54}{Tenn.}{7 Helsk.}
+\hi@abbrev{55}{Tenn.}{8 Helsk.}
+\hi@abbrev{56}{Tenn.}{9 Helsk.}
+\hi@abbrev{57}{Tenn.}{10 Helsk.}
+\hi@abbrev{58}{Tenn.}{11 Helsk.}
+\hi@abbrev{59}{Tenn.}{12 Helsk.}
+\hi@abbrev{1}{Va.}{1 Wash.}
+\hi@abbrev{2}{Va.}{2 Wash.}
+\hi@abbrev{3}{Va.}{1 Va. Cas.}
+\hi@abbrev{4}{Va.}{2 Va. Cas.}
+\hi@abbrev{5}{Va.}{1 Call}
+\hi@abbrev{6}{Va.}{2 Call}
+\hi@abbrev{7}{Va.}{3 Call}
+\hi@abbrev{8}{Va.}{4 Call}
+\hi@abbrev{9}{Va.}{5 Call}
+\hi@abbrev{10}{Va.}{6 Call}
+\hi@abbrev{11}{Va.}{1 Hen. \& M.}
+\hi@abbrev{12}{Va.}{2 Hen. \& M.}
+\hi@abbrev{13}{Va.}{3 Hen. \& M.}
+\hi@abbrev{14}{Va.}{4 Hen. \& M.}
+\hi@abbrev{15}{Va.}{1 Munf.}
+\hi@abbrev{16}{Va.}{2 Munf.}
+\hi@abbrev{17}{Va.}{3 Munf.}
+\hi@abbrev{18}{Va.}{4 Munf.}
+\hi@abbrev{19}{Va.}{5 Munf.}
+\hi@abbrev{20}{Va.}{6 Munf.}
+\hi@abbrev{21}{Va.}{Gilmer}
+\hi@abbrev{22}{Va.}{1 Rand.}
+\hi@abbrev{23}{Va.}{2 Rand.}
+\hi@abbrev{24}{Va.}{3 Rand.}
+\hi@abbrev{25}{Va.}{4 Rand.}
+\hi@abbrev{26}{Va.}{5 Rand.}
+\hi@abbrev{27}{Va.}{6 Rand.}
+\hi@abbrev{28}{Va.}{7 Rand.}
+\hi@abbrev{28}{Va.}{1 Leigh}
+\hi@abbrev{29}{Va.}{2 Leigh}
+\hi@abbrev{30}{Va.}{3 Leigh}
+\hi@abbrev{31}{Va.}{4 Leigh}
+\hi@abbrev{32}{Va.}{5 Leigh}
+\hi@abbrev{33}{Va.}{6 Leigh}
+\hi@abbrev{34}{Va.}{7 Leigh}
+\hi@abbrev{35}{Va.}{8 Leigh}
+\hi@abbrev{36}{Va.}{9 Leigh}
+\hi@abbrev{37}{Va.}{10 Leigh}
+\hi@abbrev{38}{Va.}{11 Leigh}
+\hi@abbrev{39}{Va.}{12 Leigh}
+\hi@abbrev{40}{Va.}{1 Rob.}
+\hi@abbrev{41}{Va.}{2 Rob.}
+\hi@abbrev{42}{Va.}{1 Gratt.}
+\hi@abbrev{43}{Va.}{2 Gratt.}
+\hi@abbrev{44}{Va.}{3 Gratt.}
+\hi@abbrev{45}{Va.}{4 Gratt.}
+\hi@abbrev{46}{Va.}{5 Gratt.}
+\hi@abbrev{47}{Va.}{6 Gratt.}
+\hi@abbrev{48}{Va.}{7 Gratt.}
+\hi@abbrev{49}{Va.}{8 Gratt.}
+\hi@abbrev{50}{Va.}{9 Gratt.}
+\hi@abbrev{51}{Va.}{10 Gratt.}
+\hi@abbrev{52}{Va.}{11 Gratt.}
+\hi@abbrev{53}{Va.}{12 Gratt.}
+\hi@abbrev{54}{Va.}{13 Gratt.}
+\hi@abbrev{55}{Va.}{14 Gratt.}
+\hi@abbrev{56}{Va.}{15 Gratt.}
+\hi@abbrev{57}{Va.}{16 Gratt.}
+\hi@abbrev{58}{Va.}{17 Gratt.}
+\hi@abbrev{59}{Va.}{18 Gratt.}
+\hi@abbrev{60}{Va.}{19 Gratt.}
+\hi@abbrev{61}{Va.}{20 Gratt.}
+\hi@abbrev{62}{Va.}{21 Gratt.}
+\hi@abbrev{63}{Va.}{22 Gratt.}
+\hi@abbrev{64}{Va.}{23 Gratt.}
+\hi@abbrev{65}{Va.}{24 Gratt.}
+\hi@abbrev{66}{Va.}{25 Gratt.}
+\hi@abbrev{67}{Va.}{26 Gratt.}
+\hi@abbrev{68}{Va.}{27 Gratt.}
+\hi@abbrev{69}{Va.}{28 Gratt.}
+\hi@abbrev{70}{Va.}{29 Gratt.}
+\hi@abbrev{71}{Va.}{30 Gratt.}
+\hi@abbrev{72}{Va.}{31 Gratt.}
+\hi@abbrev{73}{Va.}{32 Gratt.}
+\hi@abbrev{74}{Va.}{33 Gratt.}

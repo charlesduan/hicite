@@ -1,0 +1,180 @@
+%%
+%% \iffalse filename: endnotes.dtx \fi
+%%
+%<*doc>
+\input driver
+\thisis{endnotes}{Endnotes}
+
+The usual \LaTeX\ endnote option stores the unexecuted text of notes and
+then executes them all at the end of the document. This does not work for legal
+citations because the content of the body text interacts with the content of the
+endnotes: An inline citation in body text can change the appearance of citations
+in the notes, and vice versa.
+
+Instead, it is necessary to typeset endnotes as they are encountered and store
+them to a vertical box that can be displayed upon request.
+
+%</doc>
+%<*package>
+%
+% If endnotes are not used, then define the user commands to do nothing.
+%
+%    \begin{macrocode}
+\let\EndnoteText\@gobble
+\let\EndnoteTextDelayed\@gobble
+\let\SectionNote\relax
+\def\hi@useendnotes{%
+%    \end{macrocode}
+%
+% The subsequent code is only run if endnotes are requested.
+%
+% |\hi@endnotes| is the vertical box where endnotes will be stored until used.
+%    \begin{macrocode}
+    \newbox\hi@endnotes
+%    \end{macrocode}
+%
+% |\@footnotetext| is redefined to run |\EndnoteText|, adding the note text to
+% the vertical box. Note that, as described in \sec{state}, the |\@footnotetext|
+% macro will be decorated for citation count tracking with |\AtBeginDocument|,
+% so the tracking macros need not be added here.
+%
+%    \begin{macrocode}
+    \long\def\@footnotetext##1{%
+        \EndnoteText{%
+            \reset@font\normalsize
+            \parskip\z@
+            \EndnoteFont
+            \protected@edef\@currentlabel{%
+               \csname p@footnote\endcsname\@thefnmark
+            }%
+            \color@begingroup
+            \@makefntext{\ignorespaces##1}%
+            \color@endgroup
+        }%
+    }%
+%    \end{macrocode}
+%
+%</package>
+%<*doc>
+
+\DescribeMacro\EndnoteText
+
+|\EndnoteText|\marg{text} adds arbitrary text to the endnote list. The text is
+set in vertical mode.
+
+%</doc>
+%<*package>
+%
+%    \begin{macrocode}
+    \long\def\EndnoteText##1{%
+        \global\setbox\hi@endnotes\vbox{%
+            \ifvoid\hi@endnotes\else
+                \prevdepth\dp\hi@endnotes
+                \unvbox\hi@endnotes
+            \fi
+            \ifx\hi@endnotes@delayed\relax\else
+                \hi@endnotes@delayed
+                \global\let\hi@endnotes@delayed\relax
+            \fi
+            ##1%
+        }%
+    }
+%    \end{macrocode}
+%
+%</package>
+%<*doc>
+
+\DescribeMacro\EndnoteTextDelayed
+|\EndnoteTextDelayed| reserves a certain text for future adding to the endnote
+list. The text is actually added only if other endnote text is added before
+|\EndnoteTextDelayed| is invoked a second time.
+
+This is useful for adding chapter or section heading markers to and endnote list
+conditionally. If the chapter contains no endnotes, then the chapter heading
+will never be inserted into the endnote list.
+
+Again, the text is set in vertical mode.
+
+%</doc>
+%<*package>
+%
+%    \begin{macrocode}
+    \def\EndnoteTextDelayed##1{%
+        \global\def\hi@endnotes@delayed{##1}%
+    }
+    \let\hi@endnotes@delayed\relax
+%    \end{macrocode}
+%
+%</package>
+%<*doc>
+
+\DescribeMacro\SectionNote
+|\SectionNote| inserts text into the endnote list indicating where a section
+heading occurred. The section number is inserted automatically, preceded by
+|\SectionName| from \sec{xref}.
+
+%</doc>
+%<*package>
+%
+%    \begin{macrocode}
+    \def\SectionNote{%
+        \EndnoteTextDelayed{%
+            \vskip .7\baselineskip
+            {\noindent\large\textbf{%
+                \expandafter\@capnext\SectionName\space \@currentlabel
+            }\par}%
+            \penalty\@M
+            \vskip .3\baselineskip
+        }%
+    }
+%    \end{macrocode}
+%
+%</package>
+%<*doc>
+
+\DescribeMacro\EndnoteFont
+|\EndnoteFont| can be defined to set the font for endnotes. It must be defined
+before endnotes are added, since once they are added the notes have been
+typeset and cannot be changed.
+
+%</doc>
+%<*package>
+%
+%    \begin{macrocode}
+    \def\EndnoteFont{}%
+%    \end{macrocode}
+%
+%</package>
+%<*doc>
+
+\DescribeMacro\theendnotes
+|\theendnotes| emits the list of endnotes. If the macro is not called, it will
+be automatically executed at the end of the document with a warning.
+
+%</doc>
+%<*package>
+%
+%    \begin{macrocode}
+    \def\theendnotes{%
+        \setbox\hi@endnotes\vtop{\unvbox\hi@endnotes}%
+        \@tempskipa\baselineskip
+        \multiply\@tempskipa\m@ne
+        \advance\@tempskipa\prevdepth
+        \advance\@tempskipa\ht\hi@endnotes
+        \multiply\@tempskipa\m@ne
+        \ifdim\@tempskipa>\z@ \vskip\@tempskipa \fi
+        \unvbox\hi@endnotes
+    }
+    \AtEndDocument{%
+        \ifvoid\hi@endnotes\else
+            \PackageWarning\hi@pkgname{%
+                Endnotes not displayed;\MessageBreak inserting them%
+            }%
+            \vskip\baselineskip
+            \footnoterule
+            \theendnotes
+        \fi
+    }%
+}% End of |\hi@useendnotes|
+%    \end{macrocode}
+%</package>

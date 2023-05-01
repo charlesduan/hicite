@@ -1,0 +1,633 @@
+%%
+%% \iffalse filename: abbrev.dtx \fi
+%%
+%<*doc>
+\input driver
+\thisis{abbrev}{Abbreviations}
+
+This package provides for abbreviating texts according to tables of
+abbreviations. It also provides functions for removing spaces between dotted
+initials.
+
+%</doc>
+%<*package>
+%    \begin{macrocode}
+\ProvidesPackage{abbrev}[2017/08/14 Abbreviations]
+\RequirePackage{etoolbox}
+\RequirePackage{strings}
+%    \end{macrocode}
+%</package>
+%<*doc>
+\subsection{Abbreviation Classes}
+
+There may be multiple abbreviation classes, namely separate schemes of
+abbreviations with different words abbreviated in each.
+
+An abbreviation class is defined in the macro |\abb@class@|\meta{name}. Within
+that class are a further set of macros of the form
+|\abb@class@|\meta{name}|@|\meta{word}, where \meta{word} is the first word of
+the text to be abbreviated. The value of the macro is a list of two-item pairs
+of the form:
+
+\begin{quote}
+  \marg{remaining text}\marg{abbrev.}
+\end{quote}
+
+\DescribeMacro\abb@new
+|\abb@new|\marg{class} creates a new abbreviation class.
+
+%</doc>
+%<*package>
+%    \begin{macrocode}
+\def\abb@new#1{\@namedef{abb@class@#1}{}}%
+%    \end{macrocode}
+%
+%</package>
+%<*doc>
+
+\DescribeMacro\abb@add
+|\abb@add|\marg{class}\marg{word}\marg{abbrev}
+Adds an item to the abbreviation class. \meta{class} is the class, \meta{word}
+the unabbreviated form, and \marg{abbrev} the abbreviated form.
+
+If the unabbreviated form starts with an empty set of braces, then the given
+abbreviation pair is treated as an initial-text abbreviation, which will only
+abbreviate at the beginning of a text. That is, the abbrevation pairs:
+\begin{quote}
+\{\}Building $\rightarrow$ Bldg. \\
+Building $\rightarrow$ Build.
+\end{quote}
+would produce abbreviations as follows:
+\begin{quote}
+The Building and Loan Office $\rightarrow$ The Build. and Loan Office \\
+Building and Loan Office $\rightarrow$ Bldg. and Loan Office
+\end{quote}
+
+%</doc>
+%<*package>
+%    \begin{macrocode}
+\def\abb@add#1#2#3{%
+    \find@word{#2}{%
+        \abb@add@punct{#1}{#3}%
+    }{%
+        \abb@add@group{#1}{#3}%
+    }{%
+        \abb@add@{#1}{#3}%
+    }{%
+        \abb@add@error{nothing}{}{}%
+    }%
+}
+%    \end{macrocode}
+%
+% Processes an abbreviation pair where the unabbreviated text starts with a
+% group. \#1 is the class, \#2 the abbreviated text, \#3 the group contents, and
+% \#4 the remainder.
+%
+% If the group contains any text, then this is an error. Otherwise, an empty
+% group at the beginning indicates an abbreviation that only matches at the
+% start of the text. The initial-text abbreviation is implemented by storing the
+% abbreviation as a continuation of a zero-width word.
+%
+%    \begin{macrocode}
+\def\abb@add@group#1#2#3#4{%
+    \ifstrempty{#3}{%
+        \abb@add@{#1}{#2}{#3}{#4}%
+    }{%
+        \abb@add@error{group}{{#3}#4}%
+    }%
+}
+\def\abb@add@error#1#2#3{%
+    \PackageError{abbrev}{%
+        Abbreviation text `#2#3' should not start with #1 `#2'
+    }{%
+        Review the text to be abbreviated
+    }%
+}
+\def\abb@add@punct#1#2#3#4{%
+    \@test \ifcat \relax\noexpand#3\fi{%
+        \abb@add@error{control sequence}{#3}{#4}%
+    }{%
+        \abb@add@{#1}{#2}{#3}{#4}%
+    }%
+}
+%    \end{macrocode}
+%
+% \#1 is the class, \#2 is the abbreviated form, \#3 the first word, \#4 the
+% remainder.
+%
+%    \begin{macrocode}
+\def\abb@add@#1#2#3#4{%
+    \make@find@start{#3}% I think this is superfluous
+    \expandafter\abb@add@@
+        \csname abb@class@#1@#3\endcsname
+        {#2}{#4}%
+}
+%    \end{macrocode}
+%
+% \#1 is the macro containing the class and first word, \#2 the abbreviated
+% form, \#3 the remainder of the abbreviation.
+%
+%    \begin{macrocode}
+\def\abb@add@@#1#2#3{%
+    \make@find@start{#3}%
+    \ifx#1\relax
+        \def#1{{#3}{#2}}%
+    \else
+        \expandafter\abb@add@insert#1\@stop{#1}{#3}{#2}{}%
+    \fi
+}
+%    \end{macrocode}
+%
+% Decides where to insert the new abbreviation. The key is that, because
+% abbreviation matches are searched in sequence, longer strings need to come
+% before substrings. For example, an abbreviation list:
+%
+% \begin{quote}
+%   |{Aaa Bbb}{A.B.}{Aaa Bbb Ccc}{A.B.C.}|
+% \end{quote}
+%
+% would be problematic since to abbreviate ``Aaa Bbb Ccc Y'', the first
+% abbreviation pair would match and the second would never be considered. So the
+% list properly needs to be ordered:
+%
+% \begin{quote}
+%   |{Aaa Bbb Ccc}{A.B.C.}{Aaa Bbb}{A.B.}|
+% \end{quote}
+%
+% \#1 and \#2 are the abbreviation pair being considered, \#3 is the rest of the
+% list, \#4 is the list macro, \#5 the unabbreviated text to match, \#6 the
+% abbreviation, and \#7 any material to prepend to the list.
+%
+%    \begin{macrocode}
+\def\abb@add@insert#1#2#3\@stop#4#5#6#7{%
+    \find@start{#1}{#5}{%
+        \def#4{#7{#5}{#6}{#1}{#2}#3}%
+        \@gobble
+    }{%
+        \ifstrempty{#3}{%
+            \def#4{#7{#1}{#2}{#5}{#6}}%
+        }{%
+            \abb@add@insert#3\@stop{#4}{#5}{#6}{#7{#1}{#2}}%
+        }%
+    }%
+}
+%    \end{macrocode}
+%
+%
+%</package>
+%<*doc>
+
+
+\subsection{Algorithm for Abbreviation}
+
+
+\DescribeMacro\abb@abbrev
+|\abb@abbrev|\marg{class}\marg{text}\marg{callback} is the entrypoint for
+abbreviating a text. \meta{class} is the class, \meta{text} is the
+text to abbreviate, and \meta{callback} is a callback function for the result.
+
+Text is abbreviated by reading each word in the text, using |\find@word| from
+\sec{strings}.
+
+\begin{enumerate}
+\item If it is not a word or punctuation, do not process the item and
+  continue.
+
+\item Otherwise, retrieve the list of abbreviations starting with this
+word. If there are none, then continue.
+
+\item Iterate through each of the abbreviations associated with the word,
+and see if the remainder of the text to be abbreviated starts with any of
+  the abbreviation texts. If so, then insert the relevant abbreviation
+  text, correcting for dots as appropriate.
+\end{enumerate}
+
+%</doc>
+%<*package>
+%
+% To provide the special feature of initial-text abbreviations, we assume that
+% the text starts off with a zero-width word, and try to abbreviate it. Since
+% the initial-text abbreviations are stored under the command for zero-width
+% words, this produces the desired result.
+%
+%    \begin{macrocode}
+\def\abb@abbrev#1#2#3{%
+    \abb@abbrev@wd{}{#2}{}{#1}{#3}%
+}
+%    \end{macrocode}
+%
+% Initial state for abbreviation. This is called to process the next
+% abbreviation off of the list of words.
+%
+% \#1 is the text to abbreviate, \#2 is the accumulated abbreviated text, \#3 is
+% the class, \#4 is the callback. (\#2-\#4 are left on the stack.)
+%    \begin{macrocode}
+\def\abb@abbrev@acc#1{%
+    \find@word{#1}\abb@abbrev@punct\abb@abbrev@grp\abb@abbrev@wd\abb@abbrev@end
+}
+%    \end{macrocode}
+%
+% The token being abbreviated is punctuation. If it is a macro, nothing is done.
+% Otherwise, treat it like a word.
+%
+% \#1 is the punctuation, \#2 the remaining text, \#3 the accumulated text, \#4
+% the class, \#5 the callback. (\#4-\#5 are left on the stack.)
+%    \begin{macrocode}
+\def\abb@abbrev@punct#1#2#3{%
+    \@test \ifcat \relax\noexpand#1\fi{%
+        \abb@abbrev@acc{#2}{#3#1}%
+    }{%
+        \abb@abbrev@wd{#1}{#2}{#3}%
+    }%
+}
+%    \end{macrocode}
+%
+% The token being abbreviated is a group. Nothing is done.
+%
+% \#1 is the group, \#2 the remaining text, \#3 the accumulated text, \#4 the
+% class, \#5 the callback. (\#4-\#5 are left on the stack.)
+%
+%    \begin{macrocode}
+\def\abb@abbrev@grp#1#2#3{%
+    \abb@abbrev@acc{#2}{#3{#1}}%
+}
+%    \end{macrocode}
+%
+% There is no more text left to abbreviate. Invoke the callback with the
+% accumulated text.
+%
+% \#1 is the accumulated text, \#2 the class, \#3 the callback.
+%    \begin{macrocode}
+\def\abb@abbrev@end#1#2#3{%
+    #3{#1}%
+}
+%    \end{macrocode}
+%
+% The token to be abbreviated is a word or abbreviatable punctuation. If there
+% is no defined abbreviation for the word, then continue to the next token.
+% Otherwise, call |\abb@abbrev@wd@|, placing on the stack the list of
+% abbreviations associated with the word.
+%
+% \#1 is the word, \#2 the remaining text, \#3 the accumulated text, \#4 the
+% class, \#5 the callback. (\#5 is left on the stack.)
+%    \begin{macrocode}
+\def\abb@abbrev@wd#1#2#3#4{%
+    \@ifundefined{abb@class@#4@#1}{%
+        \abb@abbrev@acc{#2}{#3#1}{#4}%
+    }{%
+        \expandafter\expandafter\expandafter\abb@abbrev@wd@
+            \csname abb@class@#4@#1\endcsname \@stop
+            {#1}{#2}{#3}{#4}%
+    }%
+}
+%    \end{macrocode}
+%
+% \#1 and \#2 are the first elements of the abbreviation word list; \#3 is the
+% remainder of that list. \#4-\#8 are the args to |\abb@abbrev@wd|. (\#7-\#8 are
+% left on the stack.)
+%
+%    \begin{macrocode}
+\def\abb@abbrev@wd@#1#2#3\@stop#4#5#6{%
+    \find@start{#1}{#5}{%
+        \abb@abbrev@found{#6}{#2}%
+    }{%
+        \@iden
+    }%
+    {% This is left on the stack after whatever \find@start calls
+        \ifstrempty{#3}{%
+            \abb@abbrev@acc{#5}{#6#4}%
+        }{%
+            \abb@abbrev@wd@#3\@stop{#4}{#5}{#6}%
+        }%
+    }%
+}
+%    \end{macrocode}
+%
+% \#1 is the accumulated text if we abbreviate, \#2 is the abbreviation to add,
+% \#3 is the remaining text if we abbreviate, \#4 is the command to run if we
+% bail out, \#5 is the class, and \#6 is the callback. (\#5-\#6 are left on the
+% stack.)
+%
+%    \begin{macrocode}
+\def\abb@abbrev@found#1#2#3#4{%
+    %
+    \@ifstartswithwordchar{#3}{%
+        #4%
+    }{%
+        \find@try\find@start{%
+            { }{\abb@abbrev@maybechop{ }}%
+            {.}{\abb@abbrev@maybechop{.}}%
+        }{#3}{\abb@abbrev@acc}%
+        {#3}{#1#2}%
+    }%
+}
+%    \end{macrocode}
+%
+% \#1 is the character to test for potential removal at the end of the
+% accumulated text, \#2 is the remaining text with the character removed, \#3 is
+% the remaining text without the character removed, and \#4 is the accumulated
+% text. \#5 is the class, \#6 the callback (\#5-\#6 are left on the stack).
+%
+%    \begin{macrocode}
+\def\abb@abbrev@maybechop#1#2#3#4{%
+    \find@end{#1}{#4}{%
+        \@firstoftwo{\abb@abbrev@acc{#2}{#4}}%
+    }{\abb@abbrev@acc{#3}{#4}}%
+}%
+\make@find@start{.}
+\make@find@start{ }
+\make@find@end{.}
+\make@find@end{ }
+%    \end{macrocode}
+%
+%</package>
+%<*doc>
+
+\subsection{Removal of Spaces Between Dotted Initials}
+
+\DescribeMacro\abb@initialdots
+|\abb@initialdots|\marg{text}\marg{dot}\marg{callback} processes a text to
+remove dots between single-letter initials. Given a text, it will convert
+sequences such as ``A. A. Milne'' to ``A.A. Milne'' and ``F. 4th'' to ``F.4th''.
+\meta{text} is the text to process and \meta{callback} is the callback to run on
+the resulting output.
+
+\meta{dot} is the dot character to search for. According to some abbreviation
+schemes, it is desirable not to collapse spaces between single initials when the
+initials refer to different classes of words.
+\DescribeMacro\abb@dot
+The macro |\abb@dot| can be used in the place of the period character to
+indicate this differentiation between classes.
+
+For example, the text ``Northern University Law Journal'' may be abbreviated to
+``N.U. L.J.'' with only the first and third spaces collapsed, but not the second
+because institution words should not be joined with publication words. This can
+be implemented by abbreviating publication words with |\abb@dot| (shown here for
+an abbreviation class |journal|):
+\begin{quote}
+|\abb@new{journal}|\\
+|\abb@add{journal}{Northern}{N.}|\\
+|\abb@add{journal}{University}{U.}|\\
+|\abb@add{journal}{Law}{L\abb@dot}|\\
+|\abb@add{journal}{Journal}{J\abb@dot}|
+\end{quote}
+Now when the text is abbreviated with |\abb@abbrev|, it produces:
+\begin{quote}
+\verb*|N. U. L\abb@dot J\abb@dot|
+\end{quote}
+The dot removal algorithm can now be run twice, once with a period as \meta{dot}
+and once with |\abb@dot|, thereby producing the desired text.
+
+%</doc>
+%<*package>
+%
+% This uses |\find@next| on the text with a state
+% machine having states described below.
+% Each state has macros for each of the possible find results from \find@next.
+% Additionally, these items are always left on the token stack:
+% \begin{itemize}
+% \item the processed text
+% \item the deferred text
+% \item the dot character
+% \item the final callback
+% \end{itemize}
+%
+% Initial entrypoint. \#1 is the text, \#2 is the character to treat as a dot,
+% and \#3 is the callback for the result.
+%    \begin{macrocode}
+\def\abb@initialdots#1#2#3{%
+    \abb@id@a{#1}%
+    {}% Initially the processed text is empty.
+    {}% Deferred text is empty.
+    {#2}% The dot character.
+    {#3}% At end of the macro stack for use by \abb@id@done
+}
+\def\abb@id@done#1#2#3#4{%
+    #4{#1#2}%
+}
+%    \end{macrocode}
+%
+% a. Initial state.
+%    \begin{itemize}
+%    \item On letter, go to b.
+%    \item Otherwise go to a.
+%    \end{itemize}
+%
+%    \begin{macrocode}
+\def\abb@id@a#1{%
+    \find@next{#1}\abb@id@backtoa\abb@id@backtoa\abb@id@a@letter\abb@id@done
+}
+\def\abb@id@backtoa#1#2#3#4{%
+    \abb@id@a{#2}{#3#4#1}{}%
+}
+\let\abb@id@a@space\abb@id@backtoa
+\let\abb@id@a@group\abb@id@backtoa
+\def\abb@id@a@letter#1#2#3#4{%
+    \@ifletter{#1}{%
+        \abb@id@b{#2}{#3#4#1}{}%
+    }{%
+        \@ifdigit{#1}{%
+            \abb@id@d{#2}{#3#4#1}{}%
+        }{%
+            \abb@id@a{#2}{#3#4#1}{}%
+        }%
+    }%
+}
+%    \end{macrocode}
+%
+% b. Seen a single letter.
+%    \begin{itemize}
+%    \item On dot, go to c.
+%    \item On letter, go to d.
+%    \item Otherwise go to a.
+%    \end{itemize}
+%
+%    \begin{macrocode}
+\def\abb@id@b#1{%
+    \find@next{#1}\abb@id@b@space\abb@id@a@group\abb@id@b@letter\abb@id@done
+}
+\let\abb@id@b@space\abb@id@backtoa
+\let\abb@id@b@group\abb@id@backtoa
+\def\abb@id@b@letter#1#2#3#4#5{%
+    \@ifletter{#1}{%
+        \abb@id@d{#2}{#3#4#1}{}%
+    }{%
+        \@test\ifx#1#5\fi{%
+            \abb@id@c{#2}{#3#4#1}{}%
+        }{%
+            \abb@id@a{#2}{#3#4#1}{}%
+        }%
+    }%
+    {#5}% Put the dot character back on the stack
+}
+%    \end{macrocode}
+%
+% c. Seen a dot after b.
+%    \begin{itemize}
+%    \item On space, go to e.
+%    \item On letter, go to b.
+%    \item Otherwise, go to a.
+%    \end{itemize}
+%
+%    \begin{macrocode}
+\def\abb@id@c#1{%
+    \find@next{#1}\abb@id@c@space\abb@id@c@group\abb@id@c@letter\abb@id@done
+}
+\def\abb@id@c@space#1#2#3#4{%
+    \abb@id@e{#2}{#3#4}{#1}%
+}
+\let\abb@id@c@group\abb@id@backtoa
+\def\abb@id@c@letter#1#2#3#4{%
+    \@ifletter{#1}{%
+        \abb@id@b{#2}{#3#4#1}{}%
+    }{%
+        \@ifdigit{#1}{%
+            \abb@id@d{#2}{#3#4#1}{}%
+        }{%
+            \abb@id@a{#2}{#3#4#1}{}%
+        }%
+    }%
+}
+%    \end{macrocode}
+%
+% d. In a word
+%    \begin{itemize}
+%    \item On letter, go to d.
+%    \item Otherwise go to a.
+%    \end{itemize}
+%
+%    \begin{macrocode}
+\def\abb@id@d#1{%
+    \find@next{#1}\abb@id@d@space\abb@id@d@group\abb@id@d@letter\abb@id@done
+}
+\let\abb@id@d@space\abb@id@backtoa
+\let\abb@id@d@group\abb@id@backtoa
+\def\abb@id@d@letter#1#2#3#4{%
+    \@ifwordchar{#1}{%
+        \abb@id@d{#2}{#3#4#1}{}%
+    }{%
+        \abb@id@a{#2}{#3#4#1}{}%
+    }%
+}
+%    \end{macrocode}
+% e. Seen a space after c
+%    \begin{itemize}
+%    \item On letter, go to f.
+%    \item On number, collapse the space and go to d.
+%    \item Otherwise, go to a.
+%    \end{itemize}
+%
+%    \begin{macrocode}
+\def\abb@id@e#1{%
+    \find@next{#1}\abb@id@e@space\abb@id@e@group\abb@id@e@letter\abb@id@done
+}
+\def\abb@id@e@space#1#2#3#4{%
+    \abb@id@e{#2}{#3}{#1}%
+}
+\let\abb@id@e@group\abb@id@backtoa
+\def\abb@id@e@letter#1#2#3#4{%
+    \@ifletter{#1}{%
+        \abb@id@f{#2}{#3}{#4#1}%
+    }{%
+        \@ifdigit{#1}{%
+            \abb@id@d{#2}{#3#1}{}%
+        }{%
+            \abb@id@a{#2}{#3#4#1}{}%
+        }%
+    }%
+}
+%    \end{macrocode}
+% f. Seen a single letter after e
+%    \begin{itemize}
+%    \item On dot, collapse the space and go to c.
+%    \item On letter, go to d.
+%    \item Otherwise, go to a.
+%    \end{itemize}
+%
+%    \begin{macrocode}
+\def\abb@id@f#1{%
+    \find@next{#1}\abb@id@f@space\abb@id@f@group\abb@id@f@letter\abb@id@done
+}
+\let\abb@id@f@space\abb@id@backtoa
+\let\abb@id@f@group\abb@id@backtoa
+\def\abb@id@f@letter#1#2#3#4#5{%
+    \@ifwordchar{#1}{%
+        \abb@id@d{#2}{#3#4#1}{}%
+    }{%
+        \@test\ifx#1#5\fi{%
+            \abb@id@f@stripspace{#1}{#2}{#3}#4%
+        }{%
+            \abb@id@a{#2}{#3#4#1}{}%
+        }%
+    }%
+    {#5}%
+}
+\def\abb@id@f@stripspace#1#2#3#4{%
+    \abb@id@c{#2}{#3#4#1}{}%
+}
+%    \end{macrocode}
+%
+% A token for dots.
+%
+%    \begin{macrocode}
+\def\abb@dot{.}
+%    \end{macrocode}
+%
+% \section{Options}
+%
+%    \begin{macrocode}
+\ProcessOptions\relax
+%    \end{macrocode}
+%
+%</package>
+%<*test>
+
+\section{abbrev.dtx}
+
+\begingroup
+    \abb@new{test}
+    \abb@add{test}{Company}{Co.}
+    \abb@add{test}{Big Company}{BigCo.}
+    \abb@add{test}{Really Big}{R.B.}
+    \abb@add{test}{Big Company Machines}{B.C.M.}
+    \abb@add{test}{Enormous Example}{Really Big Ex.}
+    \abb@add{test}{{}First Company}{FiComp.}
+
+    \def\abbrevtest#1#2{\AssertCallback{\abb@abbrev{test}{#1}}{#2}}
+
+    \abbrevtest{Company}{Co.}
+    \abbrevtest{The Company}{The Co.}
+    \abbrevtest{Company Treasure}{Co. Treasure}
+    \abbrevtest{The Company Treasure}{The Co. Treasure}
+    \abbrevtest{The Companying Art}{The Companying Art}
+    \abbrevtest{Companying Art}{Companying Art}
+    \abbrevtest{AcCompany Art}{AcCompany Art}
+    \abbrevtest{An AcCompany Art}{An AcCompany Art}
+    \abbrevtest{An Ac{}Company Art}{An Ac{}Co. Art}
+
+    \abbrevtest{Big Company}{BigCo.}
+    \abbrevtest{The Big Company}{The BigCo.}
+    \abbrevtest{The Big Company Treasure}{The BigCo. Treasure}
+    \abbrevtest{The Big Company's Treasure}{The BigCo.'s Treasure}
+    \abbrevtest{The Big Company-Treasure}{The BigCo.-Treasure}
+
+    \abbrevtest{Really Big Company}{R.B. Co.}
+    \abbrevtest{The Really Big Company Treasure}{The R.B. Co. Treasure}
+
+    \abbrevtest{Big Company Machines}{B.C.M.}
+    \abbrevtest{The Big Company Machines}{The B.C.M.}
+    \abbrevtest{The Big Company Machines Works}{The B.C.M. Works}
+    \abbrevtest{The Big Company Machinesys}{The BigCo. Machinesys}
+
+    % Should not re-abbreviate Really Big
+    \abbrevtest{Enormous Example}{Really Big Ex.}
+
+    \meaning\abb@class@test@
+
+    \abbrevtest{First Company}{FiComp.}
+    \abbrevtest{First Company Treasure}{FiComp. Treasure}
+    \abbrevtest{The First Company}{The First Co.}
+    \abbrevtest{The First Company Treasure}{The First Co. Treasure}
+\endgroup
+
+%</test>

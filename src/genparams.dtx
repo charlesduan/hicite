@@ -1,0 +1,282 @@
+%%
+%% \iffalse filename: genparams.dtx \fi
+%%
+%<*doc>
+\input driver
+\thisis{genparams}{Generally Applicable Parameters}
+
+These parameters may be used in defining any reference, regardless of type.
+
+\input docparams
+
+%</doc>
+\hi@defparam{accessdate}{URL access date}{%
+    \hi@date@parse[last visited]{#1}{\def\reserved@a}%
+    \expandafter\hi@param@addparen\expandafter\hi@paren@accessdate
+        \expandafter{\reserved@a}%
+}
+%<*doc>
+This is added as a parenthetical immediately after the \param{url} parameter.
+(It can be used without \param{url}, perhaps to indicate the access date of a
+non-linked online resource such as a case in a database service.) The date
+qualifier ``last visited'' is prepended to the date unless another qualifier is
+given.
+%</doc>
+%
+\hi@defparam@noval{bookreview}{Indicator that an article is a book review}{%
+    \ifstrempty{#1}{%
+        \hi@param@addparen\hi@paren@bookreview{book review}%
+    }{%
+        \hi@param@addparen\hi@paren@bookreview{reviewing \clause{#1}}%
+    }%
+}
+%<*doc>
+This adds a parenthetical. If no value is given, then the parenthetical reads
+just ``book review.'' Otherwise, the value should be a reference name for the
+book being reviewed, which will be cited in the parenthetical.
+%</doc>
+%
+\hi@defparam{citetype}{Table of Authorities category for this citation}{%
+    \@ifundefined{hi@type@#1}{%
+        \PackageError\hi@pkgname{Invalid Table of Authorities section #1}{%
+            Please enter a valid section identifier.
+        }%
+    }{%
+        \@expand{\hi@citetype{\@this@case}}{\csname hi@type@#1\endcsname}{i}%
+    }%
+}
+%<*doc>
+The valid category types are listed in \sec{refs}.
+%</doc>
+%
+\hi@param@alias{comment}{paren}
+%<*doc>
+This parameter was originally used for commentary, but now the \param{paren}
+parameter handles those as well.
+%</doc>
+%
+\hi@defparam{country}{Country for citation}{%
+    \@ifundefined{hi@ctry@#1}{\hi@param@addparen\hi@paren@country{#1}}{%
+        \@expand{\hi@param@addparen\hi@paren@country}{%
+            \csname hi@ctry@#1\endcsname
+        }{ii}%
+    }%
+}
+%<*doc>
+This should generally be added to any reference with legal authority outside the
+United States. The country name is automatically abbreviated.
+%</doc>
+%
+\hi@newparam{defaultopt}{The default optional parameter}
+%<*doc>
+Some reference types that use the optional argument will use this value if the
+optional argument is unset.
+%</doc>
+%
+\hi@defparam{hereinafter}{Text to use for hereinafter citation form}{%
+    \expandafter\hi@short@register\expandafter{\@this@case}{#1}{y}%
+    \hi@supra@form\@this@case{#1}%
+    \hi@param@addparen\hi@paren@hia{#1}%
+}
+%<*doc>
+This parameter will define the short-form citation for the reference.
+%</doc>
+%
+\hi@defparam{hyphenate}{Set hyphenation for a word}{%
+    \hyphenation{#1}%
+}
+%<*doc>
+This just calls |\hyphenation| on the word(s) given in the value. It is
+convenient if unusual hypheniation is required for a word in the reference
+(e.g., a named party to a case), because it keeps the hyphenation as
+bibliographic data.
+%</doc>
+%
+\hi@param@alias{hyphenation}{hyphenate}
+\hi@newparam{kind}{Type of reference}
+%<*doc>
+This is automatically set when the |\def|\meta{kind} command is called to define
+a reference, and it should not be changed.
+%</doc>
+%
+\hi@newparam@noval{noetal}{No et al. with 3 or more authors}
+%<*doc>
+This parameter has no display effect, but advises the package not to issue a
+warning if it detects an name list of three or more entities.
+%</doc>
+%
+\hi@defparam@noval{notoa}{Do not include in the table of authorities}{%
+    \hi@citetype\@this@case\@empty
+}
+%
+\hi@newparam{opturl}{Optional URL}
+%<*doc>
+Generally this parameter is ignored. However, if the package option
+\opt{useopturl} is set, then this parameter is an alias for \param{url}. This
+is useful for references where a URL could be helpful for some publications but
+not others, as it enables the writer to quickly switch between presentation
+forms.
+%</doc>
+%
+\hi@defparam{origyear}{Year of original publication of the reference}{%
+    \hi@date@parse{#1}{\hi@param@addparen\hi@paren@origdate}%
+}
+%<*doc>
+This is typically used when a modern edition of a pre-1900 work is cited, such
+that the \param{year} parameter is set to the modern publication year and this
+parameter set to give the original publication date of the work.
+%</doc>
+%
+\hi@param@alias{origdate}{origyear}
+\hi@defparam{parallel}{Parallel citation}{%
+    \find@in{: }{#1}{\hi@defkey@parallel}{%
+        \PackageError\hi@pkgname{%
+            Parameter `parallel' must include a page segment\MessageBreak
+            key name, followed by a colon%
+        }{It should look like `key: 123 Rep. 456'}%
+    }%
+}
+%<*doc>
+This must be entered in the form \meta{key}|: |\meta{cite}. The \meta{key} is
+used as a pin cite segment key, described in \sec{pages}. When the relevant
+reference is cited, the parallel cite is added before the date parenthetical,
+along with a page number found in the appropriate section of the given pin cite
+if present. The \meta{cite} text is used as given and not parsed or abbreviated.
+
+\textbf{Note}: Currently the parallel citation is only displayed in the full
+citation. This is because the package has no mechanism for displaying
+document-level parentheticals in short citations. Hopefully this will be fixed
+in the future.
+%</doc>
+%<*package>
+\def\hi@defkey@parallel#1#2{%
+    \hi@fpg@defsegment{#1}%
+    \hi@param@addparen\hi@paren@parallel{%
+        #2%
+        \@test\ifx\@this@page\relax\fi{}{%
+            \@expandarg\hi@fpg@segment{\@this@page}{#1}{, }{%
+                \PackageWarning\hi@pkgname{%
+                    In citation to \@this@case, parallel cite\MessageBreak
+                    with key `#1' not given in page number%
+                }\textbf{??}%
+            }%
+        }%
+    }%
+}
+%</package>
+%
+\hi@defparam{paren}{A parenthetical to be included with citation}{%
+    \find@try\find@in{%
+        { in: }{\hi@defkey@cmt{ in}}%
+        { by: }{\hi@defkey@cmt{ by}}%
+        { at: }{\hi@defkey@cmt{ at}}%
+    }{#1}{%
+        \hi@param@addparen\hi@paren@doc{#1}%
+    }%
+}
+%<*doc>
+The parenthetical will be included in any full citation. If the parenthetical
+contains the words |in:|, |by:|, or |at:|, it is treated as commentary such that
+what follows the colon is a citation string to be formatted. Thus,
+|quoted in: ref| will produce a parenthetical ``(quoted in |\clause{ref}|).''
+%</doc>
+%<*package>
+%    \begin{macrocode}
+\make@find@in{ in: }
+\make@find@in{ by: }
+\make@find@in{ at: }
+\def\hi@defkey@cmt#1#2#3{%
+    \hi@param@addparen\hi@paren@comment{\hi@fn@comment{#2#1} \clause{#3}}%
+}
+%    \end{macrocode}
+%</package>
+%
+\hi@defparam{parse}{Apply automatic citation parser}{\hi@cparse{#1}}
+%<*doc>
+The value is a formatted reference input as described in \sec{cparse}. It is
+useful if that input contains an equal sign, which would otherwise cause this
+package to mistakenly interpret the formatted input as parameter-value input.
+%</doc>
+%
+\hi@defparam{reprinted}{Reprinted in parenthetical}{%
+    \hi@anonref{#1}{\hi@reprinted}%
+}
+%<*doc>
+The value should be a reference identifier or an anonymous reference defintion
+as described in \sec{anonymous}.
+%</doc>
+%<*package>
+%    \begin{macrocode}
+\def\hi@reprinted#1{%
+    %
+    % |\hi@kv@reprinted| is not used here, but is needed by hitobib.sty in order
+    % to know what to place in the Bibtex file.
+    %
+    \def\hi@kv@reprinted{#1}%
+    %
+    % Add the parenthetical.
+    %
+    \hi@param@addparen\hi@paren@reprint{%
+        \hi@fn@comment{reprinted in} \clause{#1}%
+    }%
+}
+%    \end{macrocode}
+%</package>
+%
+\hi@defparam{supplement}{Year/date of a supplement to the reference}{%
+    \hi@date@parse[Supp.]{#1}{\def\hi@kv@supplement}%
+    \hi@param@addhook{%
+        \hi@ifset\hi@kv@year{%
+            \addto@macro\hi@kv@year{ \& }%
+            \expandafter\addto@macro\expandafter\hi@kv@year\expandafter{%
+                \hi@kv@supplement
+            }%
+        }{%
+            \let\hi@kv@year\hi@kv@supplement
+        }%
+    }%
+}
+%<*doc>
+The value should be a date (see \sec{dates}), for which the date qualifier
+``Supp.''\ will be added if no other qualifier is given. If both this parameter
+and \param{year} are set, then the two will be joined with an ampersand (e.g.,
+``1995 \& Supp.~1996'').
+%</doc>
+%
+\hi@defparam@noval{toapage}{Include page numbers in Table of Authorities}{%
+    \hi@include@page@in@toa{\@this@case}%
+    \def\hi@kv@toapage{}%
+}
+%<*doc>
+Generally, Table of Authorities entries are for individual references; this
+parameter will cause an entry to be generated for each page of the reference
+cited. Some reference types, such as \rtype{statcode}, do this by default.
+Additionally, some reference types, such as \rtype{book}, will format Table of
+Authorities entries differently when this parameter is given.
+%</doc>
+%
+\hi@defparam{url}{URL for reference}{%
+    \find@try\find@start{%
+        {available at }{\hi@urlprefixwarn\KV@hi@url}%
+        {at }{\hi@urlprefixwarn\KV@hi@url}%
+    }{#1}{%
+        \hi@parseurl{#1}\hi@kv@url
+        \@expandarg\hi@defkey@url{\hi@kv@url}%
+    }%
+}
+%<*doc>
+See \sec{urls} for information on how to present the URL and how it is
+formatted.
+%</doc>
+%<*package>
+%    \begin{macrocode}
+\make@find@start{available at }
+\make@find@start{at }
+\def\hi@defkey@url#1{%
+    \hi@param@addparen\hi@paren@url{\hi@showurl{#1}}%
+}
+\def\hi@urlprefixwarn{%
+    \PackageWarning\hi@pkgname{URL started with `at' or `available at'}%
+}
+%    \end{macrocode}
+%</package>

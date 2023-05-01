@@ -1,0 +1,115 @@
+%%
+%% \iffalse filename: commparams.dtx \fi
+%%
+%<*doc>
+\input driver
+\thisis{commparams}{Common Parameters}
+
+These parameters are frequently used across many reference types. A general
+description of each is given, but unlike the generally-applicable parameters in
+\sec{genparams}, some reference types may use these parameters in special or
+idiosyncratic ways, which should be described in the documentation for each
+reference type.
+
+\input docparams
+
+%</doc>
+\hi@newparam{authln}{Last name of the first author, for short citations}
+%<*doc>
+The \param{author} parameter will set this parameter automatically. This
+parameter can be set after giving the authors to customize the last name.
+%</doc>
+%
+\hi@defparam{author}{Author of the reference}{%
+    \hi@nameproc@person{#1}{\hi@namelist@addtwo\hi@kv@author\hi@kv@authln}%
+}
+%<*doc>
+The value should be a name as described in \sec{names}. If there are multiple
+authors, provide this parameter multiple times, but see also parameter
+\param{noetal} if entering three or more names. For institutional authors, see
+parameter \param{instauth}.
+%</doc>
+%
+\hi@defparam{cite}{Volume-reporter-page citation}{%
+    \hi@cp@cite{#1}\KV@hi@vol\KV@hi@rep\KV@hi@page\KV@hi@year
+}
+%<*doc>
+The value for this parameter should follow the syntax:
+\begin{quote}
+\meta{vol} \meta{rep} \meta{page} [ \parg{year} ] \\
+Example: |123 F.3d 456 (2009)|
+\end{quote}
+and this parameter will set the parameters \param{vol}, \param{rep},
+\param{page}, and \param{year} accordingly. See the discussion of
+volume-reporter-page parsing in \sec{cparse} for more details.
+%</doc>
+%
+\hi@param@alias{date}{year}
+\hi@newparam{inline}{Short name for the reference}
+\hi@defparam{instauth}{Institutional author}{%
+    \hi@nameproc@inst{#1}{\hi@namelist@addinst}{\hi@kv@author}%
+    \hi@nameproc@inst{#1}{\hi@namelist@addinst@ln}{\hi@kv@authln}%
+}
+%<*doc>
+Adds an institutional author to the \param{author} parameter list.
+%</doc>
+%
+\hi@param@alias{jcite}{cite}
+\hi@param@alias{journal}{rep}
+\hi@param@alias{journaltitle}{rep}
+\hi@param@alias{booktitle}{rep}
+\hi@newparam{name}{Name of the reference}
+%<*doc>
+Nearly every reference type accepts this parameter, which generally should be
+the title of the reference. See the relevant reference type description for more
+information.
+%</doc>
+%
+\hi@newparam{number}{Number (for constitutional amendments, session laws)}
+%<*doc>
+The |number| parameter generally is used for a serial number associated with the
+work, which may or may not contain text prefixes. Examples are patent numbers
+(\rtype{patent}), bill numbers (\rtype{bill}), and constitutional amendments
+(\rtype{constamend}). For most reference types (patents being an exception), the
+number is not analyzed or formatted in any way.
+%</doc>
+%
+\hi@newparam{page}{Page number}
+%<*doc>
+See \sec{pages} for the usual formatting of this parameter's value.
+%</doc>
+\hi@param@alias{pages}{page}
+\hi@newparam{rep}{Reporter or journal name}%
+%<*doc>
+Whether the value of this parameter needs to be abbreviated will depend on the
+reference type.
+%</doc>
+%
+\hi@param@alias{serial}{number}
+\hi@param@alias{series}{number}
+\hi@param@alias{short}{inline}
+\hi@param@alias{shorttitle}{inline}
+\hi@param@alias{src}{rep}
+\hi@param@alias{subdiv}{page}
+\hi@param@alias{title}{name}
+\hi@newparam{type}{Type of work}
+%<*doc>
+For \rtype{jrnart} references, this would be ``Note'' or ``Comment,'' for
+example. Other types of references use this parameter to replace default values
+indicating the work type: \rtype{comments} for example will use this value
+instead of the word ``Comments.'' The use of this parameter is highly specific
+to the reference type.
+%</doc>
+%
+\hi@defparam{vol}{Volume number}{%
+    \find@in{:}{#1}{\@twodef\hi@kv@vol\hi@kv@issue}{\def\hi@kv@vol{#1}}
+}
+%<*package>
+%    \begin{macrocode}
+\make@find@in{:}
+%    \end{macrocode}
+%</package>
+\hi@param@alias{volume}{vol}
+\hi@defparam{year}{Year/date of the case, article, regulation}{%
+    \hi@date@parse{#1}{\def\hi@kv@year}%
+}

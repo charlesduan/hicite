@@ -1,0 +1,91 @@
+%%
+%% \iffalse filename: specrefs.dtx \fi
+%
+%<*doc>
+\input driver
+\thisis{specrefs}{Specific Reference Types}
+
+These reference types could fall under the umbrella \rtype{book} reference type,
+but it is helpful to include them to provide unique formatting and/or to save on
+data entry.
+
+\input docparams
+%</doc>
+\hi@newcite\defcjs{Corpus Juris Secondum}{%
+    \hi@citetype{#1}\hi@type@other
+    \hi@newcite@form{fc}{#1}{%
+        \hi@citeguts{%
+            \hi@kv@vol\space
+            C.J.S.
+            \hi@fn@arttitle{\hi@kv@name}%
+            \hi@maybepage{ }%
+        }%
+        \hi@parens@add{\hi@paren@date}{\hi@kv@year}%
+        \the\hi@param@parens
+    }
+    \protected@edef\reserved@a{%
+        \hi@kv@vol\space C.J.S. \hi@fn@arttitle{\hi@kv@name}%
+    }%
+    \@expand{\hi@supra@form{#1}}\reserved@a i%
+}
+%<*doc>
+\keyparameters{
+    {vol}{The volume number.}
+    {name}{The entry name.}
+    {year}{The year of publication.}
+}
+%</doc>
+%
+\hi@newcite\defrfc{An IETF Request for Comments}{%
+    \hi@citetype{#1}\hi@type@other
+    \expandafter\hi@book@titlethe\expandafter{\hi@kv@name}%
+    \protected@edef\reserved@a{%
+        https://www.rfc-editor.org/rfc\hi@kv@number.txt%
+    }
+    \@expand{\hi@defkey@url{}}\reserved@a i\@empty
+    \hi@newcite@form{ic}{#1}{%
+        RFC \hi@kv@number
+    }%
+    \protected@edef\reserved@a{%
+        RFC \hi@kv@number
+    }
+    \@expand{\hi@supra@form{#1}}\reserved@a i%
+    %
+    % Full cite is done last because \hi@kv@number is modified by
+    % \hi@book@pubparen
+    %
+    \protected@edef\hi@kv@number{%
+        Internet Engineering Task Force, RFC \hi@kv@number
+    }%
+    \hi@book@pubparen
+    \hi@newcite@form{fc}{#1}{%
+        \hi@ifset\hi@kv@author{%
+            \noexpand\@gobble{\hi@kv@authln}%
+        }{}% For sorting purposes
+        \noexpand\if@hi@inline
+            \expandafter\noexpand\csname ic@#1\endcsname
+        \noexpand\else
+            \hi@citeguts{%
+                \hi@ifset\hi@kv@author{%
+                    \hi@fn@bookauthor{\hi@kv@author}, % space
+                }{}%
+                \hi@fn@booktitle{\hi@kv@name}%
+                \hi@maybepage{\hi@page@space\hi@kv@name}%
+            }%
+            \hi@parens@add\hi@paren@date{%
+                \hi@book@paren
+                \hi@kv@year
+            }%
+            \the\hi@param@parens
+        \noexpand\fi
+    }%
+}
+%<*doc>
+This reference type automatically adds the serial number, inline citation
+format, and URL based just on the RFC number.
+
+\keyparameters{
+    {author, name, year}{Bibliographic information for the RFC.}
+    {number}{The RFC number.}
+}
+\bookparenparameters

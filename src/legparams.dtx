@@ -1,0 +1,100 @@
+%%
+%% \iffalse filename: legparams.dtx \fi
+%%
+%<*doc>
+\input driver
+\thisis{legparams}{Parameters for Legislative Materials}
+
+These parameters are specific to legislative materials, including statutes and
+bills.
+
+\input docparams
+
+%</doc>
+\hi@param@alias{bill}{number}
+%<*doc>
+As described for \rtype{bill} references, the \param{bill} (or \param{number})
+parameter should be the full identifier of the bill (e.g., |S. 123|).
+%</doc>
+%
+\hi@defparam{chapter}{Session law chapter}{%
+    \KV@hi@sesslawid{ch.}%
+    \def\hi@kv@number{#1}%
+}
+%<*doc>
+This sets parameter \param{number} to the given value, and changes parameter
+\param{sesslawid} to ``ch.'' It is used for older statute references that were
+organized by chapters rather than law numbers.
+%</doc>
+%
+\hi@defparam{codified}{Citation for codification of law or regulation}{%
+    \hi@defkey@codified{codified at}{#1}%
+}
+%<*doc>
+The value should be a formatted citation (as described for parameter
+\param{cite}). Typically this parameter should be given for reference types
+like \rtype{statsess} or \rtype{govdoc}, but it can be given for anything.
+%</doc>
+%<*package>
+% To make a ``codified at'' citation, we run the \param{cite} parameter command
+% inside a group, and then collect the resulting values.
+%    \begin{macrocode}
+\def\hi@defkey@codified#1#2{%
+    \begingroup
+        \hi@undefine\hi@kv@year
+        \KV@hi@cite{#2}%
+        \edef\reserved@a{%
+            #1
+            \expandonce\hi@kv@vol \space
+            \expandonce\hi@kv@rep \space
+            \expandafter\@format@pageno\expandafter{\hi@kv@page}%
+            \hi@ifset\hi@kv@year{ (\expandonce\hi@kv@year)}{}%
+        }%
+        \expandafter\hi@defkey@codified@\expandafter{\reserved@a}%
+}
+\def\hi@defkey@codified@#1{%
+    \endgroup
+    \def\hi@kv@codified{#1}%
+}
+%    \end{macrocode}
+%</package>
+%
+\hi@defparam{codifiedamended}{Citation for codification of law or regulation}{%
+    \hi@defkey@codified{codified as amended at}{#1}%
+}
+%<*doc>
+Like \param{codified} except the text before the citation will be ``codified as
+amended at.''
+%</doc>
+%
+\hi@defparam{committee}{House or Senate committee}{%
+    \hi@abbrev@leg{#1}{\def\hi@kv@committee}%
+}
+%<*doc>
+The name will be abbreviated.
+%</doc>
+%
+\hi@newparam{congress}{Congressional session number}
+%<*doc>
+This has to be a parameter separate from \param{number} because \rtype{bill}
+references already use \param{number} for the bill identifier.
+%</doc>
+%
+\hi@newparam{origsect}{Original section number of a statute in a code}
+%<*doc>
+This is used, for example, when a U.S. Code section corresponds to a section of
+a statute with different numbering (for example, section 337 of the Tariff Act
+of 1930 being 19 U.S.C. \textsection~1337). It is specific to \rtype{statcode}
+references, and should be obviated with the newer reference type
+\rtype{stattitle}.
+%</doc>
+%
+\hi@param@alias{publiclaw}{number}
+\hi@param@alias{publno}{number}
+\hi@param@alias{sesslawid}{type}
+%<*doc>
+By default, this is ``Pub.~L.~No.,'' and this parameter enables changing it.
+%</doc>
+%
+\hi@newparam{regnal}{Regnal citation for English pre-1963 statutes}
+\hi@newparam{status}{Status of bill}

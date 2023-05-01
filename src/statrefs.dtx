@@ -1,0 +1,979 @@
+%%
+%% \iffalse filename: statrefs.dtx \fi
+%%
+%<*doc>
+\input driver
+\thisis{statrefs}{Statutes}
+
+
+
+\subsection{Short Statute Names}
+
+\label{s:statrefs-short}
+
+Many types of references will use the following convention for statute names.
+The following inputs are relevant, with syntax as follows:
+
+\keyparameters{
+    {name}{The full, unabbreviated name of the statute or document. The word
+    ``The'' should not be included at the beginning; it is assumed that the full
+    name would be recited with ``The'' in ordinary speech.}
+    {inline}{The short, abbreviated name of the statute or document. Because
+    some abbreviated names include ``the'' at the beginning and others do not
+    (compare ``the FFDCA'' with ``HIPAA''), it is necessary to specify the form.
+    For references that use ``the'' before the short name, include it in this
+    parameter.}
+}
+
+For both the full and short forms, the package will automatically prepend
+``the'' or ``The'' at the beginning of the name depending on citation context,
+particularly when |\Inline| or |\adjective| are used (see \sec{iface}).
+
+If no short name is given, then one is automatically constructed that is
+identical to the full name, except any year specification will be removed (e.g.,
+``Communications Act of 1930'' would be shortened to ``Communications Act'').
+The word ``the'' is implicitly added to the start of the constructed short name
+as well.
+
+%</doc>
+%<*package>
+% \#1 is the reference name of the citation.
+%    \begin{macrocode}
+\def\hi@inlinestatname#1{%
+    \hi@ifset\hi@kv@inline{%
+        %
+        % If a user-defined short form is given, strip "the" from it, register
+        % it as a short name, and add a parenthetical to the main name.
+        %
+        \hi@replacethe\hi@kv@inline{\def\hi@kv@inline}{}%
+        %
+        % Register the short-form name
+        \@expand{\hi@short@register{#1}}\hi@kv@inline i{y}%
+        %
+        % Unless the user has explicitly rejected it, tack on a parenthetical of
+        % the short name to the full citation form unless the short name is
+        % already within the full name.
+        %
+        \hi@ifset\hi@kv@noinlineparen{}{%
+            % Ensure that there actually is a name. The authority definer may
+            % have set it already.
+            \hi@ifset\hi@kv@name{}{%
+                \PackageError\hi@pkgname{%
+                    For statute citation #1, inline given but no full name%
+                }{You must provide the name parameter}%
+            }%
+            \@expandtwo\in@\hi@kv@inline\hi@kv@name
+            \ifin@\else
+                \addto@macro\hi@kv@name{%
+                    \hi@short@maybeshow{#1}{%
+                        \hi@inline@only{\space
+                            {\protect\@hi@adjectivetrue(``\hi@kv@inline'')}%
+                        }%
+                        \hi@inline@never{ (\hi@kv@inline)}}%
+                }%
+            \fi
+        }%
+    }{%
+        %
+        % No user-defined short form was given. If a full name is given, then we
+        % define the inline form as the full name, stripped of any year.
+        %
+        \hi@ifset\hi@kv@name{%
+            \@expand{\find@last{ of }}\hi@kv@name i{%
+                \hi@inlinestatname@stripyear
+            }{%
+                \expandafter\hi@inlinestatname@addthe\expandafter{\hi@kv@name}%
+            }%
+            % Register the short-form name
+            \@expand{\hi@short@register{#1}}\hi@kv@inline i{n}%
+        }{%
+            % Where neither is given, there will be no short-form name
+            % generated, so \hi@kv@inline will produce an error if it is used.
+        }%
+        \hi@ifset\hi@kv@inlineparen{%
+            \addto@macro\hi@kv@name{ (\hi@kv@inline)}%
+        }{}%
+    }%
+    %
+    % Indicate use of the short form in the inline macro.
+    %
+    \hi@ifset\hi@kv@inline{%
+        \addto@macro\hi@kv@inline{\hi@short@use{#1}}%
+    }{}%
+}
+%
+% If #2 is a year (a number greater than 1000), then define the inline form as
+% just #1. Otherwise, add the date to #1.
+\def\hi@inlinestatname@stripyear#1#2{%
+    \edef\reserved@a{\ifnum1000<0#2 \else no\fi}%
+    \ifx\reserved@a\@empty
+        \hi@inlinestatname@addthe{#1}%
+    \else
+        \hi@inlinestatname@addthe{#1 of #2}%
+    \fi
+}
+\make@find@in{ of }
+%
+% Tacks the word "the" to the front of the name and defines it as the inline
+% form. This is a little redundant in using \hi@replacethe, but it helps to
+% ensure that the "the" forms all go through the same macro.
+%
+\def\hi@inlinestatname@addthe#1{%
+    \hi@replacethe{The #1}{\def\hi@kv@inline}{}%
+}
+%    \end{macrocode}
+%</package>
+%<*doc>
+
+\input docparams
+
+%</doc>
+%
+\hi@newcite\defstatcode{A statute in a code}{%
+    \hi@citetype{#1}\hi@type@statute
+    \hi@statcode@setup{#1}%
+}
+%<*doc>
+\keyparameters{
+    {vol, rep}{The volume number and title of the statutory code.}
+    {page}{The section or other subdivision number of the statute in the code.}
+}
+\optparameters{
+    {name, inline}{\statuteparamdesc}
+    {origsect}{If the statute has a section number different from its
+    codification section number, that original section number may be included
+    here.}
+    {year}{The year of publication of the code containing the statute.}
+}
+\bookparenparameters
+
+\pagejoining
+
+%</doc>
+%
+\hi@newcite\defregcode{A regulation in a code}{%
+    \hi@citetype{#1}\hi@type@regulation
+    \hi@statcode@setup{#1}%
+}
+%<*doc>
+This only differs from \rtype{statcode} in the \param{citetype} being
+|regulation| rather than |statute|. The parameters and features are the same as
+those for \rtype{statcode}.
+%</doc>
+%<*package>
+%    \begin{macrocode}
+\def\hi@statcode@setup#1{%
+    \hi@include@page@in@toa{#1}%
+    \hi@statcode@setup@idpc{#1}% Set up id. and page numbering
+    \hi@inlinestatname{#1}% Set up \hi@kv@inline based on \hi@kv@name
+    \hi@statcode@inlinesect{#1}%
+    \@expand\hi@abbrev@name{\hi@kv@rep}i{\def\hi@kv@rep}%
+    \hi@ifset\hi@kv@author{%
+        \hi@ifset\hi@kv@editor{%
+            \PackageError\hi@pkgname{%
+                Statutory code citation cannot have both an author and editor
+            }{%
+                Remove either the author or editor.
+            }%
+        }{%
+            \let\hi@kv@edtype{}
+            \let\hi@kv@editor\hi@kv@author
+        }%
+    }{}%
+    \hi@book@pubparen
+    \hi@newcite@form{fc}{#1}{%
+        \hi@maybeusedefaultopt
+        \hi@inline@never{%
+            \hi@citeguts{%
+                \hi@statcode@fmtname
+                \hi@statcode@full@title{\hi@kv@vol/\hi@kv@rep}{%
+                    \let\noexpand\reserved@a\relax
+                }{%
+                    \hi@statcode@volandrep\def\noexpand\reserved@a{ }%
+                }%
+                \hi@ifset\hi@kv@origsect{%
+                    \hi@ifset\hi@kv@page{%
+                        \noexpand\reserved@a\@format@page@macro\hi@kv@page
+                    }{}%
+                }{%
+                    \hi@pageordefault{\noexpand\reserved@a}{%
+                        \hi@ifset\hi@kv@page{%
+                            \noexpand\reserved@a
+                            \@format@page@macro\hi@kv@page
+                        }{}%
+                    }%
+                }%
+            }%
+            \hi@book@lcpost
+        }%
+        \hi@inline@only{%
+            \hi@citeguts{\noexpand\@nameuse{ic@#1}{st}}%
+            % We will count this as the sufficient full citation if there appear
+            % to be no parentheticals to be added to this citation (including no
+            % date specified).
+            \hi@ifset\hi@kv@name{}{%
+                \hi@ifset\hi@kv@year{}{%
+                    \@expand\ifstrempty{\the\hi@param@parens}i{%
+                        \hi@record@cite{#1}%
+                    }{}%
+                }%
+            }%
+        }%
+        \hi@ifset\hi@kv@name{%
+            \hi@inline@never{%
+                \noexpand\hi@set@title{\hi@kv@vol/\hi@kv@rep}%
+            }%
+        }{%
+            \noexpand\hi@set@title{\hi@kv@vol/\hi@kv@rep}%
+        }%
+        \hi@ifset\hi@kv@origsect{}{\hi@invis@inline}%
+    }%
+    \hi@newcite@form{lc}{#1}{%
+        \noexpand\hi@toa@duptitle{%
+            \hi@statcode@fmtname
+        }{%
+            \hi@statcode@volandrep
+        }{%
+            \hi@ifset\hi@kv@origsect{%
+                \hi@ifset\hi@kv@page{%
+                    \space\@format@page@macro\hi@kv@page
+                }{}%
+            }{%
+                \hi@pageordefault{ }{%
+                    \hi@ifset\hi@kv@page{%
+                        \space\@format@page@macro\hi@kv@page
+                    }{}%
+                }%
+            }%
+        }{%
+            \hi@ifset\hi@kv@origsect{%
+                \hi@pageordefault{ }{%
+                    \space\@format@page@macro\hi@kv@origsect
+                }%
+            }{%
+                \hi@pageordefault{ }{%
+                    \hi@ifset\hi@kv@page{%
+                        \space\@format@page@macro\hi@kv@page
+                    }{}%
+                }%
+            }%
+        }%
+        \hi@book@lcpost
+        \noexpand\hi@set@title{\hi@kv@vol/\hi@kv@rep}%
+    }%
+    \hi@ifset\hi@kv@origsect{%
+        \hi@statcode@sc@origsect{#1}%
+    }{%
+        \hi@statcode@sc@noorigsect{#1}%
+    }%
+}
+%
+% Sets up the id. form of a statutory code citation, and the page numbering form
+% (idc@[ref] and pc@[ref]).
+%
+\def\hi@statcode@setup@idpc#1{%
+    \global\@namedef{idc@#1}{%
+        \@test \ifx\@this@page\@last@page \fi{%
+            \let\@this@title\@last@title
+            \hi@citeguts{\hi@id}%
+        }{%
+            \csname sc@#1\endcsname
+        }%
+    }%
+    \hi@newcite@form{pc}{#1}##1{%
+        \hi@ifset\hi@kv@origsect{%
+            \noexpand\hi@pages@join{\hi@kv@origsect}{##1}%
+        }{%
+            \hi@ifset\hi@kv@page{%
+                \noexpand\hi@pages@join{\hi@kv@page}{##1}%
+            }{%
+                \noexpand\protected@edef\noexpand\@this@page{%
+                    \noexpand\@format@pageno{##1}%
+                }%
+            }%
+        }%
+    }%
+}
+%
+% Short form of statutory code citation, when an original section is given.
+%
+\def\hi@statcode@sc@origsect#1{%
+    \hi@newcite@form{sc}{#1}{%
+        \hi@maybeusedefaultopt
+        \hi@citeguts{%
+            \hi@inline@only{\hi@citeguts{\noexpand\@nameuse{ic@#1}{s}}}%
+            \hi@inline@never{%
+                % \reserved@a holds any space to follow the title
+                \def\noexpand\reserved@a{}%
+                \hi@name@only{% Suppress name text for * citations
+                    %
+                    % If the name was previously shown, then use Id. instead.
+                    % Otherwise, display the short-form name.
+                    %
+                    \noexpand\hi@if@title{\hi@kv@inline}{%
+                        \hi@id
+                    }{%
+                        \@capnext\hi@kv@inline
+                    }%
+                    \def\noexpand\reserved@a{ }%
+                }%
+                %
+                % pc@[ref] will have set \@this@page to join \hi@kv@origsect and
+                % any given page descriptor.
+                \hi@pageordefault{\noexpand\reserved@a}{%
+                    \noexpand\reserved@a
+                    \@capnext\@format@page@macro\hi@kv@origsect
+                }%
+            }%
+        }%
+        % Set the last title to \hi@kv@inline, which is the title to be
+        % suppressed on the next citation.
+        \hi@inline@never{%
+            \noexpand\hi@set@title{\hi@kv@inline}%
+        }%
+    }%
+}
+\def\hi@statcode@sc@noorigsect#1{%
+    \hi@newcite@form{sc}{#1}{%
+        \hi@maybeusedefaultopt
+        \hi@statcode@makeshortname
+        \hi@citeguts{%
+            \hi@inline@only{\hi@citeguts{\noexpand\@nameuse{ic@#1}{s}}}%
+            \hi@inline@never{%
+                \def\noexpand\reserved@a{}%
+                \hi@name@only{% Suppress name text for * citations
+                    \noexpand\@expand\noexpand\hi@if@title{%
+                        \noexpand\hi@statcode@shortname
+                    }i{%
+                        \hi@id
+                    }{%
+                        \noexpand\hi@statcode@shortname
+                    }%
+                    \def\noexpand\reserved@a{ }%
+                }%
+                %
+                \hi@pageordefault{\noexpand\reserved@a}{%
+                    \hi@ifset\hi@kv@page{%
+                        \noexpand\reserved@a
+                        \@capnext\@format@page@macro\hi@kv@page
+                    }{}%
+                }%
+            }%
+        }%
+        \hi@inline@never{%
+            \noexpand\@expand\noexpand\hi@set@title{%
+                \noexpand\hi@statcode@shortname
+            }i%
+        }%
+        \hi@invis@inline
+    }%
+}
+%
+% Insertable into citation body, to define \hi@statcode@shortname as the short
+% name form for a statutory citation (for title matching and display purposes).
+%
+% XXX TODO: There is a major problem with this right now. fc@[statcode] uses
+% [vol]/[rep] as the format for \@this@title, but the short-forms use a
+% formatted text, meaning that they don't match up. But I'm also not sure why
+% this makeshortname macro exists: It seems to set \@this@title based on
+% irrelevant user-provided parameters from \hi@statcode@choosename. The better
+% approach would be (1) to define a consistent standard for \@this@title used
+% across the full and short citation forms; and (2) to define a better standard
+% for using the optional parameters to control the names. Probably the best
+% approach is to say that (1) user parameters control, and in the absence of
+% them we rely on \@last@title--\@this@title matching; (2) there should be three
+% user parameters (``title'' is used sometimes to mean the textual statute title
+% and sometimes to mean the U.S. Code title number); and (3) there should be
+% some user control over whether id. is displayed for matching titles; id.
+% should rely on title matching and not reference name matching.
+%
+\def\hi@statcode@makeshortname{%
+    \hi@ifset\hi@kv@inline{%
+        \noexpand\hi@statcode@choosename\noexpand\hi@statcode@shortname
+            {\@capnext\hi@kv@inline}{\hi@statcode@volandrep}%
+    }{%
+        \def\noexpand\hi@statcode@shortname{\hi@statcode@volandrep}%
+    }%
+}
+%
+% Chooses a title to use for this citation based on the option parameters. #1 is
+% the macro to define, #2 is the value if "t" is set, #3 is the value if "v" is
+% set. If neither is set, defaults to "t".
+%
+\DeclareRobustCommand\hi@statcode@choosename[3]{%
+    \hi@ifinopt{t}{t}{%
+        \hi@ifinopt{v}{t}{\def#1{#2, #3}}{\def#1{#2}}%
+    }{%
+        \hi@ifinopt{v}{t}{\def#1{#3}}{\def#1{#2}}%
+    }%
+}
+\make@find@in{v}
+\def\hi@statcode@fmtname{%
+    \hi@ifset\hi@kv@name{%
+        \hi@name@only{%
+            \@capnext\hi@kv@name
+            \hi@ifset\hi@kv@origsect{%
+                \hi@pageordefault{ }{%
+                    \space\@format@page@macro\hi@kv@origsect
+                }%
+            }{}%
+            ,\noexpand\if@hi@in@toa \hfil\break
+            \noexpand\else \space \noexpand\fi
+        }%
+    }{}%
+}
+%
+% In a full citation for a statute, decide whether or not to display the volume
+% and title information. There are two options:
+%
+% - If the statute has no name, then show the title based on \@last@title (using
+%   \hi@if@title) as usual.
+% - If the statute has a name, then always show the volume and title information
+%   if the name is being shown. If the name is being suppressed (with
+%   \@hi@namefalse), then use \hi@if@title as usual.
+% - In all cases, \@this@title gets set.
+%
+% #1 is the \@this@title information, #2 is what to do if the title is to be
+% suppressed; #3 is what to do if the title is to be shown.
+\def\hi@statcode@full@title#1#2#3{%
+    \hi@ifset\hi@kv@name{%
+        \noexpand\if@hi@name
+            #3%
+            \noexpand\hi@set@title{#1}%
+        \noexpand\else
+            \noexpand\hi@if@title{#1}{#2}{#3}%
+        \noexpand\fi
+    }{%
+        \noexpand\hi@if@title{#1}{#2}{#3}%
+    }%
+}
+%
+% Produces the volume and reporter.
+%
+\def\hi@statcode@volandrep{%
+    \hi@ifset\hi@kv@vol{\@capnext\hi@kv@vol\space}{}%
+    \noexpand\hi@fn@statute{\hi@kv@rep}%
+}
+\make@find@eq{U.S.C.}
+\make@find@eq{C.F.R.}
+\make@find@in{s}
+\make@find@in{t}
+\def\hi@statcode@inlinesect#1{%
+    %
+    % Ensure that if \hi@kv@origsect is given, then there is a name given as
+    % well. An original section number doesn't make sense otherwise.
+    \hi@ifset\hi@kv@origsect{%
+        \hi@ifset\hi@kv@name{}{%
+            \PackageError\hi@pkgname{%
+                Authority #1 has origsect but no name%
+            }{Provide the name parameter for this citation}%
+        }%
+        % It is assumed that \hi@kv@inline was generated, since it can be taken
+        % from \hi@kv@name.
+    }{}%
+    % Format the page numbers, and store them in \reserved@a
+    \protected@edef\reserved@a{%
+        \hi@ifset\hi@kv@origsect{%
+            \@format@page@macro\hi@kv@origsect
+        }{%
+            \hi@ifset\hi@kv@page{%
+                \@format@page@macro\hi@kv@page
+            }{}%
+        }%
+    }%
+    %
+    % There are two possible scenarios for the inline citation form of statutes.
+    % The special case, treated below, is a citation to the U.S. Code where
+    % there is no statute title. In this case, the section number
+    % retains the \textsection symbols.
+    \hi@ifset\hi@kv@origsect{}{%
+        \@expand{\find@try\find@eq{%
+            {U.S.C.}{\hi@statcode@special{#1}{U.S. Code}}%
+            {C.F.R.}{\hi@statcode@special{#1}{Code of Federal Regulations}}%
+        }}\hi@kv@rep i{}%
+    }%
+    %
+    % Now define the general case for inline citations of statutes, in which we
+    % expand \textsection to words.
+    \@ifundefined{ic@#1}{%
+        \protected@edef\reserved@a{%
+            \@expand \hi@expand@symbols@ \reserved@a i{\@firstofone}%
+        }%
+        \hi@newcite@form{ic}{#1}##1{%
+            \hi@ifinopt{s}{##1}{%
+                \hi@expandedpageordefault{}{\@capnext\reserved@a}%
+                \hi@ifset\hi@kv@name{%
+                    \hi@ifinopt{t}{##1}{%
+                        \hi@nocap\space of \hi@statcode@nameorinline{#1}%
+                    }{}%
+                }{%
+                }%
+            }{%
+                \hi@statcode@nameorinline{#1}%
+            }%
+        }
+    }{}%
+}
+%
+% Creates the inline citation form where the reporter is U.S.C. or C.F.R.
+%
+\def\hi@statcode@special#1#2{%
+    \hi@newcite@form{ic}{#1}##1{%
+        %
+        % If there is no section number, then force \@this@opt to be
+        % just "t".
+        \ifx\reserved@a\@empty
+            \hi@ifpage{}{\def\noexpand\@this@opt{t}}%
+        \fi
+        \hi@ifinopt{s}{##1}{%
+            \hi@ifset\hi@kv@name{}{%
+                \hi@ifinopt{t}{##1}{%
+                    \noexpand\hi@nocap
+                    \hi@ifset\hi@kv@vol{\hi@kv@vol\space}{}%
+                    \hi@kv@rep\space
+                }{}%
+            }%
+            \hi@pageordefault{}{%
+                \@capnext\reserved@a
+            }%
+            \hi@ifset\hi@kv@name{%
+                \hi@ifinopt{t}{##1}{%
+                    \hi@nocap\space of \hi@statcode@nameorinline{#1}%
+                }{}%
+            }{}%
+        }{%
+            \hi@ifset\hi@kv@name{%
+                \hi@statcode@nameorinline{#1}%
+            }{%
+                \noexpand\@capnext title \hi@kv@vol \space of the #2%
+            }%
+        }%
+    }%
+}
+\def\hi@statcode@nameorinline#1{%
+    \hi@ifset\hi@kv@inline{%
+        \hi@record@choose@inline{#1}{%
+            \hi@inline@the\@capnext\hi@kv@name
+        }{%
+            \hi@kv@inline\hi@short@use{#1}%
+        }%
+    }{%
+        \hi@inline@the\@capnext\hi@kv@name
+    }%
+}
+%    \end{macrocode}
+%</package>
+%
+\hi@newcite\defstatsess{A statute in session laws}{%
+    \hi@citetype{#1}\hi@type@statute
+    \hi@statsess@name
+    \hi@inlinestatname{#1}%
+    \hi@ifset\hi@kv@type{}{\def\hi@kv@type{Pub. L. No.}}%
+    \hi@ifset\hi@kv@rep{\hi@ifset\hi@kv@vol\relax{\let\hi@kv@vol\hi@kv@year}}{}%
+    \hi@ifset\hi@kv@year{%
+        \def\reserved@a{}%
+        \hi@ifset\hi@kv@name{\add@macro@to@macro\reserved@a{\hi@kv@name,}}{}%
+        \hi@ifset\hi@kv@vol{\add@macro@to@macro\reserved@a{\hi@kv@vol,}}{}%
+        \hi@ifset\hi@kv@rep{\add@macro@to@macro\reserved@a{\hi@kv@rep,}}{}%
+        \@expand{\expandafter\in@\expandafter{\hi@kv@year}}\reserved@a i%
+        \ifin@ \hi@undefine\hi@kv@year \fi
+    }{}%
+    \hi@ifset\hi@kv@in{%
+        \hi@statsess@contained{#1}%
+    }{%
+        \hi@statsess@normal{#1}%
+    }%
+    \hi@statsess@shortforms{#1}%
+}
+%<*doc>
+
+\keyparameters{
+    {type}{The name to be prefixed to the statute's serial number. By default
+    this is ``Pub.~L.~No.''}
+    {number}{The serial number of the statute, which should conform to the value
+    expected for \param{type}.}
+    {vol, rep, page, cite}{Citation locator information for the statute in a
+    session law compilation such as the \emph{Statutes at Large}. This will be
+    used unaltered and should be entered abbreviated.}
+    {year}{The date of enactment of the statute.}
+}
+\optparameters{
+    {name, inline}{\statuteparamdesc\ If no name is given, one will be
+    constructed out of the date (which should be a full date as a result).}
+    {chapter}{This sets \param{type} to ``ch.''\ and then sets \param{number} to
+    the parameter value.}
+    {in}{For session laws contained within another larger session law (e.g., a
+    part of an omnibus budget act), it may be necessary to cite both session
+    laws to identify the contained one. This parameter can be given the
+    reference name of the larger session law to effect this citation form.}
+    {slip}{For slip laws not yet included in a compilation, use this flag.}
+    {place}{The place of publication (e.g., the state).}
+    {publisher}{The publisher of the statute, if relevant.}
+}
+
+%</doc>
+%<*package>
+%    \begin{macrocode}
+\hi@fpg@defsegment{stat}
+\def\hi@statsess@contained#1{%
+    \hi@newcite@form{fc}{#1}{%
+        \hi@maybeusedefaultopt
+        \hi@citeguts{%
+            \hi@name@only{%
+                \hi@inline@the\@capnext\hi@kv@name
+            }%
+            \hi@maybepage{ }%
+            \hi@inline@never{%
+                \noexpand\hi@statsess@statpage{%
+                    , 
+                    \hi@ifset\hi@kv@vol\hi@kv@vol\hi@kv@year \space
+                    \noexpand\hi@fn@statute{\hi@kv@rep}\space
+                    \noexpand\hi@atorsect@withpage
+                }%
+            }%
+        }%
+        \hi@inline@never{%
+            , \noexpand\hi@fn@sig{in}\space
+            \noexpand\clause{\hi@kv@in\space at \hi@kv@page}%
+            \noexpand\hi@clause@endflag
+        }%
+    }%
+}
+\def\hi@statsess@normal#1{%
+    \hi@newcite@form{fc}{#1}{%
+        \hi@maybeusedefaultopt
+        \hi@citeguts{%
+            \hi@name@only{%
+                \hi@inline@the\@capnext\hi@kv@name
+            }%
+            \hi@inline@never{%
+                \hi@name@only{, }%
+                \hi@kv@type~\hi@kv@number
+                \hi@maybepage{, }%
+                \hi@ifset\hi@kv@rep{%
+                    ,
+                    \hi@ifset\hi@kv@vol\hi@kv@vol\hi@kv@year \space
+                    \noexpand\hi@fn@statute{\hi@kv@rep}%
+                    \hi@ifset\hi@kv@slip{}{%
+                        \space\hi@kv@page
+                        \noexpand\hi@statsess@statpage{, \noexpand\@iden}%
+                    }%
+                }{}%
+            }%
+        }%
+        \hi@inline@never{%
+            \hi@ifset\hi@kv@slip{}{\noexpand\hi@statsess@chkstatpage}%
+            \hi@ifset\hi@kv@year{%
+                \hi@parens@add\hi@paren@date{%
+                    \hi@ifset\hi@kv@place{\hi@kv@place\space}{}%
+                    \hi@param@optspc\hi@kv@publisher\hi@kv@year
+                }%
+            }{%
+                \hi@ifset\hi@kv@publisher{%
+                    \hi@parens@add\hi@paren@date{%
+                        \hi@ifset\hi@kv@place{\hi@kv@place\space}{}%
+                        \hi@kv@publisher
+                    }%
+                }{%
+                    \hi@ifset\hi@kv@place{%
+                        \hi@parens@add\hi@paren@date{\hi@kv@place}%
+                    }{}%
+                }%
+            }%
+            \the\hi@param@parens
+        }%
+    }%
+}
+\def\hi@statsess@shortforms#1{%
+    \hi@newcite@form{sc}{#1}{%
+        \hi@maybeusedefaultopt
+        \hi@ifset\hi@kv@slip{}{\noexpand\hi@statsess@chkstatpage}%
+        \hi@citeguts{%
+            \hi@name@only{%
+                \hi@ifset\hi@kv@inline{\hi@kv@inline\hi@short@use{#1}}{%
+                    \hi@inline@the\@capnext\hi@kv@name
+                }%
+            }%
+            \hi@maybepage{\hi@name@only{ }}%
+            \hi@ifset\hi@kv@slip{}{%
+                \noexpand\hi@statsess@statpage{%
+                    ,
+                    \hi@ifset\hi@kv@vol\hi@kv@vol\hi@kv@year \space
+                    \noexpand\hi@fn@statute{\hi@kv@rep}\space
+                    \noexpand\hi@atorsect@withpage
+                }%
+            }%
+        }%
+    }
+    \hi@newcite@form{idc}{#1}{%
+        \hi@citeguts{%
+            \noexpand\hi@id
+            \noexpand\@test
+                \noexpand\ifx\noexpand\@this@page\noexpand\@last@page
+            \noexpand\fi{}{%
+            }{%
+                % Use \hi@pageordefault to determine what to show. If
+                % \@this@page is given, prepend it with ~\hi@page@atorsect; if
+                % not, do nothing (\@hi@dottrue was set above).
+                \hi@pageordefault{%
+                    \noexpand~\noexpand\hi@page@atorsect
+                }{}%
+            }%
+            \noexpand\hi@statsess@statpage{%
+                \noexpand\@hi@dotfalse
+                ,
+                \hi@ifset\hi@kv@vol\hi@kv@vol\hi@kv@year \space
+                \noexpand\hi@fn@statute{\hi@kv@rep}\space
+                \noexpand\hi@atorsect@withpage
+            }%
+        }%
+    }%
+}
+\make@find@in{ }
+%
+% Sets up the name for a session law, if one is not provided. The rules are:
+% - use the form "Act of [date]"
+% - Place the year invisibly in front of the name to make TOA sorting correct
+% - If no inline (short) form is set, use "the [YEAR] Act"
+%
+\def\hi@statsess@name{%
+    \hi@ifset\hi@kv@name\relax{%
+        \protected@edef\hi@kv@name{Act of \hi@kv@year}%
+        \expandafter\hi@getyear\expandafter{\hi@kv@year}{\def\hi@kv@year}%
+        \protected@edef\hi@kv@name{%
+            \protect\@gobble{ACT OF \hi@kv@year}\hi@kv@name
+        }%
+    }%
+}
+%
+% If there is a ::stat: segment in the page number, then place #1[stat-page] on
+% the token list.
+%
+\def\hi@statsess@statpage#1{%
+    \ifx\@this@orig@page\relax\else
+        \protected@edef\reserved@a{%
+            \@expandarg\hi@fpg@segment{\@this@orig@page}{stat}{}{}%
+        }%
+        \ifx\reserved@a\@empty\else
+            \@expand{#1}\reserved@a{i}%
+        \fi
+    \fi
+}
+\def\hi@getyear#1#2{\hi@getyear@{#2}{}{#1}}
+\def\hi@getyear@#1#2#3{\find@in{ }{#3}{\hi@getyear@{#1}}{#1{#3}}}
+%
+% As necessary, checks whether a statute pincite includes the ::stat: element.
+% If not, raises an error. This macro should be executed at use-time of a
+% citation form (i.e., it should be \noexpand'ed in the definition of the
+% citation form).
+%
+\def\hi@statsess@chkstatpage{%
+    \ifx\@this@page\relax
+        % In some older statutes there are no section numbers, so you could have
+        % a pincite page with no pincite section.
+        % \ifx\@this@opt\relax\else \hi@statsess@opterr \fi
+    \else
+        % \@this@orig@page could be \relax which would cause problems, but if
+        % \@this@page is not \relax then chances are we're good
+        \protected@edef\reserved@a{%
+            \@expandarg\hi@fpg@segment{\@this@orig@page}{stat}{}{}%
+        }%
+        \ifx\reserved@a\@empty \hi@statsess@statpageerr \fi
+    \fi
+}
+\def\hi@statsess@statpageerr{%
+    \PackageError\hi@pkgname{%
+        Missing page number in session law citation
+    }{%
+        A pin cite to a statute in session laws must include\MessageBreak
+        both a section number and a page number. The page\MessageBreak
+        number is placed in a ::stat: segment.%
+    }%
+}
+%    \end{macrocode}
+%</package>
+%
+\hi@newcite\defstattitle{A titled statutory citation}{%
+    \hi@citetype{#1}\hi@type@statute
+    \hi@include@page@in@toa{#1}%
+    \hi@inlinestatname{#1}% Set up \hi@kv@inline based on \hi@kv@name
+    \@expand\hi@abbrev@name{\hi@kv@rep}i{\def\hi@kv@rep}%
+    \hi@book@pubparen
+    \hi@newcite@form{fc}{#1}{%
+        \noexpand\hi@stattitle@choppageslash
+        \hi@pstruct@initialize\hi@stattitle@choppedpage
+        \hi@inline@never{%
+            \hi@citeguts{%
+                \hi@kv@name
+                \hi@maybepage{ },\space
+                \hi@pstruct@use{vol}\space
+                \hi@pstruct@use@font{rep}\hi@fn@statute\space
+                \hi@pstruct@call{page}{\noexpand\@format@page@macro}%
+            }%
+            \hi@book@lcpost
+        }%
+        \hi@inline@only{%
+            \hi@citeguts{%
+                \hi@ifpage{%
+                    \noexpand\expandafter\noexpand\@capnext\noexpand\@this@page
+                    \space of the \hi@kv@name
+                }{%
+                    \hi@inline@the\@capnext\hi@kv@name
+                }%
+            }%
+        }%
+    }%
+    \hi@newcite@form{sc}{#1}{%
+        \noexpand\hi@stattitle@choppageslash
+        \hi@pstruct@initialize\hi@stattitle@choppedpage
+        \hi@short@use{#1}%
+        \hi@citeguts{%
+            \hi@inline@never{%
+                \noexpand\if@hi@name
+                    \hi@kv@inline
+                    \hi@maybepage{ },\space
+                \noexpand\else
+                    \hi@ifpage{\noexpand\@this@page, }{}%
+                \noexpand\fi
+                \hi@pstruct@use{vol}\space
+                \hi@pstruct@use@font{rep}\hi@fn@statute\space
+                \hi@pstruct@call{page}{\noexpand\@format@page@macro}%
+            }%
+            \hi@inline@only{%
+                \hi@ifpage{%
+                    \noexpand\@hi@adjectivetrue
+                    \hi@kv@inline\space
+                    \noexpand\@this@page
+                }{%
+                    \hi@kv@inline
+                }%
+            }%
+        }%
+    }%
+    \hi@newcite@form{idc}{#1}{%
+        \noexpand\hi@stattitle@choppageslash
+        \hi@pstruct@initialize\hi@stattitle@choppedpage
+        \hi@citeguts{%
+            \noexpand\hi@id
+            \noexpand\@test
+                \noexpand\ifx\noexpand\@this@page\noexpand\@last@page
+            \noexpand\fi{}{%
+                \noexpand\@hi@dotfalse
+                \hi@maybepage{ },\space
+                \hi@pstruct@use{vol}\space
+                \hi@pstruct@use@font{rep}\hi@fn@statute\space
+                \hi@pstruct@call{page}{\noexpand\@format@page@macro}%
+            }%
+        }%
+    }%
+}%
+%<*doc>
+This is for statutes that, having been amended many times, are treated like
+codifications based on their original section numbers. The Communications Act of
+1930, the Public Health Service Act, and the Smoot--Hawley Tariff Act are
+examples of statutes with well-known section numbers that do not correspond to
+their codifications; a parallel cite to the U.S. Code is required and provided
+in a struct that maps original section numbers to U.S.C. citations.
+
+This reference type should supersede \rtype{statcode} with \param{origsect}.
+
+The scope of the reference item here is the whole statute, not just an
+individual section therein. To cite to a section of the statute, the section
+number is given as the pin cite information. The reference aliasing system
+described for \rtype{alias} can assist in simplifying references to these
+statutes if a particular section number is repeatedly used.
+
+\keyparameters{
+    {name, inline}{\statuteparamdesc\ Here the name is mandatory, since section
+    numbers correspond to the statute number with that name.}
+    {vol, rep, page, cite}{The citation locator information for the statute in a
+    codification. Here, \param{page} should refer to the range of section
+    numbers in the codification that the statute covers. Note that the range
+    will likely never be displayed, if all citations to the statute are to
+    particular sections.}
+    {struct}{Following the format described in \sec{struct}, this should
+    be a map of section numbers of the statute to \param{vol}, \param{rep}, and
+    \param{page} values in the codification. The structure is key to ensuring
+    that pin cites display correctly.}
+}
+
+\bookparenparameters
+
+%</doc>
+%<*package>
+%    \begin{macrocode}
+\DeclareRobustCommand\hi@stattitle@choppageslash{%
+    \@expand{\find@in{/}}\@this@orig@page i{%
+        \@tworun{\def\hi@stattitle@choppedpage}\@gobble
+    }{\let\hi@stattitle@choppedpage\@this@orig@page}%
+}
+%    \end{macrocode}
+%</package>
+\hi@newcite\defrule{A rule of evidence or procedure}{%
+    \hi@citetype{#1}\hi@type@rule
+    \hi@statcode@setup@idpc{#1}% Set up id. and page numbering
+    \hi@include@page@in@toa{#1}%
+    \hi@newcite@form{fc}{#1}{%
+        \hi@citeguts{%
+            \hi@ifset\hi@kv@name{\noexpand\@capnext\hi@kv@name, }%
+            \noexpand\hi@fn@statute{\hi@kv@rep}%
+            \hi@pageordefault{ }{%
+                \hi@ifset\hi@kv@page{ \@format@page@macro\hi@kv@page}{}%
+            }%
+        }%
+        \hi@ifeitherset\hi@kv@year\hi@kv@court{%
+            \hi@addparen{\hi@paren@date}{%
+                \hi@param@optspc\hi@kv@court\hi@kv@year
+            }%
+        }{}%
+        \the\hi@param@parens
+    }%
+}
+%<*doc>
+Citations to judicial rules are not especially well-defined, and there are at
+least two possible approaches for identifying rules (both of which this package
+supports). First, one could characterize the name of the rule set as a book
+title and each rule as a named division therein. That would produce output along
+the following lines:
+\begin{quote}
+|\defrule{frcp12}{rep=Fed. R. Civ. P., page=rule 12}| \\
+|\sentence{frcp12 at /b6}.| \\
+Produces: \textsc{Fed.\ R. Civ.\ P.} R. 12(b)(6).
+\end{quote}
+The oddity of this form is that ``R.'' appears twice. To avoid that, it is not
+enough to remove ``rule'' from the pin cite (|page=12|), because then the number
+looks like a page number that will not accept subdivisions like ``(b)(6).'' The
+solution is to use the dash character before the pin cite as described in
+\sec{pages}:
+\begin{quote}
+|\defrule{frcp12}{rep=Fed. R. Civ. P., page=-12}| \\
+|\sentence{frcp12 at /b6}.| \\
+Produces: \textsc{Fed.\ R. Civ.\ P.} 12(b)(6).
+\end{quote}
+The dash forces the pin cite to be interpreted as a ``named'' division with no
+name.
+
+\keyparameters{
+    {rep}{The abbreviated name of the rule set being cited.}
+    {page}{The rule number, see above.}
+}
+\optparameters{
+    {name}{A name of the rule, if any.}
+    {court}{The court issuing the rule, if not apparent from \param{rep}.}
+    {year}{The year of promulgation of the rule, if needed.}
+}
+
+\pagejoining
+
+%</doc>
+%<*test>
+
+\section{statrefs.dtx}
+
+\defstatcode{271}{35 U.S.C. S 271}
+
+\AssertBox{\note{271 at /b}}{%
+    \InFootnote{35 \textsc{U.S.C.} \textsection~271(b).}%
+}
+
+%</test>

@@ -1,0 +1,157 @@
+\ProvidesPackage{unittest}[2022/05/23 Unit testing]
+\RequirePackage{etoolbox}
+\newif\if@ut@verbose
+\@ut@verbosetrue
+\newcount\ut@testcount
+\newcount\ut@failcount
+\AtEndDocument{%
+    \par\vskip\baselineskip
+    \the\ut@testcount\ tests performed.
+    \ifcase\ut@failcount
+        All tests passed.
+    \or \textbf{One test failed.}
+    \else \textbf{\the\ut@failcount\ tests failed.}
+    \fi
+}
+\def\ut@showcmd#1{{\frenchspacing\ttfamily\upshape\detokenize{#1}}}
+\newcommand\expect[3][]{%
+    \noindent
+    \ifstrempty{#1}{%
+        {%
+            \ttfamily\footnotesize\raggedright
+            \def\reserved@a{#2}%
+            \expandafter\strip@prefix\meaning\reserved@a
+            \par
+        }%
+    }{{\footnotesize\itshape#1\par}}%
+    \nobreak
+    \noindent
+    \llap{\hbox to 3em{\textbf{Test:}\hfil}}\nobreak\strut\vrule#2\vrule\par
+    \noindent
+    \llap{\hbox to 3em{\textbf{Exp:}\hfil}}\nobreak\strut\vrule#3\vrule\par
+    \vskip 6pt
+}
+\newcommand\AssertEqual[3][AssertEqual]{%
+    \global\advance\ut@testcount\@ne
+    \def\unittest@a{#2}\def\unittest@b{#3}%
+    \ifx\unittest@a\unittest@b
+        \if@ut@verbose
+            \expect[Passed: #1]{%
+                \texttt{\expandafter\strip@prefix\meaning\unittest@a}%
+            }{%
+                \texttt{\expandafter\strip@prefix\meaning\unittest@b}%
+            }%
+        \fi
+    \else
+        \expect[\textbf{TEST FAILED}: #1]{%
+            \texttt{\expandafter\strip@prefix\meaning\unittest@a}%
+        }{%
+            \texttt{\expandafter\strip@prefix\meaning\unittest@b}%
+        }%
+        \global\advance\ut@failcount\@ne
+    \fi
+}
+\newcommand\AssertCharEqual[3][AssertUCEqual]{%
+    \edef\reserved@a{%
+        \noexpand\AssertEqual[\unexpanded{#1}]%
+            {\detokenize{#2}}{\detokenize{#3}}%
+    }\reserved@a
+}
+\newcommand\AssertExpandedEqual[3][AssertExpandedEqual]{%
+    \edef\reserved@a{%
+        \unexpanded{\AssertEqual[#1]{#2}}%
+        {#3}%
+    }\reserved@a
+}
+\newcommand\AssertNum[3][AssertNum]{%
+    \global\advance\ut@testcount\@ne
+    \ifnum#2#3\relax
+        \if@ut@verbose
+            \par Test passed: #1: \ut@showcmd{#2#3}\par
+        \fi
+    \else
+        \par \textbf{TEST FAILED}: #1: \ut@showcmd{#2#3}\par
+        \global\advance\ut@failcount\@ne
+    \fi
+}
+\newcommand\AssertTrue[2][AssertTrue]{%
+    \global\advance\ut@testcount\@ne
+    #2{%
+        \if@ut@verbose
+            \par Test passed: #1: \ut@showcmd{#2}\par
+        \fi
+    }{%
+        \par \textbf{TEST FAILED}: #1: \ut@showcmd{#2}\par
+        \global\advance\ut@failcount\@ne
+    }%
+}
+\newcommand\AssertFalse[2][AssertFalse]{%
+    \global\advance\ut@testcount\@ne
+    #2{%
+        \par \textbf{TEST FAILED}: #1: \ut@showcmd{#2}\par
+        \global\advance\ut@failcount\@ne
+    }{%
+        \if@ut@verbose
+            \par Test passed: #1: \ut@showcmd{#2}\par
+        \fi
+    }%
+}
+\newcommand\AssertMacro[3][\AssertEqual]{%
+    \edef\reserved@a{%
+        \noexpand#1[%
+            \noexpand\ut@showcmd{\noexpand#2->}%
+        ]{\expandonce#2}{\unexpanded{#3}}%
+    }\reserved@a
+}
+\newcommand\AssertCS[3][\AssertEqual]{
+    \@expand{\AssertMacro[#1]}{\csname #2\endcsname}{i}{#3}%
+}
+\newcommand\AssertExpand[3][\AssertEqual]{%
+    \protected@edef\reserved@a{%
+        \noexpand#1[%
+            \noexpand\ut@showcmd{\unexpanded{#2}}%
+        ]{#2}{#3}%
+    }\reserved@a
+}
+%
+% Asserts that an operation executes a callback on a text that matches the given
+% text. \#1 is the optional matching operator, \#2 a command that accepts as its
+% final argument a callback (the callback is left off and added by this unit
+% test), and \#3 is the text to match against.
+%
+\newcommand\AssertCallback[3][\AssertEqual]{%
+    #2{#1[\ut@showcmd{#2}]}{#3}%
+}
+\newbox\unittest@boxa
+\newbox\unittest@boxb
+\newcommand\AssertBox[3][AssertBox]{%
+    \global\advance\ut@testcount\@ne
+    \setbox\unittest@boxa=\hbox{#2}%
+    \setbox\unittest@boxb=\hbox{#3}%
+    \ifdim\wd\unittest@boxa=\wd\unittest@boxb
+        \expect[Probably passed: #1: \ut@showcmd{#2}]{%
+            \unhbox\unittest@boxa
+        }{%
+            \unhbox\unittest@boxb
+        }%
+    \else
+        %\begingroup
+        %    \showboxdepth=1000 \showboxbreadth=1000
+        %    \showbox\unittest@boxa
+        %    \showbox\unittest@boxb
+        %\endgroup
+        \expect[\textbf{TEST FAILED}: #1: \ut@showcmd{#2}]{%
+            \the\wd\unittest@boxa: \unhbox\unittest@boxa
+        }{%
+            \the\wd\unittest@boxb: \unhbox\unittest@boxb
+        }%
+        \global\advance\ut@failcount\@ne
+    \fi
+}
+\long\def\@footnotetext#1{%
+    \protected@edef\@currentlabel{\csname p@footnote\endcsname\@thefnmark}%
+    \begingroup
+        [\hbox{#1}]%
+    \endgroup
+}
+\long\def\InFootnote#1{\@footnotemark[\hbox{#1}]}%

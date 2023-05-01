@@ -1,0 +1,110 @@
+%%
+%% \iffalse filename: anonymous.dtx \fi
+%%
+%<*doc>
+\input driver
+\thisis{anonymous}{References Within References}
+
+Often a shorter work will be included in a larger compilation, and both need to
+be cited in order to facilitate access to the shorter work. A private letter may
+be reprinted in a volume of collected letters, for example, or a brief filed in
+a case may appear within the docket for a case. \hia* provides a number of ways
+to support this.
+
+First, some reference parameters accept another reference nickname as input. All
+references accept the parameter \param{reprinted}, and some such as
+\rtype{casedoc} accept the parameter \param{citation}. More generally, the
+reference type \rtype{citecontainer} provides a comprehensive mechanism for
+citing a reference contained within another reference.
+
+As an example, consider the following reference definitions:
+\begin{quote}
+\begin{verbatim}
+\defletter{madison-letter}{
+    author=James Madison,
+    to=W.T. Barry,
+    date=aug 4 1822,
+    reprinted=madison-writings,
+}
+\defbook{madison-writings}{
+    name=Letters and Other Writings of James Madison,
+    year=1884,
+}
+\end{verbatim}
+\end{quote}
+The parameter \param{reprinted} in the letter's reference definition identifies
+the book in which the letter has been reprinted by its reference nickname, and
+the book is defined separately as a reference. This approach works perfectly
+well, but it can be cumbersome to define the book as its own reference with its
+own nickname. If the book is never used
+anywhere else, it might be convenient to define the book reference inside the
+letter reference definition.
+
+``Anonymous references'' allow for this.
+Instead of providing a reference name as the value to
+\param{reprinted}, the book can be included in the letter reference definition
+as follows:
+\begin{quote}
+\begin{verbatim}
+\defletter{madison-letter}{
+    author=James Madison,
+    to=W.T. Barry,
+    date=aug 4 1822,
+    reprinted=book: {
+        name=Letters and Other Writings of James Madison,
+        year=1884,
+    },
+}
+\end{verbatim}
+\end{quote}
+
+More generally, anonymous reference definitions consist of the reference type
+(without the |\def| prefix), a colon and space, and a set of parameter-value
+pairs in braces. Note that whitespace following the parameter-value pairs can
+confuse the parser, so it is best to place a comma after the closing brace as
+shown above.
+
+%</doc>
+%<*package>
+%
+% A counter used to make unique names for anonymous references.
+%
+%    \begin{macrocode}
+\newcount\hi@anonrefno
+\make@find@in{: }
+%    \end{macrocode}
+%
+% Used inside a reference parameter definer, determines if the given parameter
+% value is an anonymous reference. If so, creates a new reference object, gives
+% it a name, and runs a callback on the created name. Otherwise, the value is a
+% reference name, so the callback is run directly on it. \#1 is the reference
+% name or an anonymous reference definition; \#2 is the callback.
+%
+%    \begin{macrocode}
+\def\hi@anonref#1#2{%
+    \find@in{: }{#1}{\hi@anonref@{#2}}{#2{#1}}
+}
+%    \end{macrocode}
+%
+% \#1 is the callback, \#2 is the type, \#3 the parameter definition.
+%    \begin{macrocode}
+\def\hi@anonref@#1#2#3{%
+    \global\advance\hi@anonrefno\@ne
+    \edef\reserved@a{anon@cite@\the\hi@anonrefno}%
+    \begingroup
+        \hi@param@clear
+        \chop@space@then@run{#3}{%
+            \@expand{\csname def#2\endcsname}{\reserved@a}i%
+        }%
+    \endgroup
+    \@expand{#1}\reserved@a i%
+}
+%    \end{macrocode}
+%
+% Defining finders that cause syntax highlighting problems.
+%    \begin{macrocode}
+\make@find@in{ (}%
+\make@find@end{)}%
+%    \end{macrocode}
+%
+%</package>

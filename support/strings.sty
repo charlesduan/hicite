@@ -1,0 +1,355 @@
+%%
+%% This is file `support/strings.sty',
+%% generated with the docstrip utility.
+%%
+%% The original source files were:
+%%
+%% src/strings.dtx  (with options: `package')
+%% 
+%% This is a generated file.
+%% 
+%% Copyright 2013-2023 Charles Duan. This program is free software: you can
+%% redistribute it and/or modify it under the terms of the GNU General Public
+%% License as published by the Free Software Foundation, either version 3 of the
+%% License, or (at your option) any later version.
+%% 
+%% This program is distributed in the hope that it will be useful, but WITHOUT
+%% ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
+%% FOR A PARTICULAR PURPOSE. See the GNU General Public License for more details.
+%% 
+%% You should have received a copy of the GNU General Public License along with
+%% this program.  If not, see <http://www.gnu.org/licenses/>.
+%% 
+%%
+%% \iffalse filename: strings.dtx \fi
+%%
+\ProvidesPackage{strings}[2004/10/09 String tests]
+\RequirePackage{etoolbox}
+\def\@test#1\fi{#1\expandafter\@firstoftwo\else\expandafter\@secondoftwo\fi}
+\def\@testcase#1\fi#2#3\default#4{%
+    \@test#1\fi{#2}{\ifstrempty{#3}{#4}{\@testcase#3\default{#4}}}%
+}
+\long\def\@expand#1#2#3{\@@expand{#2}{#1}#3\@stop}
+\long\def\@@expand#1#2#3#4\@stop{%
+    \ifstrempty{#4}{%
+\expandafter\@@@expand\expandafter{#1}{#2}%
+    }{%
+\expandafter\@@expand\expandafter{#1}{#2}#4\@stop
+    }%
+}
+\long\def\@@@expand#1#2{#2{#1}}
+\def\@firstofthree#1#2#3{#1}
+\def\@expandarg#1#2{\expandafter#1\expandafter{#2}}%
+\def\@expandtwo#1#2#3{%
+    \expandafter\@@expandtwo\expandafter{#2}{#3}{#1}%
+}
+\def\@@expandtwo#1#2#3{%
+    \expandafter\@@@expandtwo\expandafter{#2}{#1}{#3}%
+}
+\def\@@@expandtwo#1#2#3{%
+    #3{#2}{#1}%
+}
+\let\str@mark\relax
+\let\str@stop\relax
+\def\str@test{\str@stop}
+\def\@unbrace#1#2{#1#2}
+\def\@twodef#1#2#3#4{%
+    \def#1{#3}\def#2{#4}%
+}
+\def\@tworun#1#2#3#4{%
+    #1{#3}#2{#4}%
+}
+\def\pad@string#1#2{%
+    \pad@string@#1\str@mark#2\str@stop{}%
+}
+\def\pad@string@#1#2\str@mark#3#4\str@stop#5{%
+    \ifstrempty{#4}{%
+        #5#1#2%
+    }{%
+        \ifstrempty{#2}{%
+            \pad@string@{ }%
+        }{%
+            \pad@string@#2%
+        }\str@mark#4\str@stop{#5#1}%
+    }%
+}
+\def\addto@macro#1#2{\expandafter\def\expandafter#1\expandafter{#1#2}}
+\def\addto@list#1#2{%
+    \@ifundefined{\expandafter\@gobble\string#1}{%
+        \def#1{#2}%
+    }{\addto@macro#1{#2}}%
+}
+\def\prepend@macro#1#2{%
+    \expandafter\prepend@macro@\expandafter{#1}{#1}{#2}%
+}
+\long\def\prepend@macro@#1#2#3{\def#2{#3#1}}
+\def\add@macro@to@macro#1#2{%
+    \expandafter\addto@macro\expandafter#1\expandafter{#2}%
+}
+\def\spcappto#1#2{%
+    \ifx#1\relax \def#1{#2}\else
+        \ifx#1\@empty \def#1{#2}\else
+            \appto#1{ #2}%
+        \fi
+    \fi
+}
+\def\find@use#1#2#3{%
+    \@ifundefined{finder@#1@#2}{%
+        \PackageError{strings}{Finder of type #1 for `#2' not defined; used}{%
+            You must run \@backslashchar make@find@#1{#2} first%
+        }\@gobbletwo
+    }{%
+        \@nameuse{finder@#1@#2}#3%
+    }%
+}
+\def\make@find@in#1{%
+    \@ifundefined{finder@in@#1}{%
+        \@namedef{finder@in@#1}##1#1##2\str@mark##3\str@stop##4##5{%
+            \ifstrempty{##3}{##5}{##4{##1}{##2}}%
+        }%
+    }{}%
+}
+\def\find@in#1#2{%
+    \find@use{in}{#1}{#2\str@mark#1\str@mark\str@stop}%
+}
+\def\find@last#1#2{%
+    \find@in{#1}{#2}{%
+        \find@last@{#1}%
+    }{\@secondoftwo}%
+}
+\def\find@last@#1#2#3{%
+    \find@in{#1}{#3}{\find@last@@{#1}{#2}}{\find@last@@@{#2}{#3}}%
+}
+\def\find@last@@#1#2#3#4{%
+    \find@in{#1}{#4}{\find@last@@{#1}{#2#1#3}}{\find@last@@@{#2#1#3}{#4}}%
+}
+\def\find@last@@@#1#2#3#4{#3{#1}{#2}}
+\def\make@find@in@cs#1#2{%
+    %
+    % The actual finder macro takes input of the form:
+    % \finder@in@[text]
+    %     [text-to-search]\str@mark
+    %     [text-to-find]\str@mark\str@stop
+    %     {[text-to-search]}{[callback-if-found]}{[callback-if-not-found]}
+    \@ifundefined{finder@cs@in@#1}{%
+        \@namedef{finder@cs@in@#1}##1#2##2\str@mark##3\str@stop##4##5{%
+            \ifstrempty{##3}{##5}{##4{##1}{##2}}%
+        }%
+        \@namedef{findcs@in@#1}##1{%
+            \@nameuse{finder@cs@in@#1}##1\str@mark#2\str@mark\str@stop
+        }%
+    }{}%
+}
+\def\find@in@cs#1#2{%
+    \@nameuse{findcs@in@#1}{#2}%
+}
+\def\make@find@eq#1{%
+    \@ifundefined{finder@eq@#1}{%
+        %
+        % This finder expects to be called as:
+        % \finder@eq@[text]
+        %     [text-to-compare]\str@mark
+        %     [text-of-finder]\str@mark\str@stop
+        %     {macro-if-yes}{macro-if-no}
+        % Both macros take no arguments.
+        \@namedef{finder@eq@#1}##1#1##2\str@mark##3\str@stop##4##5{%
+            \ifstrempty{##1##2}{##4}{##5}%
+        }%
+    }{}%
+}
+\def\find@eq#1#2{%
+    \find@use{eq}{#1}{#2\str@mark#1\str@mark\str@stop}%
+}
+\def\make@find@end#1{%
+    \@ifundefined{finder@end@#1}{%
+        \@namedef{finder@end@#1}##1#1\str@mark##2\str@stop##3##4{%
+            \ifstrempty{##2}{##4}{##3{##1}}%
+        }%
+    }{}%
+}
+\def\find@end#1#2{%
+    \find@use{end}{#1}{#2\str@mark#1\str@mark\str@stop}%
+}
+\def\make@find@start#1{%
+    \@ifundefined{finder@start@#1}{%
+        \@namedef{finder@start@#1}##1\str@mark#1##2\str@mark##3\str@stop##4##5{%
+            \ifstrempty{##1}{##4{##2}}{##5}%
+        }%
+    }{}%
+}
+\def\find@start#1#2{%
+    \find@use{start}{#1}{\str@mark#2\str@mark#1\str@mark\str@stop}%
+}
+\def\make@find@start@cs#1#2{%
+    \@ifundefined{finder@cs@start@#1}{%
+        \@namedef{%
+            finder@cs@start@#1%
+        }##1\str@mark#2##2\str@mark##3\str@stop##4##5{%
+            \ifstrempty{##1}{##4{##2}}{##5}%
+        }%
+        \@namedef{findcs@start@#1}##1{%
+            \@nameuse{finder@cs@start@#1}%
+                \str@mark##1\str@mark#2\str@mark\str@stop
+        }%
+    }{}%
+}
+\def\find@start@cs#1#2{\@nameuse{findcs@start@#1}{#2}}
+\def\find@try#1#2#3#4{%
+    \find@try@{#1}#2\str@stop{#3}{#4}%
+}
+\def\find@try@#1#2#3#4\str@stop#5#6{%
+    #1{#2}{#5}{#3}{%
+        \ifstrempty{#4}{#6}{\find@try@{#1}#4\str@stop{#5}{#6}}%
+    }%
+}
+\newcommand*{\chop@space@then@run}[2]{%
+    \find@start{ }{#1}{\chop@space@then@run}{\str@chopspc@end{#1}}{#2}%
+}
+\def\str@chopspc@end#1#2{%
+    \find@end{ }{#1}{\str@chopspc@end}{\str@chopspc@run{#1}}{#2}%
+}
+\def\str@chopspc@run#1#2{#2{#1}}
+\newcommand*{\chop@space}[1]{\chop@space@then@run{#1}{\@iden}}
+\make@find@start{ }
+\make@find@end{ }
+\def\cardinaltext#1{%
+    \ifnum#1<100
+        \cardinaltext@digits#1\@stop
+    \else
+        #1
+    \fi
+}
+\def\cardinaltext@digits#1#2\@stop{%
+    \ifstrempty{#2}{%
+        \cardinaltext@ones{#1}%
+    }{%
+        \ifnum#1=\@ne
+            \cardinaltext@teens{#2}%
+        \else
+            \cardinaltext@tens{#1}%
+            \ifnum#2>\z@
+                -\cardinaltext@ones{#2}%
+            \fi
+        \fi
+    }%
+}
+\def\cardinaltext@ones#1{%
+    \ifcase#1Zero\or One\or Two\or Three\or Four\or Five\or Six\or Seven\or
+    Eight\or Nine\fi
+}
+\def\cardinaltext@teens#1{%
+    \ifcase#1Ten\or Eleven\or Twelve\or Thirteen\or Fourteen\or Fifteen\or
+    Sixteen\or Seventeen\or Eighteen\or Nineteen\fi
+}
+\def\cardinaltext@tens#1{%
+    \ifcase#1\or\or Twenty\or Thirty\or Forty\or Fifty\or Sixty\or Seventy\or
+    Eighty\or Ninety\fi
+}
+\def\find@next#1#2#3#4#5{%
+    \find@start{ }{#1}{#2{ }}{%
+        \ifstrempty{#1}{#5}{%
+            \find@next@group#1\str@mark{}\str@stop{#3}{#4}%
+        }%
+    }%
+}
+\def\find@next@group#1#{%
+    \ifstrempty{#1}\find@next@group@yes{\find@next@group@no#1}%
+}
+\def\find@next@group@yes#1#2\str@mark#3\str@stop#4#5{#4{#1}{#2}}
+\def\find@next@group@no#1#2\str@mark#3\str@stop#4#5{%
+    #5{#1}{#2}%
+}
+\def\find@word#1#2#3#4#5{%
+    \find@next{#1}{#2}{#3}{\find@word@char{#2}{#4}}{#5}%
+}
+\def\find@word@char#1#2#3#4{%
+    \@ifwordchar{#3}{%
+        \find@word@next{#4}{#2{#3}{#4}}{\find@word@acc{#2}{#3}{#4}}%
+    }{%
+        #1{#3}{#4}% First char of the string was punctuation
+    }%
+}
+\def\find@word@next#1#2#3{%
+    \find@next{#1}%
+        {\@firstofthree{#2}}{\@firstofthree{#2}}{#3}{#2}%
+}
+\def\find@word@acc#1#2#3#4#5{%
+    \@ifwordchar{#4}{%
+        \find@word@next{#5}{#1{#2#4}{#5}}{\find@word@acc{#1}{#2#4}{#5}}%
+    }{%
+        #1{#2}{#3}%
+    }%
+}
+\def\find@group#1#2#3{%
+    \find@group@#1\str@mark{.}\str@stop{#2}{#3}%
+}
+\def\find@group@#1#{\find@group@@{#1}}
+\def\find@group@@#1#2#3\str@stop#4#5{%
+    \ifstrempty{#3}{#5}{\find@group@yes{#1}{#2}#3\str@stop{#4}}%
+}
+\def\find@group@yes#1#2#3\str@mark#4\str@stop#5{#5{#1}{#2}{#3}}
+\def\find@group@end#1#2#3{%
+    \find@group@end@{}{#1}{#2}{#3}%
+}
+\def\find@group@end@#1#2#3#4{%
+    \find@group{#2}{%
+        \find@group@end@@{#1}{#3}{#4}%
+    }{#4}%
+}
+\def\find@group@end@@#1#2#3#4#5#6{%
+    \ifstrempty{#6}{#2{#1#4}{#5}}{%
+        \find@group@end@{#1#4{#5}}{#6}{#2}{#3}%
+    }%
+}
+\def\@ifletter#1{\@test \ifcat a\noexpand#1\fi}
+\def\@ifonechar#1{\ifstrempty{#1}{\@secondoftwo}{\@ifonechar@#1\str@stop}}
+\def\@ifonechar@#1#2\str@stop{\ifstrempty{#2}}
+\def\@ifdigit#1{\@ifonechar{#1}{\@test\ifnum 9<1\noexpand#1 \fi}{\@secondoftwo}}
+\def\@ifwordchar#1{%
+    \@ifletter{#1}\@firstoftwo{\@ifdigit{#1}\@firstoftwo\@secondoftwo}%
+}
+\def\@ifnumber#1{%
+    \ifblank{#1}\@secondoftwo{%
+        \find@start{-}{#1}{\@unbrace\@ifnumber@}{%
+            \@ifnumber@#1%
+        }\@stop
+    }%
+}
+\make@find@start{-}
+\def\@ifnumber@#1#2\@stop{%
+    \@ifdigit{#1}{%
+        \ifblank{#2}\@firstoftwo{\@ifnumber@#2\@stop}%
+    }\@secondoftwo
+}
+\def\@ifendswithwordchar#1{%
+    \ifstrempty{#1}{\@secondoftwo}{%
+        \find@end{ }{#1}{\@thirdofthree}{%
+            \str@ifewwc#1\str@stop
+        }%
+    }%
+}
+\def\str@ifewwc#1#2\str@stop{%
+    \ifstrempty{#2}{%
+        \@ifonechar{#1}{%
+            \@ifwordchar{#1}%
+        }{%
+            \str@ifewwc#1\str@stop
+        }%
+    }{%
+        \str@ifewwc#2\str@stop
+    }%
+}
+\def\@ifstartswithwordchar#1{%
+    \ifstrempty{#1}{\@secondoftwo}{%
+        \find@start{ }{#1}{\@thirdofthree}{%
+            \@ifonechar{#1}{%
+                \@ifwordchar{#1}%
+            }{%
+                \expandafter\@ifstartswithwordchar\expandafter{\@car#1\@nil}%
+            }%
+        }%
+    }%
+}
+\endinput
+%%
+%% End of file `support/strings.sty'.

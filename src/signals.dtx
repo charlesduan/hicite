@@ -1,0 +1,269 @@
+%%
+%% \iffalse filename: signals.dtx \fi
+%%
+%<*doc>
+\input driver
+\thisis{signals}{Signals}
+
+
+Items in a citation string may be preceded by a signal, indicating how the
+writer of the citation understands the relationship of a cited reference to the
+writer's argument. A citation preceded with \emph{see} indicates that the
+reference supports the writer's proposition; \emph{compare} can identify warring
+sides of a debate; \emph{cf.}~can identify cleverly related connections or coyly
+disguise contradictory authorities; and \emph{see generally} can point to
+background reading. Signals introduce a great deal of expressiveness into a
+system of legal citation, enabling writers to compactly distill a complete
+literature into a single citation string.
+
+\subsection{Data Model (List of Signals)}
+
+%</doc>
+%
+%<*package>
+%
+% List of signals to search for. This is structured like an argument to
+% |\find@try|.
+%
+%    \begin{macrocode}
+\let\hi@pse@findlist\@empty
+%    \end{macrocode}
+%
+% Adds a new signal. New signals are added to the front of the list, so they
+% will be checked first. This means that longer signals (see also) should be
+% added after shorter signals (see). A macro of |\hi@sig@|\meta{signal} is also
+% defined, with the value of the macro being the signal type.
+%
+%    \begin{macrocode}
+\def\AddSignal#1#2{%
+    \prepend@macro\hi@pse@findlist{%
+        {#1 }{\hi@pse@sigvolref@withsig{#1}}%
+    }%
+    \make@find@start{#1 }%
+    \@namedef{hi@sig@#1}{#2}%
+}
+%    \end{macrocode}
+%
+% The empty signal must be separately defined to be type ``s''. It is not
+% included with |\AddSignal| because the empty signal should not be looked for
+% (it is selected by default when no other signal matches) and thus not added to
+% the finding list.
+%
+%    \begin{macrocode}
+\def\hi@sig@{s}
+%    \end{macrocode}
+%
+% Commands to define the existing signals follow in the code. However, in the
+% documentation this code is being used to produce the table of signals that
+% follows in the next section. As a result, consult the code itself to see those
+% commands.
+%
+%</package>
+%<*doc>
+
+Each signal belongs to one of four classes: support, comparison, contrary, and
+background. Here are all the signals available, along with their classes.
+
+\begin{center}
+\def\AddSignal#1#2{\emph{#1}&\csname sig@#2\endcsname\\}
+\def\sig@s{Support}
+\def\sig@p{Comparison}
+\def\sig@c{Contrary}
+\def\sig@b{Background}
+
+\begin{tabular}{ll}
+\textbf{Signal} & \textbf{Class} \\
+%</doc>
+%<*doc|package>
+\AddSignal{see}{s}
+\AddSignal{see, e.g.,}{s}
+\AddSignal{see also}{s}
+\AddSignal{see also, e.g.,}{s}
+\AddSignal{e.g.,}{s}
+\AddSignal{accord}{s}
+\AddSignal{accord, e.g.,}{s}
+\AddSignal{cf.}{s}
+\AddSignal{compare}{p}
+\AddSignal{and}{p}
+\AddSignal{with}{p}
+\AddSignal{contra}{c}
+\AddSignal{but see}{c}
+\AddSignal{but see, e.g.,}{c}
+\AddSignal{but cf.}{c}
+\AddSignal{see generally}{b}
+%</doc|package>
+%<*doc>
+\end{tabular}
+\end{center}
+
+\subsection{Input Syntax}
+
+As described in \sec{parse}, the signal for a citation
+item is placed at the beginning of the input text for the citation item, in all
+lowercase text. As a convenience, duplicative sequential signals may be omitted.
+For example, the following are equivalent:
+\begin{quote}
+\ttfamily
+see ref1; ref2; see also ref3; ref4 \\
+see ref1; see ref2; see also ref3; see also ref4 \\
+\end{quote}
+In both cases, the \emph{see} signal will apply to |ref1| and |ref2|, and
+\emph{see also} to |ref3| and |ref4|.
+
+This package does not deal with two aspects of citation signals. First, it does not
+enforce an order in which signals must be used. This provides slightly more
+flexibility to writers, although it is expected that most writers will follow
+conventional ordering of signals. Second, comparison signal citations typically
+include \emph{and} before the penultimate item of each side of the comparison,
+for example:
+\begin{quote}
+\emph{Compare} A, B, \emph{and} C, \emph{with} D, \emph{and} F.
+\end{quote}
+For implementation reasons, \unskip\footnote{As described in the implementation
+discussion of citation formatting, each citation item is formatted by executing
+a group of commands for the citation. To figure out whether an \emph{and} is
+needed in the middle of a comparison citation string, it would be necessary to
+read ahead to the next citation item in advance. While this could be done, it
+would be cumbersome to program, and the workaround described here is not enough
+of an inconvenience to make the effort seem worthwhile.} this package does not
+add the \emph{and} automatically. Instead, \emph{and} is defined as a comparison
+signal for the writer to insert in the appropriate place in a citation string.
+
+
+\subsection{Formatting}
+
+There are four matters to be handled with respect to formatting of signals.
+\begin{enumerate}
+\item The citation must be formatted with the correct fonts.
+
+\item The punctuation between citation items depends on the surrounding signals.
+Citation items are generally separated by semicolons, but with two
+exceptions:
+\begin{itemize}
+\item Between citation items using comparison-class signals, commas are used.
+\item In a sentence-style citation, citation items are separated with a period
+if the signal class changes. The signal is also capitalized.
+\end{itemize}
+
+\item If the same signal is used two or more times in a row, it is only
+displayed on the first use.
+
+\item In a series of citation items with contrary-class signals, the word
+``but'' is omitted from all but the first negative signal.
+\end{enumerate}
+
+%</doc>
+%<*package>
+%
+% These commands provide for the formatting of signals, and are called during
+% the execution of |\hi@draw@citation| when drawing a citation string.
+%
+% \DescribeMacro\hi@signals@init
+% This is called at the beginning of a citation string, to keep track of the
+% last used signal.
+%
+%    \begin{macrocode}
+\def\hi@signals@init{%
+    \let\hi@signals@last\relax
+}
+%    \end{macrocode}
+%
+% \DescribeMacro\hi@signals@set
+% This macro is called for each citation. It receives the signal text found in
+% the input citation string, and computes the formatted signal and the
+% inter-citation punctuation. \#1 is the input signal text, and \#2 is a
+% callback that takes the punctuation and formatted signal as two arguments.
+%
+%    \begin{macrocode}
+\def\hi@signals@set#1#2{%
+    \def\hi@signals@this{#1}%
+    \@test\ifx\hi@signals@last\relax\fi{%
+        %
+        % If this is the first signal.
+        \expandafter\hi@signals@drawfirst\expandafter{\hi@signals@this}%
+    }{%
+        %
+        % If this is not the first signal. If the signal is empty, it defaults
+        % to the last signal.
+        \ifx\hi@signals@this\@empty
+            \let\hi@signals@this\hi@signals@last
+        \fi
+        \@expand{%
+            \@expand{\hi@signals@drawmid}{%
+                \csname hi@sig@\hi@signals@this\endcsname
+            }{i}%
+        }{\csname hi@sig@\hi@signals@last\endcsname}{i}%
+    }{%
+        %
+        % We tack on, before the callback, an update to the signal state that
+        % should happen right before we give control to the callback.
+        %
+        \let\hi@signals@last\hi@signals@this#2%
+    }%
+}
+%    \end{macrocode}
+%
+% For the first signal, punctuation is empty. \#1 is the signal text, and \#2 is
+% the callback.
+%    \begin{macrocode}
+\def\hi@signals@drawfirst#1#2{%
+    \ifstrempty{#1}{#2{}{}}{#2{}{\hi@fn@sig{#1}\ }}%
+}
+%    \end{macrocode}
+%
+% A signal not at the start of the citation string. \#1 is this signal's macro
+% (|\hi@sig@|\meta{signal}); \#2 is last signal's macro; \#3 is the callback.
+%
+%    \begin{macrocode}
+\def\hi@signals@drawmid#1#2#3{%
+    \@test\ifx\hi@signals@last\hi@signals@this\fi{%
+        % For identical signals, no text given
+        \hi@signals@punct{}% See extra args later
+    }{%
+        \@test\ifx#2\hi@sig@contra\fi{%
+            % If the previous citation signal was negative, drop any "but" from
+            % this citation signal.
+            \@expand{\find@start{but }}{\hi@signals@this}{i}{%
+                % One arg comes from \find@start; the rest are below
+                \hi@signals@fmt
+            }{\expandafter\hi@signals@fmt\expandafter{\hi@signals@this}}%
+        }{%
+            \expandafter\hi@signals@fmt\expandafter{\hi@signals@this}%
+        }%
+    }{#1}{#2}{#3}% These args get tacked on no matter what
+}
+\make@find@start{but }
+%    \end{macrocode}
+%
+% This is called if the signal has changed from the last one. \#1 is the text of
+% the signal; the three arguments on the stack that remain are passed directly
+% to |\hi@signals@punct|.
+%    \begin{macrocode}
+\def\hi@signals@fmt#1{\hi@signals@punct{\hi@fn@sig{#1}\ }}
+%    \end{macrocode}
+%
+% Computes the punctuation between signals and runs the callback.
+% \#1 is the signal text to use, \#2 the current signal's macro, \#3 the last
+% signal's macro, and \#4 the callback.
+%
+%    \begin{macrocode}
+\def\hi@signals@punct#1#2#3#4{%
+    \@test\ifx#2#3\fi{%
+        %
+        % Same signal class. Use semicolon or comma depending on if it's
+        % compare.
+        %
+        \@test\ifx#2\hi@sig@compare\fi{#4{,}{#1}}{#4{;}{#1}}%
+    }{%
+        % Different signal class. Depending on whether this is a sentence or
+        % clause, choose punctuation.
+        \@test\if@hi@sent\fi{%
+            #4{\if@hi@dot\@re@dot@space\else.\fi\@hi@captrue}{#1}%
+        }{%
+            \@test\ifx#2\hi@sig@compare\fi{#4{,}{#1}}{#4{;}{#1}}%
+        }%
+    }%
+}
+%    \end{macrocode}
+%
+%</package>

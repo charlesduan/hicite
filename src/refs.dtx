@@ -1,0 +1,457 @@
+%%
+%% \iffalse filename: refs.dtx \fi
+%%
+%<*doc>
+\input driver
+\thisis{refs}{Defining References}
+
+A reference represents a single citable work of authority. What constitutes a
+single work may be uncertain, particularly for statutes and multi-authored
+works, as described previously. The general test for whether two items are two
+references or subdivisions of a single reference is whether, if they were cited
+immediately in sequence, \emph{id.}\ should be used for the second item. In some
+cases this is a matter of the writer's taste, so this package generally gives
+writers the flexibility to define references however they see fit.
+
+
+If a reference is used in a citation string but not defined, this package will
+issue an error, or it will keep track of the missing citation. See \sec{draw}
+for more information on missing references.
+
+
+\subsection{Data Model}
+
+Each reference consists of:
+\begin{itemize}
+\item A reference type, such as a book, case, or statute. The complete list of
+reference types is given in Part~\ref{p:alltypes}. The reference type determines
+how the reference is formatted and what parameters are necessary to define the
+reference.
+
+\item An identifier nickname that will be used to identify this reference in
+citations (and, on occasion, inside other references). The nickname must be
+unique and generally should not contain spaces.
+
+\item Parameters providing information about the reference. For
+example, a book uses parameters for the author, title, and publication year.
+The reference type determines which parameters are required and optional; this
+is documented in Part~\ref{p:alltypes}.
+There are also parameters of general applicability to all reference types,
+described in \sec{genparams}. The complete list of parameters
+is given in Part~\ref{p:allparams}.
+\end{itemize}
+
+Each reference type is further associated with a category, used to organize a
+Table of Authorities as described in \sec{toa}.
+The category can be altered using the reference
+definition parameter \param{citetype}.
+The categories are associated with a textual
+description that is used to assemble the headings for the table of authorities,
+as described in \sec{toa}.
+
+
+
+%</doc>
+%<*package>
+%
+% Unfortunately, when I first started writing this program I used the word
+% ``cite'' to refer to what I now call references. While I have tried to be
+% consistent in the documentation, I have not revised the internal macro names
+% in the program to follow the current paradigm.
+%
+% \DescribeMacro\hi@citetype
+% Defines a macro |\tc@|\meta{reference} to be the TOA category desired for
+% \meta{reference}. This macro should be called within the reference definer
+% macros to set the category, or it is invoked by the |citetype| parameter. If
+% it is not called such that no |\tc@|\meta{reference} macro is set, then the
+% reference will not appear in the table. \#1 should be the reference name, \#2
+% a macro defined to the category name.
+%    \begin{macrocode}
+\def\hi@citetype#1#2{%
+    \@ifundefined{tc@#1}{%
+        \global\expandafter\let\csname tc@#1\endcsname#2%
+    }{}%
+}
+\let\hi@newcitetype\def
+%    \end{macrocode}
+%
+% Definitions of the categories follow in the source code, but they are used to
+% produce a table in the documentation, so please consult the documentation for
+% the code.
+%
+%</package>
+%<*doc>
+
+The following are the reference categories. The group associated with each
+category is a label for the group in the table of authorities that the reference
+will be placed together with (so, for example, statutes and regulations are
+placed in the same category). The text associated with each category will be
+used for the heading in the table of authorities.
+
+\begin{center}
+\def\hi@newcitetype#1#2{\expandafter\hi@newcitetype@\string#1\@mark#2\@stop}
+\expandafter\def\expandafter\hi@newcitetype@
+    \string\hi@type@#1\@mark#2:#3\@stop{%
+    #1&#2&#3\\%
+}
+\begin{tabular}{lll}
+\textbf{Category} & \textbf{Group} & \textbf{Text} \\
+%</doc>
+%<*doc|package>
+\hi@newcitetype\hi@type@other{other:Other Source/s}
+\hi@newcitetype\hi@type@const{const:Constitutional Provision/s}
+\hi@newcitetype\hi@type@found{const:Foundational Document/s}
+\hi@newcitetype\hi@type@statute{statute:Statute/s}
+\hi@newcitetype\hi@type@regulation{statute:Regulation/s}
+\hi@newcitetype\hi@type@rule{statute:Rule/s}
+\hi@newcitetype\hi@type@case{case:Case/s}
+\hi@newcitetype\hi@type@admin{case:Administrative Decision/s}
+\hi@newcitetype\hi@type@treaty{statute:Treat/y/ies}
+%</doc|package>
+%<*doc>
+\end{tabular}
+\end{center}
+
+
+%</doc>
+%<*package>
+%
+% \DescribeMacro\hi@type@doforall
+% This macro will perform |\do| for each of the Table of Authorities groups, in
+% the proper order.
+%    \begin{macrocode}
+\def\hi@type@doforall{%
+    \do{case}%
+    \do{const}%
+    \do{statute}%
+    \do{other}%
+}
+%    \end{macrocode}
+%
+%</package>
+%<*doc>
+
+
+\subsection{Input Syntax}
+\label{s:refs-syntax}
+
+The package provides its own syntax for writers to use when defining references.
+As an alternative, the |hitobib| package offers a compatibility layer that
+accepts Biblatex reference definitions, so long as the parameter names
+correspond with those of this package.
+
+Generally, references are defined as follows:
+\begin{quote}
+|\def|\meta{reference type} \marg{name} |{| \\
+\hbox{}\quad \meta{param1} |=| \meta{value1}|,| \\
+\hbox{}\quad \meta{param2} |=| \meta{value2}|,| \\
+\hbox{}\quad \ldots \\
+|}|
+\end{quote}
+For example, to define the historic case on copyrightability:
+\begin{quote}
+|\defcase{baker}{|\\
+|    parties=Baker v. Selden,|\\
+|    cite=101 U.S. 99,|\\
+|    year=1880,|\\
+|}|
+\end{quote}
+The input follows \TeX\ syntax and uses the |keyval| package, so if there are
+equal signs or commas in the parameter values, then the parameter should be
+surrounded with braces.
+
+Entering the parameter names for every reference can be tedious, so for common
+reference types there are shortcuts described in \sec{cparse}.
+
+%</doc>
+%<*package>
+%
+% Contains a list of every reference type.
+%    \begin{macrocode}
+\let\hi@citeforms\@empty
+%    \end{macrocode}
+%
+%
+%
+% Creates a new reference definer macro. \#1 is the |\def|\meta{type} command
+% for the reference, \#2 a textual description, and \#3 the macro code to be run
+% to define the reference. Executing the reference definition command should
+% cause the definition of the following formatting macros of the form
+% |\|\meta{prefix}|@|\meta{ref-name}:
+% \begin{center}
+% \begin{tabular}{rl}
+%    |fc|  & full citation. Required. \\
+%    |sc|  & short citation. Optional, with full cite form used otherwise. \\
+%    |lc|  & full citation, for use in table of authorities. Optional. \\
+%    |pc|  & page number formatter. Optional; defaults to |\@format@pageno|. \\
+%    |ic|  & inline citation, for internal use if desired. \\
+%    |idc| & \emph{id.}\ citation. Optional. \\
+% \end{tabular}
+% \end{center}
+% For convenience of parameter definition macros, |\@this@case| is set to the
+% name of the reference being defined.
+%
+%    \begin{macrocode}
+\def\hi@newcite#1#2#3{%
+    \g@addto@macro\hi@citeforms{\do{#1}{#2}}%
+    \gdef#1##1##2{%
+        \@ifundefined{fc@##1}{}{%
+            \PackageError\hi@pkgname{%
+                Citation for ##1 already defined
+            }{%
+                The citation for ##1 has already been defined.\MessageBreak
+                Please select another name.
+            }%
+        }%
+        \begingroup
+            \def\@this@case{##1}%
+            \hi@param@set{#1}{##2}%
+            #3%
+            % \hi@bib@output
+        \endgroup
+    }%
+}
+%    \end{macrocode}
+%
+% \DescribeMacro\hi@alias@cite
+% Aliases a cite definer macro to another.
+%
+%    \begin{macrocode}
+\def\hi@alias@cite#1#2{\def#1{#2}}
+%    \end{macrocode}
+%
+% Within a reference definer macro, defines a new formatting macro of the form
+% |\|\meta{prefix}|@|\meta{name}, where \#1 is \meta{prefix} and \#2 is
+% \meta{name}. Mainly, this checks to make sure that the formatting macro isn't
+% being redefined (indicating that the writer has used a duplicate name).
+%    \begin{macrocode}
+\def\hi@newcite@form#1#2{%
+    \@ifundefined{#1@#2}{%
+        \expandafter\protected@xdef\csname#1@#2\endcsname
+    }{%
+        \find@eq{sc}{#1}{}{%
+            \PackageWarning\hi@pkgname{Refusing to redefine #1@#2}%
+        }%
+        \hi@newcite@form@gobble
+    }%
+}
+\make@find@eq{sc}
+\def\hi@newcite@form@gobble#1#{\@gobble}
+%    \end{macrocode}
+%
+%
+% \subsection{Implementation of Parameters}
+%
+% This implementation documentation now turns to how parameters are stored and
+% set internally. For every defined parameter, there is a macro
+% |\KV@hi@|\meta{param} as created by the |keyval| package. There is also a
+% macro |\hi@kv@|\meta{param} defined to hold the value that the parameter is
+% set to, which is used by most but not all parameters. By default, the
+% |\hi@kv@|\meta{param} variable is given a value that will generate an error if
+% used in a citation, alerting the user to the parameter being necessary but
+% missing.
+%
+% This is a list of all the parameter registers. Each parameter is stored in the
+% form |\do{|\meta{param}|}{|\meta{description}|}|.
+%
+%    \begin{macrocode}
+\def\hi@params{}
+%    \end{macrocode}
+%
+% Parenthetical parameters. We make a special token list of parenthetical
+% creator commands, to be executed presumably upon the full citation.
+%    \begin{macrocode}
+\newtoks\hi@param@parens
+%    \end{macrocode}
+%
+% Adds a parenthetical to the list. \#1 is the parenthetical priority, \#2 the
+% text.
+%    \begin{macrocode}
+\def\hi@param@addparen#1#2{%
+    \push@toks\hi@param@parens{%
+        \hi@parens@add#1{#2}%
+    }%
+}
+%
+% Special token to set undefined parameters to.
+%
+%    \begin{macrocode}
+\DeclareRobustCommand\hi@param@undef[1]{%
+    \PackageError\hi@pkgname{%
+        Citation parameter \noexpand#1 missing in \@this@case
+    }{Include the missing citation parameter.}%
+    \textbf{???}%
+}
+%    \end{macrocode}
+%    \begin{macrocode}
+\def\hi@undefine#1{\def#1{\hi@param@undef{\string#1}}}
+%    \end{macrocode}
+%
+% Set all parameters to empty. This will be called after all the
+% parameters have been created. Since reference definitions are executed inside
+% groups, these initial settings should carry over into all definitions.
+%
+%    \begin{macrocode}
+\def\hi@param@clear{%
+    \def\do##1##2{\expandafter\hi@undefine\csname hi@kv@##1\endcsname}%
+    \hi@params
+    \hi@param@parens{}%
+}
+\AtEndOfPackage{\hi@param@clear}
+%    \end{macrocode}
+%
+% Parameter definers. \#1 is the parameter, \#2 is an explanation, and anything
+% that follows should be arguments to |\define@key| excluding the keyset and
+% parameter name.
+%
+%    \begin{macrocode}
+\def\hi@defparam#1#2{%
+    \g@addto@macro\hi@params{\do{#1}{#2}}%
+    \define@key{hi}{#1}%
+}
+\def\hi@newparam#1#2{%
+    \@expand{\hi@defparam{#1}{#2}}{%
+        \expandafter\def\csname hi@kv@#1\endcsname{##1}%
+    }i%
+}
+\def\hi@defparam@noval#1#2{%
+    \hi@defparam{#1}{#2}[#1]%
+}
+\def\hi@newparam@noval#1#2{%
+    \@expand{\hi@defparam@noval{#1}{#2}}{%
+        \expandafter\def\csname hi@kv@#1\endcsname{##1}%
+    }i%
+}
+\def\hi@param@alias#1#2{%
+    \g@addto@macro\hi@params{\do{#1}{Alias for #2}}%
+    \edef\reserved@a{%
+        \noexpand\def\expandafter\noexpand\csname KV@hi@#1\endcsname{%
+            \expandafter\noexpand\csname KV@hi@#2\endcsname
+        }%
+    }\reserved@a
+}
+%    \end{macrocode}
+%
+% \paragraph{Setting Parameters}
+% \DescribeMacro\hi@param@set
+% The following macro is used when executing a reference definer, to read and
+% set all the parameters in preparation for constructing the citation macros. It
+% looks for a parseable formatted citation (either by finding a semicolon in the
+% parameters, or determining that the parameters contain no equal sign), and
+% otherwise uses |keyval| to read the parameters. It also executes any
+% post-parameter hooks.
+%
+%    \begin{macrocode}
+\def\hi@param@set#1#2{%
+    \let\hi@param@set@hooks\@empty
+    \expandafter\hi@param@set@kind\string#1\@stop
+    \hi@param@read{#2}%
+    \hi@param@set@hooks
+}
+\def\hi@param@read#1{%
+    \find@in{;}{#1}{%
+        \hi@param@read@{#1}%
+    }{\hi@param@read@{#1}{#1}{}}%
+}
+\def\hi@param@read@#1#2#3{%
+    \find@in{=}{#2}{%
+        \@firstofthree{\setkeys{hi}{#1}}%
+    }{%
+        \chop@space@then@run{#2}\hi@cparse
+        \ifstrempty{#3}{}{\setkeys{hi}{#3}}%
+    }%
+}
+\make@find@in{=}
+\make@find@in{;}
+%    \end{macrocode}
+%
+% Sets the reference kind by removing |\def| from the beginning of the reference
+% definer macro name.
+%
+%    \begin{macrocode}
+\def\hi@param@set@kind#1#2#3#4#5\@stop{%
+    \def\hi@kv@kind{#5}%
+}
+%    \end{macrocode}
+%
+% Adds a post-parameter-setting hook. \#1 is code to be run.
+%
+%    \begin{macrocode}
+\def\hi@param@addhook#1{%
+    \addto@macro\hi@param@set@hooks{#1}%
+}
+%    \end{macrocode}
+%
+% \paragraph{Testing Parameters in Citation Macros}
+% Commands for testing parameters in citation macros.
+%
+%    \begin{macrocode}
+\def\hi@ifset#1{%
+    \expandafter\hi@ifset@#1.\@stop
+}
+\def\hi@ifset@#1#2\@stop{%
+    \ifx\hi@param@undef#1\expandafter\@secondoftwo
+    \else                \expandafter\@firstoftwo   \fi
+}
+%    \end{macrocode}
+%    \begin{macrocode}
+\def\hi@ifeitherset#1#2{%
+    \hi@ifset#1{\@firstoftwo}{\hi@ifset#2}%
+}
+%    \end{macrocode}
+%
+%</package>
+%<*doc>
+
+
+\subsection{Citation Groups}
+
+\DescribeMacro\defcitegroup
+Often there will be several references that follow a standard conventional form,
+so it would be convenient to define all of them in one go. The |\defcitegroup|
+macro enables this to an extent. It takes three arguments:
+\begin{itemize}
+\item A reference definer macro (|\def|\meta{type})
+\item Initial text for the reference definition body
+\item A comma-separated list of texts used both as the nickname and as a suffix
+to the reference definition
+\end{itemize}
+
+For example, say you want to define references for several sections of the
+Patent Act. That could be achieved with the following three definitions:
+\begin{quote}
+|\defstatcode{101}{35 U.S.C. S 101}| \\
+|\defstatcode{102}{35 U.S.C. S 102}| \\
+|\defstatcode{103}{35 U.S.C. S 103}| \\
+\end{quote}
+This works (using the reference parser for statutes) but is repetitive. Instead,
+you can write:
+\begin{quote}
+|\defcitegroup\defstatcode{35 U.S.C. S }{101, 102, 103}|
+\end{quote}
+Each of the items in the comma-separated list (e.g., |101|) becomes both a
+reference nickname and the end of the reference definition.
+
+%</doc>
+%<*package>
+%    \begin{macrocode}
+\def\defcitegroup#1#2#3{%
+    \forcsvlist{\hi@citegroup@{#1}{#2}}{#3}%
+}
+\def\hi@citegroup@#1#2#3{#1{#3}{#2#3}}
+%    \end{macrocode}
+%</package>
+%<*test>
+
+\section{refs.dtx}
+
+\begingroup
+
+    \let\testregister\@empty
+    \def\deftest#1#2{\appto\testregister{{#1}{#2}}}
+    \defcitegroup\deftest{Prefix }{a, b, c}
+    \AssertMacro\testregister{{a}{Prefix a}{b}{Prefix b}{c}{Prefix c}}
+
+\endgroup
+
+%</test>

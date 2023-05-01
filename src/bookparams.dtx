@@ -1,0 +1,89 @@
+%%
+%% \iffalse filename: bookparams.dtx \fi
+%%
+%<*doc>
+\input driver
+\thisis{bookparams}{Parameters for Books and Articles}
+
+This section describes parameters typically specific to books and articles not
+otherwise described above. Some of the parameters will be applicable to other
+reference types such as statutes, because they use the publication parenthetical
+described in \sec{bookrefs-pubparen}. This section also includes parameters for
+the
+\rtype{citecontainer} reference type, because those are typically books.
+
+\input docparams
+
+%</doc>
+\hi@defparam{edition}{Edition number of book}{%
+    \protected@edef\reserved@a{\ifnum\m@ne<0#1 \fi}%
+    \ifx\reserved@a\@empty
+        \edef\hi@kv@edition{#1\hi@numtoord{#1} ed.}%
+    \else
+        \find@in{ }{#1}{%
+            \def\hi@kv@edition{#1}\@gobbletwo
+        }{%
+            \def\hi@kv@edition{#1 ed.}%
+        }%
+    \fi
+}
+%<*doc>
+If the value is a number, then it will be converted to an ordinal number (e.g.,
+|3| becomes ``3d'') and the word ``ed.''\ will be appended to it. If the value
+is a single word, then ``ed.''\ will be appended to it as well.
+%</doc>
+%
+\hi@defparam{editor}{Editor(s) of book}{%
+    \hi@nameproc@person{#1}{\hi@namelist@addtwo\hi@kv@editor\relax}%
+}
+%<*doc>
+The value should be a name, as described in \sec{names}. For more than one
+editor, enter this parameter as many times as needed, but \param{noetal} must be
+used if there are three or more editors. The ``\param{editor}'' parameter is
+also used for translators or other roles; see \param{edtype}. For institutional
+editors, see parameter \param{insted}.
+%</doc>
+%
+\hi@newparam{edtype}{Editor type (default ed.)}
+%<*doc>
+Changes the abbreviation placed after the editors. For example, use ``trans.''\
+for translators, and ``eds.\ \& trans.''\ for editors who also translated. Note
+that there is currently no support for works with an editor who is different
+from a translator.
+%</doc>
+%
+\hi@newparam@noval{forthcoming}{Journal article is forthcoming}
+\hi@defparam{in}{Reference name of a citation that the current item is in}{%
+    \hi@anonref{#1}{\def\hi@kv@in}%
+}
+%<*doc>
+The value may be a reference name or an anonymous reference definition (see
+\sec{anonymous}). The primary use of this parameter is to identify the
+containing
+work in a \rtype{citecontainer}.
+%</doc>
+%
+\hi@defparam{insted}{Institutional editor}{%
+    \hi@nameproc@inst{#1}{\hi@namelist@addinst}{\hi@kv@editor}%
+}
+%<*doc>
+Adds an institutional editor to the \param{editor} parameter list.
+%</doc>
+%
+\hi@newparam{issue}{Issue number of journal}
+\hi@param@alias{issuer}{publisher}
+\hi@newparam@noval{noabbrevjrn}{Don't abbreviate the journal name}
+%<*doc>
+This is useful if the journal was entered abbreviated already.
+%</doc>
+%
+\hi@defparam{publisher}{Publisher of book}{%
+    \hi@abbrev@name{#1}{\def\hi@kv@publisher}%
+}
+\hi@newparam@noval{singleauthor}{All works in a collection are by one author}
+%<*doc>
+This is used in \rtype{citecontainer} to change the font used for the author.
+%</doc>
+%
+\hi@newparam@noval{usetitle}{Use title rather than author in short cites}
+\hi@newparam@noval{useissue}{Include issue number in journal citations}

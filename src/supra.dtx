@@ -1,0 +1,91 @@
+%%
+%% \iffalse filename: supra.dtx \fi
+%%
+%<*doc>
+\input driver
+\thisis{supra}{\emph{Supra} Short Forms}
+
+Some citations use a short form that reads ``\meta{desc}, \emph{supra} note
+\meta{num}.'' Additionally, a writer may specify the |hereinafter| reference
+parameter for a reference, which applies a \emph{supra} short form to that
+reference. This section describes how such citations are produced and managed.
+
+\DescribeMacro\hi@supra@form
+A reference type that uses a \emph{supra} citation should execute:
+\begin{quote}
+|\hi@supra@form|\marg{ref}\marg{desc}
+\end{quote}
+in constructing citation macros. The
+argument \meta{ref} is the reference name, and \meta{desc} is the description
+to precede the word ``\emph{supra}.'' The description is usually the reference
+author's last name, and it may use font shortcut commands as described in
+\sec{fonts}.
+
+Setting up a \emph{supra} form requires performing the following tasks:
+\begin{itemize}
+\item Registering the description as a short citation name for duplicate
+checking, as described in \sec{short}.
+\item Creating both a short citation form and an inline form, where the inline
+form displays the description text.
+\item Records that \meta{ref} is a \emph{supra}-type reference that does not
+follow the five-footnote rule, to conform with the expectations of short
+citation state described in \sec{state}.
+\end{itemize}
+
+%</doc>
+%<*package>
+%
+%    \begin{macrocode}
+\def\hi@supra@form#1#2{%
+    \hi@short@register{#1}{#2}{n}%
+    \hi@newcite@form{sc}{#1}{%
+        \hi@short@use{#1}%
+        \hi@inline@only{%
+            \hi@citeguts{%
+                \unexpanded{#2}%
+            }%
+        }%
+        \hi@inline@never{%
+            \hi@citeguts{%
+                \noexpand\hi@usevol{}%
+                \unexpanded{#2}%
+                \noexpand\hi@supra@word{#1}%
+                \hi@maybepage{, \hi@page@atorsect}%
+            }%
+        }%
+    }%
+    \global\cslet{sc@#1@supra}\@empty
+}
+%    \end{macrocode}
+%
+% Produces the word ``supra'' with the footnote number.
+%
+%    \begin{macrocode}
+\def\hi@supra@word#1{%
+    \hi@font@comma \hi@nocap \hi@fn@latin{supra}%
+    \hi@notepos{#1}%
+    \@hi@dotfalse
+}
+%    \end{macrocode}
+%
+% Displays the footnote number for the \emph{supra} citation. Following the
+% conventions described in \sec{state}, the number is displayed only if (1) the
+% reference has only been cited in footnotes (|\dfc@|\meta{ref} is positive) and
+% the reference number is not the same as the current footnote number.
+%
+% This macro is not incorporated into |\hi@supra@word| because it is redefined
+% in the tex4ht conversion file.
+%
+%    \begin{macrocode}
+\def\hi@notepos#1{%
+    \ifnum\csname dfc@#1\endcsname=\c@footnote\else
+        \ifnum\csname dfc@#1\endcsname>\z@
+            \space note~\csname dfc@#1\endcsname
+        \fi
+    \fi
+}%
+%    \end{macrocode}
+%
+%</package>
+%<*doc>
+

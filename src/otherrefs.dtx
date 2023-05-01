@@ -1,0 +1,226 @@
+%%
+%% \iffalse filename: otherrefs.dtx \fi
+%%
+%<*doc>
+\input driver
+\thisis{otherrefs}{Other Reference Types}
+
+\input docparams
+%</doc>
+\hi@newcite\defletter{A letter or memorandum}{%
+    \hi@citetype{#1}\hi@type@other
+    \hi@ifset\hi@kv@type{}{\def\hi@kv@type{Letter}}
+    \@expand{\find@in{, }}{\hi@kv@author}i{%
+        \def\reserved@a{, }\@gobbletwo
+    }{\def\reserved@a{ }}%
+    \hi@newcite@form{fc}{#1}{%
+        \hi@citeguts{%
+            \@capnext\hi@kv@type
+            \hi@ifset\hi@kv@author{ from \hi@kv@author}{}%
+            \hi@ifset\hi@kv@to{\reserved@a to \hi@kv@to}{}%
+            \hi@ifset\hi@kv@name{, \noexpand\hi@fn@arttitle{\hi@kv@name}}{}%
+            \hi@maybepage{ }%
+        }%
+        \hi@parens@add{\hi@paren@date}{\hi@kv@year}%
+        \the\hi@param@parens
+    }%
+    \hi@newcite@form{lc}{#1}{%
+        \hi@citeguts{%
+            \hi@ifset\hi@kv@author{%
+                \hi@toa@dupauthor{}{\hi@kv@author@sortable}\hi@kv@type
+            }{%
+                \@capnext\hi@kv@type
+            }%
+            \hi@ifset\hi@kv@to{ to \hi@kv@to}{}%
+            \hi@ifset\hi@kv@name{, \noexpand\hi@fn@arttitle{\hi@kv@name}}{}%
+        }%
+        \hi@parens@add{\hi@paren@date}{\hi@kv@year}%
+        \the\hi@param@parens
+    }%
+    \@expand{\hi@supra@form{#1}}\hi@kv@authln i%
+}
+%<*doc>
+The defining characteristic of this reference type is that it is a communication
+sent from one party to another. Nevertheless, the recipient is optional and can
+be omitted, useful perhaps for open letters or memoranda not directed to any
+particular person.
+
+Letters between institutions are typically still signed by and addressed to
+individuals. As a result, the ability to attach institutional affiliations to
+human authors (see \sec{names}) is especially useful for these references, to
+identify the companies, agencies, or institutions that are the actual
+communicants.
+
+\keyparameters{
+    {author}{The sender of the letter.}
+    {to}{The recipient of the letter.}
+    {date}{The date the letter was sent.}
+}
+\optparameters{
+    {type}{The type of document, default ``Letter.''}
+    {name}{A subject line or title of the letter (more common for memoranda).}
+}
+
+%</doc>
+%
+\hi@newcite\defpressrelease{A press release}{%
+    \hi@citetype{#1}\hi@type@other
+    \hi@ifset\hi@kv@type{}{\def\hi@kv@type{Press Release}}%
+    \hi@newcite@form{fc}{#1}{%
+        \hi@citeguts{%
+            \hi@kv@type,
+            \hi@ifset\hi@kv@author{\hi@kv@author@sortable, }{}%
+            \hi@ifset\hi@kv@name{\noexpand\hi@fn@arttitle{\hi@kv@name}}{}% Title
+            \hi@maybepage{ }%
+        }%
+        \hi@parens@add{\hi@paren@date}{\hi@kv@year}%
+        \the\hi@param@parens
+    }%
+    \protected@edef\reserved@a{%
+        \hi@ifset\hi@kv@authln{\@capnext\hi@kv@authln}{%
+            \noexpand\hi@fn@arttitle{\hi@kv@name}%
+        }%
+    }%
+    \@expand{\hi@supra@form{#1}}\reserved@a i%
+}
+%<*doc>
+
+\keyparameters{
+    {name}{The title of the press release.}
+    {year}{The date of the press release.}
+}
+\optparameters{
+    {type}{The type of document, default ``Press Release.''}
+    {author, instauth}{The name of the issuer of the press release. This is
+    optional and not included in other citation systems, but unless the issuer
+    is in the press release title, there may be no other way to identify who
+    published the press release.}
+}
+
+
+%</doc>
+%
+\hi@newcite\defspeech{A speech, address, or presentation}{%
+    \hi@citetype{#1}\hi@type@other
+    \hi@ifset\hi@kv@type{}{\def\hi@kv@type{Address}}
+    \hi@newcite@form{fc}{#1}{%
+        \hi@citeguts{%
+            \hi@ifset\hi@kv@author{\hi@kv@author@sortable, }{}%
+            \hi@kv@type
+            \hi@ifset\hi@kv@place{\space at the \hi@kv@place}{}%
+            \hi@ifset\hi@kv@name{: \hi@kv@name}{}%
+            \hi@maybepage{\hi@page@space\hi@kv@name}%
+        }%
+        \the\hi@param@parens
+        \hi@parens@add\hi@paren@date{\hi@kv@year}%
+    }%
+    \protected@edef\reserved@a{%
+        \hi@ifset\hi@kv@authln{\@capnext\hi@kv@authln}{\hi@kv@name}%
+    }%
+    \@expand{\hi@supra@form{#1}}\reserved@a i%
+}
+%<*doc>
+Besides the obvious uses for delivered speeches, this reference form is useful
+for citing slide decks made available online. The more conventional practice of
+citing slide decks as books is undesirable insofar as it gives more apparent
+authoritative weight than is due most slide decks.
+
+\keyparameters{
+    {author}{The speaker or presenter.}
+    {year}{The date the speech was given.}
+}
+\optparameters{
+    {type}{The type of speech, default ``Address.'' For slide decks,
+    ``Presentation'' is a good choice.}
+    {place}{The location, event, or institution where the speech was given.}
+    {name}{A title of the speech.}
+}
+
+%</doc>
+%
+\hi@newcite\deffilm{A film (movie/motion picture)}{%
+    \hi@citetype{#1}\hi@type@other
+    \hi@newcite@form{fc}{#1}{%
+        \hi@citeguts{%
+            \noexpand\hi@fn@booktitle{\hi@kv@name}%
+        }%
+        \hi@parens@add{\hi@paren@date}{\hi@kv@publisher\space\hi@kv@year}%
+        \the\hi@param@parens
+    }%
+    \protected@edef\reserved@a{%
+        \noexpand\hi@fn@booktitle{\hi@kv@name}%
+    }%
+    \@expand{\hi@supra@form{#1}}\reserved@a i%
+}
+%<*doc>
+This format is somewhat deprecated as it can be implemented entirely with
+\rtype{website}.
+
+\keyparameters{
+    {name}{The name of the film.}
+    {publisher}{The studio that published the film. It is unclear which entity
+    this is when there are multiple studios involved in the distribution chain.}
+    {year}{The year the film was released.}
+}
+
+%</doc>
+%
+\hi@newcite\deftvshow{A television show}{%
+    \hi@citetype{#1}\hi@type@other
+    \hi@newcite@form{fc}{#1}{%
+        \hi@citeguts{%
+            \hi@fn@arttitle{\hi@kv@name}%
+        }%
+        \the\hi@param@parens
+        \hi@parens@add{\hi@paren@date}{%
+            \hi@param@optspc\hi@kv@publisher\hi@kv@year
+        }%
+    }%
+    \protected@edef\reserved@a{%
+        \noexpand\hi@fn@arttitle{\hi@kv@name}%
+    }%
+    \@expand{\hi@supra@form{#1}}\reserved@a i%
+}
+%<*doc>
+This format is somewhat deprecated as it can be implemented entirely with
+\rtype{website}.
+
+\keyparameters{
+    {name}{The name of the show.}
+    {publisher, broadcaster}{The broadcaster of the show.}
+    {year}{The year the show aired.}
+}
+
+%</doc>
+%
+\hi@newcite\defopinion{An ethics or other opinion}{%
+    \hi@citetype{#1}\hi@type@other
+    \hi@ifset\hi@kv@type{}{\def\hi@kv@type{Formal Opinion}}%
+    \@expand\hi@abbrev@cdoc\hi@kv@type i{\def\hi@kv@type}%
+    \hi@newcite@form{fc}{#1}{%
+        \hi@citeguts{%
+            \hi@kv@author,
+            \hi@kv@type\space \hi@kv@number
+            \hi@maybepage{, \hi@page@atorsect}%
+        }%
+        \hi@parens@add{\hi@paren@date}{\hi@kv@year}%
+        \the\hi@param@parens
+    }%
+    \protected@edef\reserved@a{\hi@kv@type\space \hi@kv@number}%
+    \@expand{\hi@supra@form{#1}}\reserved@a i%
+}
+%<*doc>
+These are issued by the American Bar Association, for example. Opinions issued
+by the government should use a different reference type.
+
+\keyparameters{
+    {author}{The author of the opinion.}
+    {number}{The serial number of the opinion.}
+    {year}{The date of the opinion.}
+}
+\optparameters{
+    {type}{The type of document, default ``Formal Opinion.''}
+}
+
+%</doc>
+%

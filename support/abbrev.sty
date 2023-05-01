@@ -1,0 +1,269 @@
+%%
+%% This is file `support/abbrev.sty',
+%% generated with the docstrip utility.
+%%
+%% The original source files were:
+%%
+%% src/abbrev.dtx  (with options: `package')
+%% 
+%% This is a generated file.
+%% 
+%% Copyright 2013-2023 Charles Duan. This program is free software: you can
+%% redistribute it and/or modify it under the terms of the GNU General Public
+%% License as published by the Free Software Foundation, either version 3 of the
+%% License, or (at your option) any later version.
+%% 
+%% This program is distributed in the hope that it will be useful, but WITHOUT
+%% ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
+%% FOR A PARTICULAR PURPOSE. See the GNU General Public License for more details.
+%% 
+%% You should have received a copy of the GNU General Public License along with
+%% this program.  If not, see <http://www.gnu.org/licenses/>.
+%% 
+%%
+%% \iffalse filename: abbrev.dtx \fi
+%%
+\ProvidesPackage{abbrev}[2017/08/14 Abbreviations]
+\RequirePackage{etoolbox}
+\RequirePackage{strings}
+\def\abb@new#1{\@namedef{abb@class@#1}{}}%
+\def\abb@add#1#2#3{%
+    \find@word{#2}{%
+        \abb@add@punct{#1}{#3}%
+    }{%
+        \abb@add@group{#1}{#3}%
+    }{%
+        \abb@add@{#1}{#3}%
+    }{%
+        \abb@add@error{nothing}{}{}%
+    }%
+}
+\def\abb@add@group#1#2#3#4{%
+    \ifstrempty{#3}{%
+        \abb@add@{#1}{#2}{#3}{#4}%
+    }{%
+        \abb@add@error{group}{{#3}#4}%
+    }%
+}
+\def\abb@add@error#1#2#3{%
+    \PackageError{abbrev}{%
+        Abbreviation text `#2#3' should not start with #1 `#2'
+    }{%
+        Review the text to be abbreviated
+    }%
+}
+\def\abb@add@punct#1#2#3#4{%
+    \@test \ifcat \relax\noexpand#3\fi{%
+        \abb@add@error{control sequence}{#3}{#4}%
+    }{%
+        \abb@add@{#1}{#2}{#3}{#4}%
+    }%
+}
+\def\abb@add@#1#2#3#4{%
+    \make@find@start{#3}% I think this is superfluous
+    \expandafter\abb@add@@
+        \csname abb@class@#1@#3\endcsname
+        {#2}{#4}%
+}
+\def\abb@add@@#1#2#3{%
+    \make@find@start{#3}%
+    \ifx#1\relax
+        \def#1{{#3}{#2}}%
+    \else
+        \expandafter\abb@add@insert#1\@stop{#1}{#3}{#2}{}%
+    \fi
+}
+\def\abb@add@insert#1#2#3\@stop#4#5#6#7{%
+    \find@start{#1}{#5}{%
+        \def#4{#7{#5}{#6}{#1}{#2}#3}%
+        \@gobble
+    }{%
+        \ifstrempty{#3}{%
+            \def#4{#7{#1}{#2}{#5}{#6}}%
+        }{%
+            \abb@add@insert#3\@stop{#4}{#5}{#6}{#7{#1}{#2}}%
+        }%
+    }%
+}
+\def\abb@abbrev#1#2#3{%
+    \abb@abbrev@wd{}{#2}{}{#1}{#3}%
+}
+\def\abb@abbrev@acc#1{%
+    \find@word{#1}\abb@abbrev@punct\abb@abbrev@grp\abb@abbrev@wd\abb@abbrev@end
+}
+\def\abb@abbrev@punct#1#2#3{%
+    \@test \ifcat \relax\noexpand#1\fi{%
+        \abb@abbrev@acc{#2}{#3#1}%
+    }{%
+        \abb@abbrev@wd{#1}{#2}{#3}%
+    }%
+}
+\def\abb@abbrev@grp#1#2#3{%
+    \abb@abbrev@acc{#2}{#3{#1}}%
+}
+\def\abb@abbrev@end#1#2#3{%
+    #3{#1}%
+}
+\def\abb@abbrev@wd#1#2#3#4{%
+    \@ifundefined{abb@class@#4@#1}{%
+        \abb@abbrev@acc{#2}{#3#1}{#4}%
+    }{%
+        \expandafter\expandafter\expandafter\abb@abbrev@wd@
+            \csname abb@class@#4@#1\endcsname \@stop
+            {#1}{#2}{#3}{#4}%
+    }%
+}
+\def\abb@abbrev@wd@#1#2#3\@stop#4#5#6{%
+    \find@start{#1}{#5}{%
+        \abb@abbrev@found{#6}{#2}%
+    }{%
+        \@iden
+    }%
+    {% This is left on the stack after whatever \find@start calls
+        \ifstrempty{#3}{%
+            \abb@abbrev@acc{#5}{#6#4}%
+        }{%
+            \abb@abbrev@wd@#3\@stop{#4}{#5}{#6}%
+        }%
+    }%
+}
+\def\abb@abbrev@found#1#2#3#4{%
+    %
+    \@ifstartswithwordchar{#3}{%
+        #4%
+    }{%
+        \find@try\find@start{%
+            { }{\abb@abbrev@maybechop{ }}%
+            {.}{\abb@abbrev@maybechop{.}}%
+        }{#3}{\abb@abbrev@acc}%
+        {#3}{#1#2}%
+    }%
+}
+\def\abb@abbrev@maybechop#1#2#3#4{%
+    \find@end{#1}{#4}{%
+        \@firstoftwo{\abb@abbrev@acc{#2}{#4}}%
+    }{\abb@abbrev@acc{#3}{#4}}%
+}%
+\make@find@start{.}
+\make@find@start{ }
+\make@find@end{.}
+\make@find@end{ }
+\def\abb@initialdots#1#2#3{%
+    \abb@id@a{#1}%
+    {}% Initially the processed text is empty.
+    {}% Deferred text is empty.
+    {#2}% The dot character.
+    {#3}% At end of the macro stack for use by \abb@id@done
+}
+\def\abb@id@done#1#2#3#4{%
+    #4{#1#2}%
+}
+\def\abb@id@a#1{%
+    \find@next{#1}\abb@id@backtoa\abb@id@backtoa\abb@id@a@letter\abb@id@done
+}
+\def\abb@id@backtoa#1#2#3#4{%
+    \abb@id@a{#2}{#3#4#1}{}%
+}
+\let\abb@id@a@space\abb@id@backtoa
+\let\abb@id@a@group\abb@id@backtoa
+\def\abb@id@a@letter#1#2#3#4{%
+    \@ifletter{#1}{%
+        \abb@id@b{#2}{#3#4#1}{}%
+    }{%
+        \@ifdigit{#1}{%
+            \abb@id@d{#2}{#3#4#1}{}%
+        }{%
+            \abb@id@a{#2}{#3#4#1}{}%
+        }%
+    }%
+}
+\def\abb@id@b#1{%
+    \find@next{#1}\abb@id@b@space\abb@id@a@group\abb@id@b@letter\abb@id@done
+}
+\let\abb@id@b@space\abb@id@backtoa
+\let\abb@id@b@group\abb@id@backtoa
+\def\abb@id@b@letter#1#2#3#4#5{%
+    \@ifletter{#1}{%
+        \abb@id@d{#2}{#3#4#1}{}%
+    }{%
+        \@test\ifx#1#5\fi{%
+            \abb@id@c{#2}{#3#4#1}{}%
+        }{%
+            \abb@id@a{#2}{#3#4#1}{}%
+        }%
+    }%
+    {#5}% Put the dot character back on the stack
+}
+\def\abb@id@c#1{%
+    \find@next{#1}\abb@id@c@space\abb@id@c@group\abb@id@c@letter\abb@id@done
+}
+\def\abb@id@c@space#1#2#3#4{%
+    \abb@id@e{#2}{#3#4}{#1}%
+}
+\let\abb@id@c@group\abb@id@backtoa
+\def\abb@id@c@letter#1#2#3#4{%
+    \@ifletter{#1}{%
+        \abb@id@b{#2}{#3#4#1}{}%
+    }{%
+        \@ifdigit{#1}{%
+            \abb@id@d{#2}{#3#4#1}{}%
+        }{%
+            \abb@id@a{#2}{#3#4#1}{}%
+        }%
+    }%
+}
+\def\abb@id@d#1{%
+    \find@next{#1}\abb@id@d@space\abb@id@d@group\abb@id@d@letter\abb@id@done
+}
+\let\abb@id@d@space\abb@id@backtoa
+\let\abb@id@d@group\abb@id@backtoa
+\def\abb@id@d@letter#1#2#3#4{%
+    \@ifwordchar{#1}{%
+        \abb@id@d{#2}{#3#4#1}{}%
+    }{%
+        \abb@id@a{#2}{#3#4#1}{}%
+    }%
+}
+\def\abb@id@e#1{%
+    \find@next{#1}\abb@id@e@space\abb@id@e@group\abb@id@e@letter\abb@id@done
+}
+\def\abb@id@e@space#1#2#3#4{%
+    \abb@id@e{#2}{#3}{#1}%
+}
+\let\abb@id@e@group\abb@id@backtoa
+\def\abb@id@e@letter#1#2#3#4{%
+    \@ifletter{#1}{%
+        \abb@id@f{#2}{#3}{#4#1}%
+    }{%
+        \@ifdigit{#1}{%
+            \abb@id@d{#2}{#3#1}{}%
+        }{%
+            \abb@id@a{#2}{#3#4#1}{}%
+        }%
+    }%
+}
+\def\abb@id@f#1{%
+    \find@next{#1}\abb@id@f@space\abb@id@f@group\abb@id@f@letter\abb@id@done
+}
+\let\abb@id@f@space\abb@id@backtoa
+\let\abb@id@f@group\abb@id@backtoa
+\def\abb@id@f@letter#1#2#3#4#5{%
+    \@ifwordchar{#1}{%
+        \abb@id@d{#2}{#3#4#1}{}%
+    }{%
+        \@test\ifx#1#5\fi{%
+            \abb@id@f@stripspace{#1}{#2}{#3}#4%
+        }{%
+            \abb@id@a{#2}{#3#4#1}{}%
+        }%
+    }%
+    {#5}%
+}
+\def\abb@id@f@stripspace#1#2#3#4{%
+    \abb@id@c{#2}{#3#4#1}{}%
+}
+\def\abb@dot{.}
+\ProcessOptions\relax
+\endinput
+%%
+%% End of file `support/abbrev.sty'.

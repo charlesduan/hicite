@@ -1,0 +1,236 @@
+%%
+%% This is file `support/sortlist.sty',
+%% generated with the docstrip utility.
+%%
+%% The original source files were:
+%%
+%% src/sortlist.dtx  (with options: `package')
+%% 
+%% This is a generated file.
+%% 
+%% Copyright 2013-2023 Charles Duan. This program is free software: you can
+%% redistribute it and/or modify it under the terms of the GNU General Public
+%% License as published by the Free Software Foundation, either version 3 of the
+%% License, or (at your option) any later version.
+%% 
+%% This program is distributed in the hope that it will be useful, but WITHOUT
+%% ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
+%% FOR A PARTICULAR PURPOSE. See the GNU General Public License for more details.
+%% 
+%% You should have received a copy of the GNU General Public License along with
+%% this program.  If not, see <http://www.gnu.org/licenses/>.
+%% 
+%%
+%% \iffalse filename: sortlist.dtx \fi
+%%
+\ProvidesFile{sortlist}[2005/02/12 Sorted list]
+\RequirePackage{etoolbox,strings}
+\def\NewSortedList#1#2{%
+    \@namedef{sli@@#1}{}%
+    \@namedef{sli@fn@#1}{#2}%
+    \@namedef{sli@inc@#1}{\@secondoftwo}%
+    \expandafter\def\csname sli@k@#1\endcsname##1##2%
+}
+\newif\ifCompReverse
+\def\IfKnownList#1{\@ifundefined{sli@fn@#1}\@secondoftwo\@firstoftwo}%
+\def\IfListContains#1#2{%
+    \@ifundefined{sli@uniq@#1@\detokenize{#2}}{\@secondoftwo}{\@firstoftwo}%
+}
+\def\IfEmptyList#1{%
+    \@test \expandafter\ifx\csname sli@@#1\endcsname\@empty \fi
+}
+\def\ListInclusionMacro#1{%
+    \@namedef{sli@inc@#1}##1##2%
+}
+\def\ListElementsMustBeUnique#1{%
+    \ListInclusionMacro{#1}{%
+        \IfListContains{#1}{##1}{}{##2}%
+    }%
+}
+\def\AddToList#1#2{%
+    \@nameuse{sli@inc@#1}{#2}{%
+        \cslet{sli@uniq@#1@\detokenize{#2}}\@empty
+        \def\sli@list{#1}%
+        \def\sli@elt{#2}%
+        \csname sli@k@#1\endcsname{#2}\sli@key
+        \IfEmptyList{#1}{%
+            \sli@insert{}{}%
+        }{%
+            \@expand{\@unbrace{\let\sli@sfun}}{\csname sli@fn@#1\endcsname}i%
+            \@expand{\sli@add}{\csname sli@@#1\endcsname}{ii}%
+        }%
+    }%
+}
+\def\sli@insert{%
+    \@expand{\expandafter\sli@insert@\expandafter{\sli@elt}}{\sli@key}i%
+}
+\def\sli@insert@#1#2#3#4{%
+    \@namedef{sli@@\sli@list}{#3\sli@do{{#1}{#2}}#4}%
+}
+\def\sli@add#1{%
+    \sli@traverse\sli@mark#1\sli@stop
+}
+\def\sli@traverse#1\sli@mark\sli@do#2#3\sli@stop{%
+    \@twodef\sli@cur@elt\sli@cur@key#2%
+    \@expandtwo\sli@sfun\sli@key{\@secondoftwo#2}%
+    \@test \ifCompReverse \fi{%
+        \ifstrempty{#3}{%
+            \sli@insert{#1\sli@do{#2}}{}%
+        }{\sli@traverse#1\sli@do{#2}\sli@mark#3\sli@stop}%
+    }{%
+        \sli@insert{#1}{\sli@do{#2}#3}%
+    }%
+}
+\def\ShowList#1{%
+    \def\sli@list{\csname sli@@#1\endcsname}%
+    \def\sli@do##1{\expandafter\sli@act\expandafter{\@firstoftwo##1}}%
+    \afterassignment\sli@list\def\sli@act##1%
+}
+\def\ReverseSort#1#2#3{%
+    #1{#2}{#3}\ifCompReverse\CompReversefalse\else\CompReversetrue\fi
+}
+\def\SortNum#1#2{%
+    \@tempcnta#1\relax \@tempcntb#2\relax
+    \ifnum\@tempcnta>\@tempcntb \CompReversetrue \else \CompReversefalse \fi
+}
+\def\NoSort#1#2{\CompReversefalse}
+\def\SortLen#1#2{\sli@sortlen#1\@nil#2\@nil}
+\def\sli@sortlen#1#2\@nil#3#4\@nil{%
+    \ifstrempty{#2}\CompReversefalse{%
+        \ifstrempty{#4}\CompReversetrue{%
+            \sli@sortlen#2\@nil#4\@nil
+        }%
+    }%
+}
+\def\@ifbothonechar#1#2{\@ifonechar{#1}{\@ifonechar{#2}}{\@secondoftwo}}
+\def\SortEasyAlpha#1#2{\sli@ea#1\@nil#2\@nil}
+\def\sli@ea#1#2\@nil#3#4\@nil{%
+    \@test \ifnum`#1=`#3\relax \fi{%
+        \ifstrempty{#2}{\CompReversefalse}{%
+            \ifstrempty{#4}{\CompReversetrue}{%
+                \sli@ea#2\@nil#4\@nil
+            }%
+        }%
+    }{%
+        \ifnum`#1>`#3\relax \CompReversetrue \else \CompReversefalse \fi
+    }%
+}
+\def\StripForAlpha#1#2{%
+    \def\sli@strip{#1}%
+    \edef\sli@strip{%
+        \expandafter\sli@strip@angle\meaning\sli@strip. \relax
+    }%
+    \@expand{#2}\sli@strip i%
+}
+\def\sli@strip@angle#1>{\sli@strip@spaces}
+\def\sli@strip@spaces#1 #2\relax{%
+    \ifstrempty{#2}{\sli@strip@next#1.\relax}{%
+        \sli@strip@spaces#1.#2\relax
+    }%
+}
+\edef\reserved@a{\noexpand\let\noexpand\sli@bs\expandafter\@gobble\string\\}
+\reserved@a
+\def\sli@strip@next#1{%
+    \@test \ifx#1\sli@bs \fi{\sli@strip@cs}{%
+        \@test \ifx#1\relax \fi{}{%
+            \@ifdigit{#1}{\sli@strip@num{#1}.....\sli@stop}{%
+                \@test \ifnum\uccode`#1>\z@ \fi{#1}{}%
+                \sli@strip@next
+            }%
+        }%
+    }%
+}
+\def\sli@strip@num#1.#2\sli@stop#3{%
+    \@ifdigit{#3}{%
+        \ifstrempty{#2}{%
+            \sli@strip@num{#1#3}.\sli@stop
+        }{%
+            \sli@strip@num{#1#3}#2\sli@stop
+        }%
+    }{#2#1\sli@strip@next#3}%
+}
+\def\sli@strip@cs#1{%
+    \@test \ifnum\catcode`#1=11 \fi{\sli@strip@csend}{%
+        \@test \ifnum`#1=`@ \fi{\sli@strip@csend}{%
+            \sli@strip@next
+        }%
+    }%
+}
+\def\sli@strip@csend#1.{\sli@strip@next}
+\def\SortAlpha#1#2{\sli@alpha#1\@nil#2\@nil}
+\def\sli@alpha#1#2\@nil#3#4\@nil{%
+    \@ifbothonechar{#1}{#3}{%
+\sli@alpha@bothonechar#1{#2}#3{#4}%
+    }{%
+\sli@alpha#1#2\@nil#3#4\@nil
+    }%
+}
+\def\sli@alpha@bothonechar#1#2#3#4{%
+    \ifcat\noexpand#3\relax
+\expandafter\sli@alpha@chkthree
+    \else
+\expandafter\sli@alpha@onecs
+    \fi
+    % Args to whichever command is chosen
+    #1{#2}#3{#4}%
+}
+\def\sli@alpha@onecs#1{%
+    \ifcat\noexpand#1\relax
+\expandafter\sli@alpha@chkone
+    \else
+\expandafter\sli@alpha@chars
+    \fi
+    #1% Put it back onto token list
+}
+\def\sli@alpha@chkone#1#2#3#4{%
+    \@test\ifx#1\sli@stop\fi{%
+\CompReversefalse
+    }{%
+\sli@alpha#2\@nil#3#4\@nil
+    }%
+}
+\def\sli@alpha@chkthree#1#2#3#4{%
+    \@test\ifx#3\sli@stop\fi{%
+\CompReversetrue
+    }{%
+\sli@alpha#1#2\@nil#4\@nil
+    }%
+}
+\def\sli@alpha@chars#1#2#3#4{%
+    % Both #1 and #3 are characters.
+    \@test\ifnum\uccode`#1=\z@ \fi{%
+        \sli@alpha@chars@nocase
+    }{%
+        \sli@alpha@chars@ucase
+    }%
+    #1{#2}#3{#4}%
+}
+\def\sli@alpha@chars@nocase#1#2#3#4{%
+    \@test\ifnum`#1>`#3 \fi{%
+\CompReversetrue
+    }{%
+\@test\ifnum`#1=`#3 \fi{%
+    % Chars are equal.
+    \sli@alpha#2\@nil#4\@nil
+}{%
+    % Second char is greater than the first.
+    \CompReversefalse
+}%
+    }%
+}
+\def\sli@alpha@chars@ucase#1#2#3#4{%
+    \@test\ifnum\uccode`#1>\uccode`#3 \fi{%
+\CompReversetrue
+    }{%
+\@test\ifnum\uccode`#1=\uccode`#3 \fi{%
+    % Chars are equal.
+    \sli@alpha#2\@nil#4\@nil
+}{%
+    % Second char is greater than the first.
+    \CompReversefalse
+}%
+    }%
+}
+\endinput
+%%
+%% End of file `support/sortlist.sty'.

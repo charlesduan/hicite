@@ -1,0 +1,1139 @@
+%%
+%% \iffalse filename: toa.dtx \fi
+%%
+%<*doc>
+\input driver
+\thisis{toa}{Table of Authorities}
+
+Legal briefs and other documents often include a Table of Authorities, listing
+all of the references cited and the pages where those citations occur. One of
+the motivations for creating this package was the automatic generation of
+complete, correct, and properly formatted Tables of Authorities.
+
+The table is generated using \LaTeX's auxiliary file feature. Citations generate
+index lines that are written to a |\jobname.toa| file, and those lines are read,
+sorted, and formatted to produce the table. Indexing can be disabled with
+\DescribeMacro\enabletoa
+\DescribeMacro\disabletoa
+|\disabletoa| and enabled with |\enabletoa|.
+
+A Table of Authorities is a complex structure, because it is typically sorted
+into sections based on reference types. This section describes how references
+are sorted into lists, how those lists get their headings, how page numbers in
+the tables are displayed, and finally how the table is formatted.
+
+%</doc>
+%<*package>
+%    \begin{macrocode}
+\newif\if@hi@in@toa
+\newif\if@hi@toa@disabled
+\let\disabletoa\@hi@toa@disabledtrue
+\let\enabletoa\@hi@toa@disabledfalse
+%    \end{macrocode}
+%</package>
+%<*doc>
+
+
+
+
+\subsection{Indexing References}
+
+References are indexed for the Table of Authorities upon every citation. The
+command |\addtotoa| described in \sec{iface} can also add an entry manually.
+
+An interesting challenge for indexing is that, especially for briefs, references
+may be cited in parts of a document that use different pagination systems. As a
+result, it is necessary to store detailed information about where a reference is
+cited in a document in order to produce a correct listing of pages in the table.
+
+%</doc>
+%<*package>
+%
+% Each entry in the TOA file has the following data elements as grouped tokens:
+% (other than the leading hi@toa):
+% \begin{enumerate}
+% \item \#1: the reference name, with ``at'' and a page number if
+% |\tcpg@|\meta{ref} is defined
+% \item \#2: the display-form page number
+% \item \#3: the numeric page number
+% \item \#4: the relevant definition of |\thepage| (to identify different page
+% counting schemes)
+% \item \#5: list of tags under which this TOA entry is to be categorized
+% \end{enumerate}
+%
+% Proposes adding a reference for indexing in the table of authorities. \#1 is
+% the reference, and \#2 is the page number if any. Even if a reference is
+% proposed for adding, the following conditions must be true:
+% \begin{itemize}
+% \item The TOA is not disabled
+% \item The reference to be added to the TOA is not itself in the TOA
+% \item A macro |\tc@|\meta{\#1} is defined, identifying the reference class for
+% indexing.
+% \end{itemize}
+%
+%    \begin{macrocode}
+\def\hi@addtotoa#1#2{%
+    \expandafter\hi@addtotoa@\csname tc@#1\endcsname{#1}{#2}%
+}
+\def\hi@addtotoa@#1#2#3{%
+    \if@hi@in@toa\else \if@hi@toa@disabled\else
+        \ifx#1\relax\else \ifx#1\@empty\else
+            \addtocontents{toa}{%
+                \protect\contentsline{hi@toa}{%
+                    #2\@ifundefined{tcpg@#2}{}{\ifstrempty{#3}{}{ at #3}}%
+                }{%
+                    {%
+                        \thepage
+                    }{%
+                        \noexpand\the\noexpand\c@page
+                    }{%
+                        % We want this to run at the time the |\write| is
+                        % executed.
+                        \noexpand\expandonce\thepage
+                    }{%
+                        #1%
+                        \ifx\hi@toa@locationtag\relax\else
+                            ,\hi@toa@locationtag
+                        \fi
+                    }%
+                }{}%
+            }%
+        \fi\fi
+    \fi\fi
+}
+%    \end{macrocode}
+%
+% \DescribeMacro\hi@include@page@in@toa
+% Declares that the page number is relevant and should be included for a
+% citation. This command should be issued by reference macro definers where the
+% reference type ought to include a page number in the TOA.
+%
+%    \begin{macrocode}
+\def\hi@include@page@in@toa#1{%
+    \global\@namedef{tcpg@#1}{}%
+}
+%    \end{macrocode}
+%
+%
+% \subsection{Reading the Index}
+%
+% The goal is to generate two types of items:
+% \begin{itemize}
+% \item Lists, called |hi@toa@|\meta{tag}, of reference names falling within
+% that \meta{tag}
+% \item Macros of the form |\hi@pg@|\meta{ref}, identifying the page numbers.
+% \end{itemize}
+%
+% Sets up the Table of Authorities. This reads the |toa| file, performs all the
+% reference use counting, and opens the |toa| file for writing. It then
+% undefines itself so it cannot be called again. It should be run before
+% displaying any TOA entries.
+%
+%    \begin{macrocode}
+\def\hi@setuptoa{%
+    \@hi@in@toatrue
+    \global\let\@last@toatitle\relax
+    \hi@toa@counter\z@
+    \@input{\jobname.toa}%
+    \@hi@in@toafalse
+    \if@filesw
+        \newwrite\tf@toa
+        \immediate\openout\tf@toa \jobname.toa\relax
+    \fi
+    \global\let\hi@setuptoa\relax
+}
+%    \end{macrocode}
+%
+% This is run for each entry in the |toa| file, as produced above. It sets up
+% the following:
+% \begin{itemize}
+% \item Adds the indexed page numbers to a macro |\hi@pg@|\meta{ref-with-page}
+% \item Adds the reference to |\hi@toa@all|, used for processing page numbers
+% \item Adds the reference to every list in \#5
+% \end{itemize}
+%
+%    \begin{macrocode}
+\def\l@hi@toa#1#2{\l@hi@toa@{#1}#2}
+\def\l@hi@toa@#1#2#3#4#5{%
+    \expandafter\hi@toa@addpg
+        \csname hi@pg@\detokenize{#1}\endcsname
+        {#2}{#3}{#4}%
+    \@for\hi@toa@tmp:=\@empty#5\do{%
+        \@expand{\find@in{:}}\hi@toa@tmp{i}{\hi@toa@addtolist{#1}}{%
+            \hi@toa@addtolist{#1}\hi@toa@tmp\hi@toa@tmp
+        }%
+    }%
+}
+\make@find@in{:}
+%    \end{macrocode}
+%
+% A counter for TOA items, just for informational purposes.
+%
+%    \begin{macrocode}
+\newcount\hi@toa@counter
+%    \end{macrocode}
+%
+%</package>
+%<*doc>
+
+\subsection{Lists}
+
+A Table of Authorities is made up of one or more reference lists, which are
+alphabetized. References can be added to multiple lists but can only be added to
+any list once. By default, reference types choose a list based on the type.
+
+%</doc>
+%<*package>
+%
+% Adds a given reference to a named list of references. If the list does not
+% already exist, then create it. Adding a reference to a list also involves
+% maintaining a ``sublist'' that determines the heading for the list, as
+% described below.
+%
+% The message counters are updated and displayed here because we want to track
+% unique additions of references to TOA lists.
+%
+% \#1 is the item to be added, \#2 the list name, \#3 the sublist name.
+%
+%    \begin{macrocode}
+\def\hi@toa@addtolist#1#2#3{%
+    \IfKnownList{hi@toa@#2}{}{%
+        \NewSortedList{hi@toa@#2}\SortEasyAlpha{%
+            \hi@toa@makesortable{##1}{\def##2}%
+        }%
+        \ListElementsMustBeUnique{hi@toa@#1}%
+    }%
+    \IfListContains{hi@toa@#2}{#1}{}{%
+        \AddToList{hi@toa@#2}{#1}%
+        \hi@toa@sublist@add{#2}{#3}%
+        \advance\hi@toa@counter\@ne
+        \message{(\the\hi@toa@counter)}%
+    }%
+}
+%    \end{macrocode}
+%
+% Given \#1 a reference name and \#2 a callback, turns the TOA citation form of
+% \#1 into sortable text and runs \#2 on it.
+%
+%    \begin{macrocode}
+\def\hi@toa@makesortable#1#2{%
+    \find@in{ at }{#1}{\hi@toa@makesortable@}{\hi@toa@makesortable@{#1}{}}{#2}%
+}
+%    \end{macrocode}
+%
+% \#1 is the reference name, \#2 the page number, \#3 the callback.
+%
+%    \begin{macrocode}
+\def\hi@toa@makesortable@#1#2#3{%
+    \@expand\hi@toa@makesortable@@{%
+        \csname\@ifundefined{lc@#1}{fc@#1}{lc@#1}\endcsname
+    }{ii}{#2}{#3}%
+}
+%    \end{macrocode}
+%
+% \#1 is the defined text of the reference macro, \#2 the page number, \#3 the
+% callback.
+%    \begin{macrocode}
+\def\hi@toa@makesortable@@#1#2#3{%
+    \uppercase{\StripForAlpha{#1#2}}{#3}%
+}
+\make@find@in{ at }
+%    \end{macrocode}
+%
+%</package>
+%<*doc>
+
+\paragraph{Sublists}
+Each item is associated with a Table of Authorities list and optionally a
+sublist. The sublist is used to construct a heading for the relevant list, such
+that if items in one table list are associated with several sublists, then the
+heading will name all the sublists. This is useful, for example, if a Table of
+Authorities section ought to contain both statutes and regulations: The table
+can automatically compute whether the heading of that section should read
+``Statutes,'' ``Statutes and Regulations,'' ``Statute and Regulations,'' or the
+like, depending on how many statutes and regulations are in the section.
+
+%</doc>
+%<*package>
+%
+% Adds a sublist name \#2 to a TOA list \#1. The sublist information is stored
+% in a macro |\hi@sublist@|\meta{list}. That macro contains a list of paired
+% items, one for each sublist name encountered:
+% \begin{itemize}
+% \item A macro |\hi@toa@sublist@singular| or |\hi@toa@sublist@plural|
+% \item The sublist name
+% \end{itemize}
+%
+%    \begin{macrocode}
+\def\hi@toa@sublist@add#1#2{%
+    \expandafter\hi@toa@sublist@add@\csname hi@sublist@#1\endcsname{#2}%
+}
+%    \end{macrocode}
+%
+% |\reserved@a| will be the sublist name to be searched for, |\@reserved@b| the
+% sublist name being tested as the list is iterated through.
+%
+%    \begin{macrocode}
+\def\hi@toa@sublist@add@#1#2{%
+    \ifx#1\relax
+        \def#1{\hi@toa@sublist@singular{#2}}%
+    \else
+        \def\reserved@a{#2}
+        \expandafter\hi@toa@sublist@update#1\@stop{}#1%
+    \fi
+}
+%    \end{macrocode}
+%
+% \#1 and \#2 are items in the sublist, \#3 is the remaining list, \#4 the part
+% of the list already searched, \#5 the sublist macro.
+%
+%    \begin{macrocode}
+\def\hi@toa@sublist@update#1#2#3\@stop#4#5{%
+    \def\reserved@b{#2}%
+    \@test \ifx\reserved@a\reserved@b\fi {%
+        \def#5{#4\hi@toa@sublist@plural{#2}#3}%
+    }{%
+        \ifblank{#3}{%
+            \edef#5{%
+                \unexpanded{#4#1{#2}\hi@toa@sublist@singular}%
+                {\expandonce\reserved@a}%
+            }%
+        }{%
+            \hi@toa@sublist@update#3\@stop{#4#1{#2}}{#5}%
+        }%
+    }
+}
+%    \end{macrocode}
+%
+%</package>
+%<*doc>
+
+Sublist names must be given in both singular and plural forms, the right one of
+which will be selected. The names should be delimited with two to three slashes,
+such that the first part is the common prefix, the last part is the plural
+suffix, and the middle part if any is the singular suffix. For example,
+``Regulation/s'' and ``Treat/y/ies.''
+
+%</doc>
+%<*package>
+%
+%    \begin{macrocode}
+\def\hi@toa@sublist@singular#1{%
+    \find@in{/}{#1}{\hi@toa@sublist@choose\@firstoftwo}{#1}%
+    \hi@toa@sublist@lookahead
+}
+\def\hi@toa@sublist@plural#1{%
+    \find@in{/}{#1}{\hi@toa@sublist@choose\@secondoftwo}{#1}%
+    \hi@toa@sublist@lookahead
+}
+\make@find@in{/}
+\def\hi@toa@sublist@lookahead#1{%
+    \ifx#1\@empty\else
+        \expandafter\hi@toa@sublist@lookahead@\expandafter#1%
+    \fi
+}
+\def\hi@toa@sublist@lookahead@#1#2#3{%
+    \@test \ifx#3\@empty \fi{%
+        \space and\space #1{#2}#3%
+    }{%
+        ,\space#1{#2}#3%
+    }%
+}
+\def\hi@toa@sublist@choose#1#2#3{%
+    #2\find@in{/}{#3}{#1}{#1{}{#3}}%
+}
+%    \end{macrocode}
+%
+% Shows a sublist, for example in a heading.
+%
+%    \begin{macrocode}
+\DeclareRobustCommand\hi@toa@sublist@show[1]{%
+    \csname hi@sublist@#1\endcsname\@empty
+}
+%    \end{macrocode}
+%
+%</package>
+%<*doc>
+
+\paragraph{Location-Based Lists}
+It may be desirable to prepare a chapter-by-chapter bibliography, such that
+references are tagged not by type but by location in the document. The macro
+\DescribeMacro\AuthorityTag
+|\AuthorityTag|\marg{tag} will tag all subsequent references cited with the
+given \meta{tag}, which can then be used as a list of the Table of Authorities.
+
+%</doc>
+%<*package>
+%
+% The current location tag is stored in |\hi@toa@locationtag|.
+%
+%    \begin{macrocode}
+\def\AuthorityTag#1{%
+    \def\hi@toa@locationtag{#1}%
+}
+\let\hi@toa@locationtag\relax
+%    \end{macrocode}
+%
+%</package>
+%<*doc>
+
+\subsection{Composing Page Number Lists}
+
+If a reference is cited on pages 3, 4, 5, 7, 8, and 10, it is desirable to group
+these numbers into compact range forms for presentation in the Table of
+Authorities: ``3--5, 7--8, 10.'' The package does so by reading the page numbers
+in order, keeping a running compilation of the properly formatted aggregate
+number listing and revising the last element of that listing as necessary.
+
+
+%</doc>
+%<*package>
+%
+% The |\hi@pg@|\meta{ref} macros take on the following form:
+% \begin{quote}
+%   \marg{last-display-page} \marg{last-numeric-page} \marg{last-\cmd\thepage}
+%   \marg{built-page-list}
+% \end{quote}
+% where appending \meta{last-display-page} to \meta{built-page-list} will give
+% the complete page list so far. Also, \meta{built-page-list} is prepended with
+% a list of |*|s to indicate the number of citations to a particular
+% reference, for counting purposes.
+%
+% \#1 is the |\hi@pg@|\meta{ref} macro. \#2-\#4 are the elements from the |toa|
+% file listing: the display-form page number, the numeric page number, and the
+% definition of |\thepage|.
+%
+%    \begin{macrocode}
+\def\hi@toa@addpg#1#2#3#4{%
+    \@test \ifx#1\relax\fi {%
+        \def#1{{}{#3}{#4}{*:#2}}%
+    }{%
+        \expandafter\hi@toa@addpg@#1#1{#2}{#3}{#4}%
+    }%
+}
+%    \end{macrocode}
+% Updates the running list of pages, when given a new page number.
+%
+% \#1-\#4 are the four hi@pg@\meta{ref} parameters, which are described above,
+% \#5 is |\hi@pg@|\meta{ref},
+% \#6-\#8 are \#2-\#4 of |\l@hi@toa|.
+%
+%    \begin{macrocode}
+\def\hi@toa@addpg@#1#2#3#4#5#6#7#8{%
+    \def\reserved@a{#3}\def\reserved@b{#8}%
+    \ifx\reserved@a\reserved@b
+%    \end{macrocode}
+%
+% For the same |\thepage|: Compare the last-added page number to the page
+% number to be added. If they are the same, then just increment the count. If
+% the new page number is one greater, then see if we're already working with a
+% range (\#1, \meta{last-display-page} is not blank). If so, then just increment
+% the count. Otherwise, increment the count and add a dash. In any event, set
+% \meta{last-display-page} to the new display page number.
+%
+%    \begin{macrocode}
+        \@tempcnta=#2\relax
+        \ifnum#7=\@tempcnta
+            \def#5{{#1}{#2}{#3}{*#4}}%
+        \else
+            \advance\@tempcnta\@ne
+            \ifnum#7=\@tempcnta
+                \ifblank{#1}{%
+                    \def#5{{#6}{#7}{#8}{*#4--}}%
+                }{%
+                    \def#5{{#6}{#7}{#8}{*#4}}%
+                }%
+            \else
+%    \end{macrocode}
+%
+% If the numeric increase is greater than one, then compose the full aggregate
+% list (\#4\#1), and tack on a comma and the new display number.
+%
+%    \begin{macrocode}
+                \def#5{{}{#7}{#8}{*#4#1, #6}}%
+            \fi
+        \fi
+    \else
+%    \end{macrocode}
+%
+% If |\thepage| has changed, then compose the full list and tack on a comma and
+% the new number.
+%
+%    \begin{macrocode}
+        \def#5{{}{#7}{#8}{*#4#1, #6}}%
+    \fi
+}
+%    \end{macrocode}
+%
+%
+%
+% \paragraph{Using Page Number Lists}
+%
+% Composes the page number list and runs the callback on it. \#1 is the
+% reference name, \#2 is a callback.
+%
+%    \begin{macrocode}
+\def\hi@toa@usepg#1#2{%
+    \@expand{\@unbrace\hi@toa@usepg@}{%
+        \csname hi@pg@\detokenize{#1}\endcsname
+    }{ii}{#2}%
+}
+% \#1-\#4 are the elements of the |\hi@pg@|\meta{ref} structure, \#5 is the
+% callback.
+\def\hi@toa@usepg@#1#2#3#4#5{%
+    \find@in{:}{#4#1}{%
+        \@tworun\@gobble\hi@toa@usepg@passim
+    }{\ThisShouldNeverBeReached}{#5}%
+}
+\make@find@in{:}
+% \#1 is the page list, \#2 is the callback.
+\def\hi@toa@usepg@passim#1#2{%
+    \@test \ifnum\c@passimnum>\z@ \fi{%
+        \hi@toa@usepg@passim@{1}#1, \@stop{#1}{#2}%
+    }{#2{#1}}%
+}
+\def\hi@toa@usepg@passim@#1#2, #3\@stop#4#5{%
+    \@test \ifnum#1<\c@passimnum \fi{%
+        \ifstrempty{#3}{#5{#4}}{%
+            \@expandarg\hi@toa@usepg@passim@{%
+                \number\numexpr#1+1\relax
+            }#3\@stop{#4}{#5}%
+        }%
+    }{#5{\PassimText}}%
+}
+%    \end{macrocode}
+%
+% Counts the number of times a reference was used, based on the
+% |\hi@pg@|\meta{ref} data. \#1 is \meta{ref}, \#2 a callback. It is entirely
+% expandable.
+%
+%    \begin{macrocode}
+\def\hi@toa@refcount#1#2{%
+    \@expand{\@unbrace\hi@toa@refcount@}{\csname hi@pg@#1\endcsname}{ii}{#2}%
+}
+\def\hi@toa@refcount@#1#2#3#4#5{%
+    \find@in{:}{#4}{\hi@toa@refcount@@}{\ThisShouldNeverBeReached}{#5}%
+}
+\def\hi@toa@refcount@@#1#2#3{\hi@toa@refcount@@@{1}#1\@stop{#3}}%
+\def\hi@toa@refcount@@@#1#2#3\@stop#4{%
+    \ifstrempty{#3}{#4{#1}}{%
+        \@expandarg\hi@toa@refcount@@@{\number\numexpr#1+1\relax}#3\@stop{#4}%
+    }%
+}
+%    \end{macrocode}
+%
+% 
+%</package>
+%<*doc>
+
+\paragraph{Starred References}\label{s:toa-star}
+Some courts ask litigants to insert asterisks in the Table of Authorities before
+references that they rely most heavily on. This can be done automatically by
+counting the number of times each reference has been used.
+
+\DescribeMacro\StarCount
+The macro |\StarCount|\marg{num} sets the minimum number of uses of a reference
+before that reference receives a star. The package option \opt{toastar} sets the
+value to 4. By default it is zero, in which case no stars are displayed.
+
+\DescribeMacro\StarText
+The macro |\StarText| can be defined as text to place at the beginning of the
+Table of Authorities explaining the stars.
+
+\DescribeMacro\StarMark
+The macro |\StarMark| is the actual text of the star; it will be added before
+the relevant TOA entries via |\everypar|.
+
+%</doc>
+%<*package>
+%
+% Adds a star before the reference if its usage count exceeds the minimum count.
+% \#1 is the reference name. The star is added by an |\everypar| because TOA
+% entries are initially in vertical mode.
+%
+%    \begin{macrocode}
+\newcount\hi@toa@starcount
+\def\hi@toa@star#1{%
+    \ifnum\hi@toa@starcount>\z@
+        \ifnum\hi@toa@refcount{#1}\@iden<\hi@toa@starcount\else
+            \everypar{\StarMark\everypar{}}%
+        \fi
+    \fi
+}
+\def\StarCount#1{\hi@toa@starcount=#1\relax}
+\def\StarText{%
+    Authorities upon which this brief primarily relies are indicated with
+    asterisks in the margin.\par
+}
+\def\StarMark{\llap{* }}
+%    \end{macrocode}
+%</package>
+%<*doc>
+
+\subsection{Showing the Table}
+
+\DescribeMacro\tableofauthorities
+The Table of Authorities is produced by calling |\tableofauthorities|. This will
+create one section for each reference category as described in \sec{refs}. Each
+heading will be created using whatever
+\DescribeMacro\toaheading
+|\toaheading| is defined as.
+
+%</doc>
+%<*package>
+%
+%    \begin{macrocode}
+\def\tableofauthorities{%
+    \ifnum\hi@toa@starcount>\z@
+        \StarText
+    \fi
+    \begingroup
+        \def\do##1{%
+            \AuthorityTable[%
+                \toaheading{\hi@toa@sublist@show{##1}}\par
+                \ifdim\lastskip<\toaskip
+                    \vskip-\lastskip
+                \else
+                    \vskip-\toaskip
+                \fi
+                \parindent\z@
+                \parskip=\toaskip
+            ]{##1}%
+        }%
+        \hi@type@doforall
+    \endgroup
+}
+\def\toaheading{\section*}
+%    \end{macrocode}
+%</package>
+%<*doc>
+
+\DescribeMacro\AuthorityTable
+Alternately, the macro
+|\AuthorityTable|\oarg{heading-text}\marg{list-name} will produce a single Table
+of Authorities list. This can be used for more fine-grained control over what
+tables are displayed.
+
+%</doc>
+%<*package>
+%
+% \#1 is optional text to be displayed before the table if the table has any
+% content. \#2 is the table name.
+%
+%    \begin{macrocode}
+\newcommand\AuthorityTable[2][]{%
+    \hi@setuptoa
+    \@hi@in@toatrue
+    \noid
+    \IfKnownList{hi@toa@#2}{\IfEmptyList{hi@toa@#2}{}{%
+        #1%
+        \ShowList{hi@toa@#2}{%
+            \global\let\@this@toatitle\relax
+            \hi@toa@usepg{##1}{\@toaline{\hi@toa@star{##1}\toacite{##1}}}%
+            \global\let\@last@toatitle\@this@toatitle
+        }%
+    }}{}%
+    \@hi@in@toafalse
+}
+%    \end{macrocode}
+%
+%
+% Displays one reference's line in the Table of Authorities. \#1 is the text of
+% the reference citation, \#2 the page number aggregate.
+%
+%    \begin{macrocode}
+\def\@toaline#1#2{%
+    {\hi@toa@par@settings
+    #1\nobreak
+    \TOALeader
+    \nobreak
+    {\normalfont \normalcolor \hi@toa@brkpg{#2}}%
+    \par}%
+}
+%    \end{macrocode}
+%
+% Sets up the paragraph margin settings for TOA entries.
+%
+%    \begin{macrocode}
+\def\hi@toa@par@settings{%
+    \leftskip\z@\rightskip \@tocrmarg
+    % Make the right margin ragged. This is necessary because the ditto spacing
+    % gets messed up on occasion due to space stretching.
+    \rightskip=1\rightskip plus .1\hsize
+    \parfillskip -\rightskip
+    \hangindent\toahangindentlen\relax
+    \parindent \z@\@afterindenttrue
+    \interlinepenalty\@M
+}
+%    \end{macrocode}
+%
+% \DescribeMacro\TOALeader
+% Inserts the dots for TOA entries.
+%
+%    \begin{macrocode}
+\def\TOALeader{%
+    \leaders\hbox{%
+        $\m@th \mkern \@dotsep mu\hbox{.}\mkern \@dotsep mu$%
+    }\hskip 2em \@plus 1fill \@minus 0.5em
+}
+%    \end{macrocode}
+%
+%
+% Displays a single entry in the Table of Authorities. This is essentially
+% another citation command like |\sentence| except it invokes less overhead
+% because there is no punctuation at the end of the entry to check.
+%
+%    \begin{macrocode}
+\def\toacite#1{%
+    \begingroup
+    \let\clause\hi@clause
+    \let\sentence\hi@sentence
+    \hi@pse@parse{#1}{\hi@draw@citation{\@hi@captrue\@hi@senttrue}{}}%
+    \endgroup
+}
+%    \end{macrocode}
+%
+%
+% On occasion, the best presentation of the TOA entry involves breaking the page
+% number listing across a line. This macro computes the best place for doing so.
+%
+% The basic idea is that, for each page number item, three glue entries are
+% inserted: $-|\rightskip|$, $G_a$ and $G_b$. $G_b$ has natural dimension
+% |\hsize| but is shrinkable to zero, and $G_a = -G_b + |\rightskip|$. $G_a$ is
+% inserted with a penalty that favors breaking after the last possible comma,
+% but $G_b$ cannot be broken beforehand.
+%
+% If no break occurs between two page numbers, then the total glue is
+% $-|\rightskip| + G_a + G_b = 0$. If a break is permitted, though, then $G_a$
+% is discarded. As a result, the preceding page number gets glue
+% $-|\rightskip|$, pulling it all the way to the right margin, and the next page
+% number starts a new line and gets glue $G_b$, pushing it as far to the right
+% margin as possible and (because of the shrinkage) causing the line-breaking
+% algorithm to favor putting as few items on this new line as possible.
+%
+% Below, |\@tempskipa| is $G_a$, |\@tempskipb| is $G_b$, and |\@tempcnta| is a
+% descending penalty placed before $G_a$.
+%
+%    \begin{macrocode}
+\def\hi@toa@brkpg#1{%
+    \@tempcnta=9999\relax
+    \@tempskipb=\hsize\@minus\hsize\relax
+    \@tempskipa=\glueexpr \@tempskipb * -1 + 1\rightskip\relax
+    \find@in{, }{#1}\hi@toa@brkpg@{\hbox{#1}}%
+}
+\make@find@in{, }
+\def\hi@toa@brkpg@#1#2{%
+    \hbox{#1,}%
+    % Pull the page number to the right margin
+    \nobreak\hskip-\rightskip
+    % Now permit a line break. If the break is not accepted, nix the
+    % right-margin glue above, insert a -1fil glue to counteract the |\hfil| to
+    % come, and insert a space to separate the commas.
+    \penalty\@tempcnta\hskip \@tempskipa\relax
+    % Insert an |\hbox| and then an |\hfil|. If the line is broken, then the
+    % |\hfil| will show up, pushing this page number to the right side of the
+    % page. If the line is not broken here, then the -1fil glue from above will
+    % counteract this glue, and nothing will result.
+    \hbox{ }\nobreak\hskip\@tempskipb\relax
+    % Reduce the penalty, to encourage later line breaks rather than earlier
+    % ones
+    \advance\@tempcnta\m@ne
+    \find@in{, }{#2}\hi@toa@brkpg@{\hbox{#2}}%
+}
+%    \end{macrocode}
+%
+%
+% Citation macros should use this when displaying an author name as the first
+% item in a reference. It stores the author name in |\@this@toatitle|, for
+% identifying duplicates. It then displays the author name, replacing it with
+% |\toaditto| if it is a duplicate. \#1 is the font for the author; \#2 is the
+% author name (sortable).
+%
+%    \begin{macrocode}
+\DeclareRobustCommand\hi@toa@dupauthor[2]{%
+    \if@hi@in@toa
+        \global\def\@this@toatitle{#2}%
+        \hi@nocap
+        \ifx\@this@toatitle\@last@toatitle
+            \toaditto, % space
+        \else
+            #1{#2}, % space
+        \fi
+    \else
+        #1{#2}, % space
+    \fi
+}
+%    \end{macrocode}
+%
+% If there is no author, then just reset the author tracking state.
+%
+%    \begin{macrocode}
+\DeclareRobustCommand\hi@toa@dupnone{\global\let\@this@toatitle\relax}%
+%    \end{macrocode}
+%
+% For statutes, an even more complex format for Table of Authorities listings is
+% desirable involving ditto marks: the ditto-omitted title should be indented so
+% that it lines up with the non-omitted title.
+%
+% \#1 is a statute title; \#2 is a statute citation; \#3 is the page
+% number text if no ditto is used; \#4 is the text if a ditto is used.
+%
+% The form of the resulting TOA entry is:
+% \begin{itemize}
+% \item If no ditto: \#1\#2\#3
+% \item If \#1 is empty: [ditto]\#4
+% \item If \#1 is present: [extra indent][ditto]\#4
+% \end{itemize}
+%
+%    \begin{macrocode}
+\def\hi@toa@duptitle#1#2#3#4{%
+    \global\def\@this@toatitle{#1#2}%
+    \ifx\@this@toatitle\@last@toatitle
+        \ifhmode \immediate\write16{BAD!!!!}\fi
+        \penalty\z@
+        \@tempdima=\pagegoal \advance\@tempdima-\pagetotal
+        \advance\@tempdima-\pageshrink
+        \ifdim\@tempdima<\baselineskip
+            \ifvmode \break \fi
+            \hi@citeguts{#1#2#3}%
+        \else
+            \setbox\@tempboxa=\hbox{#2}%
+            \@tempdima=\wd\@tempboxa
+            \ifstrempty{#1}{}{\advance\@tempdima\toahangindentlen\relax}%
+            \ifdim 6em<\@tempdima \@tempdima=6em\relax\fi
+            \setbox\@tempboxa=\hbox{\toaditto}%
+            \ifdim\@tempdima<\wd\@tempboxa \@tempdima=\wd\@tempboxa \fi
+            \hi@citeguts{%
+                \leavevmode\hb@xt@\@tempdima{\hss \box\@tempboxa}%
+                \hi@nocap
+                #4%
+            }%
+        \fi
+    \else
+        \hi@citeguts{#1#2#3}%
+    \fi
+}
+%    \end{macrocode}
+%</package>
+%<*doc>
+
+The following affect the appearance of the Table of Authorities:
+\begin{itemize}
+\item \DescribeMacro\toaskip |\toaskip| is a glue specification for how much
+space to put between entries.
+\item \DescribeMacro{passimnum} |passimnum| is a counter for how many items an
+aggregate page listing must have before it is replaced with \emph{passim}.
+\item \DescribeMacro{\PassimText} |\PassimText| is the text to be used if
+|passimnum| is met or exceeded.
+\item \DescribeMacro\toaditto |\toaditto| is the text that
+replaces repeated authors, statutory titles, and other information that can be
+omitted from the table listings.
+\item\DescribeMacro\toahangindentlen |\toahangindentlen| is defined as a length
+for the hanging indent. (It is specified in |em| units so it is defined as macro
+text.)
+\end{itemize}
+
+%</doc>
+%<*package>
+%    \begin{macrocode}
+\newskip\toaskip
+\toaskip=1\baselineskip \@plus .1\baselineskip \@minus .1\baselineskip
+\newcounter{passimnum} \c@passimnum=\z@
+\def\PassimText{\emph{passim}}
+\def\toaditto{---\kern-.1em---\kern-.1em---}
+\def\toahangindentlen{1.5em}
+%    \end{macrocode}
+%</package>
+%<*test>
+
+\section{toa.dtx}
+
+\subsection{Aux File Writing}
+
+\let\WrittenText\@empty
+\let\OrigProtectedWrite\protected@write
+\def\protected@write#1#2#3{%
+    \begingroup
+        \let\thepage\relax
+        #2%
+        \let\protect\@unexpandable@protect
+        \xdef\WrittenText{#3}%
+    \endgroup
+    \begingroup
+        \let\protect\noexpand
+        \xdef\WrittenText{\WrittenText}%
+    \endgroup
+}
+
+\begingroup
+
+
+    \def\tc@ref{other:Other Source/s}
+    \let\tcpg@ref\relax
+    \@hi@in@toafalse
+    \@hi@toa@disabledfalse
+    \def\thepage{\csname @roman\endcsname \c@page}
+
+    \begingroup
+        \let\WrittenText\@empty
+        \AssertBox{%
+            \c@page=5
+            \hi@addtotoa{ref}{15}%
+        }{}
+        \AssertMacro[\AssertExpandedEqual]{\WrittenText}{%
+            \string\@writefile{toa}{%
+                \noexpand\contentsline {hi@toa}{ref}{%
+                    {\detokenize{v}}%
+                    {5}%
+                    {%
+                        \noexpand\csname @roman\noexpand\endcsname
+                        \noexpand\c@page
+                    }%
+                    {other:Other Source/s}%
+                }{}%
+            }%
+        }%
+    \endgroup
+
+    \begingroup
+        \let\WrittenText\@empty
+        \let\tcpg@ref\@empty
+        \AssertBox{%
+            \c@page=5
+            \hi@addtotoa{ref}{15}%
+        }{}
+        \AssertMacro[\AssertExpandedEqual]{\WrittenText}{%
+            \string\@writefile{toa}{%
+                \noexpand\contentsline {hi@toa}{ref at 15}{%
+                    {\detokenize{v}}%
+                    {5}%
+                    {%
+                        \noexpand\csname @roman\noexpand\endcsname
+                        \noexpand\c@page
+                    }%
+                    {other:Other Source/s}%
+                }{}%
+            }%
+        }%
+    \endgroup
+
+    \begingroup
+        \let\WrittenText\@empty
+        \@hi@in@toatrue
+        \AssertBox{%
+            \hi@addtotoa{ref}{15}%
+        }{}
+        \AssertMacro[\AssertEqual]{\WrittenText}{}
+    \endgroup
+
+    \begingroup
+        \let\WrittenText\@empty
+        \@hi@toa@disabledtrue
+        \AssertBox{%
+            \hi@addtotoa{ref}{15}%
+        }{}
+        \AssertMacro[\AssertEqual]{\WrittenText}{}
+    \endgroup
+
+\endgroup
+
+\let\protected@write\OrigProtectedWrite
+
+
+\subsection{Aux File Reading}
+
+\begingroup
+    \def\hi@toa@addtolist#1#2#3{%
+        \edef\ListTestResult{{\unexpanded{#1}}{#2}{#3}}%
+    }
+    \def\hi@toa@addpg#1#2#3#4{%
+        \def\PageTestResult{{#1}{#2}{#3}{#4}}%
+    }
+
+    \let\ListTestResult\relax
+    \let\PageTestResult\relax
+
+    \contentsline {hi@toa}{ref}{%
+        {v}%
+        {5}%
+        {\csname @roman\endcsname \c@page}%
+        {other:Other Source/s}%
+    }{}%
+    \AssertMacro\PageTestResult{%
+        {\hi@pg@ref}{v}{5}{\csname @roman\endcsname\c@page}%
+    }
+    \AssertMacro\ListTestResult{{ref}{other}{Other Source/s}}
+
+\endgroup
+
+\subsection{Canonicalization}
+
+\begingroup
+
+    \def\fc@ref{\emph{a b} Cde 12 Fg. ({hij})}
+
+    \AssertCallback[\AssertCharEqual]{\hi@toa@makesortable{ref}}{%
+        ABCDE...12FGHIJ%
+    }
+
+    \AssertCallback[\AssertCharEqual]{\hi@toa@makesortable{ref at 15/a2b}}{%
+        ABCDE...12FGHIJ...15A....2B%
+    }
+
+    \def\lc@ref{\emph{k l} Mno 25 Pq. ({rst})}
+
+    \AssertCallback[\AssertCharEqual]{\hi@toa@makesortable{ref}}{%
+        KLMNO...25PQRST%
+    }
+
+\endgroup
+
+
+\subsection{Sublists}
+
+\begingroup
+
+    \hi@toa@sublist@add{stat}{Regulation/s}
+    \AssertBox{\hi@toa@sublist@show{stat}}{Regulation}
+
+    \hi@toa@sublist@add{stat}{Regulation/s}
+    \AssertBox{\hi@toa@sublist@show{stat}}{Regulations}
+
+    \hi@toa@sublist@add{stat}{Treat/y/ies}
+    \AssertBox{\hi@toa@sublist@show{stat}}{Regulations and Treaty}
+
+    \hi@toa@sublist@add{stat}{Statute/s}
+    \AssertBox{\hi@toa@sublist@show{stat}}{Regulations, Treaty and Statute}
+
+    \hi@toa@sublist@add{stat}{Treat/y/ies}
+    \AssertBox{\hi@toa@sublist@show{stat}}{Regulations, Treaties and Statute}
+
+\endgroup
+
+
+\subsection{List Addition}
+
+
+\begingroup
+
+    \def\fc@refA{A}
+    \def\fc@refI{I}
+    \def\fc@refM{M}
+    \AssertFalse{\IfKnownList{hi@toa@list}}
+
+    \hi@toa@addtolist{refM}{list}{item/s}
+    \AssertTrue{\IfKnownList{hi@toa@list}}
+
+    \AssertBox{\ShowList{hi@toa@list}{#1, }}{refM, }
+    \AssertBox{\hi@toa@sublist@show{list}}{item}
+
+    \AssertTrue{\IfListContains{hi@toa@list}{refM}}
+
+    \hi@toa@addtolist{refM}{list}{item/s}
+    \AssertBox{\ShowList{hi@toa@list}{#1, }}{refM, }
+    \AssertBox{\hi@toa@sublist@show{list}}{item}
+
+    \hi@toa@addtolist{refA}{list}{item/s}
+    \AssertBox{\ShowList{hi@toa@list}{#1, }}{refA, refM, }
+    \AssertBox{\hi@toa@sublist@show{list}}{items}
+
+    \hi@toa@addtolist{refI}{list}{element/s}
+    \AssertBox{\ShowList{hi@toa@list}{#1, }}{refA, refI, refM, }
+    \AssertBox{\hi@toa@sublist@show{list}}{items and element}
+
+    \hi@toa@addtolist{refA}{list}{item/s}
+    \AssertBox{\ShowList{hi@toa@list}{#1, }}{refA, refI, refM, }
+    \AssertBox{\hi@toa@sublist@show{list}}{items and element}
+
+\endgroup
+
+
+\subsection{Page Numbers and Star Counting}
+
+\begingroup
+    \StarCount{4}
+    \everypar{}
+    \let\hi@pg@ref\relax
+    \hi@toa@addpg\hi@pg@ref{ii}{2}{roman}
+    \AssertCallback{\hi@toa@usepg{ref}}{ii}
+    \AssertCallback{\hi@toa@refcount{ref}}{1}
+
+    \hi@toa@star{ref}
+    \AssertExpand{\the\everypar}{}
+
+    \hi@toa@addpg\hi@pg@ref{iii}{3}{roman}
+    \AssertCallback{\hi@toa@usepg{ref}}{ii--iii}
+    \AssertCallback{\hi@toa@refcount{ref}}{2}
+
+    \hi@toa@star{ref}
+    \AssertExpand{\the\everypar}{}
+
+    \hi@toa@addpg\hi@pg@ref{iii}{3}{roman}
+    \AssertCallback{\hi@toa@usepg{ref}}{ii--iii}
+    \AssertCallback{\hi@toa@refcount{ref}}{3}
+
+    \hi@toa@star{ref}
+    \AssertExpand{\the\everypar}{}
+
+
+    \hi@toa@addpg\hi@pg@ref{iv}{4}{roman}
+    \AssertCallback{\hi@toa@usepg{ref}}{ii--iv}
+    \AssertCallback{\hi@toa@refcount{ref}}{4}
+
+    Stars should now show up at the start of every first test paragraph.
+
+    \hi@toa@star{ref}
+    \AssertExpand{\the\everypar}{\noexpand\StarMark\noexpand\everypar{}}
+
+    \hi@toa@addpg\hi@pg@ref{4}{4}{arabic}
+    \AssertCallback{\hi@toa@usepg{ref}}{ii--iv, 4}
+    \AssertCallback{\hi@toa@refcount{ref}}{5}
+
+    \hi@toa@star{ref}
+    \AssertExpand{\the\everypar}{\noexpand\StarMark\noexpand\everypar{}}
+
+    \hi@toa@addpg\hi@pg@ref{5}{5}{arabic}
+    \AssertCallback{\hi@toa@usepg{ref}}{ii--iv, 4--5}
+    \AssertCallback{\hi@toa@refcount{ref}}{6}
+
+    \hi@toa@star{ref}
+    \AssertExpand{\the\everypar}{\noexpand\StarMark\noexpand\everypar{}}
+
+    \hi@toa@addpg\hi@pg@ref{7}{7}{arabic}
+    \AssertCallback{\hi@toa@usepg{ref}}{ii--iv, 4--5, 7}
+    \AssertCallback{\hi@toa@refcount{ref}}{7}
+
+    \hi@toa@star{ref}
+    \AssertExpand{\the\everypar}{\noexpand\StarMark\noexpand\everypar{}}
+
+    \c@passimnum=2
+    \AssertCallback{\hi@toa@usepg{ref}}{\PassimText}
+
+    \c@passimnum=3
+    \AssertCallback{\hi@toa@usepg{ref}}{\PassimText}
+
+    \c@passimnum=4
+    \AssertCallback{\hi@toa@usepg{ref}}{ii--iv, 4--5, 7}
+\endgroup
+
+\subsection{Formatting}
+
+\AssertBox{\hbox{\hi@toa@brkpg{1--2, 3--4, 5}}}{\hbox{1--2, 3--4, 5}}
+
+The following can only be tested visually. Make sure that these look acceptable.
+\def\testbox#1#2{\vrule\vtop{%
+    \hsize=1.25in\relax \hi@toa@par@settings
+    #1\nobreak\TOALeader\nobreak\hi@toa@brkpg{#2}\par
+}\vrule\allowbreak\space}
+
+\leavevmode
+\testbox{A}{1--2, 3, 4, 5}
+\testbox{AB}{1--2, 3, 4, 5}
+\testbox{ABC}{1--2, 3, 4, 5}
+\testbox{ABCD}{1--2, 3, 4, 5}
+\testbox{ABCDE}{1--2, 3, 4, 5}
+\testbox{ABCDEF}{1--2, 3, 4, 5}
+\testbox{ABCDEFG}{1--2, 3, 4, 5}
+\testbox{ABCDEFGH}{1--2, 3, 4, 5}
+
+%</test>

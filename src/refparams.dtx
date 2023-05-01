@@ -1,0 +1,94 @@
+%%
+%% \iffalse filename: refparams.dtx \fi
+%%
+%<*doc>
+\input driver
+\thisis{refparams}{Other Parameters}
+
+These parameters are used by other specific reference types.
+
+\input docparams
+
+%</doc>
+\hi@param@alias{broadcaster}{instauth}
+\hi@defparam{citation}{Citation to another reference}{%
+    \hi@anonref{#1}{\def\hi@kv@citation}%
+}
+%<*doc>
+The value may be a reference name or an anonymous reference definition (see
+\sec{anonymous}).
+Different reference types will use this parameter for different
+purposes. For example, \rtype{jrnart} will cite the reference as the article
+title (used for notes reviewing cases), \rtype{casedoc} will use it as the case
+in which a document was filed, and \rtype{citecontainer} uses it as the
+contained work (the container work is given in the parameter \param{in}).
+%</doc>
+%
+\hi@newparam{commenter}{Names of parties submitting agency comments}
+\hi@defparam{countries}{Countries to a treaty}{%
+    \hi@abbrev@name{#1}{\def\hi@kv@countries}%
+}
+%<*doc>
+The country names will be abbreviated.
+%</doc>
+%
+\hi@newparam@noval{inlineparen}{Always include a parenthetical for inline form}
+\hi@defparam{instto}{Institutional recipient of letter, memorandum, etc.}{%
+    \hi@nameproc@inst{#1}{\hi@namelist@addinst}{\hi@kv@to}%
+}
+%<*doc>
+Adds an institutional recipient to the \param{to} parameter list.
+%</doc>
+%
+\hi@newparam{intdoc}{Document number for international documents}
+%<*doc>
+International resolutions and other documents may have two numbers: a serial
+number and a document control number issued by the international body. This
+parameter is for the second number. It should not include a prefix such as
+``U.N. Doc.,'' as that will be added separately.
+%</doc>
+%
+\hi@param@alias{issuedate}{issueyear}
+\hi@defparam{issueyear}{Date a patent was issued}{%
+    \hi@date@parse[issued]{#1}{\def\hi@kv@year}%
+}
+%<*doc>
+This is equivalent to |date=issued |\meta{date}.
+%</doc>
+%
+\hi@newparam@noval{noinlineparen}{Never include a parenthetical for inline form}
+\hi@newparam@noval{noshorttitle}{Do not include title for short cites}
+\hi@newparam{onfile}{Where the document is on file}
+\hi@newparam{place}{Place (for speeches, constitutions, statutes)}
+\hi@param@alias{producer}{instauth}
+\hi@param@alias{sponsor}{publisher}
+\hi@param@alias{state}{place}
+\hi@defparam{struct}{Structure for data of multivolume works}{%
+    \global\@namedef{hi@struct@set@\@this@case}{#1}%
+    \expandafter\def\expandafter\hi@kv@struct\expandafter{%
+        \csname hi@struct@set@\@this@case\endcsname
+    }%
+}
+%<*doc>
+See the discussion of parameter structures in \sec{struct}.
+%</doc>
+%
+\hi@defparam{to}{Recipient of a letter}{%
+    \hi@nameproc@person{#1}{\hi@namelist@addtwo\hi@kv@to\relax}%
+}
+%<*doc>
+This is primarily used for \rtype{letter} references. The value should be a name
+as described in \sec{names}. If there are multiple recipients, provide this
+parameter multiple times, but see also parameter \param{noetal} if entering
+three or more names. For institutional authors, see parameter \param{instto}.
+%</doc>
+%
+%<*package>
+%
+% Author lists.
+%    \begin{macrocode}
+\def\hi@kv@author@sortable{%
+    \noexpand\@gobble{\hi@kv@authln}\@capnext\hi@kv@author
+}
+%    \end{macrocode}
+%</package>
