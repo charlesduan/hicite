@@ -31,6 +31,12 @@ The following is an outline of the contents of this distribution:
   - `test`: The unit test output
   - `manual`: The compiled user manual
 
+## Installing
+
+The file `hicite.tds.zip` contains all of the files necessary for installation.
+It can be generated with the command `make dist`. To install, unzip the contents
+of that file into your local `texmf` directory.
+
 ## Doc and Docstrip
 
 This documentation uses the LaTeX *doc* and *docstrip* utilities for separating
@@ -88,18 +94,37 @@ In addition to the module `.dtx` files, there are a few other files to note:
 
 ## Producing Module Documentation
 
-To produce documentation for an individual module, run `latex [module].dtx`.
-This will compile code in both the `doc` and `package` sections, producing a
+To produce documentation for an individual module, run `make doc/[module].pdf`.
+This will compile the corresponding file `src/[module].dtx`, including both the
+`doc` and `package` sections, thereby producing a
 document with commented source code in addition to the user manual text.
 
 ## Producing the User Manual and Package Source
 
-The included `.ins` file will produce both the user manual (as a `.tex` file to
-be compiled) and the `.sty` file for the package. It does so by running
-*docstrip* to extract `doc` guard blocks for the manual and `package` guard
-blocks for the package.
+To make the user manual, run `make` with no arguments. To make the `hicite.sty`
+package file, run `make package`.
+
+Both of these commands will start by compiling the `hicite.ins` file, which
+generates the manual source code, the package files, and several auxiliary
+files. With no arguments, `make` will further compile the manual source code
+into a PDF document.
+
+The manual is made by stripping out only the `doc` sections of all of the module
+source code files and combining them into a single document. The package files,
+by contrast, consiste of only the `package` sections with comments stripped.
 
 Additional files required for the distribution are in the folder `support`. To
-produce a complete distribution, run `make dist`.
+produce a complete distribution, run `make dist`, which will combine all the
+necessary files for a distribution into a correctly formed TeX directory tree.
 
 ## Running Tests
+
+The tests are run by calling `make test`. This produces a file `test/test.tex`
+which, when compiled, checks the operation of the package. Upon compilation, the
+resulting document can be reviewed to ensure that all of the test outputs match
+expectations. The compilation process attempts to perform as many checks as
+possible automatically, but in some cases the best it can do is ensure that the
+package's output is the same physical length as the expected result. The latter
+types of tests are marked as ``Probably passed.''
+
+
