@@ -49,7 +49,7 @@ this program.  If not, see <http://www.gnu.org/licenses/>.
 \def\addsupport#1{%
     \appto\userlist{\from{src/#1.dtx}{doc}}%
     \appto\testlist{\from{src/#1.dtx}{test}}%
-    \appto\supportlist{\file{support/#1.sty}{\from{src/#1.dtx}{package}}}%
+    \appto\supportlist{\file{gen/#1.sty}{\from{src/#1.dtx}{package}}}%
 }
 \def\addpart#1{\appto\userlist{\from{src/parts.dtx}{#1}}}
 
@@ -137,19 +137,19 @@ this program.  If not, see <http://www.gnu.org/licenses/>.
 \addtolist{conclusion}
 
 \generate{%
-    \file{hicite.tex}{%
+    \file{manual/hicite.tex}{%
         \userlist
     }
 }
 
 \generate{%
-    \file{hicite.sty}{%
+    \file{gen/hicite.sty}{%
         \pkglist
     }
 }
 
 \generate{
-    \file{test.tex}{%
+    \file{test/test.tex}{%
         \testlist
     }
 }

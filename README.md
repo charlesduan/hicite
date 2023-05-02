@@ -1,15 +1,35 @@
 # *Hereinafter*: A Legal Citation Program
 
 This repository provides literate programming documentation for *Hereinafter*, a
-LaTeX package for legal citations. It is designed to produce three outputs:
+LaTeX package for legal citations. It is designed to produce the following
+outputs:
 
-1. A distribution of the package, contained in `hicite.tgz`
+1. A distribution of the package, contained in `hicite.tds.zip`
 2. A single-file user manual, `hicite.pdf`
-3. Individual documentation files for each of the source code modules
+3. Individual documentation files for each of the source code modules, in the
+   `doc` subdirectory
+4. A test suite
 
 The inputs for all three are the `.dtx` files for each of the modules of the
 package. This readme describes the structure of each module and the process for
 compiling them into each of the outputs.
+
+## Distribution Contents
+
+The following is an outline of the contents of this distribution:
+
+- Source code:
+  - `hicite.ins`: The installation file
+  - `helpers`: A directory of LaTeX package files used for compiling the
+    documentation and testing the package
+  - `src`: The package module files with documentation source code
+  - `support`: Supporting files such as tables which should be included with an
+    installation
+
+- Generated files:
+  - `gen`: Generated package files which should be included with an installation
+  - `test`: The unit test output
+  - `manual`: The compiled user manual
 
 ## Doc and Docstrip
 
@@ -31,7 +51,7 @@ furthermore permits conditional output: Code between flags like `%<*flag>` and
 extensively.
 
 
-## Input File Structure
+## Source Code File Structure
 
 Files use the `doc` and `docstrip` tools for compilation, and follow the
 conventions laid out for those programs. They further follow several
@@ -81,3 +101,5 @@ blocks for the package.
 
 Additional files required for the distribution are in the folder `support`. To
 produce a complete distribution, run `make dist`.
+
+## Running Tests

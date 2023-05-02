@@ -8,8 +8,6 @@
 \setmonofont[Scale=MatchLowercase]{Source Code Pro}
 \RequirePackage{etoolbox}
 \RequirePackage{strings}
-\RequirePackage[pdfborder=0 0 0]{hyperref}
-%\setmonofont[Scale=MatchLowercase]{Source Code Pro}
 \sloppy
 \begingroup
     \catcode`\<=\active
@@ -100,6 +98,8 @@
 \def\DescribeOption#1{%
     \paragraph*{\texttt{#1}}\label{opt:#1}
 }
+\NewDocElement[printtype=,idxtype=,idxgroup=]{File}{fileenv}
+\setcounter{IndexColumns}{2}
 \renewenvironment{quote}{%
     \list{}{%
         \rightmargin=\leftmargin

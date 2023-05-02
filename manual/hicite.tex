@@ -1,5 +1,5 @@
 %%
-%% This is file `hicite.tex',
+%% This is file `manual/hicite.tex',
 %% generated with the docstrip utility.
 %%
 %% The original source files were:
@@ -93,6 +93,8 @@
 \begin{document}
 \maketitle
 \tableofcontents
+
+\clearpage
 
 \makeatletter
 
@@ -366,6 +368,20 @@ formatting algorithm sections. Were that work to be done, the hope is that
 presenting students with a data model and principles in tandem with formats
 would offer them a clearer, enriched view of the seemingly arcane world of legal
 citation.
+
+\paragraph{Documentation files}
+This manual is one of two parts of documentation for \hia*. The package source
+code is contained in multiple module files compiled into a unified main package,
+and most chapters of this manual correspond to module files. The module files
+are written as literate programming \LaTeX\ |.dtx| files, and contain further
+documentation of the internal macros and implementation. For each chapter
+having a corresponding module file, the filename is listed in the margin so that
+the expanded documentation can be identified.
+
+The manual alone should be sufficient for writers of legal documents to
+understand how to use \hia*. The module file documentation is intended to help
+package authors who wish to correct, modify, or extend the citation program
+itself, perhaps to adapt it to other citation formatting regimes.
 
 %%
 %% \iffalse filename: options.dtx \fi
@@ -3316,8 +3332,12 @@ part of a \rtype{casedoc} reference. In that case two things need to happen:
 \item If this case has a reporter listed (\param{rep} is set), then a
 parenthetical for the docket number must be added.
 \item If the case document has its own date set, then that date overrides the
-date given for the case. (This does not conform to other legal citation
-practices but better comports with the date principles in \sec{dates-fulldate}.)
+date given for the case. \unskip\footnote{This does not conform to some legal
+citation practices, which attach the date of the case decision rather than the
+date of the document. That practice seems questionable since the date of
+interest to the reader is more likely the case document's date. Nevertheless, it
+is simple enough to assign the case decision's date to the case document when
+defining the case document reference.}
 \end{itemize}
 
 
@@ -6833,7 +6853,11 @@ which could help with automatic conversion of Pandoc markdown documents.
 %%
 %% \iffalse filename: conclusion.dtx \fi
 %%
+
+\clearpage
+\PrintIndex
+
 \end{document}
 \endinput
 %%
-%% End of file `hicite.tex'.
+%% End of file `manual/hicite.tex'.

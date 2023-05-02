@@ -14,14 +14,21 @@
 %% \fi
 %%
 \expandafter\ifx\csname @twoclasseserror\endcsname \documentclass
-    \def\thisis#1#2{%
-        \section{#2}\label{s:#1}%
-    }%
+    \ifdefined\HidocDidTitle
+        \def\thisis#1#2{}
+    \else
+        \def\thisis#1#2{%
+            \section[#2]{\DescribeFile{#1.dtx}#2}
+            \label{s:#1}%
+        }%
+    \fi
     \setcounter{secnumdepth}{100}
     \expandafter\endinput
 \else
     \def\thisis#1#2{%
         \title{#2 (\texttt{\jobname.dtx})}\maketitle
+        \gdef\HidocDidTitle{}
+        \renewcommand\thesubsection{\arabic{subsection}}
         \DocInput{src/\jobname.dtx}
         \end{document}
     }%
