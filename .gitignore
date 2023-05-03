@@ -32,3 +32,5 @@ cover.pdf
 *.bcf
 *.run.xml
 *.hd
+*.ind
+*.ilg

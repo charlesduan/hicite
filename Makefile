@@ -39,4 +39,4 @@ doc: doc/*.pdf
 FORCE:
 
 clean:
-	rm -f {.,doc,gen,test,manual}/*.{aux,glo,hd,idx,log,out,toc}
+	rm -f {.,doc,gen,test,manual}/*.{aux,glo,hd,idx,log,out,toc,ilg,ind}
