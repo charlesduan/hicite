@@ -5,6 +5,7 @@
 %% The original source files were:
 %%
 %% src/intro.dtx  (with options: `doc')
+%% src/parts.dtx  (with options: `intro')
 %% src/quickstart.dtx  (with options: `doc')
 %% src/options.dtx  (with options: `doc')
 %% src/parts.dtx  (with options: `references')
@@ -56,6 +57,7 @@
 %% src/abbrev.dtx  (with options: `doc')
 %% src/sortlist.dtx  (with options: `doc')
 %% src/hibib.dtx  (with options: `doc')
+%% src/parts.dtx  (with options: `appendix')
 %% src/conclusion.dtx  (with options: `doc')
 %% 
 %% This is a generated file.
@@ -79,8 +81,8 @@
 \documentclass{ltxdoc}
 
 \usepackage{hidoc}
-\EnableCrossrefs
-\CodelineIndex
+\DisableCrossrefs
+\PageIndex
 \RecordChanges
 
 \def\sec#1{section \ref{s:#1}}
@@ -88,7 +90,11 @@
 \def\partname{Part}
 
 \title{\emph{Hereinafter}: A Legal Citation Program}
-\author{Charles Duan}
+\author{Charles Duan\thanks{\textcopyright 2013-2023 Charles Duan. This manual
+is made available under a Attribution-NonCommercial-ShareAlike 4.0 International
+license. To view a copy of this license, visit
+\url{http://creativecommons.org/licenses/by-nc-sa/4.0/} or send a letter to
+Creative Commons, PO Box 1866, Mountain View, CA 94042, USA.}}
 
 \begin{document}
 \maketitle
@@ -98,11 +104,12 @@
 
 \makeatletter
 
+\clearpage
+\part{Introduction}
+\label{p:intro}
 %%
 %% \iffalse filename: intro.dtx \fi
 %%
-
-\section{Quick Start Guide}
 
 You've done the research, your stack of cases and articles is overflowing, the
 ideas are swimming in your head, and are ready to start writing. But as you open
@@ -141,6 +148,8 @@ focus on the substance, which has made my writing process far more rewarding and
 enjoyable. To me, \hia* is an indispensable tool for my legal writing, and
 I hope it will also become your choice hereinafter.
 
+\section{Quick Start Guide}
+
 This introductory guide will show the basic concepts you'll need to use \hia* to
 add citations to your document. As with other automated citation systems, you
 will need to do two things:
@@ -164,9 +173,9 @@ and of the \LaTeX\ typesetting system. \hia* operates purely within \LaTeX, and
 is controlled by commands described below in this manual.
 
 To begin, you should include the package in the preamble of your document:
-\begin{quote}
-|\usepackage[|\meta{options}|]{hicite}|
-\end{quote}
+\begin{demo}
+|\usepackage|\oarg{options}|{hicite}|
+\end{demo}
 The \meta{options} are described in \sec{options}. The most important of these
 are the options \opt{review} and \opt{memo}, which determine whether the package
 will follow the rules for law review articles or for legal memoranda,
@@ -185,7 +194,7 @@ Part~\ref{p:alltypes} lists the available reference types; common ones are
 \rtype{book}, \rtype{case}, \rtype{website}, and \rtype{jrnart} (journal
 articles). The bibliographic information is entered as parameter-value pairs.
 For example:
-\begin{quote}
+\begin{demo}
 |\defcase{wheaton}{| \\
 |    p=Wheaton,| \\
 |    d=Peters,| \\
@@ -194,13 +203,13 @@ For example:
 |    page=591,| \\
 |    year=1834,| \\
 |}|
-\end{quote}
+\end{demo}
 defines a reference named |wheaton| for the famous lawsuit between two Supreme
 Court reporters.
 
 \hia* permits for various shortcuts to simplify the entry of references. The
 following are equivalent to the above definition:
-\begin{quote}
+\begin{demo}
 |\defcase{wheaton}{| \\
 |    parties=Wheaton v. Peters,| \\
 |    cite=33 U.S. 591,| \\
@@ -209,19 +218,19 @@ following are equivalent to the above definition:
 |\defcase{wheaton}{| \\
 |    Wheaton v. Peters, 33 U.S. 591 (1834)| \\
 |}|
-\end{quote}
+\end{demo}
 
 There is also rich support for author names and dates. The following definition
 shows how to enter a report with an individual author and an institutional
 author:
-\begin{quote}
+\begin{demo}
 |\defbook{ftc-pharma}{| \\
 |    author=Markus H. Meier et al.,| \\
 |    instauth=Federal Trade Commission,| \\
 |    title=Overview of FTC Actions [...],| \\
 |    date=june 2019,| \\
 |}|
-\end{quote}
+\end{demo}
 
 For a more detailed overview of how to define references, see \sec{refs-syntax}
 and the sections that follow. Shortcuts for reference entry are described in
@@ -239,15 +248,14 @@ syntax described in \sec{parse}. By design, the syntax looks like a simplified
 legal citation. The following would generate a two-element string-cite to
 \emph{Wheaton v.~Peters}, describing a (hypothetical) tension between two parts
 of the decision:
-\begin{quote}
-|\sentence{see, e.g., wheaton at 598 note 3 (Story, J.) (describing holding); but see wheaton at 600-602 (noting alternative views)}.|
-\end{quote}
-This produces:
-\begin{quote}
+\begin{demo}
+|\sentence{|see, e.g., wheaton at 598 note 3 (Story, J.) (describing holding);
+but see wheaton at 600-602 (noting alternative views)|}|.
+\Produces
 \emph{See, e.g.}, \emph{Wheaton v.~Peters}, 33 U.S. 591, 598 n.3
 (1834) (Story, J.) (describing holding); \emph{but see} \emph{id.}~at 600--02
 (noting alternative views).
-\end{quote}
+\end{demo}
 
 This example shows a number of notable features of \hia*. First, references are
 always cited by identifier; any short or \emph{id.}~form is selected
@@ -274,12 +282,12 @@ as parts of the text: naming a case as the subject of a sentence, for example.
 The relevant commands are |\inline|, |\Inline|, |\adjective|, and |\Adjective|
 depending on whether the reference is being cited at the beginning of a sentence
 and the part of speech the reference is taking on:
-\begin{quote}
+\begin{demo}
 |In \inline{wheaton}, the Court....| \\
 |\sentence{wheaton at 603}.| \\
-Produces: In \emph{Wheaton v.~Peters}, the Court\ldots. \emph{See} 33 U.S. 591,
+\Produces In \emph{Wheaton v.~Peters}, the Court\ldots. \emph{See} 33 U.S. 591,
 603 (1834).
-\end{quote}
+\end{demo}
 Note how the |\sentence| citation automatically omits the case name because it
 was displayed in with the previous |\inline| command.
 
@@ -296,20 +304,20 @@ footnotes to endnotes (see \sec{endnotes}), and manage abbreviations in text
 
 Perhaps the most important additional feature is cross-references, described in
 \sec{xref}. To mark a part of a document for cross-referencing:
-\begin{quote}
+\begin{demo}
 |\hilabel{keypart}| \\
 |This is the key part!| \\
 |\hiendlabel{keypart}|
-\end{quote}
+\end{demo}
 The |\hilabel| command automatically chooses the best way to refer to the marked
 section depending on where it is used (in a footnote, in a figure, or in plain
 text). The |\hisectlabel| command can label sections by number.
 
 To insert a cross-reference, simply use a citation to the predefined reference
 \rtype{this} with the cross-reference label as the pincite:
-\begin{quote}
+\begin{demo}
 |\sentence{see this at keypart}.|
-\end{quote}
+\end{demo}
 Again, the value of this cross-referencing system is that the cited numbers
 automatically update as the document is edited, minimizing the amount of manual
 updating.
@@ -369,6 +377,44 @@ presenting students with a data model and principles in tandem with formats
 would offer them a clearer, enriched view of the seemingly arcane world of legal
 citation.
 
+\paragraph{Grammatical structures}
+In many places, this manual describes expected inputs in terms of grammatical
+structures. These are shown in blue boxes and use a version of Backus-Naur form.
+\unskip\footnote{Spaces between items are not specified rigorously in these
+grammars.}
+For example:
+\begin{grammar}
+\meta{address} := \meta{number} \meta{street} [ \meta{apartment} ] \|
+\littext{PO Box} \meta{number}
+\end{grammar}
+For those unfamiliar with this notation:
+\begin{itemize}
+\item The items between angle brackets represent text values, akin to entry
+spaces in a form.
+\item := means that the item on the left is defined to consist of the specified
+items on the right.
+\item \| means to choose either of the items to the left or right.
+\item Square brackets [ ]  mean that the material inside is optional.
+\item \underline{Underlined} text needs to be included literally.
+\item ( \meta{item} )* means that whatever is inside the parentheses can be
+repeated (or used once, or omitted entirely).
+\end{itemize}
+
+So to explain the above statement, an \meta{address} can take on two forms. It
+can be a \meta{number} followed by a \meta{street} and optionally an
+\meta{apartment} number, such as ``123 Elm Lane'' or ``15 Broadway \#5. Or it
+can be a post office box like ``PO Box 123''. In general, grammatical
+definitions will be followed by examples to help demonstrate what input is
+expected.
+
+In other cases, the manual will show expected inputs using a \LaTeX\ syntax:
+\begin{grammar}
+|\command|\oarg{option}\marg{required}
+\end{grammar}
+This means that the macro |\command| accepts an optional argument \meta{option},
+surrounded by square brackets if present, and needs a mandatory argument
+\meta{required}, surrounded by curly braces.
+
 \paragraph{Documentation files}
 This manual is one of two parts of documentation for \hia*. The package source
 code is contained in multiple module files compiled into a unified main package,
@@ -383,6 +429,51 @@ understand how to use \hia*. The module file documentation is intended to help
 package authors who wish to correct, modify, or extend the citation program
 itself, perhaps to adapt it to other citation formatting regimes.
 
+\section{Installation and Usage}
+
+\hia* comprises a suite of files:
+\begin{itemize}
+\item The package file itself, \texttt{hicite.sty}.
+\item Several auxiliary package files, described in \pt{support}.
+\item Tables of abbreviations and other information.
+\end{itemize}
+All of these files need to be installed in a \TeX-accessible location.
+
+To use the package, simply include it in a document:
+\begin{demo}
+|\usepackage|\oarg{options}|{hicite}|
+\end{demo}
+Then compile it using \LaTeX\ or an equivalent. No auxiliary programs are
+needed, even for table indexing. However, multiple compilation runs may be
+necessary in order to get cross-references and short citations to be correct.
+
+If you have an existing Biblatex file, see \sec{hibib} for possible
+compatibility options.
+
+\section{Intellectual Property Concerns}
+
+Over the years, there have been multiple disputes over intellectual property in
+legal citation systems and manuals. It is both necessary to address both what
+rights I claim as the author of \hia*, and what rights of others it implicates.
+
+The source code of \hia* is released under the GNU General Public License (GPL)
+version 3.0. That license applies to any executable code. The text of this
+manual itself and all other documentation is released under a Creative Commons
+license as described on the first page of the manual.
+For purposes of clarity, the Creative Commons license applies to any text found
+in this user manual and any text found in comments in the package source code;
+the GPL license applies otherwise.
+
+With respect to other legal citation manuals and systems, this software and
+manual are not endorsed by, affiliated with, or authorized by any other legal
+citation system, such as the Bluebook, the University of Chicago Manual of Legal
+Citation (the ``Maroonbook''), the ALWD Guide to Legal Citation, or the Indigo
+Book. It does not claim to be compatible with or identical to any of those
+systems; indeed a design principle of \hia* is to be more flexible than any of
+these existing systems. To the extent that material from existing citation
+systems is used (primarily for tables of abbreviations), it has been taken from
+the Indigo Book, which has been placed in the public domain.
+
 %%
 %% \iffalse filename: options.dtx \fi
 %%
@@ -391,54 +482,54 @@ itself, perhaps to adapt it to other citation formatting regimes.
 
 The following options are accepted by this package.
 
-\DescribeOption{review} Law review formatting: selects law review fonts, expects
+\ExplainOption{review} Law review formatting: selects law review fonts, expects
 footnotes, formats \emph{supra} cites with note numbers, and so on.
 
 
-\DescribeOption{journal} Alias for \opt{review}.
+\ExplainOption{journal} Alias for \opt{review}.
 
 
-\DescribeOption{journalfonts} Selects law review fonts. Same as
+\ExplainOption{journalfonts} Selects law review fonts. Same as
 |\UseFontPack{review}|. Other formatting aspects are not changed.
 
 
-\DescribeOption{memofonts} Selects legal memorandum fonts. Same as
+\ExplainOption{memofonts} Selects legal memorandum fonts. Same as
 |\UseFontPack{memo}|. Other formatting aspects are not changed.
 
 
-\DescribeOption{memo} Legal memorandum formatting: selects memorandum fonts,
+\ExplainOption{memo} Legal memorandum formatting: selects memorandum fonts,
 expects citations in text, and so on.
 
 
-\DescribeOption{brief} Alias for \opt{memo}.
+\ExplainOption{brief} Alias for \opt{memo}.
 
 
-\DescribeOption{endnote} Uses endnotes rather than footnotes for formatting.
+\ExplainOption{endnote} Uses endnotes rather than footnotes for formatting.
 
 
-\DescribeOption{endnotes} Same as \opt{endnote}.
+\ExplainOption{endnotes} Same as \opt{endnote}.
 
 
-\DescribeOption{fullurl} URLs are displayed with their full text.
+\ExplainOption{fullurl} URLs are displayed with their full text.
 
 
-\DescribeOption{toaurl} URLs are displayed with their full text in the table of
+\ExplainOption{toaurl} URLs are displayed with their full text in the table of
 authorities and a shortcut otherwise, as described in \sec{urls-appearance}.
 
 
-\DescribeOption{linkurl} URLs are displayed as a linked word, as described in
+\ExplainOption{linkurl} URLs are displayed as a linked word, as described in
 \sec{urls-appearance}.
 
 
-\DescribeOption{italcase} Case names are italicized regardless of font packs
+\ExplainOption{italcase} Case names are italicized regardless of font packs
 previously chosen.
 
 
-\DescribeOption{toastar} Stars are added to common references in the table of
+\ExplainOption{toastar} Stars are added to common references in the table of
 authorities, as described in \sec{toa-star}.
 
 
-\DescribeOption{somenotename} In general, if a case is named inline in text and
+\ExplainOption{somenotename} In general, if a case is named inline in text and
 a citation to the case is made immediately thereafter, then the case name is
 suppressed in the citation so as to avoid redundancy. This option makes an
 exception where the citation to the case is the first citation in a footnote. In
@@ -447,20 +538,20 @@ naming the case again in the footnote is less redundant and potentially helpful
 to readers.
 
 
-\DescribeOption{nonotename} Suppresses case names even in citations at the
+\ExplainOption{nonotename} Suppresses case names even in citations at the
 start of footnotes. This is typical of most legal journals.
 
 
-\DescribeOption{useopturl} Redefines the \param{opturl} parameter to be the same
+\ExplainOption{useopturl} Redefines the \param{opturl} parameter to be the same
 as \param{url}, as described in the documentation for the former parameter.
 
 
-\DescribeOption{noterefs} Cross-references to text will refer to the closest
+\ExplainOption{noterefs} Cross-references to text will refer to the closest
 footnote numbers. This is typical of law reviews and is the standard when the
 \opt{review} option is selected.
 
 
-\DescribeOption{pagerefs} Cross-references to text will refer to the page
+\ExplainOption{pagerefs} Cross-references to text will refer to the page
 numbers on which the relevant text is found. This is typical of legal memoranda
 and is the standard when the \opt{memo} option is selected.
 
@@ -521,7 +612,7 @@ will be placed together with (so, for example, statutes and regulations are
 placed in the same category). The text associated with each category will be
 used for the heading in the table of authorities.
 
-\begin{center}
+\begin{demo}
 \def\hi@newcitetype#1#2{\expandafter\hi@newcitetype@\string#1\@mark#2\@stop}
 \expandafter\def\expandafter\hi@newcitetype@
     \string\hi@type@#1\@mark#2:#3\@stop{%
@@ -529,6 +620,7 @@ used for the heading in the table of authorities.
 }
 \begin{tabular}{lll}
 \textbf{Category} & \textbf{Group} & \textbf{Text} \\
+\hline
 \hi@newcitetype\hi@type@other{other:Other Source/s}
 \hi@newcitetype\hi@type@const{const:Constitutional Provision/s}
 \hi@newcitetype\hi@type@found{const:Foundational Document/s}
@@ -539,33 +631,33 @@ used for the heading in the table of authorities.
 \hi@newcitetype\hi@type@admin{case:Administrative Decision/s}
 \hi@newcitetype\hi@type@treaty{statute:Treat/y/ies}
 \end{tabular}
-\end{center}
+\end{demo}
 
 
 \subsection{Input Syntax}
 \label{s:refs-syntax}
 
 The package provides its own syntax for writers to use when defining references.
-As an alternative, the |hitobib| package offers a compatibility layer that
+As an alternative, \sec{hibib} describes a compatibility layer that
 accepts Biblatex reference definitions, so long as the parameter names
 correspond with those of this package.
 
 Generally, references are defined as follows:
-\begin{quote}
+\begin{demo}
 |\def|\meta{reference type} \marg{name} |{| \\
-\hbox{}\quad \meta{param1} |=| \meta{value1}|,| \\
-\hbox{}\quad \meta{param2} |=| \meta{value2}|,| \\
-\hbox{}\quad \ldots \\
+|    |\meta{param1} |=| \meta{value1}|,| \\
+|    |\meta{param2} |=| \meta{value2}|,| \\
+|    |\ldots \\
 |}|
-\end{quote}
+\end{demo}
 For example, to define the historic case on copyrightability:
-\begin{quote}
+\begin{demo}
 |\defcase{baker}{|\\
 |    parties=Baker v. Selden,|\\
 |    cite=101 U.S. 99,|\\
 |    year=1880,|\\
 |}|
-\end{quote}
+\end{demo}
 The input follows \TeX\ syntax and uses the |keyval| package, so if there are
 equal signs or commas in the parameter values, then the parameter should be
 surrounded with braces.
@@ -589,16 +681,16 @@ to the reference definition
 
 For example, say you want to define references for several sections of the
 Patent Act. That could be achieved with the following three definitions:
-\begin{quote}
+\begin{demo}
 |\defstatcode{101}{35 U.S.C. S 101}| \\
 |\defstatcode{102}{35 U.S.C. S 102}| \\
 |\defstatcode{103}{35 U.S.C. S 103}| \\
-\end{quote}
+\end{demo}
 This works (using the reference parser for statutes) but is repetitive. Instead,
 you can write:
-\begin{quote}
+\begin{demo}
 |\defcitegroup\defstatcode{35 U.S.C. S }{101, 102, 103}|
-\end{quote}
+\end{demo}
 Each of the items in the comma-separated list (e.g., |101|) becomes both a
 reference nickname and the end of the reference definition.
 
@@ -617,21 +709,21 @@ extract parameters, thereby defining the reference.
 To use this simplified input, ensure that the reference type is one of the types
 listed in this section, and then enter the simplified input string in lieu of
 the parameter-value pairs as follows:
-\begin{quote}
+\begin{demo}
 |\defcase{baker}{|\\
 |    Baker v. Selden, 101 U.S. 99 (1880)|\\
 |}|
-\end{quote}
+\end{demo}
 Please ensure that the simplified input has no equal signs.
 If there are additional parameters for the reference definition,
 they may be entered after a semicolon as
 follows:
-\begin{quote}
+\begin{demo}
 |\defcase{baker}{|\\
 |    Baker v. Selden, 101 U.S. 99 (1880);|\\
 |    docket=No. 95|\\
 |}|
-\end{quote}
+\end{demo}
 
 \subsection{Common Elements}
 
@@ -646,10 +738,10 @@ will be identified as content inside parentheses.
 \paragraph{Volume/Reporter/Page}
 Many of the reference type parsers will detect this pattern commonly found in
 reported case citations and consecutively-paginated journal citations:
-\begin{quote}
-\meta{volume} \meta{reporter} \meta{page} (\meta{date}) \\
-Example: |123 F.3d 456 (2000)|
-\end{quote}
+\begin{grammar}
+\meta{volume} \meta{reporter} \meta{page} \grammarparen{date} \\
+\Example |123 F.3d 456 (2000)|
+\end{grammar}
 Text matching this format can be detected and separated into parts, according to
 the following algorithm:
 \begin{enumerate}
@@ -670,12 +762,13 @@ as \meta{vol-rep-page}.
 \paragraph{Journal-Like Titles}
 
 Many reference types can accept parseable input of the form:
-\begin{quote}
-\meta{journal-text} := \meta{authors} |, | \meta{title} |, | \meta{journal-id}
+\begin{grammar}
+\meta{journal-text} := \meta{authors} \littext{, } \meta{title} \littext{, }
+\meta{journal-id}
 \\
-\meta{authors} := \meta{author} [ | & | \meta{author} ] \\
-Example: |John Doe & Jane Q. Public, A Theory of Law, ...|
-\end{quote}
+\meta{authors} := \meta{author} [ \littext{ \& } \meta{author} ] \\
+\Example |John Doe & Jane Q. Public, A Theory of Law, ...|
+\end{grammar}
 The \param{author} and \param{title} parameters are automatically set from this,
 and
 \meta{journal-id} is passed back to the reference type parser for further
@@ -700,13 +793,13 @@ input.
 \subsection{Cases}
 
 The \rtype{case} reference type can parse the following input syntax:
-\begin{quote}
-\meta{case} := \meta{case-name} |, | \meta{case-cite} |(| \meta{court}
-\meta{date} |)| \\
-\meta{case-name} := \meta{p} | v. | \meta{d} \| \meta{name} \\
-\meta{case-cite} := \meta{vol-rep-page} \| |No. | \meta{docket} \\
-Example: |\defcase{wheaton}{Wheaton v. Peters, 33 U.S. 591 (1834)}|
-\end{quote}
+\begin{grammar}
+\meta{case} := \meta{case-name} \littext{, } \meta{case-cite} \littext{(}
+\meta{court} \meta{date} \littext{)} \\
+\meta{case-name} := \meta{p} \littext{ v. } \meta{d} \| \meta{name} \\
+\meta{case-cite} := \meta{vol-rep-page} \| \littext{No. } \meta{docket} \\
+\Example |\defcase{wheaton}{Wheaton v. Peters, 33 U.S. 591 (1834)}|
+\end{grammar}
 This sets parameters \param{p} and \param{d} or \param{name} as the case party
 name(s); \param{vol},
 \param{rep}, and \param{page} or \param{docket} from the locator information
@@ -721,21 +814,21 @@ parenthetical.
 The \rtype{statcode} reference type can parse input
 conforming to \meta{vol-rep-page}. For
 example:
-\begin{quote}
+\begin{demo}
 |\defstatcode{patent-eligibility}{35 U.S.C. S 101}|
-\end{quote}
+\end{demo}
 
 
 \subsection{Journal Articles}
 
 The \rtype{jrnart} reference type can parse the following input syntax:
-\begin{quote}
-\meta{jrnart} := \meta{journal-text} |(| \meta{date} |)| \\
+\begin{grammar}
+\meta{jrnart} := \meta{journal-text} \grammarparen{date} \\
 where \meta{journal-id} := \meta{cite} \\
-Example: |\defjrnart{doe}{| \\
+\Example |\defjrnart{doe}{| \\
 |    John Doe, Article, 12 Law Review 345 (1950)| \\
 |}|
-\end{quote}
+\end{grammar}
 In other words, the start of the parseable input is used for parameters
 \param{author} and \param{name},
 as explained for \meta{journal-text} above. The text after the last comma before
@@ -746,25 +839,25 @@ is interpreted as \param{year}.
 \subsection{Websites and Magazines}
 
 The \rtype{website} reference type can parse the following input syntax:
-\begin{quote}
-\meta{website} := \meta{journal-text} |(| \meta{date} |)| \\
+\begin{grammar}
+\meta{website} := \meta{journal-text} \grammarparen{date} \\
 where \meta{journal-id} := \meta{rep} \\
-Example: |\defmagart{doe}{| \\
+\Example |\defmagart{doe}{| \\
 |    John Doe, Latest Memes, Slate (June 5 2000)| \\
 |}|
-\end{quote}
+\end{grammar}
 In other words, a parseable website reference input is just like a journal
 article except without a volume or page number; anything following the title is
 passed to the parameter \param{rep} to be used as a journal title.
 
 Magazines (\rtype{magart})
 are identical except a page number is given after the magazine title:
-\begin{quote}
+\begin{grammar}
 \meta{journal-id} := \meta{rep} \meta{page} \\
-Example: |\defmagart{doe}{| \\
+\Example |\defmagart{doe}{| \\
 |    John Doe, Politics, Newsweek 16 (June 5 2000)| \\
 |}|
-\end{quote}
+\end{grammar}
 As a result, the parseable
 reference input for magazines does \emph{not} look like conventional magazine
 citations, which typically set the date with a comma after the magazine title,
@@ -773,33 +866,33 @@ rather than putting the date in a parenthetical.
 
 \subsection{Books}
 The \rtype{book} reference type can parse the following input syntax:
-\begin{quote}
-\meta{book} := \meta{authors} |, | \meta{name} |(| \meta{date} |)| \\
-Example: |\defbook{blackstone}{| \\
+\begin{grammar}
+\meta{book} := \meta{authors} \littext{, } \meta{name} \grammarparen{date} \\
+\Example |\defbook{blackstone}{| \\
 |    William Blackstone, Commentaries on the Laws of England (1765)| \\
 |}|
-\end{quote}
+\end{grammar}
 where \meta{authors} is as defined above with respect to \meta{journal-text}
 (i.e., one author or two separated with an ampersand).
 
 
 \subsection{Court Documents}
 The \rtype{courtdoc} reference type can parse the following input syntax:
-\begin{quote}
-\meta{courtdoc} := \meta{name} |(| \meta{date} |)| \\
-Example: |\defcourtdoc{motion}{Motion for Leave (June 5 2000)}|
-\end{quote}
+\begin{grammar}
+\meta{courtdoc} := \meta{name} \grammarparen{date} \\
+\Example |\defcourtdoc{motion}{Motion for Leave (June 5 2000)}|
+\end{grammar}
 
 
 \subsection{Abbreviations}
 
 The \rtype{abbrev} reference type can parse the following input syntax:
-\begin{quote}
-\meta{abbrev} := \meta{name} |(| \meta{inline} |)| \\
-Example: |\defabbrev{fda}{| \\
+\begin{grammar}
+\meta{abbrev} := \meta{name} \grammarparen{inline} \\
+\Example |\defabbrev{fda}{| \\
 |    the Food and Drug Administration (the FDA)| \\
 |}|
-\end{quote}
+\end{grammar}
 In other words, the full text is before the parentheses and the abbreviation
 inside them.
 
@@ -827,7 +920,7 @@ names will automatically be compiled into a formatted list. Every name entered
 will be listed, although a warning will be issued unless the \param{noetal}
 parameter is included. To truncate a list, enter only the initial name with ``et
 al.''\ attached to the end. For example:
-\begin{quote}
+\begin{demo}
 |\defbook{nimmer}{| \\
 |    author=Melville B. Nimmer, author=David Nimmer, ...| \\
 |}| \\
@@ -836,7 +929,7 @@ al.''\ attached to the end. For example:
 |   author=David L. Schwartz, ...| \\
 |}| \\
 |\defjrnart{als}{author=John R. Allison et al., ...}|
-\end{quote}
+\end{demo}
 
 The remainder of this section provides details on how \hia* parses and uses name
 lists, and how to fine-tune those processes.
@@ -869,18 +962,20 @@ using just the author's last name.
 
 Institutional affiliations attached to human names are distinct from
 institutional names included in a name list.
-Consider, for example, a government report written by person $A$ at the Federal
-Trade Commission and $B$ at the Department of Justice. If the report expresses
+Consider, for example, a government report written by persoAl Anderson
+at the Federal
+Trade Commission and Bob Baker at the Department of Justice. If the report
+expresses
 the views of the agencies, then the agencies could be included as authors:
-\begin{quote}
-$A$ \& $B$, Fed.~Trade Comm'n \& Dep't of Justice
-\end{quote}
+\begin{demo}
+Al Anderson \& Bob Baker, Fed.~Trade Comm'n \& Dep't of Justice
+\end{demo}
 By contrast, if the report represents the views of the individuals in their
 official capacities but not necessarily the views of the agencies, then only the
 individuals should be authors, with their affiliations attached to their names:
-\begin{quote}
-$A$, Fed.~Trade Comm'n \& $B$, Dep't of Justice
-\end{quote}
+\begin{demo}
+Al Anderson, Fed.~Trade Comm'n \& Bob Baker, Dep't of Justice
+\end{demo}
 Providing these options gives
 writers more flexibility to cite mixed human and institutional authors to convey
 accurate and useful information.
@@ -890,7 +985,7 @@ accurate and useful information.
 
 For each type of name list, there will be two reference definition parameters,
 one for human names and one for institutions:
-\begin{center}
+\begin{demo}
 \catcode`\|=12
 \begin{tabular}{l|ll}
 & \textbf{Personal} & \textbf{Institutional} \\
@@ -899,7 +994,7 @@ Authors & \param{author} & \param{instauth} \\
 Editors & \param{editor} & \param{insted} \\
 Letter recipients & \param{to} & \param{instto} \\
 \end{tabular}
-\end{center}
+\end{demo}
 
 Institutional authors are given simply as an unabbreviated name; the package
 handles abbreviation. If an ``et al.''\ is desired after an institutional
@@ -911,21 +1006,25 @@ individually, they must be given in a specific format. An institutional
 affiliation is always any part of a name following a comma. To separate the
 given name, family name, and suffix, the most explicit way is to surround the
 family name and name suffix with curly braces:
-\begin{quote}
-\meta{given name}
-[\verb*| {|\meta{family name}
-[\verb*| {|\meta{suffix}\verb|}|] \verb|}|]
-[, \meta{institution}] [et al.]
-\end{quote}
-For example:
-\begin{quote}
+\begin{grammar}
+\meta{name} := \meta{given-name} \\
+\qquad[ \littext{ \{} \meta{family-name}
+    [ \littext{ \{} \meta{suffix} \littext{\}} ]
+  \littext{\}}
+] \\
+\qquad[ \littext{, } \meta{institution} ] \\
+\qquad[ \littext{et al.} ]
+\Examples
+\texttt{John Marshall} \\
+\texttt{Fiona {Scott Morton}} \\
+\texttt{Nicholson \{Price \{II\}\}} \\
 \texttt{Oliver Wendell \{Holmes \{Jr.\}\}, Massachusetts Supreme Judicial Court}
-\end{quote}
-would correctly identify the well-known jurist with his one of his judicial
-positions. \unskip\footnote{Some style guides prefer a comma before the name
+\end{grammar}
+Regarding the last two items,
+some style guides prefer a comma before the name
 suffix. \hia* does not explicitly support this, but with a preceding comma the
 name suffix would be treated as an institutional affiliation, which produces
-desirable results.}
+desirable results.
 
 Because including the braces around family names is cumbersome, this package can
 infer name parts with a few heuristics, such that no braces are required.
@@ -943,9 +1042,9 @@ last word in the remaining name as the family name.
 for common suffixes (Jr., Sr., and roman numerals through X). The first such
 suffix found is treated as a name suffix. As a result, the example above could
 have been parsed correctly without braces:
-\begin{quote}
+\begin{demo}
 \texttt{Oliver Wendell Holmes Jr., Massachusetts Supreme Judicial Court}
-\end{quote}
+\end{demo}
 since everything following the comma would be used as the institution, ``Jr.''
 would be identified as a suffix, ``Holmes'' being the last remaining word would
 be the family name, and the remaining text ``Oliver Wendell'' would be the
@@ -1043,17 +1142,17 @@ month can also be a season.
 \subsection{Input Syntax}
 
 Dates are entered, generally as parameters to references, as follows:
-\begin{quote}
+\begin{grammar}
 \meta{date} := [ \meta{qualifier} ] ( \meta{date-range} \| \meta{date-word} )*
 \\
-\meta{date-range} := \meta{date-word} |-| \meta{date-word} \\
+\meta{date-range} := \meta{date-word} \littext{-} \meta{date-word} \\
 \meta{date-word} := \meta{modifier} \| \meta{month} \| \meta{day} \| \meta{year}
 \\
-Examples: |2009|,
-|sept-oct 1980|,
-|adopted july 4 1776|,
+\Examples |2009|\\
+|sept-oct 1980|\\
+|adopted july 4 1776|\\
 |c. 538 BC|
-\end{quote}
+\end{grammar}
 In other words, a date consists of qualifier words followed by one or more
 tokens that may be either date words or ranges of date words.
 \unskip\footnote{Technically by this syntax, a range can consist of two
@@ -1071,10 +1170,11 @@ Alternately, a date beginning with |!| will be used unformatted.
 \paragraph{Permissible Words}
 The following are permissible words in dates.
 
-\begin{center}
+\begin{demo}
 \def\hi@setup@month#1#2{#1&#2\\}
 \begin{tabular}{ll}
 \textbf{Output} & \textbf{Input} \\
+\hline
 \hi@setup@month{Jan.}{jan, Jan, January, january}
 \hi@setup@month{Feb.}{feb, Feb, February, february}
 \hi@setup@month{Mar.}{mar, mar, Mar, March, march}
@@ -1099,7 +1199,7 @@ A.C.E. & ace, ACE \\
 B.C.E. & bce, BCE \\
 
 \end{tabular}
-\end{center}
+\end{demo}
 
 
 \DescribeMacro\AD
@@ -1191,20 +1291,20 @@ The ordinary citation commands are used to produce a cross-reference citation,
 using the pseudo-reference \rtype{this} with the ``page number'' being the
 cross-reference label. For example, assuming that |section-i| is defined as a
 label:
-\begin{quote}
+\begin{demo}
 \ttfamily
 |\sentence|\{see this at section-i (providing background)\}.
-\end{quote}
+\end{demo}
 As this example suggests, cross-reference citation items can include
 parentheticals and signals, just like ordinary citation items.
 
 Cross-references to floats and sections can also be used inline, producing text
 like ``Figure $X$.'' Again, the syntax mirrors inline citations for other
 references:
-\begin{quote}
+\begin{demo}
 \ttfamily
 Data is shown in |\inline|\{this at section-i\}.
-\end{quote}
+\end{demo}
 
 %%
 %% \iffalse filename: urls.dtx \fi
@@ -1298,18 +1398,16 @@ The value passed to \param{struct} is a key-value listing where the keys are the
 determinative document component (typically but not always the volume number),
 and the values are another key-value listing of replacement parameters. For
 example:
-\begin{quote}
-\begin{verbatim}
-\defbook{treatise}{
-  author=A A,
-  title=The Treatise,
-  year=1800,
-  struct={1={author=B B},
-          2={title=The Treatise Revised},
-          3={year=1805}},
-}
-\end{verbatim}
-\end{quote}
+\begin{demo}
+|\defbook{treatise}{|\\
+|  author=A A,|\\
+|  title=The Treatise,|\\
+|  year=1800,|\\
+|  struct={1={author=B B},|\\
+|          2={title=The Treatise Revised},|\\
+|          3={year=1805}},|\\
+|}|
+\end{demo}
 Here, the default citation would be ``\textsc{A A}, \textsc{The Treatise}
 (1800).'' But if volume 1 is cited then the author would be changed, the
 title changed if volume 2 is cited, and the year changed if volume 3 is cited.
@@ -1336,20 +1434,19 @@ reference type \rtype{citecontainer} provides a comprehensive mechanism for
 citing a reference contained within another reference.
 
 As an example, consider the following reference definitions:
-\begin{quote}
-\begin{verbatim}
-\defletter{madison-letter}{
-    author=James Madison,
-    to=W.T. Barry,
-    date=aug 4 1822,
-    reprinted=madison-writings,
-}
-\defbook{madison-writings}{
-    name=Letters and Other Writings of James Madison,
-    year=1884,
-}
-\end{verbatim}
-\end{quote}
+\begin{demo}
+|\defletter{madison-letter}{|\\
+|    author=James Madison,|\\
+|    to=W.T. Barry,|\\
+|    date=aug 4 1822,|\\
+|    reprinted=madison-writings,|\\
+|}|\\
+|\defbook{madison-writings}{|\\
+|    name=Letters and Other Writings of|\\
+|         James Madison,|\\
+|    year=1884,|\\
+|}|
+\end{demo}
 The parameter \param{reprinted} in the letter's reference definition identifies
 the book in which the letter has been reprinted by its reference nickname, and
 the book is defined separately as a reference. This approach works perfectly
@@ -1362,19 +1459,18 @@ letter reference definition.
 Instead of providing a reference name as the value to
 \param{reprinted}, the book can be included in the letter reference definition
 as follows:
-\begin{quote}
-\begin{verbatim}
-\defletter{madison-letter}{
-    author=James Madison,
-    to=W.T. Barry,
-    date=aug 4 1822,
-    reprinted=book: {
-        name=Letters and Other Writings of James Madison,
-        year=1884,
-    },
-}
-\end{verbatim}
-\end{quote}
+\begin{demo}
+|\defletter{madison-letter}{|\\
+|    author=James Madison,|\\
+|    to=W.T. Barry,|\\
+|    date=aug 4 1822,|\\
+|    reprinted=book: {|\\
+|        name=Letters and Other Writings|\\
+|             of James Madison,|\\
+|        year=1884,|\\
+|    },|\\
+|}|
+\end{demo}
 
 More generally, anonymous reference definitions consist of the reference type
 (without the |\def| prefix), a colon and space, and a set of parameter-value
@@ -1382,6 +1478,7 @@ pairs in braces. Note that whitespace following the parameter-value pairs can
 confuse the parser, so it is best to place a comma after the closing brace as
 shown above.
 
+\clearpage
 \part{Citations}
 \label{p:citations}
 
@@ -1409,11 +1506,11 @@ describes each citation form along with the command used to access the form.
 
 A \emph{sentence}-form citation is set off from the text as a separate
 sentence:
-\begin{quote}
-Example: |Segregation is unconstitutional. \sentence{see brown at 495}.| \\
-Output: Segregation is unconstitutional. \emph{See} \emph{Brown v.~Bd.\ of
+\begin{demo}
+|Segregation is unconstitutional. \sentence{see brown at 495}.| \\
+\Produces Segregation is unconstitutional. \emph{See} \emph{Brown v.~Bd.\ of
 Educ.}, 347 U.S. 483 (1954).
-\end{quote}
+\end{demo}
 
 \DescribeMacro\sentence
 As seen above, |\sentence| produces this style of citation.
@@ -1433,11 +1530,11 @@ A \emph{clause}-form citation falls within a sentence, preceded by a comma and
 followed by a comma unless there is other punctuation.
 Typically clause-style citations are used when different citations are needed
 for different parts of a single long sentence.
-\begin{quote}
-Example: |Education is important, \clause{see brown at 493}, and segregation has a ``detrimental effect,'' \clause{brown at 494}.| \\
-Output: Education is important, \emph{see} \emph{Brown}, 347 U.S. at 493, and
+\begin{demo}
+|Education is important, \clause{see brown at 493}, and segregation has a ``detrimental effect,'' \clause{brown at 494}.| \\
+\Produces Education is important, \emph{see} \emph{Brown}, 347 U.S. at 493, and
 segregation has a ``detrimental effect,'' \emph{id.}\ at 494.
-\end{quote}
+\end{demo}
 
 \DescribeMacro\clause
 The |\clause| command makes a clause-form citation. It should be surrounded by
@@ -1452,10 +1549,10 @@ is generated.
 Citations may also appear in instructional sentences that end with a |\clause|
 citation. Typically these will be imperative sentences with an unitalicized
 spelled-out signal:
-\begin{quote}
-Example: |On scientific evidence, see \clause{brown at 494 note 11}.| \\
-Output: On scientific evidence, see \emph{Brown}, 347 U.S. at 494 n.11.
-\end{quote}
+\begin{demo}
+|On scientific evidence, see \clause{brown at 494 note 11}.| \\
+\Produces On scientific evidence, see \emph{Brown}, 347 U.S. at 494 n.11.
+\end{demo}
 Although this context differs grammatically from other |\clause| citations, the
 formatting is largely identical so only one command is provided.
 \unskip\footnote{Some style guides use a slightly different format in
@@ -1467,11 +1564,11 @@ be no particular need to implement a separate command for this use case.}
 \paragraph{Nested Citations}
 Citations may also appear nested in parentheticals within other citations. This
 can be accomplished by using |\clause| inside the parenthetical:
-\begin{quote}
-Example: |\sentence{see brown at 494-495 (overruling \clause{plessy})}.| \\
-Output: \emph{See} \emph{Brown}, 347 U.S. at 494--95 (overruling \emph{Plessy
+\begin{demo}
+|\sentence{see brown at 494-495 (overruling \clause{plessy})}.| \\
+\Produces \emph{See} \emph{Brown}, 347 U.S. at 494--95 (overruling \emph{Plessy
 v.~Ferguson}, 163 U.S. 537 (1896)).
-\end{quote}
+\end{demo}
 More on nested citations, including a more convenient shortcut
 form, may be found in \sec{parens}.
 
@@ -1481,10 +1578,10 @@ form, may be found in \sec{parens}.
 An \emph{inline}-form citation acts as a part of speech within a sentence,
 typically a noun or an adjective. Naming a case in text uses an
 inline citation:
-\begin{quote}
-Example: |\Inline{brown} followed \inline{sweatt}.| \\
-Output: \emph{Brown} followed \emph{Sweatt v.~Painter}.
-\end{quote}
+\begin{demo}
+|\Inline{brown} followed \inline{sweatt}.| \\
+\Produces \emph{Brown} followed \emph{Sweatt v.~Painter}.
+\end{demo}
 
 The following commands produce inline citations. Any of them may be used in text
 or footnotes, regardless of the document type.
@@ -1515,21 +1612,21 @@ text are moved around.
 Furthermore, inline citations can affect the surrounding non-inline citations.
 When citing a case for the first time, it is typical to omit the case name from
 a sentence citation when the case name was used inline:
-\begin{quote}
-Example: |\Inline{brown} involved class actions. \sentence{see brown at 495}.|
-\\
-Output: \emph{Brown} involved class actions. \emph{See} 347 U.S. at 495.
-\end{quote}
+\begin{demo}
+|\Inline{brown} involved class actions. \sentence{see brown at 495}.| \\
+\Produces \emph{Brown} involved class actions. \emph{See} 347 U.S. at 495.
+\end{demo}
 This package detects such situations and removes duplicative names
 automatically.
 
 \paragraph{Inline Citations and \emph{Id.}}\label{s:iface-invisible}
 One of the most nuanced considerations for inline citations is the effect on
 \emph{id.}\ short forms. Consider the following:
-\begin{quote}
-Example: |\sentence{brown at 496}. The Court overruled \inline{plessy}. \sentence{brown at 494-495}.| \\
-Output: \emph{Brown}, 347 U.S. at 496. The Court overruled \emph{Plessy}. ???
-\end{quote}
+\begin{demo}
+|\sentence{brown at 496}. The Court overruled \inline{plessy}. \sentence{brown at 494-495}.| \\
+\Produces \emph{Brown}, 347 U.S. at 496. The Court overruled \emph{Plessy}.
+\textbf{???}
+\end{demo}
 Absent the inline citation to \emph{Plessy}, the final citation in the above
 sentence should be ``\emph{Id.}\ at 494--95.'' But with the inline citation, it
 is ambiguous which case the \emph{Id.}\ refers to. The better option, which
@@ -1537,18 +1634,18 @@ is ambiguous which case the \emph{Id.}\ refers to. The better option, which
 
 If this is undesirable, one can cause the \emph{Id.}\ form to be used by hiding
 the inline citation with braces:
-\begin{quote}
-Example: |\sentence{brown at 496}. The Court overruled {\inline{plessy}}. \sentence{brown at 494-495}.| \\
-Output: \emph{Brown}, 347 U.S. at 496. The Court overruled \emph{Plessy}.
+\begin{demo}
+|\sentence{brown at 496}. The Court overruled {\inline{plessy}}. \sentence{brown at 494-495}.| \\
+\Produces \emph{Brown}, 347 U.S. at 496. The Court overruled \emph{Plessy}.
 \emph{Id.}\ at 494--95.
-\end{quote}
+\end{demo}
 
 By contrast, consider:
-\begin{quote}
-Example: |\sentence{brown at 496}. The Court applied \inline{14th-amend}. \sentence{brown at 494}.|
-Output: \emph{Brown}, 347 U.S. at 496. The Court applied the Fourteenth
+\begin{demo}
+|\sentence{brown at 496}. The Court applied \inline{14th-amend}. \sentence{brown at 494}.|
+\Produces \emph{Brown}, 347 U.S. at 496. The Court applied the Fourteenth
 Amendment. \emph{Id.}~at 494.
-\end{quote}
+\end{demo}
 Here, it is unambiguous that the \emph{Id.}\ does not refer to the constitution.
 \hia* implements this distinction by designating the inline forms of statutes,
 constitutions, and a few other references as ``invisible'' to the
@@ -1560,16 +1657,16 @@ constitutions, and a few other references as ``invisible'' to the
 
 \DescribeMacro\note |\note| makes a sentence-style citation inside a footnote;
 it is essentially a synonym for:
-\begin{quote}
+\begin{demo}
 |\unskip\footnote{\sentence{|\meta{string}|}.}|
-\end{quote}
+\end{demo}
 It provides two conveniences for the author. First, the |\unskip| means that a
 space before |\note| is automatically removed, making \TeX\ code more readable.
 Second, |\note| can take a second argument of text (which can include sentence
 and clause citations) appended after the citation:
-\begin{quote}
+\begin{demo}
 |\note{case}{For further information, see \clause{case2}.}|
-\end{quote}
+\end{demo}
 
 
 \subsection{Optional Clause}
@@ -1580,12 +1677,13 @@ takes no arguments. Its purpose is to serve a style of citation that some
 writers prefer, in which a clause-style citation (in text or in a footnote,
 depending on the type of document) immediately follows the first inline citation
 to a reference:
-\begin{quote}
-Example: |In \inline{brown}\optclause, the Court held...| \\
-Output (case already cited): In \emph{Brown}, the Court held\ldots \\
-Output (case not already cited): In \emph{Brown v.~Board of Education}, 347 U.S.
-483 (1954), the Court held\ldots
-\end{quote}
+\begin{demo}
+|In \inline{brown}\optclause, the Court held...| \\
+\Produces
+\emph{[When case already cited]} In \emph{Brown}, the Court held\ldots \\
+\emph{[When case not already cited]} In \emph{Brown v.~Board of Education}, 347
+U.S. 483 (1954), the Court held\ldots
+\end{demo}
 In other words, this is identical to |\inline{ref}, \clause{ref at 570},| if the
 reference has not been cited so far, but produces nothing if it has been cited
 already.
@@ -1642,17 +1740,18 @@ without producing any citation text.
 
 The following are synonyms to the citation commands thus described.
 
-\begin{center}
+\begin{demo}
 \begin{tabular}{ll}
 \textbf{Command} & \textbf{Synonym} \\
-\cmd\sentence & \cmd\Ct \\
-\cmd\clause & \cmd\ct \\
-\cmd\Inline & \cmd\Ci \\
-\cmd\inline & \cmd\ci \\
-\cmd\note & \cmd\cn \\
-\cmd\addtotoa & \cmd\cx \\
+\hline
+\cmd\sentence & \DescribeMacro\Ct \cmd\Ct \\
+\cmd\clause & \DescribeMacro\ct \cmd\ct \\
+\cmd\Inline & \DescribeMacro\Ci\cmd\Ci \\
+\cmd\inline & \DescribeMacro\ci\cmd\ci \\
+\cmd\note & \DescribeMacro\cn\cmd\cn \\
+\cmd\addtotoa & \DescribeMacro\cx\cmd\cx \\
 \end{tabular}
-\end{center}
+\end{demo}
 %%
 %% \iffalse filename: parse.dtx \fi
 %%
@@ -1690,36 +1789,40 @@ are freeform text that is used as-is with no processing.
 \subsection{Input Syntax}
 
 Citation strings are given to the package using the following syntax:
-\begin{quote}
-\meta{citation-string} := \meta{citation-item} [ |;| \meta{citation-item} ]* \\
-\meta{citation-item} := [ \meta{signal} ] [ \meta{volume} ]
-\meta{reference-name} [ |[| \meta{opt-argument} |]| ]
-[ |at| \meta{pincite}] [ |(| \meta{parenthetical} |)| ]*
-\end{quote}
+\begin{grammar}
+\meta{citation-string} := \meta{citation-item} ( \littext{; }
+\meta{citation-item} )* \\
+\meta{citation-item} := [ \meta{signal} ] \\
+\qquad[ \meta{volume} ] \\
+\qquad\meta{reference-name} \\
+\qquad[ \littext{ [} \meta{opt-argument} \littext{]} ] \\
+\qquad[ \littext{ at } \meta{pincite} ] \\
+\qquad( \grammarparen{parenthetical} )*
+\end{grammar}
 
 More concretely, citation strings are one or more semicolon-separated items. The
 following cites three references:
-\begin{quote}
+\begin{demo}
 \ttfamily
 ref-a; ref-b; ref-c
-\end{quote}
+\end{demo}
 
 A complete citation item with every component might look like this:
-\begin{quote}
+\begin{demo}
 \ttfamily
 see, e.g., 5 treatise[opt] at 35-60 (citing references) (outdated)
-\end{quote}
+\end{demo}
 This would cite volume 5, pages 35--60 of a reference named |treatise| with the
 signal |see, e.g.|, an optional argument |opt|, and two parentheticals.
 
 More commonly, only a few components of a citation item will be included. An
 example citation string in ordinary use might look as follows:
-\begin{quote}
+\begin{demo}
 \ttfamily
 statute at S 167; see also supporting-case at 189; another-case at 465; cf.
 journal-article at 754 (discussing related applications of the statute); see
 generally 7 treatise at S 56
-\end{quote}
+\end{demo}
 
 Note that if the same reference is cited multiple times in a row, there is no
 facility for writing \emph{id.}\ or the like in the input syntax. The reference
@@ -1754,7 +1857,7 @@ literature into a single citation string.
 Each signal belongs to one of four classes: support, comparison, contrary, and
 background. Here are all the signals available, along with their classes.
 
-\begin{center}
+\begin{demo}
 \def\AddSignal#1#2{\emph{#1}&\csname sig@#2\endcsname\\}
 \def\sig@s{Support}
 \def\sig@p{Comparison}
@@ -1763,6 +1866,7 @@ background. Here are all the signals available, along with their classes.
 
 \begin{tabular}{ll}
 \textbf{Signal} & \textbf{Class} \\
+\hline
 \AddSignal{see}{s}
 \AddSignal{see, e.g.,}{s}
 \AddSignal{see also}{s}
@@ -1780,7 +1884,7 @@ background. Here are all the signals available, along with their classes.
 \AddSignal{but cf.}{c}
 \AddSignal{see generally}{b}
 \end{tabular}
-\end{center}
+\end{demo}
 
 \subsection{Input Syntax}
 
@@ -1788,11 +1892,11 @@ As described in \sec{parse}, the signal for a citation
 item is placed at the beginning of the input text for the citation item, in all
 lowercase text. As a convenience, duplicative sequential signals may be omitted.
 For example, the following are equivalent:
-\begin{quote}
+\begin{demo}
 \ttfamily
 see ref1; ref2; see also ref3; ref4 \\
 see ref1; see ref2; see also ref3; see also ref4 \\
-\end{quote}
+\end{demo}
 In both cases, the \emph{see} signal will apply to |ref1| and |ref2|, and
 \emph{see also} to |ref3| and |ref4|.
 
@@ -1802,9 +1906,9 @@ flexibility to writers, although it is expected that most writers will follow
 conventional ordering of signals. Second, comparison signal citations typically
 include \emph{and} before the penultimate item of each side of the comparison,
 for example:
-\begin{quote}
+\begin{demo}
 \emph{Compare} A, B, \emph{and} C, \emph{with} D, \emph{and} F.
-\end{quote}
+\end{demo}
 For implementation reasons, \unskip\footnote{As described in the implementation
 discussion of citation formatting, each citation item is formatted by executing
 a group of commands for the citation. To figure out whether an \emph{and} is
@@ -1884,11 +1988,11 @@ segment to hold the subsection number of the statute being cited, and then
 require a segment named |stat| that identifies the page of the \emph{Statutes at
 Large} on which the subsection appears. The input syntax and an example are as
 follows:
-\begin{quote}
-\meta{pin-cite} := \meta{segment} [
-|::|\meta{segment-name}|:| \meta{segment} ]* \\
-Example: \texttt{S 12 ::stat: 783}
-\end{quote}
+\begin{grammar}
+\meta{pin-cite} := \meta{segment} \\
+\qquad( \littext{ ::} \meta{segment-name} \littext{: } \meta{segment} )* \\
+\Example \texttt{S 12 ::stat: 783}
+\end{grammar}
 The example would cite \textsection~12 of a statute, at page 783.
 
 
@@ -1896,11 +2000,11 @@ A pin cite segment can consist either of a comma-separated list of items, or two
 comma-separated lists of items delimited by the word |to| (surrounded by
 spaces). The latter form is used for pin cites to ranges where each side of the
 range contains multiple items.
-\begin{quote}
-\meta{segment} := \meta{list} [ | to | \meta{list} ] \\
-\meta{list} := \meta{item} [ |, | \meta{item} ]* \\
-Example: \texttt{column 5, line 8 to column 6, line 5}
-\end{quote}
+\begin{grammar}
+\meta{segment} := \meta{list} [ \littext{ to } \meta{list} ] \\
+\meta{list} := \meta{item} ( \littext{, } \meta{item} )* \\
+\Example \texttt{column 5, line 8 to column 6, line 5}
+\end{grammar}
 Here, the word ``to'' must be used to separate the ranges to avoid ambiguity.
 
 
@@ -1923,16 +2027,17 @@ division is used, any subsequent bare numbers will be interpreted as part of the
 division. To return to citing page numbers, insert the word |at| (e.g.,
 \texttt{section 5, at 143}). This can be useful for helping readers find the
 location of text divisions. Thus:
-\begin{center}
+\begin{demo}
 \begin{tabular}{lll}
 \textbf{Input} & \textbf{Output} & \textbf{Explanation} \\
+\hline
 |157, 160-163| & 157, 150--63 & Page numbers \\
 |line 403, 450-463| & ll.~403, 450--463 & All are line numbers \\
 |line 403, at 450-463| & l.~403, at 450--63 & 450--463 are pages \\
 |157-158 table 1-2| & 157--58 tbls.1--2 & Citing just tables \\
 |157-158 & table 1-2| & 157--58 \& tbls.1--2 & Citing pages and tables \\
 \end{tabular}
-\end{center}
+\end{demo}
 As seen in the above examples, the number part of either a page number or a
 named division can be a hyphenated range, and the hyphen is converted to a
 proper dash. To include an actual hyphen, use |\-| instead.
@@ -1940,9 +2045,10 @@ proper dash. To include an actual hyphen, use |\-| instead.
 
 Further fine-tuning of the pin cite parsing algorithm can be done by placing
 special codes or punctuation at the beginning of pin cite items:
-\begin{center}
+\begin{demo}
 \begin{tabular}{llp{0.6\textwidth}}
 \textbf{Input} & \textbf{Type} & \textbf{Explanation} \\
+\hline
 \texttt{S 3} & Division & Produces \textsection~3 \\
 \texttt{P 3} & Division & Produces \textparagraph~3 \\
 \texttt{-34/a} & Division & Interpreted as a division with no name: 34(a) \\
@@ -1955,7 +2061,7 @@ cite \\
 \texttt{/a3} & Division & Interpreted as a subdivision: (a)(3). Must follow a
 named division \\
 \end{tabular}
-\end{center}
+\end{demo}
 
 
 \subsection{Subdivisions}
@@ -1973,9 +2079,10 @@ with a slash. Bare subdivisions (without a top-level subdivision) may be used as
 pin cite items to cite multiple non-contiguous subdivisions, and ranges may
 include bare subdivisions. Single characters in a subdivision will be
 automatically parenthesized. The following are examples:
-\begin{center}
+\begin{demo}
 \begin{tabular}{ll}
 \textbf{Input} & \textbf{Output} \\
+\hline
 |S 5/a| & \textsection~5(a) \\
 |S 5/a-6/b| & \textsection\textsection~5(a)--6(b) \\
 |S 5/a-/b| & \textsection~5(a)--(b) \\
@@ -1984,7 +2091,7 @@ automatically parenthesized. The following are examples:
 |S 5/a1A(iii)| & \textsection~5(a)(1)(A)(iii) \\
 |S 5/a1A{note}| & \textsection~5(a)(1)(A)note \\
 \end{tabular}
-\end{center}
+\end{demo}
 
 
 \section{Pin Cite Subdivision Joining}
@@ -1996,11 +2103,11 @@ division or page number for the reference and then refer to a specific part of
 it. For example, one might define the statute 35 U.S.C. \textsection~112 as a
 reference |sec-112|, and then wish to refer to subsection (b) of that statute.
 To do so, one may write:
-\begin{quote}
+\begin{demo}
 |\sentence{sec-112 at /b}|\\
 Equivalent to: |\sentence{sec-112 at S 112/b}|\\
-Produces: 35 U.S.C. \textsection~112(b)
-\end{quote}
+\Produces 35 U.S.C. \textsection~112(b)
+\end{demo}
 In other words, the pin cite given as part of the citation item is joined to the
 pin cite given in the reference definition. The following rules define how a
 reference pin cite is joined with a citation item pin cite:
@@ -2015,15 +2122,16 @@ cite has a slash, then the slash is removed from the citation item pin cite and
 the two are concatenated.
 \end{itemize}
 Thus, the following examples:
-\begin{center}
+\begin{demo}
 \begin{tabular}{lll}
 \textbf{Reference} & \textbf{Citation Item} & \textbf{Result} \\
+\hline
 |S 112| & |S 102/a| & \textsection~102(a) \\
 |S 112| & |/b| & \textsection~112(b) \\
 |S 505/j| & |/2A| & \textsection~505(j)(2)(A) \\
 |S 505/j| & |/2A-/3| & \textsection~505(j)(2)(A)--(3) \\
 \end{tabular}
-\end{center}
+\end{demo}
 The range joins correctly not because of these rules but because of the ordinary
 parsing rules for subdivision ranges, given above.
 
@@ -2058,9 +2166,10 @@ included. It seems preferable to do so to ensure that ``R.'' is not interpreted
 as ``Rule.''}
 \end{itemize}
 Thus, the following examples:
-\begin{center}
+\begin{demo}
 \begin{tabular}{lll}
 \textbf{Preceding Text} & \textbf{Pin Cite} & \textbf{Output} \\
+\hline
 |Book| & |15| & \textsc{Book} 15 \\
 |Treatise| & |S 5| & \textsc{Treatise} \textsection~5 \\
 |Annual Report 2015| & |35| & \textsc{Annual Report 2015}, at 35 \\
@@ -2068,7 +2177,7 @@ Thus, the following examples:
 |R.| & |102| & R. at 102 \\
 |R.| & |paragraph 36| & R. at para. 36 \\
 \end{tabular}
-\end{center}
+\end{demo}
 
 Finally, it is sometimes useful to expand initial |\textsection| and
 |\textparagraph| symbols to words. This is useful for statute citations. The
@@ -2086,10 +2195,10 @@ Parentheticals are information appended to the text of citation items, and are
 used to convey additional information about the reference being cited. The
 following example includes two classic examples of parentheticals, one for court
 and date information and the other for characterizing the holding of a case:
-\begin{quote}
+\begin{demo}
 \emph{See} Plaintiff v.~Defendant, 123 F.4th 567 (1st Cir. 2000) (holding that
 the sky is blue).
-\end{quote}
+\end{demo}
 Legal citation uses parentheticals extensively, both in highly structured ways
 to include required bibliographic data about references and more freeform ways
 that allow authors an additional avenue to converse with readers.
@@ -2121,10 +2230,10 @@ parentheses. They also include items such as URLs, prior and subsequent case
 history, and other material typically set off with a comma after the main text
 of a citation item. Thus, there are three parentheticals in the following
 example for the date, the website, and a characterization:
-\begin{quote}
+\begin{demo}
 \textsc{John Doe}, \textsc{A Book Online} (2018), http://www.johndoe.xyz/book
 (providing information).
-\end{quote}
+\end{demo}
 As this example shows, it is best to treat comma-offset text as parentheticals
 just like parentheses-enclosed text, because the two are intermingled in
 presentation. URLs, for example, appear after the date parenthetical to a
@@ -2164,7 +2273,7 @@ The following input will convert \meta{cite} to
 |\clause|\marg{cite} and remove the colon. This is a convenient shortcut for the
 common types of parentheticals that start with ``quoting,'' ``cited by,'' or
 ``discussed in'' followed by a citation.
-\begin{center}
+\begin{demo}
 \begin{tabular}{l}
 |(|\meta{verb}|ing: |\meta{cite}|)| \\
 |(|\meta{verb}| in: |\meta{cite}|)| \\
@@ -2173,12 +2282,12 @@ common types of parentheticals that start with ``quoting,'' ``cited by,'' or
 |(codified at: |\meta{cite}|)| \\
 |(codified as amended at: |\meta{cite}|)| \\
 \end{tabular}
-\end{center}
+\end{demo}
 For example, the following are largely equivalent:
-\begin{quote}
+\begin{demo}
 |\sentence{ref at 3 (quoting: source at 15)}| \\
 |\sentence{ref at 3 (quoting \clause{source at 15})}|
-\end{quote}
+\end{demo}
 In both cases, the citation to |ref| will include a parenthetical with the word
 ``quoting'' followed by a formatted citation to |source|.
 
@@ -2690,10 +2799,11 @@ without the need to revise reference definitions.
 
 The following is a table of all font contexts supported.
 
-\begin{center}
+\begin{demo}
 \def\hi@font@context@add#1#2{#1&#2\\}
 \begin{tabular}{ll}
 \textbf{Name} & \textbf{Description} \\
+\hline
 \hi@font@context@add{bookauthor}{Author of a book}
 \hi@font@context@add{booktitle}{Title of a book}
 \hi@font@context@add{congdoc}{Congressional document number}
@@ -2712,7 +2822,7 @@ The following is a table of all font contexts supported.
 \hi@font@context@add{dateprefix}{The qualifier words before a date}
 \hi@font@context@add{latin}{Latin words that are typically italicized}
 \end{tabular}
-\end{center}
+\end{demo}
 
 
 \subsection{Fonts}
@@ -2733,12 +2843,15 @@ turn internal emph into roman.
 A font pack associates font contexts with font commands. Each context receives
 two font commands: one for use in non-inline citations, and one for use with
 inline texts. The syntax for defining a font pack is as follows:
-\begin{quote}
-|\MakeFontPack|\marg{name}|{| \meta{font-spec} [ |,| \meta{font-spec} ]* |}| \\
-\meta{font-spec} := \meta{context} |:| \meta{font} |/| \meta{font} \\
-\meta{font} := |emph| \| |empht| \| |rm| \| |sc| \\
-Example: |\MakeFontPack{new}{booktitle: sc/empht, bookauthor: sc/rm}|
-\end{quote}
+\begin{grammar}
+|\MakeFontPack|\marg{name}\marg{font-specs} \\
+\meta{font-specs} := \meta{font-spec} ( \littext{, } \meta{font-spec} )* \\
+\meta{font-spec} := \meta{context} \littext{: } \meta{font} \littext{/}
+\meta{font} \\
+\meta{font} := \littext{emph} \| \littext{empht} \| \littext{rm} \| \littext{sc}
+\\
+\Example |\MakeFontPack{new}{booktitle: sc/empht, bookauthor: sc/rm}|
+\end{grammar}
 A font pack need not define every font context, since a user can select multiple
 font packs. In the case of two font packs containing the same font context, the
 last selected pack overrides earlier ones.
@@ -2859,16 +2972,17 @@ information must be maintained for this.
 Generally, \emph{id.}\ may be used and citation information may be omitted when
 it is the same as the previous citation. Assuming that |2 ref at 46| was
 previously cited, then:
-\begin{center}
-\begin{tabular}{llp{0.6\textwidth}}
+\begin{demo}
+\begin{tabular}{llp{0.47\textwidth}}
 \textbf{Next input} & \textbf{Produces} & \textbf{Explanation} \\
+\hline
 |2 ref at 46| & \emph{Id.} & Volume and page omitted \\
 |2 ref at 48| & \emph{Id.}\ at 48 & Volume omitted \\
 |3 ref at 50| & 3 \emph{id.}\ at 50 & Both numbers included \\
 |3 ref at 46| & 3 \emph{id.}\ at 46 & Page cannot be omitted, as volume
 differs \\
 \end{tabular}
-\end{center}
+\end{demo}
 
 However, there are two main exceptions to this information omission process.
 First, not every duplicative element can be omitted, if a ``higher level''
@@ -2876,20 +2990,20 @@ element differs. In the last example above, the page number 46 is duplicative,
 but it cannot be omitted because the volume number differs. Second, the presence
 of multiple citation items in a context can prevent the use of \emph{id.} In
 this example:
-\begin{quote}
+\begin{demo}
 \ttfamily
 |\sentence|\{see ref1 at 5; ref2 at 7\}. Further text. |\sentence|\{see ref2 at
 7\}.
-\end{quote}
+\end{demo}
 No \emph{id.}\ may be used in the final citation, even though the reference and
 page are identical to the immediately preceding one, because the first citation
 string included two distinct references so \emph{id.} would be ambiguous.
 However:
-\begin{quote}
+\begin{demo}
 \ttfamily
 |\sentence|\{see ref1 at 5; but see ref1 at 7\}. Further text. |\sentence|\{see
 ref1 at 7\}.
-\end{quote}
+\end{demo}
 Here, the last citation should be formatted ``\emph{See} \emph{id.}~at 7.'' The
 \emph{id.}\ is permissible because only |ref1| was cited in the first citation
 string, but the page number cannot be omitted. Furthermore, a footnote can use
@@ -2923,7 +3037,7 @@ that become invalid if this state variable is invalid.
 
 \subsubsection{List of State Variables}
 
-\begin{center}
+\begin{demo}
 \def\thelist{}
 \def\hi@state@var#1{%
     \appto\thelist{#1&\csname invlist@#1\endcsname\\}%
@@ -2959,9 +3073,10 @@ that become invalid if this state variable is invalid.
 \hi@state@setinv{vol}{opt}
 \begin{tabular}{ll}
 \textbf{Variable} & \textbf{Invalidates} \\
+\hline
 \thelist
 \end{tabular}
-\end{center}
+\end{demo}
 
 \subsubsection{Updating Citation State}
 
@@ -3045,9 +3160,9 @@ reference. This section describes how such citations are produced and managed.
 
 \DescribeMacro\hi@supra@form
 A reference type that uses a \emph{supra} citation should execute:
-\begin{quote}
+\begin{demo}
 |\hi@supra@form|\marg{ref}\marg{desc}
-\end{quote}
+\end{demo}
 in constructing citation macros. The
 argument \meta{ref} is the reference name, and \meta{desc} is the description
 to precede the word ``\emph{supra}.'' The description is usually the reference
@@ -3119,6 +3234,7 @@ A variety of other macros deal with using citation parameters, differentiating
 between citation contexts (inline, nameless, optional arguments), and spacing.
 
 
+\clearpage
 \part{Reference Types}
 \label{p:alltypes}
 
@@ -3201,20 +3317,21 @@ beginning).
 \paragraph{Party Name Syntax}
 
 Party names for \param{p} and \param{d} have the form:
-\begin{quote}
-\meta{party} := \meta{text} [ |ex rel.| \meta{text} ] \\
-Examples: |Doe|, |State ex rel. Adams|
-\end{quote}
+\begin{grammar}
+\meta{party} := \meta{text} [ \littext{ex rel.} \meta{text} ] \\
+\Examples |Doe|\\|State ex rel. Adams|
+\end{grammar}
 The ``base'' name and the name after ``ex rel.''\ are treated as two separate
 names, each a candidate for being the case's short name.
 
 
 For common case names with the \param{name} parameter, there are more
 possibilities because prefixes \emph{In re} and \emph{Ex parte} can be used:
-\begin{quote}
-\meta{name} := [ |In re| \| |Ex parte| ] \meta{text} [ |ex rel.| \meta{text} ]\\
-Examples: |In re Comiskey|, |Ex parte New York ex rel. Jones|
-\end{quote}
+\begin{grammar}
+\meta{name} := [ \littext{In re} \| \littext{Ex parte} ] \meta{text} [
+\littext{ex rel.} \meta{text} ]\\
+\Examples |In re Comiskey|\\|Ex parte New York ex rel. Jones|
+\end{grammar}
 The latter example is procedurally implausible but nevertheless syntactially
 acceptable.
 
@@ -3278,7 +3395,7 @@ use the short name on subsequent uses, as described in \sec{state-ffc}.
 Regarding the removal of conventional words, these are typically business
 or geographical designations that are uninformative for the short name. A list
 of ignored words follows:
-\begin{center}
+\begin{demo}
 \def\hi@case@shortfmt@add#1{\chop@space{#1}\\}%
 \begin{tabular}{l}
 \hi@case@shortfmt@add{,}
@@ -3299,7 +3416,7 @@ of ignored words follows:
 \hi@case@shortfmt@add{ Int'l}
 \hi@case@shortfmt@add{ of}
 \end{tabular}
-\end{center}
+\end{demo}
 
 \subsection{Nominative Reporters}
 
@@ -3310,10 +3427,9 @@ abbreviations. However, some common reporters have both an official series name
 and nominative reporter names. Volume 21 of the \emph{United States Reports},
 for example, is also volume 8 of Wheaton's reports, and typically both are
 cited:
-\begin{quote}
-\meta{vol} \meta{rep} (\meta{nom-vol} \meta{nom-rep}) \meta{page} \\
-Example: 21 U.S. (8 Wheat.)\ 1
-\end{quote}
+\begin{demo}
+|21 U.S. (8 Wheat.) 1|
+\end{demo}
 In most cases, the pagination of the series reporter and the nominative reporter
 is the same, and adding the nominative reporter is a simple matter of looking up
 the corresponding name in a table. As a result, this package handles these
@@ -3348,10 +3464,10 @@ defining the case document reference.}
 Procedural history for a case is given in the \param{prior} and
 \param{subsequent} parameters, which are used to construct parentheticals. The
 syntax for those parameters is:
-\begin{quote}
-\meta{history} := \meta{phrase} |:| \meta{ref} \\
-Example: |reversed: prior-case|
-\end{quote}
+\begin{grammar}
+\meta{history} := \meta{phrase} \littext{: } \meta{ref} \\
+\Example |reversed: prior-case|
+\end{grammar}
 The \meta{phrase} is an explanatory phrase that will be abbreviated and also
 checked against a table of valid explanatory phrases. If a desired phrase is not
 already listed, the macro
@@ -3506,9 +3622,9 @@ not appear to require them. If they are desired, commands such as |\sentence| or
 In most appellate work and particularly before the Supreme Court, this reference
 type is rarely used. The more common practice now is to name the document to be
 cited in text and then include ``(at \meta{page})'' within the sentence:
-\begin{quote}
+\begin{demo}
 Petitioner's brief argues (at 8) that the sky is red, but that is wrong.
-\end{quote}
+\end{demo}
 There is not really a need for automation of these kinds of citations.
 
 \keyparameters{
@@ -3914,21 +4030,21 @@ least two possible approaches for identifying rules (both of which this package
 supports). First, one could characterize the name of the rule set as a book
 title and each rule as a named division therein. That would produce output along
 the following lines:
-\begin{quote}
+\begin{demo}
 |\defrule{frcp12}{rep=Fed. R. Civ. P., page=rule 12}| \\
 |\sentence{frcp12 at /b6}.| \\
-Produces: \textsc{Fed.\ R. Civ.\ P.} R. 12(b)(6).
-\end{quote}
+\Produces \textsc{Fed.\ R. Civ.\ P.} R. 12(b)(6).
+\end{demo}
 The oddity of this form is that ``R.'' appears twice. To avoid that, it is not
 enough to remove ``rule'' from the pin cite (|page=12|), because then the number
 looks like a page number that will not accept subdivisions like ``(b)(6).'' The
 solution is to use the dash character before the pin cite as described in
 \sec{pages}:
-\begin{quote}
+\begin{demo}
 |\defrule{frcp12}{rep=Fed. R. Civ. P., page=-12}| \\
 |\sentence{frcp12 at /b6}.| \\
-Produces: \textsc{Fed.\ R. Civ.\ P.} 12(b)(6).
-\end{quote}
+\Produces \textsc{Fed.\ R. Civ.\ P.} 12(b)(6).
+\end{demo}
 The dash forces the pin cite to be interpreted as a ``named'' division with no
 name.
 
@@ -4175,10 +4291,10 @@ of Congress}.
 As an alternative to \rtype{congrec} above, the predefined reference |cr| can be
 used to cite arbitrary pages in the \emph{Congressional Record} permanent
 edition. The date should be given as the optional argument:
-\begin{quote}
+\begin{demo}
 |\sentence{see 123 cr[1977] 17147}.|
-Produces: \emph{See} 123 \textsc{Cong.\ Rec.}\ 17147 (1977).
-\end{quote}
+\Produces \emph{See} 123 \textsc{Cong.\ Rec.}\ 17147 (1977).
+\end{demo}
 
 \hi@newcite\defhearing{A hearing in Congress}{%
     \hi@citetype{#1}\hi@type@other
@@ -4751,23 +4867,23 @@ contained item is defined as a reference and passed to the citation container's
 \param{citation} parameter. \unskip\footnote{This may be done through anonymous
 references as described in \sec{anonymous}.}
 For example, the following would cite a letter in a volume of collected works:
-\begin{quote}
+\begin{demo}
 \ttfamily
 |\defletter|\{ltr\}\{\\
-\hbox{}\quad author=Benjamin Franklin,\\
-\hbox{}\quad to=George Washington,\\
-\hbox{}\quad ...\\
+|    |author=Benjamin Franklin,\\
+|    |to=George Washington,\\
+|    |\ldots\\
 \} \\
 |\defbook|\{works\}\{\\
-\hbox{}\quad name=Collected Works of Franklin,\\
-\hbox{}\quad ...\\
+|    |name=Collected Works of Franklin,\\
+|    |\ldots\\
 \} \\
 |\defcitecontainer|\{franklin-ltr\}\{\\
-\hbox{}\quad citation=ltr, \\
-\hbox{}\quad in=works, \\
-\hbox{}\quad page=107, \\
+|    |citation=ltr, \\
+|    |in=works, \\
+|    |page=107, \\
 \}
-\end{quote}
+\end{demo}
 A command of |\sentence{franklin-ltr at 109}| would produce something along the
 lines of ``Letter from Benjamin Franklin to George Washington, \emph{in}
 \textsc{Collected Works of Franklin} 107, 109.''
@@ -5862,22 +5978,23 @@ abbreviation is used only once, the parenthetical is automatically suppressed.
 It also manages use of ``The'' at the beginning of names correctly, in
 accordance with |\adjective| as described in \sec{iface}. Thus, if the following
 is defined:
-\begin{quote}
+\begin{demo}
 |\defabbrev{fda}{|\\
 |    name=the Food and Drug Administration,|\\
 |    inline=the FDA|\\
 |}|
-\end{quote}
+\end{demo}
 then the following will be produced:
-\begin{center}
+\begin{demo}
 \begin{tabular}{ll}
 \textbf{Input} & \textbf{Output} \\
+\hline
 |\inline{fda}| (used only once) & the Food and Drug Administration \\
 |\inline{fda}| & the Food and Drug Administration (``FDA'') \\
 |\inline{fda}| & the FDA \\
 |\adjective{fda} regulations| & FDA regulations \\
 \end{tabular}
-\end{center}
+\end{demo}
 
 This reference type produces invisible inlines (see \sec{iface-invisible}) so
 that it does not affect \emph{id.}\ citations surrounding it.
@@ -5940,23 +6057,23 @@ that it does not affect \emph{id.}\ citations surrounding it.
 
 Aliases a reference name to another. The main advantage is that the alias can
 have a default volume and pin cite. For example, consider the alias:
-\begin{quote}
+\begin{demo}
 |\defalias{sec-5}{|\\
 |    name=ftc-act,|\\
 |    page=S 5|\\
 |}|
-\end{quote}
+\end{demo}
 with |ftc-act| defined as the relevant statute. Now, the following two are
 equivalent:
-\begin{quote}
+\begin{demo}
 |\sentence{sec-5}.|\\
 |\sentence{ftc-act at S 5}.|
-\end{quote}
+\end{demo}
 Moreover, pin cites given for the alias in citations use the pin cite joining
 algorithm given in \sec{pages-join}. Thus:
-\begin{quote}
+\begin{demo}
 |\sentence{sec-5 at /a}.|
-\end{quote}
+\end{demo}
 will cite \textsection~5(a) of the statute.
 
 \keyparameters{%
@@ -5992,13 +6109,14 @@ Reference |verbatim| is not a reference type but the name of a single predefined
 reference, the purpose of which is to enable arbitrary text in a citation item.
 When using |verbatim| in a citation item, the pin cite text is not parsed but is
 used verbatim as the formatted citation text:
-\begin{quote}
+\begin{demo}
 |\sentence{see verbatim at {the \textbf{Moon}} (shining)}.|
-Produces: \emph{See} the \textbf{Moon} (shining).
-\end{quote}
+\Produces \emph{See} the \textbf{Moon} (shining).
+\end{demo}
 Note how signals and parentheticals are still parsed and formatted around the
 user-defined citation text.
 
+\clearpage
 \part{Reference Parameters}
 \label{p:allparams}
 
@@ -6209,10 +6327,10 @@ parameter \param{instauth}.
     \hi@cp@cite{#1}\KV@hi@vol\KV@hi@rep\KV@hi@page\KV@hi@year
 }
 The value for this parameter should follow the syntax:
-\begin{quote}
-\meta{vol} \meta{rep} \meta{page} [ \parg{year} ] \\
-Example: |123 F.3d 456 (2009)|
-\end{quote}
+\begin{grammar}
+\meta{vol} \meta{rep} \meta{page} [ \littext{(}\meta{year}\littext{)} ] \\
+\Example |123 F.3d 456 (2009)|
+\end{grammar}
 and this parameter will set the parameters \param{vol}, \param{rep},
 \param{page}, and \param{year} accordingly. See the discussion of
 volume-reporter-page parsing in \sec{cparse} for more details.
@@ -6514,6 +6632,7 @@ This is primarily used for \rtype{letter} references. The value should be a name
 as described in \sec{names}. If there are multiple recipients, provide this
 parameter multiple times, but see also parameter \param{noetal} if entering
 three or more names. For institutional authors, see parameter \param{instto}.
+\clearpage
 \part{Supporting Packages}
 \label{p:support}
 
@@ -6546,15 +6665,15 @@ expands a token multiple times. It takes three arguments: the callback to be
 executed when done expanding, the stuff to expand, and a count of how many
 expansions are to be performed, represented by the number of tokens in the
 argument. Thus:
-\begin{quote}
+\begin{demo}
 |\def\macro{Hello World}|\\
 |\@expand{\process}{\csname macro\endcsname}{ii}|
-\end{quote}
+\end{demo}
 would expand |\csname macro\endcsname| twice (once for each ``i''), obtaining
 the meaning of |\macro|, and then run the callback |\process|, to result in:
-\begin{quote}
+\begin{demo}
 |\process{Hello World}|
-\end{quote}
+\end{demo}
 
 
 \subsection{Finders}
@@ -6563,14 +6682,14 @@ These macros provide convenient ways of defining text finders that, when
 called, are fully expandable. They provide the ability to find text
 \meta{needle} at the beginning, middle, or end of text \meta{haystack}.
 The pattern is to call:
-\begin{quote}
+\begin{demo}
 |\make@find@|\meta{type}\marg{needle}
-\end{quote}
+\end{demo}
 to initialize the finder, and then:
-\begin{quote}
+\begin{demo}
 |\find@|\meta{type}\marg{needle}\marg{haystack} \\
 |    |\marg{true-callback}\marg{false-callback}
-\end{quote}
+\end{demo}
 to execute the finder. \meta{type} is |in|, |start|, |end|, or |eq| depending on
 the type of matching desired.
 
@@ -6647,9 +6766,9 @@ that class are a further set of macros of the form
 the text to be abbreviated. The value of the macro is a list of two-item pairs
 of the form:
 
-\begin{quote}
+\begin{demo}
   \marg{remaining text}\marg{abbrev.}
-\end{quote}
+\end{demo}
 
 \DescribeMacro\abb@new
 |\abb@new|\marg{class} creates a new abbreviation class.
@@ -6663,15 +6782,15 @@ the unabbreviated form, and \marg{abbrev} the abbreviated form.
 If the unabbreviated form starts with an empty set of braces, then the given
 abbreviation pair is treated as an initial-text abbreviation, which will only
 abbreviate at the beginning of a text. That is, the abbrevation pairs:
-\begin{quote}
+\begin{demo}
 \{\}Building $\rightarrow$ Bldg. \\
 Building $\rightarrow$ Build.
-\end{quote}
+\end{demo}
 would produce abbreviations as follows:
-\begin{quote}
+\begin{demo}
 The Building and Loan Office $\rightarrow$ The Build. and Loan Office \\
 Building and Loan Office $\rightarrow$ Bldg. and Loan Office
-\end{quote}
+\end{demo}
 
 
 \subsection{Algorithm for Abbreviation}
@@ -6719,17 +6838,17 @@ For example, the text ``Northern University Law Journal'' may be abbreviated to
 because institution words should not be joined with publication words. This can
 be implemented by abbreviating publication words with |\abb@dot| (shown here for
 an abbreviation class |journal|):
-\begin{quote}
+\begin{demo}
 |\abb@new{journal}|\\
 |\abb@add{journal}{Northern}{N.}|\\
 |\abb@add{journal}{University}{U.}|\\
 |\abb@add{journal}{Law}{L\abb@dot}|\\
 |\abb@add{journal}{Journal}{J\abb@dot}|
-\end{quote}
+\end{demo}
 Now when the text is abbreviated with |\abb@abbrev|, it produces:
-\begin{quote}
+\begin{demo}
 \verb*|N. U. L\abb@dot J\abb@dot|
-\end{quote}
+\end{demo}
 The dot removal algorithm can now be run twice, once with a period as \meta{dot}
 and once with |\abb@dot|, thereby producing the desired text.
 
@@ -6850,11 +6969,14 @@ because the underlying data model of citations is different. Nevertheless, some
 partial compatibility is provided for the |\autocite| and |\autocites| commands,
 which could help with automatic conversion of Pandoc markdown documents.
 
+\clearpage
+\appendix
+\part{Appendix}
+\label{p:appendix}
 %%
 %% \iffalse filename: conclusion.dtx \fi
 %%
 
-\clearpage
 \PrintIndex
 
 \end{document}

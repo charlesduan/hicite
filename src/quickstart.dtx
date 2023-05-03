@@ -3,8 +3,6 @@
 %%
 %<*doc>
 
-\section{Quick Start Guide}
-
 You've done the research, your stack of cases and articles is overflowing, the
 ideas are swimming in your head, and are ready to start writing. But as you open
 your document, a troubling question creeps in.
@@ -43,6 +41,11 @@ enjoyable. To me, \hia* is an indispensable tool for my legal writing, and
 I hope it will also become your choice hereinafter.
 
 
+
+
+\section{Quick Start Guide}
+
+
 This introductory guide will show the basic concepts you'll need to use \hia* to
 add citations to your document. As with other automated citation systems, you
 will need to do two things:
@@ -67,9 +70,9 @@ and of the \LaTeX\ typesetting system. \hia* operates purely within \LaTeX, and
 is controlled by commands described below in this manual.
 
 To begin, you should include the package in the preamble of your document:
-\begin{quote}
-|\usepackage[|\meta{options}|]{hicite}|
-\end{quote}
+\begin{demo}
+|\usepackage|\oarg{options}|{hicite}|
+\end{demo}
 The \meta{options} are described in \sec{options}. The most important of these
 are the options \opt{review} and \opt{memo}, which determine whether the package
 will follow the rules for law review articles or for legal memoranda,
@@ -91,7 +94,7 @@ Part~\ref{p:alltypes} lists the available reference types; common ones are
 \rtype{book}, \rtype{case}, \rtype{website}, and \rtype{jrnart} (journal
 articles). The bibliographic information is entered as parameter-value pairs.
 For example:
-\begin{quote}
+\begin{demo}
 |\defcase{wheaton}{| \\
 |    p=Wheaton,| \\
 |    d=Peters,| \\
@@ -100,13 +103,13 @@ For example:
 |    page=591,| \\
 |    year=1834,| \\
 |}|
-\end{quote}
+\end{demo}
 defines a reference named |wheaton| for the famous lawsuit between two Supreme
 Court reporters.
 
 \hia* permits for various shortcuts to simplify the entry of references. The
 following are equivalent to the above definition:
-\begin{quote}
+\begin{demo}
 |\defcase{wheaton}{| \\
 |    parties=Wheaton v. Peters,| \\
 |    cite=33 U.S. 591,| \\
@@ -115,19 +118,19 @@ following are equivalent to the above definition:
 |\defcase{wheaton}{| \\
 |    Wheaton v. Peters, 33 U.S. 591 (1834)| \\
 |}|
-\end{quote}
+\end{demo}
 
 There is also rich support for author names and dates. The following definition
 shows how to enter a report with an individual author and an institutional
 author:
-\begin{quote}
+\begin{demo}
 |\defbook{ftc-pharma}{| \\
 |    author=Markus H. Meier et al.,| \\
 |    instauth=Federal Trade Commission,| \\
 |    title=Overview of FTC Actions [...],| \\
 |    date=june 2019,| \\
 |}|
-\end{quote}
+\end{demo}
 
 For a more detailed overview of how to define references, see \sec{refs-syntax}
 and the sections that follow. Shortcuts for reference entry are described in
@@ -149,15 +152,14 @@ syntax described in \sec{parse}. By design, the syntax looks like a simplified
 legal citation. The following would generate a two-element string-cite to
 \emph{Wheaton v.~Peters}, describing a (hypothetical) tension between two parts
 of the decision:
-\begin{quote}
-|\sentence{see, e.g., wheaton at 598 note 3 (Story, J.) (describing holding); but see wheaton at 600-602 (noting alternative views)}.|
-\end{quote}
-This produces:
-\begin{quote}
+\begin{demo}
+|\sentence{|see, e.g., wheaton at 598 note 3 (Story, J.) (describing holding);
+but see wheaton at 600-602 (noting alternative views)|}|.
+\Produces
 \emph{See, e.g.}, \emph{Wheaton v.~Peters}, 33 U.S. 591, 598 n.3
 (1834) (Story, J.) (describing holding); \emph{but see} \emph{id.}~at 600--02
 (noting alternative views).
-\end{quote}
+\end{demo}
 
 This example shows a number of notable features of \hia*. First, references are
 always cited by identifier; any short or \emph{id.}~form is selected
@@ -184,12 +186,12 @@ as parts of the text: naming a case as the subject of a sentence, for example.
 The relevant commands are |\inline|, |\Inline|, |\adjective|, and |\Adjective|
 depending on whether the reference is being cited at the beginning of a sentence
 and the part of speech the reference is taking on:
-\begin{quote}
+\begin{demo}
 |In \inline{wheaton}, the Court....| \\
 |\sentence{wheaton at 603}.| \\
-Produces: In \emph{Wheaton v.~Peters}, the Court\ldots. \emph{See} 33 U.S. 591,
+\Produces In \emph{Wheaton v.~Peters}, the Court\ldots. \emph{See} 33 U.S. 591,
 603 (1834).
-\end{quote}
+\end{demo}
 Note how the |\sentence| citation automatically omits the case name because it
 was displayed in with the previous |\inline| command.
 
@@ -208,20 +210,20 @@ footnotes to endnotes (see \sec{endnotes}), and manage abbreviations in text
 
 Perhaps the most important additional feature is cross-references, described in
 \sec{xref}. To mark a part of a document for cross-referencing:
-\begin{quote}
+\begin{demo}
 |\hilabel{keypart}| \\
 |This is the key part!| \\
 |\hiendlabel{keypart}|
-\end{quote}
+\end{demo}
 The |\hilabel| command automatically chooses the best way to refer to the marked
 section depending on where it is used (in a footnote, in a figure, or in plain
 text). The |\hisectlabel| command can label sections by number.
 
 To insert a cross-reference, simply use a citation to the predefined reference
 \rtype{this} with the cross-reference label as the pincite:
-\begin{quote}
+\begin{demo}
 |\sentence{see this at keypart}.|
-\end{quote}
+\end{demo}
 Again, the value of this cross-referencing system is that the cited numbers
 automatically update as the document is edited, minimizing the amount of manual
 updating.
@@ -283,6 +285,44 @@ presenting students with a data model and principles in tandem with formats
 would offer them a clearer, enriched view of the seemingly arcane world of legal
 citation.
 
+\paragraph{Grammatical structures}
+In many places, this manual describes expected inputs in terms of grammatical
+structures. These are shown in blue boxes and use a version of Backus-Naur form.
+\unskip\footnote{Spaces between items are not specified rigorously in these
+grammars.}
+For example:
+\begin{grammar}
+\meta{address} := \meta{number} \meta{street} [ \meta{apartment} ] \|
+\littext{PO Box} \meta{number}
+\end{grammar}
+For those unfamiliar with this notation:
+\begin{itemize}
+\item The items between angle brackets represent text values, akin to entry
+spaces in a form.
+\item := means that the item on the left is defined to consist of the specified
+items on the right.
+\item \| means to choose either of the items to the left or right.
+\item Square brackets [ ]  mean that the material inside is optional.
+\item \underline{Underlined} text needs to be included literally.
+\item ( \meta{item} )* means that whatever is inside the parentheses can be
+repeated (or used once, or omitted entirely).
+\end{itemize}
+
+So to explain the above statement, an \meta{address} can take on two forms. It
+can be a \meta{number} followed by a \meta{street} and optionally an
+\meta{apartment} number, such as ``123 Elm Lane'' or ``15 Broadway \#5. Or it
+can be a post office box like ``PO Box 123''. In general, grammatical
+definitions will be followed by examples to help demonstrate what input is
+expected.
+
+In other cases, the manual will show expected inputs using a \LaTeX\ syntax:
+\begin{grammar}
+|\command|\oarg{option}\marg{required}
+\end{grammar}
+This means that the macro |\command| accepts an optional argument \meta{option},
+surrounded by square brackets if present, and needs a mandatory argument
+\meta{required}, surrounded by curly braces.
+
 \paragraph{Documentation files}
 This manual is one of two parts of documentation for \hia*. The package source
 code is contained in multiple module files compiled into a unified main package,
@@ -296,5 +336,56 @@ The manual alone should be sufficient for writers of legal documents to
 understand how to use \hia*. The module file documentation is intended to help
 package authors who wish to correct, modify, or extend the citation program
 itself, perhaps to adapt it to other citation formatting regimes.
+
+
+
+
+\section{Installation and Usage}
+
+
+\hia* comprises a suite of files:
+\begin{itemize}
+\item The package file itself, \texttt{hicite.sty}.
+\item Several auxiliary package files, described in \pt{support}.
+\item Tables of abbreviations and other information.
+\end{itemize}
+All of these files need to be installed in a \TeX-accessible location.
+
+To use the package, simply include it in a document:
+\begin{demo}
+|\usepackage|\oarg{options}|{hicite}|
+\end{demo}
+Then compile it using \LaTeX\ or an equivalent. No auxiliary programs are
+needed, even for table indexing. However, multiple compilation runs may be
+necessary in order to get cross-references and short citations to be correct.
+
+If you have an existing Biblatex file, see \sec{hibib} for possible
+compatibility options.
+
+
+
+\section{Intellectual Property Concerns}
+
+Over the years, there have been multiple disputes over intellectual property in
+legal citation systems and manuals. It is both necessary to address both what
+rights I claim as the author of \hia*, and what rights of others it implicates.
+
+The source code of \hia* is released under the GNU General Public License (GPL)
+version 3.0. That license applies to any executable code. The text of this
+manual itself and all other documentation is released under a Creative Commons
+license as described on the first page of the manual.
+For purposes of clarity, the Creative Commons license applies to any text found
+in this user manual and any text found in comments in the package source code;
+the GPL license applies otherwise.
+
+With respect to other legal citation manuals and systems, this software and
+manual are not endorsed by, affiliated with, or authorized by any other legal
+citation system, such as the Bluebook, the University of Chicago Manual of Legal
+Citation (the ``Maroonbook''), the ALWD Guide to Legal Citation, or the Indigo
+Book. It does not claim to be compatible with or identical to any of those
+systems; indeed a design principle of \hia* is to be more flexible than any of
+these existing systems. To the extent that material from existing citation
+systems is used (primarily for tables of abbreviations), it has been taken from
+the Indigo Book, which has been placed in the public domain.
 
 %</doc>

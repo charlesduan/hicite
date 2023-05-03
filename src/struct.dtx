@@ -19,18 +19,16 @@ The value passed to \param{struct} is a key-value listing where the keys are the
 determinative document component (typically but not always the volume number),
 and the values are another key-value listing of replacement parameters. For
 example:
-\begin{quote}
-\begin{verbatim}
-\defbook{treatise}{
-  author=A A,
-  title=The Treatise,
-  year=1800,
-  struct={1={author=B B},
-          2={title=The Treatise Revised},
-          3={year=1805}},
-}
-\end{verbatim}
-\end{quote}
+\begin{demo}
+|\defbook{treatise}{|\\
+|  author=A A,|\\
+|  title=The Treatise,|\\
+|  year=1800,|\\
+|  struct={1={author=B B},|\\
+|          2={title=The Treatise Revised},|\\
+|          3={year=1805}},|\\
+|}|
+\end{demo}
 Here, the default citation would be ``\textsc{A A}, \textsc{The Treatise}
 (1800).'' But if volume 1 is cited then the author would be changed, the
 title changed if volume 2 is cited, and the year changed if volume 3 is cited.

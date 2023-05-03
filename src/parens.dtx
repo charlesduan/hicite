@@ -9,10 +9,10 @@ Parentheticals are information appended to the text of citation items, and are
 used to convey additional information about the reference being cited. The
 following example includes two classic examples of parentheticals, one for court
 and date information and the other for characterizing the holding of a case:
-\begin{quote}
+\begin{demo}
 \emph{See} Plaintiff v.~Defendant, 123 F.4th 567 (1st Cir. 2000) (holding that
 the sky is blue).
-\end{quote}
+\end{demo}
 Legal citation uses parentheticals extensively, both in highly structured ways
 to include required bibliographic data about references and more freeform ways
 that allow authors an additional avenue to converse with readers.
@@ -45,10 +45,10 @@ parentheses. They also include items such as URLs, prior and subsequent case
 history, and other material typically set off with a comma after the main text
 of a citation item. Thus, there are three parentheticals in the following
 example for the date, the website, and a characterization:
-\begin{quote}
+\begin{demo}
 \textsc{John Doe}, \textsc{A Book Online} (2018), http://www.johndoe.xyz/book
 (providing information).
-\end{quote}
+\end{demo}
 As this example shows, it is best to treat comma-offset text as parentheticals
 just like parentheses-enclosed text, because the two are intermingled in
 presentation. URLs, for example, appear after the date parenthetical to a
@@ -192,7 +192,7 @@ The following input will convert \meta{cite} to
 |\clause|\marg{cite} and remove the colon. This is a convenient shortcut for the
 common types of parentheticals that start with ``quoting,'' ``cited by,'' or
 ``discussed in'' followed by a citation.
-\begin{center}
+\begin{demo}
 \begin{tabular}{l}
 |(|\meta{verb}|ing: |\meta{cite}|)| \\
 |(|\meta{verb}| in: |\meta{cite}|)| \\
@@ -201,12 +201,12 @@ common types of parentheticals that start with ``quoting,'' ``cited by,'' or
 |(codified at: |\meta{cite}|)| \\
 |(codified as amended at: |\meta{cite}|)| \\
 \end{tabular}
-\end{center}
+\end{demo}
 For example, the following are largely equivalent:
-\begin{quote}
+\begin{demo}
 |\sentence{ref at 3 (quoting: source at 15)}| \\
 |\sentence{ref at 3 (quoting \clause{source at 15})}|
-\end{quote}
+\end{demo}
 In both cases, the citation to |ref| will include a parenthetical with the word
 ``quoting'' followed by a formatted citation to |source|.
 

@@ -40,36 +40,40 @@ are freeform text that is used as-is with no processing.
 \subsection{Input Syntax}
 
 Citation strings are given to the package using the following syntax:
-\begin{quote}
-\meta{citation-string} := \meta{citation-item} [ |;| \meta{citation-item} ]* \\
-\meta{citation-item} := [ \meta{signal} ] [ \meta{volume} ]
-\meta{reference-name} [ |[| \meta{opt-argument} |]| ]
-[ |at| \meta{pincite}] [ |(| \meta{parenthetical} |)| ]*
-\end{quote}
+\begin{grammar}
+\meta{citation-string} := \meta{citation-item} ( \littext{; }
+\meta{citation-item} )* \\
+\meta{citation-item} := [ \meta{signal} ] \\
+\qquad[ \meta{volume} ] \\
+\qquad\meta{reference-name} \\
+\qquad[ \littext{ [} \meta{opt-argument} \littext{]} ] \\
+\qquad[ \littext{ at } \meta{pincite} ] \\
+\qquad( \grammarparen{parenthetical} )*
+\end{grammar}
 
 More concretely, citation strings are one or more semicolon-separated items. The
 following cites three references:
-\begin{quote}
+\begin{demo}
 \ttfamily
 ref-a; ref-b; ref-c
-\end{quote}
+\end{demo}
 
 A complete citation item with every component might look like this:
-\begin{quote}
+\begin{demo}
 \ttfamily
 see, e.g., 5 treatise[opt] at 35-60 (citing references) (outdated)
-\end{quote}
+\end{demo}
 This would cite volume 5, pages 35--60 of a reference named |treatise| with the
 signal |see, e.g.|, an optional argument |opt|, and two parentheticals.
 
 More commonly, only a few components of a citation item will be included. An
 example citation string in ordinary use might look as follows:
-\begin{quote}
+\begin{demo}
 \ttfamily
 statute at S 167; see also supporting-case at 189; another-case at 465; cf.
 journal-article at 754 (discussing related applications of the statute); see
 generally 7 treatise at S 56
-\end{quote}
+\end{demo}
 
 Note that if the same reference is cited multiple times in a row, there is no
 facility for writing \emph{id.}\ or the like in the input syntax. The reference
@@ -92,21 +96,19 @@ they likely would become unintelligible upon a document reorganization.
 % difficult. Citations are parsed with a state machine that consumes tokens from
 % a citation string. The objective is to turn a citation string into this data
 % structure:
-% \begin{quote}
-% \begin{verbatim}
-% {%
-%   \hi@pse@cite{%
-%     \hi@pse@svr{[sig vol ref]}%
-%     \hi@pse@opt{[opt]}%
-%     \hi@pse@page{[page]}%
-%     \hi@pse@paren{[paren]}%
-%     \hi@pse@paren{[paren]}%
-%     ...
-%   }%
-%   ...
-% }
-% \end{verbatim}
-% \end{quote}
+% \begin{demo}
+% |{%|\\
+% |  \hi@pse@cite{%|\\
+% |    \hi@pse@svr{[sig vol ref]}%|\\
+% |    \hi@pse@opt{[opt]}%|\\
+% |    \hi@pse@page{[page]}%|\\
+% |    \hi@pse@paren{[paren]}%|\\
+% |    \hi@pse@paren{[paren]}%|\\
+% |    ...|\\
+% |  }%|\\
+% |  ...|\\
+% |}|
+% \end{demo}
 % To that end, we first define three components of infrastructure. First, we
 % create a mini-parser for parsing the signal, volume, and reference name from a
 % text string that appears after a signal in a citation. (This mini-parser is

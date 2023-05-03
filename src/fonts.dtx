@@ -41,10 +41,11 @@ without the need to revise reference definitions.
 
 The following is a table of all font contexts supported.
 
-\begin{center}
+\begin{demo}
 \def\hi@font@context@add#1#2{#1&#2\\}
 \begin{tabular}{ll}
 \textbf{Name} & \textbf{Description} \\
+\hline
 %</doc>
 %<*doc|package>
 %
@@ -71,7 +72,7 @@ The following is a table of all font contexts supported.
 %</doc|package>
 %<*doc>
 \end{tabular}
-\end{center}
+\end{demo}
 
 %
 % Note that the above table was produced by executing source code, meaning that
@@ -140,12 +141,15 @@ turn internal emph into roman.
 A font pack associates font contexts with font commands. Each context receives
 two font commands: one for use in non-inline citations, and one for use with
 inline texts. The syntax for defining a font pack is as follows:
-\begin{quote}
-|\MakeFontPack|\marg{name}|{| \meta{font-spec} [ |,| \meta{font-spec} ]* |}| \\
-\meta{font-spec} := \meta{context} |:| \meta{font} |/| \meta{font} \\
-\meta{font} := |emph| \| |empht| \| |rm| \| |sc| \\
-Example: |\MakeFontPack{new}{booktitle: sc/empht, bookauthor: sc/rm}|
-\end{quote}
+\begin{grammar}
+|\MakeFontPack|\marg{name}\marg{font-specs} \\
+\meta{font-specs} := \meta{font-spec} ( \littext{, } \meta{font-spec} )* \\
+\meta{font-spec} := \meta{context} \littext{: } \meta{font} \littext{/}
+\meta{font} \\
+\meta{font} := \littext{emph} \| \littext{empht} \| \littext{rm} \| \littext{sc}
+\\
+\Example |\MakeFontPack{new}{booktitle: sc/empht, bookauthor: sc/rm}|
+\end{grammar}
 A font pack need not define every font context, since a user can select multiple
 font packs. In the case of two font packs containing the same font context, the
 last selected pack overrides earlier ones.

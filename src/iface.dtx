@@ -47,11 +47,11 @@ describes each citation form along with the command used to access the form.
 
 A \emph{sentence}-form citation is set off from the text as a separate
 sentence:
-\begin{quote}
-Example: |Segregation is unconstitutional. \sentence{see brown at 495}.| \\
-Output: Segregation is unconstitutional. \emph{See} \emph{Brown v.~Bd.\ of
+\begin{demo}
+|Segregation is unconstitutional. \sentence{see brown at 495}.| \\
+\Produces Segregation is unconstitutional. \emph{See} \emph{Brown v.~Bd.\ of
 Educ.}, 347 U.S. 483 (1954).
-\end{quote}
+\end{demo}
 
 \DescribeMacro\sentence
 As seen above, |\sentence| produces this style of citation.
@@ -146,11 +146,11 @@ A \emph{clause}-form citation falls within a sentence, preceded by a comma and
 followed by a comma unless there is other punctuation.
 Typically clause-style citations are used when different citations are needed
 for different parts of a single long sentence.
-\begin{quote}
-Example: |Education is important, \clause{see brown at 493}, and segregation has a ``detrimental effect,'' \clause{brown at 494}.| \\
-Output: Education is important, \emph{see} \emph{Brown}, 347 U.S. at 493, and
+\begin{demo}
+|Education is important, \clause{see brown at 493}, and segregation has a ``detrimental effect,'' \clause{brown at 494}.| \\
+\Produces Education is important, \emph{see} \emph{Brown}, 347 U.S. at 493, and
 segregation has a ``detrimental effect,'' \emph{id.}\ at 494.
-\end{quote}
+\end{demo}
 
 \DescribeMacro\clause
 The |\clause| command makes a clause-form citation. It should be surrounded by
@@ -165,10 +165,10 @@ is generated.
 Citations may also appear in instructional sentences that end with a |\clause|
 citation. Typically these will be imperative sentences with an unitalicized
 spelled-out signal:
-\begin{quote}
-Example: |On scientific evidence, see \clause{brown at 494 note 11}.| \\
-Output: On scientific evidence, see \emph{Brown}, 347 U.S. at 494 n.11.
-\end{quote}
+\begin{demo}
+|On scientific evidence, see \clause{brown at 494 note 11}.| \\
+\Produces On scientific evidence, see \emph{Brown}, 347 U.S. at 494 n.11.
+\end{demo}
 Although this context differs grammatically from other |\clause| citations, the
 formatting is largely identical so only one command is provided.
 \unskip\footnote{Some style guides use a slightly different format in
@@ -180,11 +180,11 @@ be no particular need to implement a separate command for this use case.}
 \paragraph{Nested Citations}
 Citations may also appear nested in parentheticals within other citations. This
 can be accomplished by using |\clause| inside the parenthetical:
-\begin{quote}
-Example: |\sentence{see brown at 494-495 (overruling \clause{plessy})}.| \\
-Output: \emph{See} \emph{Brown}, 347 U.S. at 494--95 (overruling \emph{Plessy
+\begin{demo}
+|\sentence{see brown at 494-495 (overruling \clause{plessy})}.| \\
+\Produces \emph{See} \emph{Brown}, 347 U.S. at 494--95 (overruling \emph{Plessy
 v.~Ferguson}, 163 U.S. 537 (1896)).
-\end{quote}
+\end{demo}
 More on nested citations, including a more convenient shortcut
 form, may be found in \sec{parens}.
 
@@ -318,10 +318,10 @@ form, may be found in \sec{parens}.
 An \emph{inline}-form citation acts as a part of speech within a sentence,
 typically a noun or an adjective. Naming a case in text uses an
 inline citation:
-\begin{quote}
-Example: |\Inline{brown} followed \inline{sweatt}.| \\
-Output: \emph{Brown} followed \emph{Sweatt v.~Painter}.
-\end{quote}
+\begin{demo}
+|\Inline{brown} followed \inline{sweatt}.| \\
+\Produces \emph{Brown} followed \emph{Sweatt v.~Painter}.
+\end{demo}
 
 The following commands produce inline citations. Any of them may be used in text
 or footnotes, regardless of the document type.
@@ -352,11 +352,10 @@ text are moved around.
 Furthermore, inline citations can affect the surrounding non-inline citations.
 When citing a case for the first time, it is typical to omit the case name from
 a sentence citation when the case name was used inline:
-\begin{quote}
-Example: |\Inline{brown} involved class actions. \sentence{see brown at 495}.|
-\\
-Output: \emph{Brown} involved class actions. \emph{See} 347 U.S. at 495.
-\end{quote}
+\begin{demo}
+|\Inline{brown} involved class actions. \sentence{see brown at 495}.| \\
+\Produces \emph{Brown} involved class actions. \emph{See} 347 U.S. at 495.
+\end{demo}
 This package detects such situations and removes duplicative names
 automatically.
 
@@ -364,10 +363,11 @@ automatically.
 \paragraph{Inline Citations and \emph{Id.}}\label{s:iface-invisible}
 One of the most nuanced considerations for inline citations is the effect on
 \emph{id.}\ short forms. Consider the following:
-\begin{quote}
-Example: |\sentence{brown at 496}. The Court overruled \inline{plessy}. \sentence{brown at 494-495}.| \\
-Output: \emph{Brown}, 347 U.S. at 496. The Court overruled \emph{Plessy}. ???
-\end{quote}
+\begin{demo}
+|\sentence{brown at 496}. The Court overruled \inline{plessy}. \sentence{brown at 494-495}.| \\
+\Produces \emph{Brown}, 347 U.S. at 496. The Court overruled \emph{Plessy}.
+\textbf{???}
+\end{demo}
 Absent the inline citation to \emph{Plessy}, the final citation in the above
 sentence should be ``\emph{Id.}\ at 494--95.'' But with the inline citation, it
 is ambiguous which case the \emph{Id.}\ refers to. The better option, which
@@ -375,18 +375,18 @@ is ambiguous which case the \emph{Id.}\ refers to. The better option, which
 
 If this is undesirable, one can cause the \emph{Id.}\ form to be used by hiding
 the inline citation with braces:
-\begin{quote}
-Example: |\sentence{brown at 496}. The Court overruled {\inline{plessy}}. \sentence{brown at 494-495}.| \\
-Output: \emph{Brown}, 347 U.S. at 496. The Court overruled \emph{Plessy}.
+\begin{demo}
+|\sentence{brown at 496}. The Court overruled {\inline{plessy}}. \sentence{brown at 494-495}.| \\
+\Produces \emph{Brown}, 347 U.S. at 496. The Court overruled \emph{Plessy}.
 \emph{Id.}\ at 494--95.
-\end{quote}
+\end{demo}
 
 By contrast, consider:
-\begin{quote}
-Example: |\sentence{brown at 496}. The Court applied \inline{14th-amend}. \sentence{brown at 494}.|
-Output: \emph{Brown}, 347 U.S. at 496. The Court applied the Fourteenth
+\begin{demo}
+|\sentence{brown at 496}. The Court applied \inline{14th-amend}. \sentence{brown at 494}.|
+\Produces \emph{Brown}, 347 U.S. at 496. The Court applied the Fourteenth
 Amendment. \emph{Id.}~at 494.
-\end{quote}
+\end{demo}
 Here, it is unambiguous that the \emph{Id.}\ does not refer to the constitution.
 \hia* implements this distinction by designating the inline forms of statutes,
 constitutions, and a few other references as ``invisible'' to the
@@ -530,16 +530,16 @@ constitutions, and a few other references as ``invisible'' to the
 
 \DescribeMacro\note |\note| makes a sentence-style citation inside a footnote;
 it is essentially a synonym for:
-\begin{quote}
+\begin{demo}
 |\unskip\footnote{\sentence{|\meta{string}|}.}|
-\end{quote}
+\end{demo}
 It provides two conveniences for the author. First, the |\unskip| means that a
 space before |\note| is automatically removed, making \TeX\ code more readable.
 Second, |\note| can take a second argument of text (which can include sentence
 and clause citations) appended after the citation:
-\begin{quote}
+\begin{demo}
 |\note{case}{For further information, see \clause{case2}.}|
-\end{quote}
+\end{demo}
 
 %</doc>
 %<*package>
@@ -615,12 +615,13 @@ takes no arguments. Its purpose is to serve a style of citation that some
 writers prefer, in which a clause-style citation (in text or in a footnote,
 depending on the type of document) immediately follows the first inline citation
 to a reference:
-\begin{quote}
-Example: |In \inline{brown}\optclause, the Court held...| \\
-Output (case already cited): In \emph{Brown}, the Court held\ldots \\
-Output (case not already cited): In \emph{Brown v.~Board of Education}, 347 U.S.
-483 (1954), the Court held\ldots
-\end{quote}
+\begin{demo}
+|In \inline{brown}\optclause, the Court held...| \\
+\Produces
+\emph{[When case already cited]} In \emph{Brown}, the Court held\ldots \\
+\emph{[When case not already cited]} In \emph{Brown v.~Board of Education}, 347
+U.S. 483 (1954), the Court held\ldots
+\end{demo}
 In other words, this is identical to |\inline{ref}, \clause{ref at 570},| if the
 reference has not been cited so far, but produces nothing if it has been cited
 already.
@@ -818,17 +819,18 @@ without producing any citation text.
 
 The following are synonyms to the citation commands thus described.
 
-\begin{center}
+\begin{demo}
 \begin{tabular}{ll}
 \textbf{Command} & \textbf{Synonym} \\
-\cmd\sentence & \cmd\Ct \\
-\cmd\clause & \cmd\ct \\
-\cmd\Inline & \cmd\Ci \\
-\cmd\inline & \cmd\ci \\
-\cmd\note & \cmd\cn \\
-\cmd\addtotoa & \cmd\cx \\
+\hline
+\cmd\sentence & \DescribeMacro\Ct \cmd\Ct \\
+\cmd\clause & \DescribeMacro\ct \cmd\ct \\
+\cmd\Inline & \DescribeMacro\Ci\cmd\Ci \\
+\cmd\inline & \DescribeMacro\ci\cmd\ci \\
+\cmd\note & \DescribeMacro\cn\cmd\cn \\
+\cmd\addtotoa & \DescribeMacro\cx\cmd\cx \\
 \end{tabular}
-\end{center}
+\end{demo}
 %</doc>
 %<*package>
 \newcommand\Ct{\sentence}

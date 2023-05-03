@@ -24,20 +24,20 @@ definitions, and expansion control. These are similar to the |etoolbox| package.
 % \subsection{Conditionals}
 %
 % Performs an \if...-type test. Takes an argument of an if-conditional, like:
-% \begin{quote}
+% \begin{demo}
 %   |\ifx#1\test|
-% \end{quote}
+% \end{demo}
 % and turns it into:
-% \begin{quote}
+% \begin{demo}
 %   |\ifx#1\test|\\
 %   |    \expandafter\@firstoftwo|\\
 %   |\else|\\
 %   |    \expandafter\@secondoftwo|
-% \end{quote}
+% \end{demo}
 % Usage is like:
-% \begin{quote}
+% \begin{demo}
 %   |\@test\if|\meta{test}|\fi|\marg{true stuff}\marg{false stuff}
-% \end{quote}
+% \end{demo}
 % The delimiting \fi ensures that the test will be properly skipped over inside
 % another conditional.
 %
@@ -46,13 +46,13 @@ definitions, and expansion control. These are similar to the |etoolbox| package.
 %    \end{macrocode}
 %
 % Performs a series of |\@test| cases in the form
-% \begin{quote}
+% \begin{demo}
 % |\@testcase|\\
 % |  \if...\fi{Do this}%|\\
 % |  \if...\fi{Do this}%|\\
 % |  \if...\fi{Do this}%|\\
 % |  \default{Do this otherwise}%|
-% \end{quote}
+% \end{demo}
 %
 %    \begin{macrocode}
 \def\@testcase#1\fi#2#3\default#4{%
@@ -75,15 +75,15 @@ expands a token multiple times. It takes three arguments: the callback to be
 executed when done expanding, the stuff to expand, and a count of how many
 expansions are to be performed, represented by the number of tokens in the
 argument. Thus:
-\begin{quote}
+\begin{demo}
 |\def\macro{Hello World}|\\
 |\@expand{\process}{\csname macro\endcsname}{ii}|
-\end{quote}
+\end{demo}
 would expand |\csname macro\endcsname| twice (once for each ``i''), obtaining
 the meaning of |\macro|, and then run the callback |\process|, to result in:
-\begin{quote}
+\begin{demo}
 |\process{Hello World}|
-\end{quote}
+\end{demo}
 
 %</doc>
 %<*package>
@@ -250,14 +250,14 @@ These macros provide convenient ways of defining text finders that, when
 called, are fully expandable. They provide the ability to find text
 \meta{needle} at the beginning, middle, or end of text \meta{haystack}.
 The pattern is to call:
-\begin{quote}
+\begin{demo}
 |\make@find@|\meta{type}\marg{needle}
-\end{quote}
+\end{demo}
 to initialize the finder, and then:
-\begin{quote}
+\begin{demo}
 |\find@|\meta{type}\marg{needle}\marg{haystack} \\
 |    |\marg{true-callback}\marg{false-callback}
-\end{quote}
+\end{demo}
 to execute the finder. \meta{type} is |in|, |start|, |end|, or |eq| depending on
 the type of matching desired.
 
@@ -296,14 +296,14 @@ none.
 % Makes a finder that searches for text anywhere within a string.
 %
 % The actual finder macro takes input of the form:
-% \begin{quote}
+% \begin{demo}
 % |\finder@in@|\meta{text} \\
 % |    |\meta{haystack}|\str@mark| \\
 % |    |\meta{needle}|\str@mark\str@stop| \\
 % |    |\marg{text-to-search} \\
 % |    |\marg{callback-if-found} \\
 % |    |\marg{callback-if-not-found}
-% \end{quote}
+% \end{demo}
 %    \begin{macrocode}
 \def\make@find@in#1{%
     \@ifundefined{finder@in@#1}{%
@@ -482,14 +482,14 @@ none.
 % \end{itemize}
 %
 % The parameter pairs argument looks as follows:
-% \begin{quote}
+% \begin{demo}
 % |{%|\\
 % |    |\marg{needle-1}\marg{true-callback-1}%\\
 % |    |\marg{needle-2}\marg{true-callback-2}%\\
 % |    |\marg{needle-3}\marg{true-callback-3}%\\
 % |    |\ldots\\
 % |}|\\
-% \end{quote}
+% \end{demo}
 % The callbacks receive the number of arguments corresponding to the finder
 % command (\#1).
 %

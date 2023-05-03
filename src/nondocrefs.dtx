@@ -68,22 +68,23 @@ abbreviation is used only once, the parenthetical is automatically suppressed.
 It also manages use of ``The'' at the beginning of names correctly, in
 accordance with |\adjective| as described in \sec{iface}. Thus, if the following
 is defined:
-\begin{quote}
+\begin{demo}
 |\defabbrev{fda}{|\\
 |    name=the Food and Drug Administration,|\\
 |    inline=the FDA|\\
 |}|
-\end{quote}
+\end{demo}
 then the following will be produced:
-\begin{center}
+\begin{demo}
 \begin{tabular}{ll}
 \textbf{Input} & \textbf{Output} \\
+\hline
 |\inline{fda}| (used only once) & the Food and Drug Administration \\
 |\inline{fda}| & the Food and Drug Administration (``FDA'') \\
 |\inline{fda}| & the FDA \\
 |\adjective{fda} regulations| & FDA regulations \\
 \end{tabular}
-\end{center}
+\end{demo}
 
 This reference type produces invisible inlines (see \sec{iface-invisible}) so
 that it does not affect \emph{id.}\ citations surrounding it.
@@ -149,23 +150,23 @@ that it does not affect \emph{id.}\ citations surrounding it.
 
 Aliases a reference name to another. The main advantage is that the alias can
 have a default volume and pin cite. For example, consider the alias:
-\begin{quote}
+\begin{demo}
 |\defalias{sec-5}{|\\
 |    name=ftc-act,|\\
 |    page=S 5|\\
 |}|
-\end{quote}
+\end{demo}
 with |ftc-act| defined as the relevant statute. Now, the following two are
 equivalent:
-\begin{quote}
+\begin{demo}
 |\sentence{sec-5}.|\\
 |\sentence{ftc-act at S 5}.|
-\end{quote}
+\end{demo}
 Moreover, pin cites given for the alias in citations use the pin cite joining
 algorithm given in \sec{pages-join}. Thus:
-\begin{quote}
+\begin{demo}
 |\sentence{sec-5 at /a}.|
-\end{quote}
+\end{demo}
 will cite \textsection~5(a) of the statute.
 
 \keyparameters{%
@@ -204,10 +205,10 @@ Reference |verbatim| is not a reference type but the name of a single predefined
 reference, the purpose of which is to enable arbitrary text in a citation item.
 When using |verbatim| in a citation item, the pin cite text is not parsed but is
 used verbatim as the formatted citation text:
-\begin{quote}
+\begin{demo}
 |\sentence{see verbatim at {the \textbf{Moon}} (shining)}.|
-Produces: \emph{See} the \textbf{Moon} (shining).
-\end{quote}
+\Produces \emph{See} the \textbf{Moon} (shining).
+\end{demo}
 Note how signals and parentheticals are still parsed and formatted around the
 user-defined citation text.
 

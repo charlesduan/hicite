@@ -29,9 +29,9 @@ that class are a further set of macros of the form
 the text to be abbreviated. The value of the macro is a list of two-item pairs
 of the form:
 
-\begin{quote}
+\begin{demo}
   \marg{remaining text}\marg{abbrev.}
-\end{quote}
+\end{demo}
 
 \DescribeMacro\abb@new
 |\abb@new|\marg{class} creates a new abbreviation class.
@@ -53,15 +53,15 @@ the unabbreviated form, and \marg{abbrev} the abbreviated form.
 If the unabbreviated form starts with an empty set of braces, then the given
 abbreviation pair is treated as an initial-text abbreviation, which will only
 abbreviate at the beginning of a text. That is, the abbrevation pairs:
-\begin{quote}
+\begin{demo}
 \{\}Building $\rightarrow$ Bldg. \\
 Building $\rightarrow$ Build.
-\end{quote}
+\end{demo}
 would produce abbreviations as follows:
-\begin{quote}
+\begin{demo}
 The Building and Loan Office $\rightarrow$ The Build. and Loan Office \\
 Building and Loan Office $\rightarrow$ Bldg. and Loan Office
-\end{quote}
+\end{demo}
 
 %</doc>
 %<*package>
@@ -142,17 +142,17 @@ Building and Loan Office $\rightarrow$ Bldg. and Loan Office
 % abbreviation matches are searched in sequence, longer strings need to come
 % before substrings. For example, an abbreviation list:
 %
-% \begin{quote}
+% \begin{demo}
 %   |{Aaa Bbb}{A.B.}{Aaa Bbb Ccc}{A.B.C.}|
-% \end{quote}
+% \end{demo}
 %
 % would be problematic since to abbreviate ``Aaa Bbb Ccc Y'', the first
 % abbreviation pair would match and the second would never be considered. So the
 % list properly needs to be ordered:
 %
-% \begin{quote}
+% \begin{demo}
 %   |{Aaa Bbb Ccc}{A.B.C.}{Aaa Bbb}{A.B.}|
-% \end{quote}
+% \end{demo}
 %
 % \#1 and \#2 are the abbreviation pair being considered, \#3 is the rest of the
 % list, \#4 is the list macro, \#5 the unabbreviated text to match, \#6 the
@@ -364,17 +364,17 @@ For example, the text ``Northern University Law Journal'' may be abbreviated to
 because institution words should not be joined with publication words. This can
 be implemented by abbreviating publication words with |\abb@dot| (shown here for
 an abbreviation class |journal|):
-\begin{quote}
+\begin{demo}
 |\abb@new{journal}|\\
 |\abb@add{journal}{Northern}{N.}|\\
 |\abb@add{journal}{University}{U.}|\\
 |\abb@add{journal}{Law}{L\abb@dot}|\\
 |\abb@add{journal}{Journal}{J\abb@dot}|
-\end{quote}
+\end{demo}
 Now when the text is abbreviated with |\abb@abbrev|, it produces:
-\begin{quote}
+\begin{demo}
 \verb*|N. U. L\abb@dot J\abb@dot|
-\end{quote}
+\end{demo}
 The dot removal algorithm can now be run twice, once with a period as \meta{dot}
 and once with |\abb@dot|, thereby producing the desired text.
 

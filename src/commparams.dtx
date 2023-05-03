@@ -35,10 +35,10 @@ parameter \param{instauth}.
 }
 %<*doc>
 The value for this parameter should follow the syntax:
-\begin{quote}
-\meta{vol} \meta{rep} \meta{page} [ \parg{year} ] \\
-Example: |123 F.3d 456 (2009)|
-\end{quote}
+\begin{grammar}
+\meta{vol} \meta{rep} \meta{page} [ \littext{(}\meta{year}\littext{)} ] \\
+\Example |123 F.3d 456 (2009)|
+\end{grammar}
 and this parameter will set the parameters \param{vol}, \param{rep},
 \param{page}, and \param{year} accordingly. See the discussion of
 volume-reporter-page parsing in \sec{cparse} for more details.

@@ -16,7 +16,7 @@ names will automatically be compiled into a formatted list. Every name entered
 will be listed, although a warning will be issued unless the \param{noetal}
 parameter is included. To truncate a list, enter only the initial name with ``et
 al.''\ attached to the end. For example:
-\begin{quote}
+\begin{demo}
 |\defbook{nimmer}{| \\
 |    author=Melville B. Nimmer, author=David Nimmer, ...| \\
 |}| \\
@@ -25,7 +25,7 @@ al.''\ attached to the end. For example:
 |   author=David L. Schwartz, ...| \\
 |}| \\
 |\defjrnart{als}{author=John R. Allison et al., ...}|
-\end{quote}
+\end{demo}
 
 The remainder of this section provides details on how \hia* parses and uses name
 lists, and how to fine-tune those processes.
@@ -58,18 +58,20 @@ using just the author's last name.
 
 Institutional affiliations attached to human names are distinct from
 institutional names included in a name list.
-Consider, for example, a government report written by person $A$ at the Federal
-Trade Commission and $B$ at the Department of Justice. If the report expresses
+Consider, for example, a government report written by persoAl Anderson
+at the Federal
+Trade Commission and Bob Baker at the Department of Justice. If the report
+expresses
 the views of the agencies, then the agencies could be included as authors:
-\begin{quote}
-$A$ \& $B$, Fed.~Trade Comm'n \& Dep't of Justice
-\end{quote}
+\begin{demo}
+Al Anderson \& Bob Baker, Fed.~Trade Comm'n \& Dep't of Justice
+\end{demo}
 By contrast, if the report represents the views of the individuals in their
 official capacities but not necessarily the views of the agencies, then only the
 individuals should be authors, with their affiliations attached to their names:
-\begin{quote}
-$A$, Fed.~Trade Comm'n \& $B$, Dep't of Justice
-\end{quote}
+\begin{demo}
+Al Anderson, Fed.~Trade Comm'n \& Bob Baker, Dep't of Justice
+\end{demo}
 Providing these options gives
 writers more flexibility to cite mixed human and institutional authors to convey
 accurate and useful information.
@@ -90,7 +92,7 @@ accurate and useful information.
 
 For each type of name list, there will be two reference definition parameters,
 one for human names and one for institutions:
-\begin{center}
+\begin{demo}
 \catcode`\|=12
 \begin{tabular}{l|ll}
 & \textbf{Personal} & \textbf{Institutional} \\
@@ -99,7 +101,7 @@ Authors & \param{author} & \param{instauth} \\
 Editors & \param{editor} & \param{insted} \\
 Letter recipients & \param{to} & \param{instto} \\
 \end{tabular}
-\end{center}
+\end{demo}
 
 Institutional authors are given simply as an unabbreviated name; the package
 handles abbreviation. If an ``et al.''\ is desired after an institutional
@@ -111,21 +113,25 @@ individually, they must be given in a specific format. An institutional
 affiliation is always any part of a name following a comma. To separate the
 given name, family name, and suffix, the most explicit way is to surround the
 family name and name suffix with curly braces:
-\begin{quote}
-\meta{given name}
-[\verb*| {|\meta{family name}
-[\verb*| {|\meta{suffix}\verb|}|] \verb|}|]
-[, \meta{institution}] [et al.]
-\end{quote}
-For example:
-\begin{quote}
+\begin{grammar}
+\meta{name} := \meta{given-name} \\
+\qquad[ \littext{ \{} \meta{family-name}
+    [ \littext{ \{} \meta{suffix} \littext{\}} ]
+  \littext{\}}
+] \\
+\qquad[ \littext{, } \meta{institution} ] \\
+\qquad[ \littext{et al.} ]
+\Examples
+\texttt{John Marshall} \\
+\texttt{Fiona {Scott Morton}} \\
+\texttt{Nicholson \{Price \{II\}\}} \\
 \texttt{Oliver Wendell \{Holmes \{Jr.\}\}, Massachusetts Supreme Judicial Court}
-\end{quote}
-would correctly identify the well-known jurist with his one of his judicial
-positions. \unskip\footnote{Some style guides prefer a comma before the name
+\end{grammar}
+Regarding the last two items,
+some style guides prefer a comma before the name
 suffix. \hia* does not explicitly support this, but with a preceding comma the
 name suffix would be treated as an institutional affiliation, which produces
-desirable results.}
+desirable results.
 
 Because including the braces around family names is cumbersome, this package can
 infer name parts with a few heuristics, such that no braces are required.
@@ -289,9 +295,9 @@ last word in the remaining name as the family name.
 for common suffixes (Jr., Sr., and roman numerals through X). The first such
 suffix found is treated as a name suffix. As a result, the example above could
 have been parsed correctly without braces:
-\begin{quote}
+\begin{demo}
 \texttt{Oliver Wendell Holmes Jr., Massachusetts Supreme Judicial Court}
-\end{quote}
+\end{demo}
 since everything following the comma would be used as the institution, ``Jr.''
 would be identified as a suffix, ``Holmes'' being the last remaining word would
 be the family name, and the remaining text ``Oliver Wendell'' would be the

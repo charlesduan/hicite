@@ -18,20 +18,19 @@ reference type \rtype{citecontainer} provides a comprehensive mechanism for
 citing a reference contained within another reference.
 
 As an example, consider the following reference definitions:
-\begin{quote}
-\begin{verbatim}
-\defletter{madison-letter}{
-    author=James Madison,
-    to=W.T. Barry,
-    date=aug 4 1822,
-    reprinted=madison-writings,
-}
-\defbook{madison-writings}{
-    name=Letters and Other Writings of James Madison,
-    year=1884,
-}
-\end{verbatim}
-\end{quote}
+\begin{demo}
+|\defletter{madison-letter}{|\\
+|    author=James Madison,|\\
+|    to=W.T. Barry,|\\
+|    date=aug 4 1822,|\\
+|    reprinted=madison-writings,|\\
+|}|\\
+|\defbook{madison-writings}{|\\
+|    name=Letters and Other Writings of|\\
+|         James Madison,|\\
+|    year=1884,|\\
+|}|
+\end{demo}
 The parameter \param{reprinted} in the letter's reference definition identifies
 the book in which the letter has been reprinted by its reference nickname, and
 the book is defined separately as a reference. This approach works perfectly
@@ -44,19 +43,18 @@ letter reference definition.
 Instead of providing a reference name as the value to
 \param{reprinted}, the book can be included in the letter reference definition
 as follows:
-\begin{quote}
-\begin{verbatim}
-\defletter{madison-letter}{
-    author=James Madison,
-    to=W.T. Barry,
-    date=aug 4 1822,
-    reprinted=book: {
-        name=Letters and Other Writings of James Madison,
-        year=1884,
-    },
-}
-\end{verbatim}
-\end{quote}
+\begin{demo}
+|\defletter{madison-letter}{|\\
+|    author=James Madison,|\\
+|    to=W.T. Barry,|\\
+|    date=aug 4 1822,|\\
+|    reprinted=book: {|\\
+|        name=Letters and Other Writings|\\
+|             of James Madison,|\\
+|        year=1884,|\\
+|    },|\\
+|}|
+\end{demo}
 
 More generally, anonymous reference definitions consist of the reference type
 (without the |\def| prefix), a colon and space, and a set of parameter-value

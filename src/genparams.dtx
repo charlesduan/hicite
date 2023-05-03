@@ -206,16 +206,13 @@ The value should be a reference identifier or an anonymous reference defintion
 as described in \sec{anonymous}.
 %</doc>
 %<*package>
+%
+% |\hi@kv@reprinted| is not used here, but is needed by \sec{hibib} in order
+% to know what to place in the Bibtex file.
+%
 %    \begin{macrocode}
 \def\hi@reprinted#1{%
-    %
-    % |\hi@kv@reprinted| is not used here, but is needed by hitobib.sty in order
-    % to know what to place in the Bibtex file.
-    %
     \def\hi@kv@reprinted{#1}%
-    %
-    % Add the parenthetical.
-    %
     \hi@param@addparen\hi@paren@reprint{%
         \hi@fn@comment{reprinted in} \clause{#1}%
     }%

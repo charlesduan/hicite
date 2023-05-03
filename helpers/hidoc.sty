@@ -8,6 +8,20 @@
 \setmonofont[Scale=MatchLowercase]{Source Code Pro}
 \RequirePackage{etoolbox}
 \RequirePackage{strings}
+%
+% Doc options
+%
+\PageIndex
+\NewDocElement[printtype=,idxtype=,idxgroup=]{File}{fileenv}
+\NewDocElement[noprint=true,idxgroup=,noprint]{Param}{parameter}
+\NewDocElement[noprint=true,idxgroup=,noprint]{Opt}{option}
+\NewDocElement[noprint=true,idxgroup=,noprint]{RefType}{reference type}
+\def\main#1{#1}
+\def\usage#1{\textbf{\underline{#1}}}
+\def\IndexPrologue{Underlined page numbers describe where a command, parameter,
+reference type, or other item is described in detail. Other page numbers
+identify where the item is used.}
+\setcounter{IndexColumns}{2}
 \sloppy
 \begingroup
     \catcode`\<=\active
@@ -75,9 +89,18 @@
 \make@find@in{-}
 \def\hia*{\emph{Hereinafter}}
 \def\pt#1{the main documentation}
-\def\param#1{\hyperref[param:#1]{\texttt{\color{blue}#1}}}
-\def\opt#1{\hyperref[opt:#1]{\texttt{\color{violet}#1}}}
-\def\rtype#1{\hyperref[rtype:#1]{\texttt{\color{red}#1}}}
+\def\param#1{\hyperref[param:#1]{\textsf{%
+    \SpecialMainParamIndex{#1}%
+    \color{blue}#1%
+}}}
+\def\opt#1{\hyperref[opt:#1]{\textsf{%
+    \SpecialMainOptIndex{#1}%
+    \color{violet}#1%
+}}}
+\def\rtype#1{\hyperref[rtype:#1]{\textsf{%
+    \SpecialMainRefTypeIndex{#1}%
+    \color{red}#1%
+}}}
 \def\parameterlist#1#2#3\@stop{%
     \par\hangindent=2\parindent\indent
     \textbf{\parameterlist@params#1, \@stop}: #2\par
@@ -95,11 +118,9 @@
     \par\vskip.5\baselineskip\noindent\textbf{Optional Parameters:}\par
     \parameterlist#1\@stop
 }
-\def\DescribeOption#1{%
-    \paragraph*{\texttt{#1}}\label{opt:#1}
+\def\ExplainOption#1{%
+    \paragraph*{\DescribeOpt{#1}\textsf{#1}}\label{opt:#1}
 }
-\NewDocElement[printtype=,idxtype=,idxgroup=]{File}{fileenv}
-\setcounter{IndexColumns}{2}
 \renewenvironment{quote}{%
     \list{}{%
         \rightmargin=\leftmargin
@@ -109,3 +130,37 @@
     \item\relax
 }{\endlist}
 \def\@xobeysp{\leavevmode\spacefactor1000\relax\space}
+\newenvironment{hi@boxmaker}[1]{%
+    \par
+    \def\hi@color{#1}%
+    \setbox\@tempboxa=\vbox\bgroup
+        \advance\hsize-4em
+        \parindent\z@ \parskip\z@
+        \hyphenpenalty\@M
+        \raggedright
+}{%
+    \egroup
+    \vskip\topsep
+    \@@line{%
+        \hss
+        \expandafter\colorbox\hi@color{\box\@tempboxa}%
+        \hss
+    }%
+    \vskip\topsep
+    \@endpetrue
+}
+\newenvironment{demo}{\begin{hi@boxmaker}{[gray]{0.9}}}{\end{hi@boxmaker}}
+\newenvironment{grammar}{\begin{hi@boxmaker}{[rgb]{0.9,0.9,1}}}%
+    {\end{hi@boxmaker}}
+\def\Example{%
+    \par\vskip 6pt\relax\textsf{\small\textit{\color{blue}{Example:}}}\par
+}
+\def\Examples{%
+    \par\vskip 6pt\relax\textsf{\small\textit{\color{blue}{Examples:}}}\par
+}
+\def\Produces{%
+    \par\vskip 6pt\relax\textsf{\small\textit{\color{blue}{Produces:}}}\par
+}
+\def\littext#1{\underline{\texttt{#1}}}
+\def\grammarparen#1{\grammarparens{\meta{#1}}}
+\def\grammarparens#1{\littext{ (} #1 \littext{)}}

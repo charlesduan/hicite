@@ -7,7 +7,7 @@
 
 The following options are accepted by this package.
 
-\DescribeOption{review} Law review formatting: selects law review fonts, expects
+\ExplainOption{review} Law review formatting: selects law review fonts, expects
 footnotes, formats \emph{supra} cites with note numbers, and so on.
 
 %</doc>
@@ -18,7 +18,7 @@ footnotes, formats \emph{supra} cites with note numbers, and so on.
 %</package>
 %<*doc>
 
-\DescribeOption{journal} Alias for \opt{review}.
+\ExplainOption{journal} Alias for \opt{review}.
 
 %</doc>
 %<*package>
@@ -28,7 +28,7 @@ footnotes, formats \emph{supra} cites with note numbers, and so on.
 %</package>
 %<*doc>
 
-\DescribeOption{journalfonts} Selects law review fonts. Same as
+\ExplainOption{journalfonts} Selects law review fonts. Same as
 |\UseFontPack{review}|. Other formatting aspects are not changed.
 
 %</doc>
@@ -39,7 +39,7 @@ footnotes, formats \emph{supra} cites with note numbers, and so on.
 %</package>
 %<*doc>
 
-\DescribeOption{memofonts} Selects legal memorandum fonts. Same as
+\ExplainOption{memofonts} Selects legal memorandum fonts. Same as
 |\UseFontPack{memo}|. Other formatting aspects are not changed.
 
 %</doc>
@@ -50,7 +50,7 @@ footnotes, formats \emph{supra} cites with note numbers, and so on.
 %</package>
 %<*doc>
 
-\DescribeOption{memo} Legal memorandum formatting: selects memorandum fonts,
+\ExplainOption{memo} Legal memorandum formatting: selects memorandum fonts,
 expects citations in text, and so on.
 
 %</doc>
@@ -61,7 +61,7 @@ expects citations in text, and so on.
 %</package>
 %<*doc>
 
-\DescribeOption{brief} Alias for \opt{memo}.
+\ExplainOption{brief} Alias for \opt{memo}.
 
 
 %</doc>
@@ -72,7 +72,7 @@ expects citations in text, and so on.
 %</package>
 %<*doc>
 
-\DescribeOption{endnote} Uses endnotes rather than footnotes for formatting.
+\ExplainOption{endnote} Uses endnotes rather than footnotes for formatting.
 
 %</doc>
 %<*package>
@@ -82,7 +82,7 @@ expects citations in text, and so on.
 %</package>
 %<*doc>
 
-\DescribeOption{endnotes} Same as \opt{endnote}.
+\ExplainOption{endnotes} Same as \opt{endnote}.
 
 %</doc>
 %<*package>
@@ -92,7 +92,7 @@ expects citations in text, and so on.
 %</package>
 %<*doc>
 
-\DescribeOption{fullurl} URLs are displayed with their full text.
+\ExplainOption{fullurl} URLs are displayed with their full text.
 
 %</doc>
 %<*package>
@@ -102,7 +102,7 @@ expects citations in text, and so on.
 %</package>
 %<*doc>
 
-\DescribeOption{toaurl} URLs are displayed with their full text in the table of
+\ExplainOption{toaurl} URLs are displayed with their full text in the table of
 authorities and a shortcut otherwise, as described in \sec{urls-appearance}.
 
 %</doc>
@@ -113,7 +113,7 @@ authorities and a shortcut otherwise, as described in \sec{urls-appearance}.
 %</package>
 %<*doc>
 
-\DescribeOption{linkurl} URLs are displayed as a linked word, as described in
+\ExplainOption{linkurl} URLs are displayed as a linked word, as described in
 \sec{urls-appearance}.
 
 %</doc>
@@ -124,7 +124,7 @@ authorities and a shortcut otherwise, as described in \sec{urls-appearance}.
 %</package>
 %<*doc>
 
-\DescribeOption{italcase} Case names are italicized regardless of font packs
+\ExplainOption{italcase} Case names are italicized regardless of font packs
 previously chosen.
 
 %</doc>
@@ -135,7 +135,7 @@ previously chosen.
 %</package>
 %<*doc>
 
-\DescribeOption{toastar} Stars are added to common references in the table of
+\ExplainOption{toastar} Stars are added to common references in the table of
 authorities, as described in \sec{toa-star}.
 
 %</doc>
@@ -146,7 +146,7 @@ authorities, as described in \sec{toa-star}.
 %</package>
 %<*doc>
 
-\DescribeOption{somenotename} In general, if a case is named inline in text and
+\ExplainOption{somenotename} In general, if a case is named inline in text and
 a citation to the case is made immediately thereafter, then the case name is
 suppressed in the citation so as to avoid redundancy. This option makes an
 exception where the citation to the case is the first citation in a footnote. In
@@ -162,7 +162,7 @@ to readers.
 %</package>
 %<*doc>
 
-\DescribeOption{nonotename} Suppresses case names even in citations at the
+\ExplainOption{nonotename} Suppresses case names even in citations at the
 start of footnotes. This is typical of most legal journals.
 
 %</doc>
@@ -173,7 +173,7 @@ start of footnotes. This is typical of most legal journals.
 %</package>
 %<*doc>
 
-\DescribeOption{useopturl} Redefines the \param{opturl} parameter to be the same
+\ExplainOption{useopturl} Redefines the \param{opturl} parameter to be the same
 as \param{url}, as described in the documentation for the former parameter.
 
 %</doc>
@@ -185,7 +185,7 @@ as \param{url}, as described in the documentation for the former parameter.
 %</package>
 %<*doc>
 
-\DescribeOption{noterefs} Cross-references to text will refer to the closest
+\ExplainOption{noterefs} Cross-references to text will refer to the closest
 footnote numbers. This is typical of law reviews and is the standard when the
 \opt{review} option is selected.
 
@@ -199,7 +199,7 @@ footnote numbers. This is typical of law reviews and is the standard when the
 %</package>
 %<*doc>
 
-\DescribeOption{pagerefs} Cross-references to text will refer to the page
+\ExplainOption{pagerefs} Cross-references to text will refer to the page
 numbers on which the relevant text is found. This is typical of legal memoranda
 and is the standard when the \opt{memo} option is selected.
 

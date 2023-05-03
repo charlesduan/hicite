@@ -935,21 +935,21 @@ least two possible approaches for identifying rules (both of which this package
 supports). First, one could characterize the name of the rule set as a book
 title and each rule as a named division therein. That would produce output along
 the following lines:
-\begin{quote}
+\begin{demo}
 |\defrule{frcp12}{rep=Fed. R. Civ. P., page=rule 12}| \\
 |\sentence{frcp12 at /b6}.| \\
-Produces: \textsc{Fed.\ R. Civ.\ P.} R. 12(b)(6).
-\end{quote}
+\Produces \textsc{Fed.\ R. Civ.\ P.} R. 12(b)(6).
+\end{demo}
 The oddity of this form is that ``R.'' appears twice. To avoid that, it is not
 enough to remove ``rule'' from the pin cite (|page=12|), because then the number
 looks like a page number that will not accept subdivisions like ``(b)(6).'' The
 solution is to use the dash character before the pin cite as described in
 \sec{pages}:
-\begin{quote}
+\begin{demo}
 |\defrule{frcp12}{rep=Fed. R. Civ. P., page=-12}| \\
 |\sentence{frcp12 at /b6}.| \\
-Produces: \textsc{Fed.\ R. Civ.\ P.} 12(b)(6).
-\end{quote}
+\Produces \textsc{Fed.\ R. Civ.\ P.} 12(b)(6).
+\end{demo}
 The dash forces the pin cite to be interpreted as a ``named'' division with no
 name.
 

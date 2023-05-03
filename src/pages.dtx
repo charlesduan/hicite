@@ -62,11 +62,11 @@ segment to hold the subsection number of the statute being cited, and then
 require a segment named |stat| that identifies the page of the \emph{Statutes at
 Large} on which the subsection appears. The input syntax and an example are as
 follows:
-\begin{quote}
-\meta{pin-cite} := \meta{segment} [
-|::|\meta{segment-name}|:| \meta{segment} ]* \\
-Example: \texttt{S 12 ::stat: 783}
-\end{quote}
+\begin{grammar}
+\meta{pin-cite} := \meta{segment} \\
+\qquad( \littext{ ::} \meta{segment-name} \littext{: } \meta{segment} )* \\
+\Example \texttt{S 12 ::stat: 783}
+\end{grammar}
 The example would cite \textsection~12 of a statute, at page 783.
 
 %</doc>
@@ -123,11 +123,11 @@ A pin cite segment can consist either of a comma-separated list of items, or two
 comma-separated lists of items delimited by the word |to| (surrounded by
 spaces). The latter form is used for pin cites to ranges where each side of the
 range contains multiple items.
-\begin{quote}
-\meta{segment} := \meta{list} [ | to | \meta{list} ] \\
-\meta{list} := \meta{item} [ |, | \meta{item} ]* \\
-Example: \texttt{column 5, line 8 to column 6, line 5}
-\end{quote}
+\begin{grammar}
+\meta{segment} := \meta{list} [ \littext{ to } \meta{list} ] \\
+\meta{list} := \meta{item} ( \littext{, } \meta{item} )* \\
+\Example \texttt{column 5, line 8 to column 6, line 5}
+\end{grammar}
 Here, the word ``to'' must be used to separate the ranges to avoid ambiguity.
 
 %</doc>
@@ -192,16 +192,17 @@ division is used, any subsequent bare numbers will be interpreted as part of the
 division. To return to citing page numbers, insert the word |at| (e.g.,
 \texttt{section 5, at 143}). This can be useful for helping readers find the
 location of text divisions. Thus:
-\begin{center}
+\begin{demo}
 \begin{tabular}{lll}
 \textbf{Input} & \textbf{Output} & \textbf{Explanation} \\
+\hline
 |157, 160-163| & 157, 150--63 & Page numbers \\
 |line 403, 450-463| & ll.~403, 450--463 & All are line numbers \\
 |line 403, at 450-463| & l.~403, at 450--63 & 450--463 are pages \\
 |157-158 table 1-2| & 157--58 tbls.1--2 & Citing just tables \\
 |157-158 & table 1-2| & 157--58 \& tbls.1--2 & Citing pages and tables \\
 \end{tabular}
-\end{center}
+\end{demo}
 As seen in the above examples, the number part of either a page number or a
 named division can be a hyphenated range, and the hyphen is converted to a
 proper dash. To include an actual hyphen, use |\-| instead.
@@ -314,9 +315,10 @@ proper dash. To include an actual hyphen, use |\-| instead.
 
 Further fine-tuning of the pin cite parsing algorithm can be done by placing
 special codes or punctuation at the beginning of pin cite items:
-\begin{center}
+\begin{demo}
 \begin{tabular}{llp{0.6\textwidth}}
 \textbf{Input} & \textbf{Type} & \textbf{Explanation} \\
+\hline
 \texttt{S 3} & Division & Produces \textsection~3 \\
 \texttt{P 3} & Division & Produces \textparagraph~3 \\
 \texttt{-34/a} & Division & Interpreted as a division with no name: 34(a) \\
@@ -329,7 +331,7 @@ cite \\
 \texttt{/a3} & Division & Interpreted as a subdivision: (a)(3). Must follow a
 named division \\
 \end{tabular}
-\end{center}
+\end{demo}
 
 %</doc>
 %<*package>
@@ -402,9 +404,10 @@ with a slash. Bare subdivisions (without a top-level subdivision) may be used as
 pin cite items to cite multiple non-contiguous subdivisions, and ranges may
 include bare subdivisions. Single characters in a subdivision will be
 automatically parenthesized. The following are examples:
-\begin{center}
+\begin{demo}
 \begin{tabular}{ll}
 \textbf{Input} & \textbf{Output} \\
+\hline
 |S 5/a| & \textsection~5(a) \\
 |S 5/a-6/b| & \textsection\textsection~5(a)--6(b) \\
 |S 5/a-/b| & \textsection~5(a)--(b) \\
@@ -413,7 +416,7 @@ automatically parenthesized. The following are examples:
 |S 5/a1A(iii)| & \textsection~5(a)(1)(A)(iii) \\
 |S 5/a1A{note}| & \textsection~5(a)(1)(A)note \\
 \end{tabular}
-\end{center}
+\end{demo}
 
 
 %</doc>
@@ -887,11 +890,11 @@ division or page number for the reference and then refer to a specific part of
 it. For example, one might define the statute 35 U.S.C. \textsection~112 as a
 reference |sec-112|, and then wish to refer to subsection (b) of that statute.
 To do so, one may write:
-\begin{quote}
+\begin{demo}
 |\sentence{sec-112 at /b}|\\
 Equivalent to: |\sentence{sec-112 at S 112/b}|\\
-Produces: 35 U.S.C. \textsection~112(b)
-\end{quote}
+\Produces 35 U.S.C. \textsection~112(b)
+\end{demo}
 In other words, the pin cite given as part of the citation item is joined to the
 pin cite given in the reference definition. The following rules define how a
 reference pin cite is joined with a citation item pin cite:
@@ -906,15 +909,16 @@ cite has a slash, then the slash is removed from the citation item pin cite and
 the two are concatenated.
 \end{itemize}
 Thus, the following examples:
-\begin{center}
+\begin{demo}
 \begin{tabular}{lll}
 \textbf{Reference} & \textbf{Citation Item} & \textbf{Result} \\
+\hline
 |S 112| & |S 102/a| & \textsection~102(a) \\
 |S 112| & |/b| & \textsection~112(b) \\
 |S 505/j| & |/2A| & \textsection~505(j)(2)(A) \\
 |S 505/j| & |/2A-/3| & \textsection~505(j)(2)(A)--(3) \\
 \end{tabular}
-\end{center}
+\end{demo}
 The range joins correctly not because of these rules but because of the ordinary
 parsing rules for subdivision ranges, given above.
 
@@ -999,9 +1003,10 @@ included. It seems preferable to do so to ensure that ``R.'' is not interpreted
 as ``Rule.''}
 \end{itemize}
 Thus, the following examples:
-\begin{center}
+\begin{demo}
 \begin{tabular}{lll}
 \textbf{Preceding Text} & \textbf{Pin Cite} & \textbf{Output} \\
+\hline
 |Book| & |15| & \textsc{Book} 15 \\
 |Treatise| & |S 5| & \textsc{Treatise} \textsection~5 \\
 |Annual Report 2015| & |35| & \textsc{Annual Report 2015}, at 35 \\
@@ -1009,7 +1014,7 @@ Thus, the following examples:
 |R.| & |102| & R. at 102 \\
 |R.| & |paragraph 36| & R. at para. 36 \\
 \end{tabular}
-\end{center}
+\end{demo}
 %</doc>
 %<*package>
 %

@@ -188,10 +188,10 @@ beginning).
 \paragraph{Party Name Syntax}
 
 Party names for \param{p} and \param{d} have the form:
-\begin{quote}
-\meta{party} := \meta{text} [ |ex rel.| \meta{text} ] \\
-Examples: |Doe|, |State ex rel. Adams|
-\end{quote}
+\begin{grammar}
+\meta{party} := \meta{text} [ \littext{ex rel.} \meta{text} ] \\
+\Examples |Doe|\\|State ex rel. Adams|
+\end{grammar}
 The ``base'' name and the name after ``ex rel.''\ are treated as two separate
 names, each a candidate for being the case's short name.
 
@@ -255,10 +255,11 @@ names, each a candidate for being the case's short name.
 
 For common case names with the \param{name} parameter, there are more
 possibilities because prefixes \emph{In re} and \emph{Ex parte} can be used:
-\begin{quote}
-\meta{name} := [ |In re| \| |Ex parte| ] \meta{text} [ |ex rel.| \meta{text} ]\\
-Examples: |In re Comiskey|, |Ex parte New York ex rel. Jones|
-\end{quote}
+\begin{grammar}
+\meta{name} := [ \littext{In re} \| \littext{Ex parte} ] \meta{text} [
+\littext{ex rel.} \meta{text} ]\\
+\Examples |In re Comiskey|\\|Ex parte New York ex rel. Jones|
+\end{grammar}
 The latter example is procedurally implausible but nevertheless syntactially
 acceptable.
 
@@ -640,7 +641,7 @@ of ignored words follows:
 %
 %</package>
 %<*doc>
-\begin{center}
+\begin{demo}
 \def\hi@case@shortfmt@add#1{\chop@space{#1}\\}%
 \begin{tabular}{l}
 %</doc>
@@ -665,7 +666,7 @@ of ignored words follows:
 %</doc|package>
 %<*doc>
 \end{tabular}
-\end{center}
+\end{demo}
 
 
 \subsection{Nominative Reporters}
@@ -677,10 +678,9 @@ abbreviations. However, some common reporters have both an official series name
 and nominative reporter names. Volume 21 of the \emph{United States Reports},
 for example, is also volume 8 of Wheaton's reports, and typically both are
 cited:
-\begin{quote}
-\meta{vol} \meta{rep} (\meta{nom-vol} \meta{nom-rep}) \meta{page} \\
-Example: 21 U.S. (8 Wheat.)\ 1
-\end{quote}
+\begin{demo}
+|21 U.S. (8 Wheat.) 1|
+\end{demo}
 In most cases, the pagination of the series reporter and the nominative reporter
 is the same, and adding the nominative reporter is a simple matter of looking up
 the corresponding name in a table. As a result, this package handles these
@@ -779,10 +779,10 @@ defining the case document reference.}
 Procedural history for a case is given in the \param{prior} and
 \param{subsequent} parameters, which are used to construct parentheticals. The
 syntax for those parameters is:
-\begin{quote}
-\meta{history} := \meta{phrase} |:| \meta{ref} \\
-Example: |reversed: prior-case|
-\end{quote}
+\begin{grammar}
+\meta{history} := \meta{phrase} \littext{: } \meta{ref} \\
+\Example |reversed: prior-case|
+\end{grammar}
 The \meta{phrase} is an explanatory phrase that will be abbreviated and also
 checked against a table of valid explanatory phrases. If a desired phrase is not
 already listed, the macro
@@ -897,16 +897,17 @@ nom.''\ must be added to explanatory phrases that end with a comma.
 % the sub-nom text, and (2) whether to suppress the second case's name. The
 % macro |\hi@expl@determinename| determines whether the two cases have the same
 % name, and the outcomes are as follows:
-% \begin{center}
+% \begin{demo}
 % \begin{tabular}{lll}
 % \textbf{Condition} & \textbf{Sub nom} & \textbf{Use name} \\
+% \hline
 % Rehearing/certiorari denied phrase & No & No \\
 % No sub nom text & No & If different \\
 % No comma at end of phrase & No & If different \\
 % Both comma and sub nom, same name & No & No \\
 % Both comma and sub nom, different name & Yes & Yes \\
 % \end{tabular}
-% \end{center}
+% \end{demo}
 %
 %    \begin{macrocode}
 \def\hi@expl#1#2#3{%
@@ -1146,9 +1147,9 @@ not appear to require them. If they are desired, commands such as |\sentence| or
 In most appellate work and particularly before the Supreme Court, this reference
 type is rarely used. The more common practice now is to name the document to be
 cited in text and then include ``(at \meta{page})'' within the sentence:
-\begin{quote}
+\begin{demo}
 Petitioner's brief argues (at 8) that the sky is red, but that is wrong.
-\end{quote}
+\end{demo}
 There is not really a need for automation of these kinds of citations.
 
 \keyparameters{

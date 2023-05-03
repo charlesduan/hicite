@@ -317,23 +317,23 @@ contained item is defined as a reference and passed to the citation container's
 \param{citation} parameter. \unskip\footnote{This may be done through anonymous
 references as described in \sec{anonymous}.}
 For example, the following would cite a letter in a volume of collected works:
-\begin{quote}
+\begin{demo}
 \ttfamily
 |\defletter|\{ltr\}\{\\
-\hbox{}\quad author=Benjamin Franklin,\\
-\hbox{}\quad to=George Washington,\\
-\hbox{}\quad ...\\
+|    |author=Benjamin Franklin,\\
+|    |to=George Washington,\\
+|    |\ldots\\
 \} \\
 |\defbook|\{works\}\{\\
-\hbox{}\quad name=Collected Works of Franklin,\\
-\hbox{}\quad ...\\
+|    |name=Collected Works of Franklin,\\
+|    |\ldots\\
 \} \\
 |\defcitecontainer|\{franklin-ltr\}\{\\
-\hbox{}\quad citation=ltr, \\
-\hbox{}\quad in=works, \\
-\hbox{}\quad page=107, \\
+|    |citation=ltr, \\
+|    |in=works, \\
+|    |page=107, \\
 \}
-\end{quote}
+\end{demo}
 A command of |\sentence{franklin-ltr at 109}| would produce something along the
 lines of ``Letter from Benjamin Franklin to George Washington, \emph{in}
 \textsc{Collected Works of Franklin} 107, 109.''

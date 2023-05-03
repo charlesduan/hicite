@@ -34,9 +34,9 @@ This package provides for insertion sorting of lists.
 % group contains two elements: (1) the list item itself, and (2) the key
 % computed for that item. Each group is preceded by the macro |\sli@do|:
 %
-% \begin{quote}
+% \begin{demo}
 %   |\sli@do{{item}{key}}\sli@do{{item}{key}}|\ldots
-% \end{quote}
+% \end{demo}
 %
 % (The |\sli@do| is necessary to ensure that the elements don't get unbraced as
 % they are traversed.)
@@ -50,9 +50,9 @@ This package provides for insertion sorting of lists.
 % sorting function, and a function definition that determines what elements to
 % sort:
 %
-% \begin{quote}
+% \begin{demo}
 %   |\NewSortedList{list}{\SortAlpha}{\def#2{#1}}|
-% \end{quote}
+% \end{demo}
 % which would create a list named ``list'' which is sorted alphabetically and
 % uses the elements of the list as sorting keys.
 %

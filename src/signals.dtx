@@ -64,7 +64,7 @@ literature into a single citation string.
 Each signal belongs to one of four classes: support, comparison, contrary, and
 background. Here are all the signals available, along with their classes.
 
-\begin{center}
+\begin{demo}
 \def\AddSignal#1#2{\emph{#1}&\csname sig@#2\endcsname\\}
 \def\sig@s{Support}
 \def\sig@p{Comparison}
@@ -73,6 +73,7 @@ background. Here are all the signals available, along with their classes.
 
 \begin{tabular}{ll}
 \textbf{Signal} & \textbf{Class} \\
+\hline
 %</doc>
 %<*doc|package>
 \AddSignal{see}{s}
@@ -94,7 +95,7 @@ background. Here are all the signals available, along with their classes.
 %</doc|package>
 %<*doc>
 \end{tabular}
-\end{center}
+\end{demo}
 
 \subsection{Input Syntax}
 
@@ -102,11 +103,11 @@ As described in \sec{parse}, the signal for a citation
 item is placed at the beginning of the input text for the citation item, in all
 lowercase text. As a convenience, duplicative sequential signals may be omitted.
 For example, the following are equivalent:
-\begin{quote}
+\begin{demo}
 \ttfamily
 see ref1; ref2; see also ref3; ref4 \\
 see ref1; see ref2; see also ref3; see also ref4 \\
-\end{quote}
+\end{demo}
 In both cases, the \emph{see} signal will apply to |ref1| and |ref2|, and
 \emph{see also} to |ref3| and |ref4|.
 
@@ -116,9 +117,9 @@ flexibility to writers, although it is expected that most writers will follow
 conventional ordering of signals. Second, comparison signal citations typically
 include \emph{and} before the penultimate item of each side of the comparison,
 for example:
-\begin{quote}
+\begin{demo}
 \emph{Compare} A, B, \emph{and} C, \emph{with} D, \emph{and} F.
-\end{quote}
+\end{demo}
 For implementation reasons, \unskip\footnote{As described in the implementation
 discussion of citation formatting, each citation item is formatted by executing
 a group of commands for the citation. To figure out whether an \emph{and} is

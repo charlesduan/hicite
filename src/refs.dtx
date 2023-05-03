@@ -88,7 +88,7 @@ will be placed together with (so, for example, statutes and regulations are
 placed in the same category). The text associated with each category will be
 used for the heading in the table of authorities.
 
-\begin{center}
+\begin{demo}
 \def\hi@newcitetype#1#2{\expandafter\hi@newcitetype@\string#1\@mark#2\@stop}
 \expandafter\def\expandafter\hi@newcitetype@
     \string\hi@type@#1\@mark#2:#3\@stop{%
@@ -96,6 +96,7 @@ used for the heading in the table of authorities.
 }
 \begin{tabular}{lll}
 \textbf{Category} & \textbf{Group} & \textbf{Text} \\
+\hline
 %</doc>
 %<*doc|package>
 \hi@newcitetype\hi@type@other{other:Other Source/s}
@@ -110,7 +111,7 @@ used for the heading in the table of authorities.
 %</doc|package>
 %<*doc>
 \end{tabular}
-\end{center}
+\end{demo}
 
 
 %</doc>
@@ -136,26 +137,26 @@ used for the heading in the table of authorities.
 \label{s:refs-syntax}
 
 The package provides its own syntax for writers to use when defining references.
-As an alternative, the |hitobib| package offers a compatibility layer that
+As an alternative, \sec{hibib} describes a compatibility layer that
 accepts Biblatex reference definitions, so long as the parameter names
 correspond with those of this package.
 
 Generally, references are defined as follows:
-\begin{quote}
+\begin{demo}
 |\def|\meta{reference type} \marg{name} |{| \\
-\hbox{}\quad \meta{param1} |=| \meta{value1}|,| \\
-\hbox{}\quad \meta{param2} |=| \meta{value2}|,| \\
-\hbox{}\quad \ldots \\
+|    |\meta{param1} |=| \meta{value1}|,| \\
+|    |\meta{param2} |=| \meta{value2}|,| \\
+|    |\ldots \\
 |}|
-\end{quote}
+\end{demo}
 For example, to define the historic case on copyrightability:
-\begin{quote}
+\begin{demo}
 |\defcase{baker}{|\\
 |    parties=Baker v. Selden,|\\
 |    cite=101 U.S. 99,|\\
 |    year=1880,|\\
 |}|
-\end{quote}
+\end{demo}
 The input follows \TeX\ syntax and uses the |keyval| package, so if there are
 equal signs or commas in the parameter values, then the parameter should be
 surrounded with braces.
@@ -178,7 +179,7 @@ reference types there are shortcuts described in \sec{cparse}.
 % to define the reference. Executing the reference definition command should
 % cause the definition of the following formatting macros of the form
 % |\|\meta{prefix}|@|\meta{ref-name}:
-% \begin{center}
+% \begin{demo}
 % \begin{tabular}{rl}
 %    |fc|  & full citation. Required. \\
 %    |sc|  & short citation. Optional, with full cite form used otherwise. \\
@@ -187,7 +188,7 @@ reference types there are shortcuts described in \sec{cparse}.
 %    |ic|  & inline citation, for internal use if desired. \\
 %    |idc| & \emph{id.}\ citation. Optional. \\
 % \end{tabular}
-% \end{center}
+% \end{demo}
 % For convenience of parameter definition macros, |\@this@case| is set to the
 % name of the reference being defined.
 %
@@ -419,16 +420,16 @@ to the reference definition
 
 For example, say you want to define references for several sections of the
 Patent Act. That could be achieved with the following three definitions:
-\begin{quote}
+\begin{demo}
 |\defstatcode{101}{35 U.S.C. S 101}| \\
 |\defstatcode{102}{35 U.S.C. S 102}| \\
 |\defstatcode{103}{35 U.S.C. S 103}| \\
-\end{quote}
+\end{demo}
 This works (using the reference parser for statutes) but is repetitive. Instead,
 you can write:
-\begin{quote}
+\begin{demo}
 |\defcitegroup\defstatcode{35 U.S.C. S }{101, 102, 103}|
-\end{quote}
+\end{demo}
 Each of the items in the comma-separated list (e.g., |101|) becomes both a
 reference nickname and the end of the reference definition.
 

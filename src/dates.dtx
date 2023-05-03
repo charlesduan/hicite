@@ -54,17 +54,17 @@ month can also be a season.
 \subsection{Input Syntax}
 
 Dates are entered, generally as parameters to references, as follows:
-\begin{quote}
+\begin{grammar}
 \meta{date} := [ \meta{qualifier} ] ( \meta{date-range} \| \meta{date-word} )*
 \\
-\meta{date-range} := \meta{date-word} |-| \meta{date-word} \\
+\meta{date-range} := \meta{date-word} \littext{-} \meta{date-word} \\
 \meta{date-word} := \meta{modifier} \| \meta{month} \| \meta{day} \| \meta{year}
 \\
-Examples: |2009|,
-|sept-oct 1980|,
-|adopted july 4 1776|,
+\Examples |2009|\\
+|sept-oct 1980|\\
+|adopted july 4 1776|\\
 |c. 538 BC|
-\end{quote}
+\end{grammar}
 In other words, a date consists of qualifier words followed by one or more
 tokens that may be either date words or ranges of date words. 
 \unskip\footnote{Technically by this syntax, a range can consist of two
@@ -336,10 +336,11 @@ Alternately, a date beginning with |!| will be used unformatted.
 \paragraph{Permissible Words}
 The following are permissible words in dates.
 
-\begin{center}
+\begin{demo}
 \def\hi@setup@month#1#2{#1&#2\\}
 \begin{tabular}{ll}
 \textbf{Output} & \textbf{Input} \\
+\hline
 %</doc>
 %<*doc|package>
 \hi@setup@month{Jan.}{jan, Jan, January, january}
@@ -368,7 +369,7 @@ A.C.E. & ace, ACE \\
 B.C.E. & bce, BCE \\
 
 \end{tabular}
-\end{center}
+\end{demo}
 
 %</doc>
 %<*package>

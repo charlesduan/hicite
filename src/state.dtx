@@ -345,16 +345,17 @@ information must be maintained for this.
 Generally, \emph{id.}\ may be used and citation information may be omitted when
 it is the same as the previous citation. Assuming that |2 ref at 46| was
 previously cited, then:
-\begin{center}
-\begin{tabular}{llp{0.6\textwidth}}
+\begin{demo}
+\begin{tabular}{llp{0.47\textwidth}}
 \textbf{Next input} & \textbf{Produces} & \textbf{Explanation} \\
+\hline
 |2 ref at 46| & \emph{Id.} & Volume and page omitted \\
 |2 ref at 48| & \emph{Id.}\ at 48 & Volume omitted \\
 |3 ref at 50| & 3 \emph{id.}\ at 50 & Both numbers included \\
 |3 ref at 46| & 3 \emph{id.}\ at 46 & Page cannot be omitted, as volume
 differs \\
 \end{tabular}
-\end{center}
+\end{demo}
 
 However, there are two main exceptions to this information omission process.
 First, not every duplicative element can be omitted, if a ``higher level''
@@ -362,20 +363,20 @@ element differs. In the last example above, the page number 46 is duplicative,
 but it cannot be omitted because the volume number differs. Second, the presence
 of multiple citation items in a context can prevent the use of \emph{id.} In
 this example:
-\begin{quote}
+\begin{demo}
 \ttfamily
 |\sentence|\{see ref1 at 5; ref2 at 7\}. Further text. |\sentence|\{see ref2 at
 7\}.
-\end{quote}
+\end{demo}
 No \emph{id.}\ may be used in the final citation, even though the reference and
 page are identical to the immediately preceding one, because the first citation
 string included two distinct references so \emph{id.} would be ambiguous.
 However:
-\begin{quote}
+\begin{demo}
 \ttfamily
 |\sentence|\{see ref1 at 5; but see ref1 at 7\}. Further text. |\sentence|\{see
 ref1 at 7\}.
-\end{quote}
+\end{demo}
 Here, the last citation should be formatted ``\emph{See} \emph{id.}~at 7.'' The
 \emph{id.}\ is permissible because only |ref1| was cited in the first citation
 string, but the page number cannot be omitted. Furthermore, a footnote can use
@@ -456,7 +457,7 @@ that become invalid if this state variable is invalid.
 
 \subsubsection{List of State Variables}
 
-\begin{center}
+\begin{demo}
 \def\thelist{}
 \def\hi@state@var#1{%
     \appto\thelist{#1&\csname invlist@#1\endcsname\\}%
@@ -496,9 +497,10 @@ that become invalid if this state variable is invalid.
 %<*doc>
 \begin{tabular}{ll}
 \textbf{Variable} & \textbf{Invalidates} \\
+\hline
 \thelist
 \end{tabular}
-\end{center}
+\end{demo}
 
 \subsubsection{Updating Citation State}
 
