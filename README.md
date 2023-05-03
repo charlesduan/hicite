@@ -106,7 +106,7 @@ scheme of literate programming is used in the source code. This section explains
 that scheme.
 
 
-## Background: Doc and Docstrip
+### Background: Doc and Docstrip
 
 This documentation uses the LaTeX *doc* and *docstrip* utilities for separating
 the documentation from code. Relevant information on those programs may be found
