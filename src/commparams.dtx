@@ -72,6 +72,9 @@ work, which may or may not contain text prefixes. Examples are patent numbers
 (\rtype{patent}), bill numbers (\rtype{bill}), and constitutional amendments
 (\rtype{constamend}). For most reference types (patents being an exception), the
 number is not analyzed or formatted in any way.
+
+For \ref{book} and \ref{workingpaper} references, consider also the
+\param{serial} parameter to set the \param{publisher} parameter as well.
 %</doc>
 %
 \hi@newparam{page}{Page number}
@@ -85,7 +88,6 @@ Whether the value of this parameter needs to be abbreviated will depend on the
 reference type.
 %</doc>
 %
-\hi@param@alias{serial}{number}
 \hi@param@alias{series}{number}
 \hi@param@alias{short}{inline}
 \hi@param@alias{shorttitle}{inline}

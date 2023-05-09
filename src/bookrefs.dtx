@@ -42,6 +42,7 @@ which are optional other than the year:
 %    \begin{macrocode}
 \def\hi@book@pubparen{%
     \let\hi@book@paren\@empty  % Date parenthetical
+    \let\hi@book@sep\@empty % What separator to add next
     \hi@ifset\hi@kv@editor{%
         \hi@ifset\hi@kv@edtype{%
             \ifstrempty\hi@kv@edtype{}{%
@@ -59,10 +60,8 @@ which are optional other than the year:
                 }%
             }%
         }%
-        \def\hi@book@paren{\hi@kv@editor, }%
-    }{}%
-    \hi@ifset\hi@kv@number{%
-        \@expand{\find@in{, }}\hi@kv@number i{\hi@book@serial}{}%
+        \def\hi@book@paren{\hi@kv@editor}%
+        \def\hi@book@sep{, }%
     }{}%
     % Previously there was a check to see if a year was present, but since this
     % macro is now also used for statutes that might legitimately have no date,
@@ -81,31 +80,11 @@ which are optional other than the year:
         \addto@macro\hi@book@paren{forthcoming }%
     }{}%
 }
-\def\hi@book@serial#1#2{%
-    \find@in{, }{#2}{%
-        \PackageWarning\hi@pkgname{%
-            Found comma in serial number:\MessageBreak
-            institution=#1,\MessageBreak
-            number \@spaces=#2.\MessageBreak
-            I use commas to delimit institutions from serial\MessageBreak
-            numbers, so you should use braces so I know which\MessageBreak
-            comma actually belongs to a part.\MessageBreak
-            This occurred%
-        }%
-        \@gobbletwo
-    }{}%
-    % Abbreviate the first part.
-    \hi@abbrev@name{#1}{\def\hi@kv@number}%
-    \addto@macro\hi@kv@number{, #2}%
-    \expandafter\addto@macro\expandafter\hi@book@paren\expandafter{%
-        \hi@kv@number, %
-    }%
-    \hi@undefine\hi@kv@number % Date parenthetical
-}
 \def\hi@book@lcpost{%
     \hi@ifset\hi@kv@year{%
         \hi@parens@add\hi@paren@date{%
             \hi@book@paren
+            \hi@book@sep
             \hi@pstruct@use{year}%
         }%
     }{%

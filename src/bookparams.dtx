@@ -76,6 +76,22 @@ This is useful if the journal was entered abbreviated already.
 \hi@defparam{publisher}{Publisher of book}{%
     \hi@abbrev@name{#1}{\def\hi@kv@publisher}%
 }
+\hi@defparam{serial}{Serial number of a published work}{%
+    \find@in{: }{#1}{%
+        \@tworun\KV@hi@publisher\KV@hi@number
+    }{%
+        \find@in{, }{#1}{%
+            \@tworun\KV@hi@publisher\KV@hi@number
+        }{\KV@hi@number{#1}}%
+    }%
+}
+\make@find@in{: }
+\make@find@in{, }
+%<*doc>
+This parameter is essentially an alias for \param{number}, except if it contains
+a comma or colon, the prefix is used to set the \param{publisher} parameter.
+%</doc>
+%
 \hi@newparam@noval{singleauthor}{All works in a collection are by one author}
 %<*doc>
 This is used in \rtype{citecontainer} to change the font used for the author.
