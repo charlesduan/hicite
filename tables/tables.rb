@@ -652,3 +652,22 @@ open('hi-divisions.tex', 'w') do |io|
 end
 
 
+
+########################################################################
+#
+# PUBLISHING TERMS
+#
+########################################################################
+
+open('hi-publish.tex', 'w') do |io|
+  io.puts <<~EOF
+    %
+    % Abbreviations for publishing terms, from Indigo Book Table 16
+    %
+  EOF
+  book.each_entry(
+    '16', plurals: false, split_commas: true
+  ) do |text, abb, comment, alt|
+    io.puts(make_statement(text, abb, comment, alt))
+  end
+end

@@ -3587,6 +3587,14 @@
         to T.9. This occurred%
     }%
 }
+\def\hi@abbrev@pub#1#2{%
+    \abb@abbrev{pub}{#1}{\abb@initialdots}{.}{#2}%
+}
+\abb@new{pub}
+\def\hi@abbrev#1#2{%
+    \abb@add{pub}{#1}{#2}%
+}
+\input hi-publish
 %%
 %% \iffalse filename: fonts.dtx \fi
 %%
@@ -7717,11 +7725,7 @@
     \ifx\reserved@a\@empty
         \edef\hi@kv@edition{#1\hi@numtoord{#1} ed.}%
     \else
-        \find@in{ }{#1}{%
-            \def\hi@kv@edition{#1}\@gobbletwo
-        }{%
-            \def\hi@kv@edition{#1 ed.}%
-        }%
+        \hi@abbrev@pub{#1}{\def\hi@kv@edition}%
     \fi
 }
 \hi@defparam{editor}{Editor(s) of book}{%

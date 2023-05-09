@@ -2770,6 +2770,12 @@ The macro |\ExplanatoryPhrase|\marg{phrase} defines a new explanatory phrase.
 The unabbreviated phrase should be given, including any trailing comma if
 needed.
 
+
+\subsection{Publishing Terms}
+
+Abbreviations for publishing terms are used in the book publication
+parenthetical, described in \sec{bookrefs-pubparen}. The scheme is called |pub|.
+
 %%
 %% \iffalse filename: fonts.dtx \fi
 %%
@@ -6524,16 +6530,12 @@ the
     \ifx\reserved@a\@empty
         \edef\hi@kv@edition{#1\hi@numtoord{#1} ed.}%
     \else
-        \find@in{ }{#1}{%
-            \def\hi@kv@edition{#1}\@gobbletwo
-        }{%
-            \def\hi@kv@edition{#1 ed.}%
-        }%
+        \hi@abbrev@pub{#1}{\def\hi@kv@edition}%
     \fi
 }
 If the value is a number, then it will be converted to an ordinal number (e.g.,
-|3| becomes ``3d'') and the word ``ed.''\ will be appended to it. If the value
-is a single word, then ``ed.''\ will be appended to it as well.
+|3| becomes ``3d'') and the word ``ed.''\ will be appended to it. Otherwise, the
+value is abbreviated in accordance with the |pub| abbreviation scheme.
 \hi@defparam{editor}{Editor(s) of book}{%
     \hi@nameproc@person{#1}{\hi@namelist@addtwo\hi@kv@editor\relax}%
 }

@@ -376,6 +376,30 @@ needed.
 }
 %    \end{macrocode}
 %</package>
+%<*doc>
+
+\subsection{Publishing Terms}
+
+Abbreviations for publishing terms are used in the book publication
+parenthetical, described in \sec{bookrefs-pubparen}. The scheme is called |pub|.
+
+%</doc>
+%<*package>
+%
+% \DescribeMacro\hi@abbrev@pub
+% Abbreviation publishing terms.
+%
+%    \begin{macrocode}
+\def\hi@abbrev@pub#1#2{%
+    \abb@abbrev{pub}{#1}{\abb@initialdots}{.}{#2}%
+}
+\abb@new{pub}
+\def\hi@abbrev#1#2{%
+    \abb@add{pub}{#1}{#2}%
+}
+\input hi-publish
+%    \end{macrocode}
+%</package>
 %<*test>
 
 \section{abbrevs.dtx}
@@ -395,5 +419,7 @@ L.J.}
 Rev. Online}
 \AssertBox{\hi@abbrev@journal{Southern California Law Review}\@iden}{S. Cal. L.
 Rev.}
+
+\AssertBox{\hi@abbrev@pub{special revised edition}\@iden}{spec. rev. ed.}
 
 %</test>

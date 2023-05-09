@@ -20,17 +20,13 @@ the
     \ifx\reserved@a\@empty
         \edef\hi@kv@edition{#1\hi@numtoord{#1} ed.}%
     \else
-        \find@in{ }{#1}{%
-            \def\hi@kv@edition{#1}\@gobbletwo
-        }{%
-            \def\hi@kv@edition{#1 ed.}%
-        }%
+        \hi@abbrev@pub{#1}{\def\hi@kv@edition}%
     \fi
 }
 %<*doc>
 If the value is a number, then it will be converted to an ordinal number (e.g.,
-|3| becomes ``3d'') and the word ``ed.''\ will be appended to it. If the value
-is a single word, then ``ed.''\ will be appended to it as well.
+|3| becomes ``3d'') and the word ``ed.''\ will be appended to it. Otherwise, the
+value is abbreviated in accordance with the |pub| abbreviation scheme.
 %</doc>
 %
 \hi@defparam{editor}{Editor(s) of book}{%
@@ -87,3 +83,22 @@ This is used in \rtype{citecontainer} to change the font used for the author.
 %
 \hi@newparam@noval{usetitle}{Use title rather than author in short cites}
 \hi@newparam@noval{useissue}{Include issue number in journal citations}
+%<*test>
+\section{bookparams.dtx}
+
+\begingroup
+
+    \defbook{a}{A A, Title (2020); edition=3}
+    \AssertBox{\note{a}}{\InFootnote{\textsc{A A}, \textsc{Title} (3d ed.\
+    2020).}}
+    \defbook{b}{B B, Title (2020); edition={revision 3, special edition}}
+    \AssertBox{\note{b}}{\InFootnote{\textsc{B B}, \textsc{Title} (rev.\ 3,
+    spec.\ ed.\ 2020).}}
+
+    \defbook{c-d}{title=Compilation, year=2020, editor=C C, editor=D D}
+    \AssertBox{\note{c-d}}{\InFootnote{\textsc{Compilation} (C C \& D D eds.,
+    2020).}}
+
+\endgroup
+
+%</test>

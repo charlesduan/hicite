@@ -1055,6 +1055,8 @@ Rev. Online}
 \AssertBox{\hi@abbrev@journal{Southern California Law Review}\@iden}{S. Cal. L.
 Rev.}
 
+\AssertBox{\hi@abbrev@pub{special revised edition}\@iden}{spec. rev. ed.}
+
 %%
 %% \iffalse filename: fonts.dtx \fi
 %%
@@ -3301,11 +3303,7 @@ year=1954,
     \ifx\reserved@a\@empty
         \edef\hi@kv@edition{#1\hi@numtoord{#1} ed.}%
     \else
-        \find@in{ }{#1}{%
-            \def\hi@kv@edition{#1}\@gobbletwo
-        }{%
-            \def\hi@kv@edition{#1 ed.}%
-        }%
+        \hi@abbrev@pub{#1}{\def\hi@kv@edition}%
     \fi
 }
 \hi@defparam{editor}{Editor(s) of book}{%
@@ -3328,6 +3326,23 @@ year=1954,
 \hi@newparam@noval{singleauthor}{All works in a collection are by one author}
 \hi@newparam@noval{usetitle}{Use title rather than author in short cites}
 \hi@newparam@noval{useissue}{Include issue number in journal citations}
+\section{bookparams.dtx}
+
+\begingroup
+
+    \defbook{a}{A A, Title (2020); edition=3}
+    \AssertBox{\note{a}}{\InFootnote{\textsc{A A}, \textsc{Title} (3d ed.\
+    2020).}}
+    \defbook{b}{B B, Title (2020); edition={revision 3, special edition}}
+    \AssertBox{\note{b}}{\InFootnote{\textsc{B B}, \textsc{Title} (rev.\ 3,
+    spec.\ ed.\ 2020).}}
+
+    \defbook{c-d}{title=Compilation, year=2020, editor=C C, editor=D D}
+    \AssertBox{\note{c-d}}{\InFootnote{\textsc{Compilation} (C C \& D D eds.,
+    2020).}}
+
+\endgroup
+
 %%
 %% \iffalse filename: refparams.dtx \fi
 %%
