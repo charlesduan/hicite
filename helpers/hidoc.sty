@@ -8,6 +8,7 @@
 \setmonofont[Scale=MatchLowercase]{Source Code Pro}
 \RequirePackage{etoolbox}
 \RequirePackage{strings}
+\def\hia*{\emph{Hereinafter}}
 %
 % Doc options
 %
@@ -16,12 +17,33 @@
 \NewDocElement[noprint=true,idxgroup=,noprint]{Param}{parameter}
 \NewDocElement[noprint=true,idxgroup=,noprint]{Opt}{option}
 \NewDocElement[noprint=true,idxgroup=,noprint]{RefType}{reference type}
+\NewDocElement[noprint=true,idxgroup=,noprint]{Abb}{abbreviation scheme}
 \def\main#1{#1}
 \def\usage#1{\textbf{\underline{#1}}}
 \def\IndexPrologue{Underlined page numbers describe where a command, parameter,
 reference type, or other item is described in detail. Other page numbers
 identify where the item is used.}
 \setcounter{IndexColumns}{2}
+%
+% Macros for cross-referencing
+%
+\def\pt#1{the main documentation}
+\def\param#1{\hyperref[param:#1]{\textsf{%
+    \SpecialMainParamIndex{#1}%
+    \color{blue}#1%
+}}}
+\def\opt#1{\hyperref[opt:#1]{\textsf{%
+    \SpecialMainOptIndex{#1}%
+    \color{violet}#1%
+}}}
+\def\rtype#1{\hyperref[rtype:#1]{\textsf{%
+    \SpecialMainRefTypeIndex{#1}%
+    \color{red}#1%
+}}}
+\def\abbscheme#1{\hyperref[abbscheme:#1]{\textsf{%
+    \SpecialMainAbbIndex{#1}%
+    \color{brown}#1%
+}}}
 \sloppy
 \begingroup
     \catcode`\<=\active
@@ -87,20 +109,6 @@ identify where the item is used.}
 }
 \def\sec#1{\find@in{-}{#1}{\@tworun\sec\@gobble}{\texttt{#1.dtx}}}
 \make@find@in{-}
-\def\hia*{\emph{Hereinafter}}
-\def\pt#1{the main documentation}
-\def\param#1{\hyperref[param:#1]{\textsf{%
-    \SpecialMainParamIndex{#1}%
-    \color{blue}#1%
-}}}
-\def\opt#1{\hyperref[opt:#1]{\textsf{%
-    \SpecialMainOptIndex{#1}%
-    \color{violet}#1%
-}}}
-\def\rtype#1{\hyperref[rtype:#1]{\textsf{%
-    \SpecialMainRefTypeIndex{#1}%
-    \color{red}#1%
-}}}
 \def\parameterlist#1#2#3\@stop{%
     \par\hangindent=2\parindent\indent
     \textbf{\parameterlist@params#1, \@stop}: #2\par

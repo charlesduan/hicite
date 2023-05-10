@@ -670,4 +670,10 @@ open('hi-publish.tex', 'w') do |io|
   ) do |text, abb, comment, alt|
     io.puts(make_statement(text, abb, comment, alt))
   end
+  io.puts("% Additional abbreviations")
+  io.puts("\\hi@abbrev{translators}{trans.}")
+  io.puts("\\hi@abbrev{editors}{eds.}")
+  io.puts("\\hi@abbrev{Number}{No.}")
+  io.puts("\\hi@abbrev{number}{no.}")
+  io.puts("\\hi@abbrev{and}{\\&}")
 end

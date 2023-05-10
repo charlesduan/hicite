@@ -48,7 +48,11 @@ an abbreviated word is followed by a dot in the original text (e.g., in a URL).
 
 
 \subsection{Cases and Other Names}
+\label{abbscheme:name}
+\label{abbscheme:inlcase}
 
+\DescribeAbb{name}
+\DescribeAbb{inlcase}
 Case names must be abbreviated in two ways: for inline citations (with only a
 few words abbreviated), and for non-inline citations. In addition to the
 standard abbreviation rules, there is a set of words that are unabbreviatable
@@ -58,8 +62,9 @@ the state in criminal cases).
 The case name abbreviation rule is also applied to other names, such as
 institutional authors and agencies.
 
-The case abbreviation scheme is called |name|, and the inline case abbreviation
-scheme is |inlcase|.
+The case abbreviation scheme is called \abbscheme{name}, and the inline case
+abbreviation
+scheme is \abbscheme{inlcase}.
 
 %</doc>
 %<*package>
@@ -122,10 +127,13 @@ scheme is |inlcase|.
 %<*doc>
 
 \subsection{Legislative Materials}
+\label{abbscheme:leg}
 
+\DescribeAbb{leg}
 Legislative materials use the standard abbreviation rule, with just a different
 table. However, ``Senate,'' ``House,'' and ``House of
-Representatives'' alone are not abbreviated. The scheme is called |leg|.
+Representatives'' alone are not abbreviated. The scheme is called
+\abbscheme{leg}.
 
 %</doc>
 %<*package>
@@ -152,9 +160,11 @@ Representatives'' alone are not abbreviated. The scheme is called |leg|.
 %<*doc>
 
 \subsection{Court Documents}
+\label{abbscheme:cdoc}
 
+\DescribeAbb{cdoc}
 Court documents use the standard abbreviation rule, with just a different
-table. The scheme is called |cdoc|.
+table. The scheme is called \abbscheme{cdoc}.
 
 %</doc>
 %<*package>
@@ -176,10 +186,12 @@ table. The scheme is called |cdoc|.
 %<*doc>
 
 \subsection{Journals}
+\label{abbscheme:journal}
 
+\DescribeAbb{journal}
 Journal titles require the most complex scheme for abbreviation, because they do
 not follow the usual abbreviation rules in several ways. The scheme for these
-abbreviations is |journal|.
+abbreviations is \abbscheme{journal}.
 
 Initially, some reference types perform a check on journal names to see if they
 were entered already abbreviated (based on the presence of any dots in the
@@ -300,7 +312,9 @@ institutional and subject-matter word dots.
 %<*doc>
 
 \subsection{Procedural Phrases}
+\label{abbscheme:expl}
 
+\DescribeAbb{expl}
 Procedural phrases use a unique set of word-based abbreviations, but there is
 also a defined list of standard procedural phrases. Additionally, there is a
 rule about use of commas at the end of phrases. Thus, the abbreviation algorithm
@@ -309,7 +323,7 @@ predefined one, then the predefined abbreviated phrase is returned, with comma
 usage established. If it is not, then the phrase is abbreviated, but a warning
 is issued because the correctness of any trailing comma cannot be established.
 
-The abbreviation scheme is called |expl|.
+The abbreviation scheme is called \abbscheme{expl}.
 
 \DescribeMacro\ExplanatoryPhrase
 The macro |\ExplanatoryPhrase|\marg{phrase} defines a new explanatory phrase.
@@ -379,7 +393,9 @@ needed.
 %<*doc>
 
 \subsection{Publishing Terms}
+\label{abbscheme:pub}
 
+\DescribeAbb{pub}
 Abbreviations for publishing terms are used in the book publication
 parenthetical, described in \sec{bookrefs-pubparen}. The scheme is called |pub|.
 

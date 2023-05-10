@@ -87,7 +87,8 @@ journals.
 \keyparameters{
     {author, name}{The author(s) and title of the article.}
     {vol, rep, page, cite}{The citation information for locating the article.
-    The journal title is given in \param{rep}, and should be unabbreviated. If
+    The journal title is given in \param{rep}, and should be unabbreviated as it
+    will be abbreviated according to the \abbscheme{journal} scheme. If
     the page is ``forthcoming,'' then it is treated as if the
     \param{forthcoming} parameter were set.}
     {forthcoming}{Indicates that the article is not yet published. The date
@@ -207,7 +208,8 @@ scholarly weight.
 \keyparameters{
     {author, name}{The author(s) and title of the article.}
     {rep, page}{The citation information for locating the article.
-    The journal title is given in \param{rep}, and should be unabbreviated.}
+    The journal title is given in \param{rep}, and will be abbreviated according
+    to the \abbscheme{journal} scheme.}
     {year}{The issue date of the magazine.}
 }
 \optparameters{
@@ -252,7 +254,8 @@ type.
 
 The parameters are the same as those for \rtype{magart}. However, \param{rep} is
 optional, which can be occasionally useful for web pages that don't have a site
-title separate from a particular page title.
+title separate from a particular page title. If given, \param{rep} will be
+abbreviated according to the \abbscheme{journal} scheme.
 \bookparenparameters
 
 %</doc>

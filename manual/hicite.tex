@@ -2691,7 +2691,11 @@ an abbreviated word is followed by a dot in the original text (e.g., in a URL).
 \end{itemize}
 
 \subsection{Cases and Other Names}
+\label{abbscheme:name}
+\label{abbscheme:inlcase}
 
+\DescribeAbb{name}
+\DescribeAbb{inlcase}
 Case names must be abbreviated in two ways: for inline citations (with only a
 few words abbreviated), and for non-inline citations. In addition to the
 standard abbreviation rules, there is a set of words that are unabbreviatable
@@ -2701,28 +2705,36 @@ the state in criminal cases).
 The case name abbreviation rule is also applied to other names, such as
 institutional authors and agencies.
 
-The case abbreviation scheme is called |name|, and the inline case abbreviation
-scheme is |inlcase|.
+The case abbreviation scheme is called \abbscheme{name}, and the inline case
+abbreviation
+scheme is \abbscheme{inlcase}.
 
 
 \subsection{Legislative Materials}
+\label{abbscheme:leg}
 
+\DescribeAbb{leg}
 Legislative materials use the standard abbreviation rule, with just a different
 table. However, ``Senate,'' ``House,'' and ``House of
-Representatives'' alone are not abbreviated. The scheme is called |leg|.
+Representatives'' alone are not abbreviated. The scheme is called
+\abbscheme{leg}.
 
 
 \subsection{Court Documents}
+\label{abbscheme:cdoc}
 
+\DescribeAbb{cdoc}
 Court documents use the standard abbreviation rule, with just a different
-table. The scheme is called |cdoc|.
+table. The scheme is called \abbscheme{cdoc}.
 
 
 \subsection{Journals}
+\label{abbscheme:journal}
 
+\DescribeAbb{journal}
 Journal titles require the most complex scheme for abbreviation, because they do
 not follow the usual abbreviation rules in several ways. The scheme for these
-abbreviations is |journal|.
+abbreviations is \abbscheme{journal}.
 
 Initially, some reference types perform a check on journal names to see if they
 were entered already abbreviated (based on the presence of any dots in the
@@ -2754,7 +2766,9 @@ institutional and subject-matter word dots.
 
 
 \subsection{Procedural Phrases}
+\label{abbscheme:expl}
 
+\DescribeAbb{expl}
 Procedural phrases use a unique set of word-based abbreviations, but there is
 also a defined list of standard procedural phrases. Additionally, there is a
 rule about use of commas at the end of phrases. Thus, the abbreviation algorithm
@@ -2763,7 +2777,7 @@ predefined one, then the predefined abbreviated phrase is returned, with comma
 usage established. If it is not, then the phrase is abbreviated, but a warning
 is issued because the correctness of any trailing comma cannot be established.
 
-The abbreviation scheme is called |expl|.
+The abbreviation scheme is called \abbscheme{expl}.
 
 \DescribeMacro\ExplanatoryPhrase
 The macro |\ExplanatoryPhrase|\marg{phrase} defines a new explanatory phrase.
@@ -2772,7 +2786,9 @@ needed.
 
 
 \subsection{Publishing Terms}
+\label{abbscheme:pub}
 
+\DescribeAbb{pub}
 Abbreviations for publishing terms are used in the book publication
 parenthetical, described in \sec{bookrefs-pubparen}. The scheme is called |pub|.
 
@@ -3309,14 +3325,18 @@ parties and a topical name.
 
 These inputs are used to produce five formatted names for the case:
 \begin{itemize}
-\item The full title, used in full inline citations.
-\item The abbreviated full title, used in full non-inline citations.
+\item The full title, used in full inline citations. This is abbreviated
+according to the \abbscheme{inlcase} scheme.
+\item The abbreviated full title, used in full non-inline citations. This is
+abbreviated according to the \abbscheme{name} scheme.
 \item The abbreviated full title to be used in the Table of Authorities. This
 differs in spacing (an optional line break is placed before the versus) and in
 text order (phrases like \emph{In re} are placed at the end rather than the
-beginning).
-\item The short form for inline citations.
-\item The abbreviated short form for non-inline citations.
+beginning). It is abbreviated according to the \abbscheme{inlcase} scheme.
+\item The short form for inline citations, abbreviated with the
+\abbscheme{inlcase} scheme.
+\item The abbreviated short form for non-inline citations, using the
+\abbscheme{name} scheme.
 \end{itemize}
 
 
@@ -3635,7 +3655,7 @@ There is not really a need for automation of these kinds of citations.
 
 \keyparameters{
     {name, inline}{Full and short names for the document. They will be
-    abbreviated according to the \textsc{cdoc} scheme.}
+    abbreviated according to the \abbscheme{cdoc} scheme.}
     {number}{The document number of the document being cited, if one is present.
     The phrase ``Doc.~No.''\ will be prepended to it, and the number will be
     made a parenthetical to the citation. If \param{inline} is not given, then
@@ -3681,7 +3701,7 @@ defined as a separate reference.
 }
 \optparameters{
     {place, state}{The state from which this constitution originates, if not
-    ``U.S\@.'' The place will be abbreviated using the \texttt{name} scheme.}
+    ``U.S\@.'' The place will be abbreviated using the \abbscheme{name} scheme.}
     {year}{The year of adoption, for superseded constitutions. To enter years
     for adoption of specific amendments or provisions, use \param{paren}.}
 }
@@ -3923,7 +3943,8 @@ those for \rtype{statcode}.
                 \hi@pstruct@use@font{rep}\hi@fn@statute\space
                 \hi@pstruct@call{page}{\noexpand\@format@page@macro}%
             }%
-            \hi@book@lcpost
+            \hi@book@paren
+            \the\hi@param@parens
         }%
         \hi@inline@only{%
             \hi@citeguts{%
@@ -4139,7 +4160,7 @@ into the above categories.
     ``introduced,'' ``reported by \meta{committee},'' or ``passed by Senate.''
     This will be added before the date, so no qualifier should be added before
     the date if this parameter is used. Text after ``by'' will be abbreviated
-    according to the \texttt{leg} abbreviation scheme (see \sec{abbrevs}).}
+    according to the \abbscheme{leg} abbreviation scheme.}
 }
 \hi@newcite\defcongdoc{A Congressional numbered document}{%
     \hi@citetype{#1}\hi@type@other
@@ -4251,6 +4272,7 @@ This is essentially a more structured citation to a book.
 \hi@newcite\defcongrec{A Congressional Record debate}{%
     \expandafter\hi@congrec@testpg\hi@kv@page\@stop
     \hi@book@pubparen
+    \hi@ifset\hi@kv@year{}{\PackageError\hi@pkgname{Year is required for #1}}%
     \hi@citetype{#1}\hi@type@other
     \hi@newcite@form{fc}{#1}{%
         \hi@citeguts{%
@@ -4258,10 +4280,7 @@ This is essentially a more structured citation to a book.
             \noexpand\hi@fn@congdoc{\hi@kv@rep}\space
             \hi@ifpage{\hi@maybepage{}}{\@format@page@macro\hi@kv@page}%
         }%
-        \hi@parens@add\hi@paren@date{%
-            \hi@book@paren
-            \hi@pstruct@use{year}%
-        }%
+        \hi@book@paren
         \the\hi@param@parens
     }%
     \hi@newcite@form{sc}{#1}{%
@@ -4531,7 +4550,7 @@ origin of the document.
     {name}{The title of the document.}
     {author, instauth, agency, court}{The name of the agency or institution
     issuing the document. It should be abbreviated according to the
-    \texttt{name} scheme (see \sec{abbrevs}). If \param{instauth} or
+    \abbscheme{name} scheme. If \param{instauth} or
     \param{agency} are used, this will be done automatically.}
     {vol, rep, page, cite}{The citation locator information for the document, if
     the document was published in a reporter. The reporter should be abbreviated
@@ -4677,15 +4696,15 @@ a common parenthetical used across many citation types.
 Many citation types accept a common parenthetical that contains a date of
 publication and other publication information, such as editions, editors, and
 publishers. This standard parenthetical accepts the following parameters, all of
-which are optional other than the year:
+which are optional (although some reference types will require \param{year}):
 
 \optparameters{
     {editor}{Names of one or more editors of the book.}
     {edtype}{The abbreviation to follow the editor names, by default ``ed.''\ or
     ``eds.''}
-    {number}{A serial number for the book. The number must contain a comma,
-    separating the publisher from the serial number. (Books will use serial
-    numbers with no commas for another purpose.)}
+    {number}{A serial number for the book. This parameter is used only if
+    \param{publisher} is also given. (For \rtype{book} references, a serial
+    number with no publisher will be used differently.)}
     {edition}{The edition number of the book. An ordinal suffix will be added.}
     {publisher}{The name of the publisher.}
     {forthcoming}{If set, the word ``forthcoming'' will be added to the
@@ -4721,15 +4740,16 @@ which are optional other than the year:
                     }{}%
                 }%
                 \hi@ifset\hi@kv@number{%
-                    \noexpand\hi@fn@booktitle{\hi@kv@number}, % space
+                    \hi@ifset\hi@kv@publisher{}{%
+                        \noexpand\hi@fn@booktitle{%
+                            \hi@abbrev@pub{\hi@kv@number}{\@iden}%
+                        }, % space
+                    }%
                 }{}%
                 \hi@pstruct@use@font{name}\hi@fn@booktitle
                 \hi@maybepage{\hi@page@space\hi@kv@name}%
             }%
-            \hi@parens@add\hi@paren@date{%
-                \hi@book@paren
-                \hi@pstruct@use{year}%
-            }%
+            \hi@book@paren
             \the\hi@param@parens
         \noexpand\fi
     }%
@@ -4747,7 +4767,10 @@ which are optional other than the year:
                 \hi@maybepage{\hi@page@space\hi@kv@name}%
                 % The \reserved@a is to get the parens outside of \hi@citeguts
                 % which is added kn \hi@toa@duptitle
-                \gdef\noexpand\reserved@a{\hi@book@lcpost}%
+                \gdef\noexpand\reserved@a{%
+                    \hi@book@paren
+                    \the\hi@param@parens
+                }%
                 \noexpand\aftergroup\noexpand\reserved@a
             }{%
                 \hi@maybepage{ }%
@@ -5008,7 +5031,8 @@ journals.
 \keyparameters{
     {author, name}{The author(s) and title of the article.}
     {vol, rep, page, cite}{The citation information for locating the article.
-    The journal title is given in \param{rep}, and should be unabbreviated. If
+    The journal title is given in \param{rep}, and should be unabbreviated as it
+    will be abbreviated according to the \abbscheme{journal} scheme. If
     the page is ``forthcoming,'' then it is treated as if the
     \param{forthcoming} parameter were set.}
     {forthcoming}{Indicates that the article is not yet published. The date
@@ -5118,7 +5142,8 @@ scholarly weight.
 \keyparameters{
     {author, name}{The author(s) and title of the article.}
     {rep, page}{The citation information for locating the article.
-    The journal title is given in \param{rep}, and should be unabbreviated.}
+    The journal title is given in \param{rep}, and will be abbreviated according
+    to the \abbscheme{journal} scheme.}
     {year}{The issue date of the magazine.}
 }
 \optparameters{
@@ -5129,6 +5154,7 @@ scholarly weight.
 \hi@newcite\defwebsite{A web site or generic citation}{%
     \hi@citetype{#1}\hi@type@other
     \hi@book@pubparen
+    \hi@ifset\hi@kv@year{}{\PackageError\hi@pkgname{Year is required for #1}}%
     \hi@ifset\hi@kv@rep{\hi@abbrev@journal@check}{}%
     \hi@newcite@form{fc}{#1}{%
         \hi@citeguts{%
@@ -5142,12 +5168,7 @@ scholarly weight.
             }{}%
             \hi@maybepage{ }%
         }%
-        \hi@ifset\hi@kv@year{%
-            \hi@parens@add\hi@paren@date{%
-                \hi@book@paren
-                \hi@pstruct@use{year}%
-            }%
-        }{}%
+        \hi@book@paren
         \the\hi@param@parens
     }%
     \protected@edef\reserved@a{%
@@ -5164,7 +5185,8 @@ type.
 
 The parameters are the same as those for \rtype{magart}. However, \param{rep} is
 optional, which can be occasionally useful for web pages that don't have a site
-title separate from a particular page title.
+title separate from a particular page title. If given, \param{rep} will be
+abbreviated according to the \abbscheme{journal} scheme.
 \bookparenparameters
 
 \hi@newcite\defmanuscript{An unpublished manuscript}{%
@@ -5208,7 +5230,9 @@ dissertations, manuscripts, and reports.
             \hi@maybepage{ }%
         }%
         \hi@parens@add{\hi@paren@date}{%
-            \hi@kv@publisher, \hi@kv@number, \hi@kv@year
+            \hi@kv@publisher,
+            \hi@abbrev@pub{\hi@kv@number}{\@iden},
+            \hi@kv@year
         }%
         \the\hi@param@parens
     }%
@@ -5227,7 +5251,8 @@ This is for working papers with a serial number issued by an institution.
     {author, name}{The author(s) and title of the paper.}
     {publisher}{The name of the institution publishing the working paper.}
     {number}{The serial number, with series name (e.g., ``Economics Working
-    Paper No. X'').}
+    Paper No. X''). See the \param{serial} param to set this and the publisher
+    simultaneously.}
     {year}{The date of the paper.}
 }
 
@@ -5665,25 +5690,18 @@ data entry.
 \hi@newcite\defrfc{An IETF Request for Comments}{%
     \hi@citetype{#1}\hi@type@other
     \expandafter\hi@book@titlethe\expandafter{\hi@kv@name}%
+    \hi@abbrev@name{Internet Engineering Task Force}{\def\hi@kv@publisher}%
     \protected@edef\reserved@a{%
         https://www.rfc-editor.org/rfc\hi@kv@number.txt%
     }
+    \protected@edef\hi@kv@number{RFC \hi@kv@number}%
     \@expand{\hi@defkey@url{}}\reserved@a i\@empty
     \hi@newcite@form{ic}{#1}{%
-        RFC \hi@kv@number
+        \hi@kv@number
     }%
-    \protected@edef\reserved@a{%
-        RFC \hi@kv@number
-    }
-    \@expand{\hi@supra@form{#1}}\reserved@a i%
-    %
-    % Full cite is done last because \hi@kv@number is modified by
-    % \hi@book@pubparen
-    %
-    \protected@edef\hi@kv@number{%
-        Internet Engineering Task Force, RFC \hi@kv@number
-    }%
+    \@expand{\hi@supra@form{#1}}\hi@kv@number i%
     \hi@book@pubparen
+    \hi@ifset\hi@kv@year{}{\PackageError\hi@pkgname{Year is required for #1}}%
     \hi@newcite@form{fc}{#1}{%
         \hi@ifset\hi@kv@author{%
             \noexpand\@gobble{\hi@kv@authln}%
@@ -5698,10 +5716,7 @@ data entry.
                 \hi@fn@booktitle{\hi@kv@name}%
                 \hi@maybepage{\hi@page@space\hi@kv@name}%
             }%
-            \hi@parens@add\hi@paren@date{%
-                \hi@book@paren
-                \hi@kv@year
-            }%
+            \hi@book@paren
             \the\hi@param@parens
         \noexpand\fi
     }%
@@ -6361,13 +6376,15 @@ work, which may or may not contain text prefixes. Examples are patent numbers
 (\rtype{patent}), bill numbers (\rtype{bill}), and constitutional amendments
 (\rtype{constamend}). For most reference types (patents being an exception), the
 number is not analyzed or formatted in any way.
+
+For \ref{book} and \ref{workingpaper} references, consider also the
+\param{serial} parameter to set the \param{publisher} parameter as well.
 \hi@newparam{page}{Page number}
 See \sec{pages} for the usual formatting of this parameter's value.
 \hi@param@alias{pages}{page}
 \hi@newparam{rep}{Reporter or journal name}%
 Whether the value of this parameter needs to be abbreviated will depend on the
 reference type.
-\hi@param@alias{serial}{number}
 \hi@param@alias{series}{number}
 \hi@param@alias{short}{inline}
 \hi@param@alias{shorttitle}{inline}
@@ -6535,7 +6552,7 @@ the
 }
 If the value is a number, then it will be converted to an ordinal number (e.g.,
 |3| becomes ``3d'') and the word ``ed.''\ will be appended to it. Otherwise, the
-value is abbreviated in accordance with the |pub| abbreviation scheme.
+value is abbreviated in accordance with the \abbscheme{pub} abbreviation scheme.
 \hi@defparam{editor}{Editor(s) of book}{%
     \hi@nameproc@person{#1}{\hi@namelist@addtwo\hi@kv@editor\relax}%
 }
@@ -6544,11 +6561,14 @@ editor, enter this parameter as many times as needed, but \param{noetal} must be
 used if there are three or more editors. The ``\param{editor}'' parameter is
 also used for translators or other roles; see \param{edtype}. For institutional
 editors, see parameter \param{insted}.
-\hi@newparam{edtype}{Editor type (default ed.)}
+\hi@defparam{edtype}{Editor type (default ed.)}{%
+    \hi@abbrev@pub{#1}{\def\hi@kv@edtype}%
+}
 Changes the abbreviation placed after the editors. For example, use ``trans.''\
 for translators, and ``eds.\ \& trans.''\ for editors who also translated. Note
 that there is currently no support for works with an editor who is different
-from a translator.
+from a translator. This will be abbreviated according to the \abbscheme{pub}
+abbreviation scheme.
 \hi@newparam@noval{forthcoming}{Journal article is forthcoming}
 \hi@defparam{in}{Reference name of a citation that the current item is in}{%
     \hi@anonref{#1}{\def\hi@kv@in}%
@@ -6568,6 +6588,22 @@ This is useful if the journal was entered abbreviated already.
 \hi@defparam{publisher}{Publisher of book}{%
     \hi@abbrev@name{#1}{\def\hi@kv@publisher}%
 }
+The publisher name will automatically be abbreviated by the \abbscheme{name}
+abbreviation
+scheme.
+\hi@defparam{serial}{Serial number of a published work}{%
+    \find@in{: }{#1}{%
+        \@tworun\KV@hi@publisher\KV@hi@number
+    }{%
+        \find@in{, }{#1}{%
+            \@tworun\KV@hi@publisher\KV@hi@number
+        }{\KV@hi@number{#1}}%
+    }%
+}
+\make@find@in{: }
+\make@find@in{, }
+This parameter is essentially an alias for \param{number}, except if it contains
+a comma or colon, the prefix is used to set the \param{publisher} parameter.
 \hi@newparam@noval{singleauthor}{All works in a collection are by one author}
 This is used in \rtype{citecontainer} to change the font used for the author.
 \hi@newparam@noval{usetitle}{Use title rather than author in short cites}
@@ -6755,7 +6791,8 @@ of a string. The callback receives only two arguments.
 
 This package provides for abbreviating texts according to tables of
 abbreviations. It also provides functions for removing spaces between dotted
-initials.
+initials. The abbreviation algorithms are fully expandable so that they may be
+used within |\edef| definitions.
 
 \subsection{Abbreviation Classes}
 

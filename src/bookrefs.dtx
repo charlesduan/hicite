@@ -44,32 +44,32 @@ which are optional (although some reference types will require \param{year}):
     \let\hi@book@paren\@empty  % Date parenthetical
     \let\hi@book@sep\@empty % What separator to add next
     \hi@ifset\hi@kv@editor{%
+        \@expandarg\hi@book@pubparen@add{\hi@kv@editor}{, }%
         \hi@ifset\hi@kv@edtype{%
-            \ifstrempty\hi@kv@edtype{}{%
-                \addto@macro\hi@kv@editor{ }%
-                \add@macro@to@macro\hi@kv@editor\hi@kv@edtype
-            }%
+            \ifx\hi@kv@edtype\@empty\else
+                \addto@macro\hi@book@paren{ }%
+                \add@macro@to@macro\hi@book@paren\hi@kv@edtype
+            \fi
         }{%
             \@expand{\find@in@cs{hi@namelist@and}}{\hi@kv@editor}{i}{%
-                \addto@macro\hi@kv@editor{ eds.}\@gobbletwo
+                \addto@macro\hi@book@paren{ eds.}\@gobbletwo
             }{%
                 \@expand{\find@end{ et al.}}{\hi@kv@editor}{i}{%
-                    \addto@macro\hi@kv@editor{ eds.}\@gobble
+                    \addto@macro\hi@book@paren{ eds.}\@gobble
                 }{%
-                    \addto@macro\hi@kv@editor{ ed.}%
+                    \addto@macro\hi@book@paren{ ed.}%
                 }%
             }%
         }%
-        \@expandarg\hi@book@pubparen@add{\hi@kv@editor}{, }%
-    }{}%
-    \hi@ifset\hi@kv@edition{%
-        \@expandarg\hi@book@pubparen@add{\hi@kv@edition}{ }%
     }{}%
     \hi@ifset\hi@kv@publisher{%
         \@expandarg\hi@book@pubparen@add{\hi@kv@publisher}{ }%
         \hi@ifset\hi@kv@number{%
             \@expandarg\hi@abbrev@pub{\hi@kv@number}{\hi@book@pubparen@add}{, }%
-        }%
+        }{}%
+    }{}%
+    \hi@ifset\hi@kv@edition{%
+        \@expandarg\hi@book@pubparen@add{\hi@kv@edition}{ }%
     }{}%
     \hi@ifset\hi@kv@forthcoming{%
         \hi@book@pubparen@add{forthcoming}{ }%
@@ -95,8 +95,8 @@ which are optional (although some reference types will require \param{year}):
 %
 %    \begin{macrocode}
 \def\hi@book@pubparen@add#1#2{%
-    \ifx\hi@book@paren\@empty\else \addto@macro\hi@book@pubparen{, }\fi
-    \addto@macro\hi@book@pubparen{#1}%
+    \ifx\hi@book@paren\@empty\else \addto@macro\hi@book@paren{, }\fi
+    \addto@macro\hi@book@paren{#1}%
     \def\hi@book@sep{#2}%
 }
 %    \end{macrocode}
@@ -140,10 +140,7 @@ which are optional (although some reference types will require \param{year}):
                 \hi@pstruct@use@font{name}\hi@fn@booktitle
                 \hi@maybepage{\hi@page@space\hi@kv@name}%
             }%
-            \hi@parens@add\hi@paren@date{%
-                \hi@book@paren
-                \hi@pstruct@use{year}%
-            }%
+            \hi@book@paren
             \the\hi@param@parens
         \noexpand\fi
     }%
@@ -644,3 +641,85 @@ information, instead of the \param{citation} parameter.
 %    \end{macrocode}
 %</package>
 %<*test>
+
+\section{bookrefs.dtx}
+
+\subsection{Publication Parenthetical}
+
+\begingroup
+    \hi@param@clear
+
+    \hi@book@pubparen
+    \AssertMacro\hi@book@paren{}
+
+    \def\hi@kv@year{2010}
+    \hi@book@pubparen
+    \AssertMacro\hi@book@paren{%
+        \hi@parens@add\hi@paren@date{\hi@pstruct@use{year}}%
+    }%
+
+    \def\hi@kv@edition{3d ed.}
+    \hi@book@pubparen
+    \AssertMacro\hi@book@paren{%
+        \hi@parens@add\hi@paren@date{3d ed. \hi@pstruct@use{year}}%
+    }%
+
+    \def\hi@kv@publisher{Doubleday}
+    \hi@book@pubparen
+    \AssertMacro\hi@book@paren{%
+        \hi@parens@add\hi@paren@date{%
+            Doubleday, 3d ed. \hi@pstruct@use{year}%
+        }%
+    }%
+
+    \KV@hi@editor{E E}
+    \KV@hi@editor{F F}
+    \hi@book@pubparen
+    \AssertMacro\hi@book@paren{%
+        \hi@parens@add\hi@paren@date{%
+            E E\hi@namelist@and F F eds.,
+            Doubleday, 3d ed. \hi@pstruct@use{year}%
+        }%
+    }%
+
+    \KV@hi@edtype{translators}
+    \hi@book@pubparen
+    \AssertMacro\hi@book@paren{%
+        \hi@parens@add\hi@paren@date{%
+            E E\hi@namelist@and F F trans.,
+            Doubleday, 3d ed. \hi@pstruct@use{year}%
+        }%
+    }%
+
+    \KV@hi@forthcoming{}
+    \hi@book@pubparen
+    \AssertMacro\hi@book@paren{%
+        \hi@parens@add\hi@paren@date{%
+            E E\hi@namelist@and F F trans.,
+            Doubleday, 3d ed., forthcoming \hi@pstruct@use{year}%
+        }%
+    }%
+
+    \hi@param@clear
+
+    \KV@hi@serial{Congressional Research Service, Report No. A12345}
+    \hi@book@pubparen
+    \AssertMacro\hi@book@paren{%
+        \hi@parens@add\hi@paren@date{%
+            Cong. Rsch. Serv., Report No. A12345%
+        }%
+    }%
+
+    \def\hi@kv@year{1998}
+    \hi@book@pubparen
+    \AssertMacro\hi@book@paren{%
+        \hi@parens@add\hi@paren@date{%
+            Cong. Rsch. Serv., Report No. A12345, \hi@pstruct@use{year}%
+        }%
+    }%
+
+
+\endgroup
+
+
+%</test>

@@ -26,7 +26,7 @@ the
 %<*doc>
 If the value is a number, then it will be converted to an ordinal number (e.g.,
 |3| becomes ``3d'') and the word ``ed.''\ will be appended to it. Otherwise, the
-value is abbreviated in accordance with the |pub| abbreviation scheme.
+value is abbreviated in accordance with the \abbscheme{pub} abbreviation scheme.
 %</doc>
 %
 \hi@defparam{editor}{Editor(s) of book}{%
@@ -40,12 +40,15 @@ also used for translators or other roles; see \param{edtype}. For institutional
 editors, see parameter \param{insted}.
 %</doc>
 %
-\hi@newparam{edtype}{Editor type (default ed.)}
+\hi@defparam{edtype}{Editor type (default ed.)}{%
+    \hi@abbrev@pub{#1}{\def\hi@kv@edtype}%
+}
 %<*doc>
 Changes the abbreviation placed after the editors. For example, use ``trans.''\
 for translators, and ``eds.\ \& trans.''\ for editors who also translated. Note
 that there is currently no support for works with an editor who is different
-from a translator.
+from a translator. This will be abbreviated according to the \abbscheme{pub}
+abbreviation scheme.
 %</doc>
 %
 \hi@newparam@noval{forthcoming}{Journal article is forthcoming}
@@ -76,6 +79,12 @@ This is useful if the journal was entered abbreviated already.
 \hi@defparam{publisher}{Publisher of book}{%
     \hi@abbrev@name{#1}{\def\hi@kv@publisher}%
 }
+%<*doc>
+The publisher name will automatically be abbreviated by the \abbscheme{name}
+abbreviation
+scheme.
+%</doc>
+%
 \hi@defparam{serial}{Serial number of a published work}{%
     \find@in{: }{#1}{%
         \@tworun\KV@hi@publisher\KV@hi@number
@@ -115,6 +124,30 @@ This is used in \rtype{citecontainer} to change the font used for the author.
     \AssertBox{\note{c-d}}{\InFootnote{\textsc{Compilation} (C C \& D D eds.,
     2020).}}
 
+\endgroup
+
+\begingroup
+    \let\hi@kv@publisher\@empty
+    \let\hi@kv@number\@empty
+
+    \KV@hi@serial{11}%
+    \AssertMacro\hi@kv@number{11}
+    \AssertMacro\hi@kv@publisher{}
+
+    \KV@hi@serial{Congressional Research Service, No. 12345}
+    \AssertMacro\hi@kv@number{No. 12345}
+    \AssertMacro\hi@kv@publisher{Cong. Rsch. Serv.}
+
+    \KV@hi@serial{Congressional Research Service: No. 12345}
+    \AssertMacro\hi@kv@number{No. 12345}
+    \AssertMacro\hi@kv@publisher{Cong. Rsch. Serv.}
+
+\endgroup
+
+\begingroup
+    \hi@param@clear
+    \KV@hi@edtype{editors and translators}
+    \AssertMacro\hi@kv@edtype{eds. \& trans.}
 \endgroup
 
 %</test>

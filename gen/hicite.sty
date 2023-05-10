@@ -5161,7 +5161,8 @@
                     }%
                 }%
             }%
-            \hi@book@lcpost
+            \hi@book@paren
+            \the\hi@param@parens
         }%
         \hi@inline@only{%
             \hi@citeguts{\noexpand\@nameuse{ic@#1}{st}}%
@@ -5215,7 +5216,8 @@
                 }%
             }%
         }%
-        \hi@book@lcpost
+        \hi@book@paren
+        \the\hi@param@parens
         \noexpand\hi@set@title{\hi@kv@vol/\hi@kv@rep}%
     }%
     \hi@ifset\hi@kv@origsect{%
@@ -5666,7 +5668,8 @@
                 \hi@pstruct@use@font{rep}\hi@fn@statute\space
                 \hi@pstruct@call{page}{\noexpand\@format@page@macro}%
             }%
-            \hi@book@lcpost
+            \hi@book@paren
+            \the\hi@param@parens
         }%
         \hi@inline@only{%
             \hi@citeguts{%
@@ -5906,6 +5909,7 @@
 \hi@newcite\defcongrec{A Congressional Record debate}{%
     \expandafter\hi@congrec@testpg\hi@kv@page\@stop
     \hi@book@pubparen
+    \hi@ifset\hi@kv@year{}{\PackageError\hi@pkgname{Year is required for #1}}%
     \hi@citetype{#1}\hi@type@other
     \hi@newcite@form{fc}{#1}{%
         \hi@citeguts{%
@@ -5913,10 +5917,7 @@
             \noexpand\hi@fn@congdoc{\hi@kv@rep}\space
             \hi@ifpage{\hi@maybepage{}}{\@format@page@macro\hi@kv@page}%
         }%
-        \hi@parens@add\hi@paren@date{%
-            \hi@book@paren
-            \hi@pstruct@use{year}%
-        }%
+        \hi@book@paren
         \the\hi@param@parens
     }%
     \hi@newcite@form{sc}{#1}{%
@@ -6179,80 +6180,56 @@
 %%
 \def\hi@book@pubparen{%
     \let\hi@book@paren\@empty  % Date parenthetical
+    \let\hi@book@sep\@empty % What separator to add next
     \hi@ifset\hi@kv@editor{%
+        \@expandarg\hi@book@pubparen@add{\hi@kv@editor}{, }%
         \hi@ifset\hi@kv@edtype{%
-            \ifstrempty\hi@kv@edtype{}{%
-                \addto@macro\hi@kv@editor{ }%
-                \add@macro@to@macro\hi@kv@editor\hi@kv@edtype
-            }%
+            \ifx\hi@kv@edtype\@empty\else
+                \addto@macro\hi@book@paren{ }%
+                \add@macro@to@macro\hi@book@paren\hi@kv@edtype
+            \fi
         }{%
             \@expand{\find@in@cs{hi@namelist@and}}{\hi@kv@editor}{i}{%
-                \addto@macro\hi@kv@editor{ eds.}\@gobbletwo
+                \addto@macro\hi@book@paren{ eds.}\@gobbletwo
             }{%
                 \@expand{\find@end{ et al.}}{\hi@kv@editor}{i}{%
-                    \addto@macro\hi@kv@editor{ eds.}\@gobble
+                    \addto@macro\hi@book@paren{ eds.}\@gobble
                 }{%
-                    \addto@macro\hi@kv@editor{ ed.}%
+                    \addto@macro\hi@book@paren{ ed.}%
                 }%
             }%
         }%
-        \def\hi@book@paren{\hi@kv@editor, }%
     }{}%
-    \hi@ifset\hi@kv@number{%
-        \@expand{\find@in{, }}\hi@kv@number i{\hi@book@serial}{}%
-    }{}%
-    % Previously there was a check to see if a year was present, but since this
-    % macro is now also used for statutes that might legitimately have no date,
-    % the year check was taken out.
-    \hi@ifset\hi@kv@edition{%
-        \addto@macro\hi@book@paren{%
-            \hi@kv@edition
-            \hi@ifset\hi@kv@publisher{, \hi@kv@publisher}{}%
-            \space}%
-    }{%
-        \hi@ifset\hi@kv@publisher{%
-            \addto@macro\hi@book@paren{\hi@kv@publisher\space}%
+    \hi@ifset\hi@kv@publisher{%
+        \@expandarg\hi@book@pubparen@add{\hi@kv@publisher}{ }%
+        \hi@ifset\hi@kv@number{%
+            \@expandarg\hi@abbrev@pub{\hi@kv@number}{\hi@book@pubparen@add}{, }%
         }{}%
-    }%
+    }{}%
+    \hi@ifset\hi@kv@edition{%
+        \@expandarg\hi@book@pubparen@add{\hi@kv@edition}{ }%
+    }{}%
     \hi@ifset\hi@kv@forthcoming{%
-        \addto@macro\hi@book@paren{forthcoming }%
+        \hi@book@pubparen@add{forthcoming}{ }%
     }{}%
-}
-\def\hi@book@serial#1#2{%
-    \find@in{, }{#2}{%
-        \PackageWarning\hi@pkgname{%
-            Found comma in serial number:\MessageBreak
-            institution=#1,\MessageBreak
-            number \@spaces=#2.\MessageBreak
-            I use commas to delimit institutions from serial\MessageBreak
-            numbers, so you should use braces so I know which\MessageBreak
-            comma actually belongs to a part.\MessageBreak
-            This occurred%
-        }%
-        \@gobbletwo
-    }{}%
-    % Abbreviate the first part.
-    \hi@abbrev@name{#1}{\def\hi@kv@number}%
-    \addto@macro\hi@kv@number{, #2}%
-    \expandafter\addto@macro\expandafter\hi@book@paren\expandafter{%
-        \hi@kv@number, %
-    }%
-    \hi@undefine\hi@kv@number % Date parenthetical
-}
-\def\hi@book@lcpost{%
     \hi@ifset\hi@kv@year{%
-        \hi@parens@add\hi@paren@date{%
-            \hi@book@paren
-            \hi@pstruct@use{year}%
-        }%
-    }{%
         \ifx\hi@book@paren\@empty\else
-            \hi@parens@add\hi@paren@date{%
-                \hi@book@paren
-            }%
+            \add@macro@to@macro\hi@book@paren\hi@book@sep
         \fi
-    }%
-    \the\hi@param@parens
+        \addto@macro\hi@book@paren{\hi@pstruct@use{year}}%
+    }{}%
+    \ifx\hi@book@paren\@empty\else
+        \edef\hi@book@paren{%
+            \noexpand\hi@parens@add\noexpand\hi@paren@date{%
+                \expandonce{\hi@book@paren}%
+            }%
+        }%
+    \fi
+}
+\def\hi@book@pubparen@add#1#2{%
+    \ifx\hi@book@paren\@empty\else \addto@macro\hi@book@paren{, }\fi
+    \addto@macro\hi@book@paren{#1}%
+    \def\hi@book@sep{#2}%
 }
 \hi@newcite\defbook{A book or non-periodic material}{%
     \hi@citetype{#1}\hi@type@other
@@ -6279,15 +6256,16 @@
                     }{}%
                 }%
                 \hi@ifset\hi@kv@number{%
-                    \noexpand\hi@fn@booktitle{\hi@kv@number}, % space
+                    \hi@ifset\hi@kv@publisher{}{%
+                        \noexpand\hi@fn@booktitle{%
+                            \hi@abbrev@pub{\hi@kv@number}{\@iden}%
+                        }, % space
+                    }%
                 }{}%
                 \hi@pstruct@use@font{name}\hi@fn@booktitle
                 \hi@maybepage{\hi@page@space\hi@kv@name}%
             }%
-            \hi@parens@add\hi@paren@date{%
-                \hi@book@paren
-                \hi@pstruct@use{year}%
-            }%
+            \hi@book@paren
             \the\hi@param@parens
         \noexpand\fi
     }%
@@ -6305,7 +6283,10 @@
                 \hi@maybepage{\hi@page@space\hi@kv@name}%
                 % The \reserved@a is to get the parens outside of \hi@citeguts
                 % which is added kn \hi@toa@duptitle
-                \gdef\noexpand\reserved@a{\hi@book@lcpost}%
+                \gdef\noexpand\reserved@a{%
+                    \hi@book@paren
+                    \the\hi@param@parens
+                }%
                 \noexpand\aftergroup\noexpand\reserved@a
             }{%
                 \hi@maybepage{ }%
@@ -6787,6 +6768,7 @@
 \hi@newcite\defwebsite{A web site or generic citation}{%
     \hi@citetype{#1}\hi@type@other
     \hi@book@pubparen
+    \hi@ifset\hi@kv@year{}{\PackageError\hi@pkgname{Year is required for #1}}%
     \hi@ifset\hi@kv@rep{\hi@abbrev@journal@check}{}%
     \hi@newcite@form{fc}{#1}{%
         \hi@citeguts{%
@@ -6800,12 +6782,7 @@
             }{}%
             \hi@maybepage{ }%
         }%
-        \hi@ifset\hi@kv@year{%
-            \hi@parens@add\hi@paren@date{%
-                \hi@book@paren
-                \hi@pstruct@use{year}%
-            }%
-        }{}%
+        \hi@book@paren
         \the\hi@param@parens
     }%
     \protected@edef\reserved@a{%
@@ -6845,7 +6822,9 @@
             \hi@maybepage{ }%
         }%
         \hi@parens@add{\hi@paren@date}{%
-            \hi@kv@publisher, \hi@kv@number, \hi@kv@year
+            \hi@kv@publisher,
+            \hi@abbrev@pub{\hi@kv@number}{\@iden},
+            \hi@kv@year
         }%
         \the\hi@param@parens
     }%
@@ -7171,25 +7150,18 @@
 \hi@newcite\defrfc{An IETF Request for Comments}{%
     \hi@citetype{#1}\hi@type@other
     \expandafter\hi@book@titlethe\expandafter{\hi@kv@name}%
+    \hi@abbrev@name{Internet Engineering Task Force}{\def\hi@kv@publisher}%
     \protected@edef\reserved@a{%
         https://www.rfc-editor.org/rfc\hi@kv@number.txt%
     }
+    \protected@edef\hi@kv@number{RFC \hi@kv@number}%
     \@expand{\hi@defkey@url{}}\reserved@a i\@empty
     \hi@newcite@form{ic}{#1}{%
-        RFC \hi@kv@number
+        \hi@kv@number
     }%
-    \protected@edef\reserved@a{%
-        RFC \hi@kv@number
-    }
-    \@expand{\hi@supra@form{#1}}\reserved@a i%
-    %
-    % Full cite is done last because \hi@kv@number is modified by
-    % \hi@book@pubparen
-    %
-    \protected@edef\hi@kv@number{%
-        Internet Engineering Task Force, RFC \hi@kv@number
-    }%
+    \@expand{\hi@supra@form{#1}}\hi@kv@number i%
     \hi@book@pubparen
+    \hi@ifset\hi@kv@year{}{\PackageError\hi@pkgname{Year is required for #1}}%
     \hi@newcite@form{fc}{#1}{%
         \hi@ifset\hi@kv@author{%
             \noexpand\@gobble{\hi@kv@authln}%
@@ -7204,10 +7176,7 @@
                 \hi@fn@booktitle{\hi@kv@name}%
                 \hi@maybepage{\hi@page@space\hi@kv@name}%
             }%
-            \hi@parens@add\hi@paren@date{%
-                \hi@book@paren
-                \hi@kv@year
-            }%
+            \hi@book@paren
             \the\hi@param@parens
         \noexpand\fi
     }%
@@ -7605,7 +7574,6 @@
 \hi@newparam{page}{Page number}
 \hi@param@alias{pages}{page}
 \hi@newparam{rep}{Reporter or journal name}%
-\hi@param@alias{serial}{number}
 \hi@param@alias{series}{number}
 \hi@param@alias{short}{inline}
 \hi@param@alias{shorttitle}{inline}
@@ -7731,7 +7699,9 @@
 \hi@defparam{editor}{Editor(s) of book}{%
     \hi@nameproc@person{#1}{\hi@namelist@addtwo\hi@kv@editor\relax}%
 }
-\hi@newparam{edtype}{Editor type (default ed.)}
+\hi@defparam{edtype}{Editor type (default ed.)}{%
+    \hi@abbrev@pub{#1}{\def\hi@kv@edtype}%
+}
 \hi@newparam@noval{forthcoming}{Journal article is forthcoming}
 \hi@defparam{in}{Reference name of a citation that the current item is in}{%
     \hi@anonref{#1}{\def\hi@kv@in}%
@@ -7745,6 +7715,17 @@
 \hi@defparam{publisher}{Publisher of book}{%
     \hi@abbrev@name{#1}{\def\hi@kv@publisher}%
 }
+\hi@defparam{serial}{Serial number of a published work}{%
+    \find@in{: }{#1}{%
+        \@tworun\KV@hi@publisher\KV@hi@number
+    }{%
+        \find@in{, }{#1}{%
+            \@tworun\KV@hi@publisher\KV@hi@number
+        }{\KV@hi@number{#1}}%
+    }%
+}
+\make@find@in{: }
+\make@find@in{, }
 \hi@newparam@noval{singleauthor}{All works in a collection are by one author}
 \hi@newparam@noval{usetitle}{Use title rather than author in short cites}
 \hi@newparam@noval{useissue}{Include issue number in journal citations}

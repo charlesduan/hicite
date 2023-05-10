@@ -109,14 +109,18 @@ parties and a topical name.
 
 These inputs are used to produce five formatted names for the case:
 \begin{itemize}
-\item The full title, used in full inline citations.
-\item The abbreviated full title, used in full non-inline citations.
+\item The full title, used in full inline citations. This is abbreviated
+according to the \abbscheme{inlcase} scheme.
+\item The abbreviated full title, used in full non-inline citations. This is
+abbreviated according to the \abbscheme{name} scheme.
 \item The abbreviated full title to be used in the Table of Authorities. This
 differs in spacing (an optional line break is placed before the versus) and in
 text order (phrases like \emph{In re} are placed at the end rather than the
-beginning).
-\item The short form for inline citations.
-\item The abbreviated short form for non-inline citations.
+beginning). It is abbreviated according to the \abbscheme{inlcase} scheme.
+\item The short form for inline citations, abbreviated with the
+\abbscheme{inlcase} scheme.
+\item The abbreviated short form for non-inline citations, using the
+\abbscheme{name} scheme.
 \end{itemize}
 
 %</doc>
@@ -1154,7 +1158,7 @@ There is not really a need for automation of these kinds of citations.
 
 \keyparameters{
     {name, inline}{Full and short names for the document. They will be
-    abbreviated according to the \textsc{cdoc} scheme.}
+    abbreviated according to the \abbscheme{cdoc} scheme.}
     {number}{The document number of the document being cited, if one is present.
     The phrase ``Doc.~No.''\ will be prepended to it, and the number will be
     made a parenthetical to the citation. If \param{inline} is not given, then

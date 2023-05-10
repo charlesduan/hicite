@@ -1673,7 +1673,8 @@ year=1954,
                 \hi@pstruct@use@font{rep}\hi@fn@statute\space
                 \hi@pstruct@call{page}{\noexpand\@format@page@macro}%
             }%
-            \hi@book@lcpost
+            \hi@book@paren
+            \the\hi@param@parens
         }%
         \hi@inline@only{%
             \hi@citeguts{%
@@ -1889,6 +1890,7 @@ year=1954,
 \hi@newcite\defcongrec{A Congressional Record debate}{%
     \expandafter\hi@congrec@testpg\hi@kv@page\@stop
     \hi@book@pubparen
+    \hi@ifset\hi@kv@year{}{\PackageError\hi@pkgname{Year is required for #1}}%
     \hi@citetype{#1}\hi@type@other
     \hi@newcite@form{fc}{#1}{%
         \hi@citeguts{%
@@ -1896,10 +1898,7 @@ year=1954,
             \noexpand\hi@fn@congdoc{\hi@kv@rep}\space
             \hi@ifpage{\hi@maybepage{}}{\@format@page@macro\hi@kv@page}%
         }%
-        \hi@parens@add\hi@paren@date{%
-            \hi@book@paren
-            \hi@pstruct@use{year}%
-        }%
+        \hi@book@paren
         \the\hi@param@parens
     }%
     \hi@newcite@form{sc}{#1}{%
@@ -2164,15 +2163,16 @@ year=1954,
                     }{}%
                 }%
                 \hi@ifset\hi@kv@number{%
-                    \noexpand\hi@fn@booktitle{\hi@kv@number}, % space
+                    \hi@ifset\hi@kv@publisher{}{%
+                        \noexpand\hi@fn@booktitle{%
+                            \hi@abbrev@pub{\hi@kv@number}{\@iden}%
+                        }, % space
+                    }%
                 }{}%
                 \hi@pstruct@use@font{name}\hi@fn@booktitle
                 \hi@maybepage{\hi@page@space\hi@kv@name}%
             }%
-            \hi@parens@add\hi@paren@date{%
-                \hi@book@paren
-                \hi@pstruct@use{year}%
-            }%
+            \hi@book@paren
             \the\hi@param@parens
         \noexpand\fi
     }%
@@ -2190,7 +2190,10 @@ year=1954,
                 \hi@maybepage{\hi@page@space\hi@kv@name}%
                 % The \reserved@a is to get the parens outside of \hi@citeguts
                 % which is added kn \hi@toa@duptitle
-                \gdef\noexpand\reserved@a{\hi@book@lcpost}%
+                \gdef\noexpand\reserved@a{%
+                    \hi@book@paren
+                    \the\hi@param@parens
+                }%
                 \noexpand\aftergroup\noexpand\reserved@a
             }{%
                 \hi@maybepage{ }%
@@ -2285,6 +2288,85 @@ year=1954,
     }
     \expandafter\hi@citecontainer@lc\reserved@a
 }
+
+\section{bookrefs.dtx}
+
+\subsection{Publication Parenthetical}
+
+\begingroup
+    \hi@param@clear
+
+    \hi@book@pubparen
+    \AssertMacro\hi@book@paren{}
+
+    \def\hi@kv@year{2010}
+    \hi@book@pubparen
+    \AssertMacro\hi@book@paren{%
+        \hi@parens@add\hi@paren@date{\hi@pstruct@use{year}}%
+    }%
+
+    \def\hi@kv@edition{3d ed.}
+    \hi@book@pubparen
+    \AssertMacro\hi@book@paren{%
+        \hi@parens@add\hi@paren@date{3d ed. \hi@pstruct@use{year}}%
+    }%
+
+    \def\hi@kv@publisher{Doubleday}
+    \hi@book@pubparen
+    \AssertMacro\hi@book@paren{%
+        \hi@parens@add\hi@paren@date{%
+            Doubleday, 3d ed. \hi@pstruct@use{year}%
+        }%
+    }%
+
+    \KV@hi@editor{E E}
+    \KV@hi@editor{F F}
+    \hi@book@pubparen
+    \AssertMacro\hi@book@paren{%
+        \hi@parens@add\hi@paren@date{%
+            E E\hi@namelist@and F F eds.,
+            Doubleday, 3d ed. \hi@pstruct@use{year}%
+        }%
+    }%
+
+    \KV@hi@edtype{translators}
+    \hi@book@pubparen
+    \AssertMacro\hi@book@paren{%
+        \hi@parens@add\hi@paren@date{%
+            E E\hi@namelist@and F F trans.,
+            Doubleday, 3d ed. \hi@pstruct@use{year}%
+        }%
+    }%
+
+    \KV@hi@forthcoming{}
+    \hi@book@pubparen
+    \AssertMacro\hi@book@paren{%
+        \hi@parens@add\hi@paren@date{%
+            E E\hi@namelist@and F F trans.,
+            Doubleday, 3d ed., forthcoming \hi@pstruct@use{year}%
+        }%
+    }%
+
+    \hi@param@clear
+
+    \KV@hi@serial{Congressional Research Service, Report No. A12345}
+    \hi@book@pubparen
+    \AssertMacro\hi@book@paren{%
+        \hi@parens@add\hi@paren@date{%
+            Cong. Rsch. Serv., Report No. A12345%
+        }%
+    }%
+
+    \def\hi@kv@year{1998}
+    \hi@book@pubparen
+    \AssertMacro\hi@book@paren{%
+        \hi@parens@add\hi@paren@date{%
+            Cong. Rsch. Serv., Report No. A12345, \hi@pstruct@use{year}%
+        }%
+    }%
+
+\endgroup
+
 %%
 %% \iffalse filename: artrefs.dtx \fi
 %%
@@ -2433,6 +2515,7 @@ year=1954,
 \hi@newcite\defwebsite{A web site or generic citation}{%
     \hi@citetype{#1}\hi@type@other
     \hi@book@pubparen
+    \hi@ifset\hi@kv@year{}{\PackageError\hi@pkgname{Year is required for #1}}%
     \hi@ifset\hi@kv@rep{\hi@abbrev@journal@check}{}%
     \hi@newcite@form{fc}{#1}{%
         \hi@citeguts{%
@@ -2446,12 +2529,7 @@ year=1954,
             }{}%
             \hi@maybepage{ }%
         }%
-        \hi@ifset\hi@kv@year{%
-            \hi@parens@add\hi@paren@date{%
-                \hi@book@paren
-                \hi@pstruct@use{year}%
-            }%
-        }{}%
+        \hi@book@paren
         \the\hi@param@parens
     }%
     \protected@edef\reserved@a{%
@@ -2491,7 +2569,9 @@ year=1954,
             \hi@maybepage{ }%
         }%
         \hi@parens@add{\hi@paren@date}{%
-            \hi@kv@publisher, \hi@kv@number, \hi@kv@year
+            \hi@kv@publisher,
+            \hi@abbrev@pub{\hi@kv@number}{\@iden},
+            \hi@kv@year
         }%
         \the\hi@param@parens
     }%
@@ -2814,25 +2894,18 @@ year=1954,
 \hi@newcite\defrfc{An IETF Request for Comments}{%
     \hi@citetype{#1}\hi@type@other
     \expandafter\hi@book@titlethe\expandafter{\hi@kv@name}%
+    \hi@abbrev@name{Internet Engineering Task Force}{\def\hi@kv@publisher}%
     \protected@edef\reserved@a{%
         https://www.rfc-editor.org/rfc\hi@kv@number.txt%
     }
+    \protected@edef\hi@kv@number{RFC \hi@kv@number}%
     \@expand{\hi@defkey@url{}}\reserved@a i\@empty
     \hi@newcite@form{ic}{#1}{%
-        RFC \hi@kv@number
+        \hi@kv@number
     }%
-    \protected@edef\reserved@a{%
-        RFC \hi@kv@number
-    }
-    \@expand{\hi@supra@form{#1}}\reserved@a i%
-    %
-    % Full cite is done last because \hi@kv@number is modified by
-    % \hi@book@pubparen
-    %
-    \protected@edef\hi@kv@number{%
-        Internet Engineering Task Force, RFC \hi@kv@number
-    }%
+    \@expand{\hi@supra@form{#1}}\hi@kv@number i%
     \hi@book@pubparen
+    \hi@ifset\hi@kv@year{}{\PackageError\hi@pkgname{Year is required for #1}}%
     \hi@newcite@form{fc}{#1}{%
         \hi@ifset\hi@kv@author{%
             \noexpand\@gobble{\hi@kv@authln}%
@@ -2847,10 +2920,7 @@ year=1954,
                 \hi@fn@booktitle{\hi@kv@name}%
                 \hi@maybepage{\hi@page@space\hi@kv@name}%
             }%
-            \hi@parens@add\hi@paren@date{%
-                \hi@book@paren
-                \hi@kv@year
-            }%
+            \hi@book@paren
             \the\hi@param@parens
         \noexpand\fi
     }%
@@ -3204,7 +3274,6 @@ year=1954,
 \hi@newparam{page}{Page number}
 \hi@param@alias{pages}{page}
 \hi@newparam{rep}{Reporter or journal name}%
-\hi@param@alias{serial}{number}
 \hi@param@alias{series}{number}
 \hi@param@alias{short}{inline}
 \hi@param@alias{shorttitle}{inline}
@@ -3309,7 +3378,9 @@ year=1954,
 \hi@defparam{editor}{Editor(s) of book}{%
     \hi@nameproc@person{#1}{\hi@namelist@addtwo\hi@kv@editor\relax}%
 }
-\hi@newparam{edtype}{Editor type (default ed.)}
+\hi@defparam{edtype}{Editor type (default ed.)}{%
+    \hi@abbrev@pub{#1}{\def\hi@kv@edtype}%
+}
 \hi@newparam@noval{forthcoming}{Journal article is forthcoming}
 \hi@defparam{in}{Reference name of a citation that the current item is in}{%
     \hi@anonref{#1}{\def\hi@kv@in}%
@@ -3323,6 +3394,17 @@ year=1954,
 \hi@defparam{publisher}{Publisher of book}{%
     \hi@abbrev@name{#1}{\def\hi@kv@publisher}%
 }
+\hi@defparam{serial}{Serial number of a published work}{%
+    \find@in{: }{#1}{%
+        \@tworun\KV@hi@publisher\KV@hi@number
+    }{%
+        \find@in{, }{#1}{%
+            \@tworun\KV@hi@publisher\KV@hi@number
+        }{\KV@hi@number{#1}}%
+    }%
+}
+\make@find@in{: }
+\make@find@in{, }
 \hi@newparam@noval{singleauthor}{All works in a collection are by one author}
 \hi@newparam@noval{usetitle}{Use title rather than author in short cites}
 \hi@newparam@noval{useissue}{Include issue number in journal citations}
@@ -3341,6 +3423,30 @@ year=1954,
     \AssertBox{\note{c-d}}{\InFootnote{\textsc{Compilation} (C C \& D D eds.,
     2020).}}
 
+\endgroup
+
+\begingroup
+    \let\hi@kv@publisher\@empty
+    \let\hi@kv@number\@empty
+
+    \KV@hi@serial{11}%
+    \AssertMacro\hi@kv@number{11}
+    \AssertMacro\hi@kv@publisher{}
+
+    \KV@hi@serial{Congressional Research Service, No. 12345}
+    \AssertMacro\hi@kv@number{No. 12345}
+    \AssertMacro\hi@kv@publisher{Cong. Rsch. Serv.}
+
+    \KV@hi@serial{Congressional Research Service: No. 12345}
+    \AssertMacro\hi@kv@number{No. 12345}
+    \AssertMacro\hi@kv@publisher{Cong. Rsch. Serv.}
+
+\endgroup
+
+\begingroup
+    \hi@param@clear
+    \KV@hi@edtype{editors and translators}
+    \AssertMacro\hi@kv@edtype{eds. \& trans.}
 \endgroup
 
 %%
