@@ -204,7 +204,8 @@ those for \rtype{statcode}.
                     }%
                 }%
             }%
-            \hi@book@lcpost
+            \hi@book@paren
+            \the\hi@param@parens
         }%
         \hi@inline@only{%
             \hi@citeguts{\noexpand\@nameuse{ic@#1}{st}}%
@@ -258,7 +259,8 @@ those for \rtype{statcode}.
                 }%
             }%
         }%
-        \hi@book@lcpost
+        \hi@book@paren
+        \the\hi@param@parens
         \noexpand\hi@set@title{\hi@kv@vol/\hi@kv@rep}%
     }%
     \hi@ifset\hi@kv@origsect{%
@@ -810,7 +812,8 @@ those for \rtype{statcode}.
                 \hi@pstruct@use@font{rep}\hi@fn@statute\space
                 \hi@pstruct@call{page}{\noexpand\@format@page@macro}%
             }%
-            \hi@book@lcpost
+            \hi@book@paren
+            \the\hi@param@parens
         }%
         \hi@inline@only{%
             \hi@citeguts{%

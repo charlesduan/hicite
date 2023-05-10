@@ -16,15 +16,15 @@ a common parenthetical used across many citation types.
 Many citation types accept a common parenthetical that contains a date of
 publication and other publication information, such as editions, editors, and
 publishers. This standard parenthetical accepts the following parameters, all of
-which are optional other than the year:
+which are optional (although some reference types will require \param{year}):
 
 \optparameters{
     {editor}{Names of one or more editors of the book.}
     {edtype}{The abbreviation to follow the editor names, by default ``ed.''\ or
     ``eds.''}
-    {number}{A serial number for the book. The number must contain a comma,
-    separating the publisher from the serial number. (Books will use serial
-    numbers with no commas for another purpose.)}
+    {number}{A serial number for the book. This parameter is used only if
+    \param{publisher} is also given. (For \rtype{book} references, a serial
+    number with no publisher will be used differently.)}
     {edition}{The edition number of the book. An ordinal suffix will be added.}
     {publisher}{The name of the publisher.}
     {forthcoming}{If set, the word ``forthcoming'' will be added to the
@@ -60,41 +60,44 @@ which are optional other than the year:
                 }%
             }%
         }%
-        \def\hi@book@paren{\hi@kv@editor}%
-        \def\hi@book@sep{, }%
+        \@expandarg\hi@book@pubparen@add{\hi@kv@editor}{, }%
     }{}%
-    % Previously there was a check to see if a year was present, but since this
-    % macro is now also used for statutes that might legitimately have no date,
-    % the year check was taken out.
     \hi@ifset\hi@kv@edition{%
-        \addto@macro\hi@book@paren{%
-            \hi@kv@edition
-            \hi@ifset\hi@kv@publisher{, \hi@kv@publisher}{}%
-            \space}%
-    }{%
-        \hi@ifset\hi@kv@publisher{%
-            \addto@macro\hi@book@paren{\hi@kv@publisher\space}%
-        }{}%
-    }%
-    \hi@ifset\hi@kv@forthcoming{%
-        \addto@macro\hi@book@paren{forthcoming }%
+        \@expandarg\hi@book@pubparen@add{\hi@kv@edition}{ }%
     }{}%
-}
-\def\hi@book@lcpost{%
-    \hi@ifset\hi@kv@year{%
-        \hi@parens@add\hi@paren@date{%
-            \hi@book@paren
-            \hi@book@sep
-            \hi@pstruct@use{year}%
+    \hi@ifset\hi@kv@publisher{%
+        \@expandarg\hi@book@pubparen@add{\hi@kv@publisher}{ }%
+        \hi@ifset\hi@kv@number{%
+            \@expandarg\hi@abbrev@pub{\hi@kv@number}{\hi@book@pubparen@add}{, }%
         }%
-    }{%
+    }{}%
+    \hi@ifset\hi@kv@forthcoming{%
+        \hi@book@pubparen@add{forthcoming}{ }%
+    }{}%
+    \hi@ifset\hi@kv@year{%
         \ifx\hi@book@paren\@empty\else
-            \hi@parens@add\hi@paren@date{%
-                \hi@book@paren
-            }%
+            \add@macro@to@macro\hi@book@paren\hi@book@sep
         \fi
-    }%
-    \the\hi@param@parens
+        \addto@macro\hi@book@paren{\hi@pstruct@use{year}}%
+    }{}%
+    \ifx\hi@book@paren\@empty\else
+        \edef\hi@book@paren{%
+            \noexpand\hi@parens@add\noexpand\hi@paren@date{%
+                \expandonce{\hi@book@paren}%
+            }%
+        }%
+    \fi
+}
+%    \end{macrocode}
+%
+% Adds an item to the book publication parenthetical. \#1 is the text to add,
+% and \#2 is the separator.
+%
+%    \begin{macrocode}
+\def\hi@book@pubparen@add#1#2{%
+    \ifx\hi@book@paren\@empty\else \addto@macro\hi@book@pubparen{, }\fi
+    \addto@macro\hi@book@pubparen{#1}%
+    \def\hi@book@sep{#2}%
 }
 %    \end{macrocode}
 %</package>
@@ -128,7 +131,11 @@ which are optional other than the year:
                     }{}%
                 }%
                 \hi@ifset\hi@kv@number{%
-                    \noexpand\hi@fn@booktitle{\hi@kv@number}, % space
+                    \hi@ifset\hi@kv@publisher{}{%
+                        \noexpand\hi@fn@booktitle{%
+                            \hi@abbrev@pub{\hi@kv@number}{\@iden}%
+                        }, % space
+                    }%
                 }{}%
                 \hi@pstruct@use@font{name}\hi@fn@booktitle
                 \hi@maybepage{\hi@page@space\hi@kv@name}%
@@ -154,7 +161,10 @@ which are optional other than the year:
                 \hi@maybepage{\hi@page@space\hi@kv@name}%
                 % The \reserved@a is to get the parens outside of \hi@citeguts
                 % which is added kn \hi@toa@duptitle
-                \gdef\noexpand\reserved@a{\hi@book@lcpost}%
+                \gdef\noexpand\reserved@a{%
+                    \hi@book@paren
+                    \the\hi@param@parens
+                }%
                 \noexpand\aftergroup\noexpand\reserved@a
             }{%
                 \hi@maybepage{ }%
@@ -535,15 +545,20 @@ information, instead of the \param{citation} parameter.
         \hi@record@cite{\hi@kv@in}%
     }%
 }
+%    \end{macrocode}
 %
 % This flag determines whether other citations should suppress display of the
 % volume number and author (because they've already been included in the
-% \citecontainer).
+% \cs\citecontainer).
+%
+%    \begin{macrocode}
 \let\hi@citecontainer@suppress\@iden
+%    \end{macrocode}
 %
-% Cite container short form. #1 is the reference name, #2 is \sc@[#1], #3 is
-% \sc@[\hi@kv@citation] (or \relax).
+% Cite container short form. \#1 is the reference name, \#2 is |\sc@|\meta{\#1},
+% \#3 is |\sc@|\meta{\cs\hi@kv@citation} (or \cs\relax).
 %
+%    \begin{macrocode}
 \def\hi@citecontainer@sc#1#2#3{%
     %
     % Short citation form. If a form is given in the 'inline' parameter, use
@@ -557,10 +572,14 @@ information, instead of the \param{citation} parameter.
         \global\let#2#3%
     }%
 }
+%    \end{macrocode}
 %
-% Cite container TOA form. #1 is the reference name, #2 is \lc@[#1], #3 is
-% \lc@[\hi@kv@citation] (or \fc@[\hi@kv@citation], or \relax, depending on what
-% is defined), #4 is \lc@[\hi@kv@in] (or \fc@[\hi@kv@in]).
+% Cite container TOA form. \#1 is the reference name, \#2 is |\lc@|\meta{\#1},
+% \#3 is |\lc@|\meta{|\hi@kv@citation|} (or |\fc@|\meta{\cs\hi@kv@citation}, or
+% \cs\relax, depending on what is defined), \#4 is |\lc@|\meta{\cs\hi@kv@in} (or
+% |\fc@|\meta{\cs\hi@kv@in}).
+%
+%    \begin{macrocode}
 \def\hi@citecontainer@lc#1#2#3#4#5{%
     %
     % Set up the token lists
@@ -607,9 +626,12 @@ information, instead of the \param{citation} parameter.
     }%
     \global\let#5#5%
 }
+%    \end{macrocode}
 %
-% #1 is the initial citation text; #2 is the text to add if a page number is
-% given; #3 is the text to add if no page number is given.
+% \#1 is the initial citation text; \#2 is the text to add if a page number is
+% given; \#3 is the text to add if no page number is given.
+%
+%    \begin{macrocode}
 \DeclareRobustCommand\hi@citecontainer@addpg[3]{%
     \@test\ifx\@this@page\relax\fi{%
         \clause{#1#3}\hi@clause@endflag
@@ -621,3 +643,4 @@ information, instead of the \param{citation} parameter.
 }
 %    \end{macrocode}
 %</package>
+%<*test>

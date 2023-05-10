@@ -220,6 +220,7 @@ scholarly weight.
 \hi@newcite\defwebsite{A web site or generic citation}{%
     \hi@citetype{#1}\hi@type@other
     \hi@book@pubparen
+    \hi@ifset\hi@kv@year{}{\PackageError\hi@pkgname{Year is required for #1}}%
     \hi@ifset\hi@kv@rep{\hi@abbrev@journal@check}{}%
     \hi@newcite@form{fc}{#1}{%
         \hi@citeguts{%
@@ -233,12 +234,7 @@ scholarly weight.
             }{}%
             \hi@maybepage{ }%
         }%
-        \hi@ifset\hi@kv@year{%
-            \hi@parens@add\hi@paren@date{%
-                \hi@book@paren
-                \hi@pstruct@use{year}%
-            }%
-        }{}%
+        \hi@book@paren
         \the\hi@param@parens
     }%
     \protected@edef\reserved@a{%
@@ -304,7 +300,9 @@ dissertations, manuscripts, and reports.
             \hi@maybepage{ }%
         }%
         \hi@parens@add{\hi@paren@date}{%
-            \hi@kv@publisher, \hi@kv@number, \hi@kv@year
+            \hi@kv@publisher,
+            \hi@abbrev@pub{\hi@kv@number}{\@iden},
+            \hi@kv@year
         }%
         \the\hi@param@parens
     }%
@@ -324,7 +322,8 @@ This is for working papers with a serial number issued by an institution.
     {author, name}{The author(s) and title of the paper.}
     {publisher}{The name of the institution publishing the working paper.}
     {number}{The serial number, with series name (e.g., ``Economics Working
-    Paper No. X'').}
+    Paper No. X''). See the \param{serial} param to set this and the publisher
+    simultaneously.}
     {year}{The date of the paper.}
 }
 

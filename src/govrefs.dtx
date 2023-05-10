@@ -231,6 +231,7 @@ This is essentially a more structured citation to a book.
 \hi@newcite\defcongrec{A Congressional Record debate}{%
     \expandafter\hi@congrec@testpg\hi@kv@page\@stop
     \hi@book@pubparen
+    \hi@ifset\hi@kv@year{}{\PackageError\hi@pkgname{Year is required for #1}}%
     \hi@citetype{#1}\hi@type@other
     \hi@newcite@form{fc}{#1}{%
         \hi@citeguts{%
@@ -238,10 +239,7 @@ This is essentially a more structured citation to a book.
             \noexpand\hi@fn@congdoc{\hi@kv@rep}\space
             \hi@ifpage{\hi@maybepage{}}{\@format@page@macro\hi@kv@page}%
         }%
-        \hi@parens@add\hi@paren@date{%
-            \hi@book@paren
-            \hi@pstruct@use{year}%
-        }%
+        \hi@book@paren
         \the\hi@param@parens
     }%
     \hi@newcite@form{sc}{#1}{%

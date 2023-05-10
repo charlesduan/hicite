@@ -39,25 +39,18 @@ data entry.
 \hi@newcite\defrfc{An IETF Request for Comments}{%
     \hi@citetype{#1}\hi@type@other
     \expandafter\hi@book@titlethe\expandafter{\hi@kv@name}%
+    \hi@abbrev@name{Internet Engineering Task Force}{\def\hi@kv@publisher}%
     \protected@edef\reserved@a{%
         https://www.rfc-editor.org/rfc\hi@kv@number.txt%
     }
+    \protected@edef\hi@kv@number{RFC \hi@kv@number}%
     \@expand{\hi@defkey@url{}}\reserved@a i\@empty
     \hi@newcite@form{ic}{#1}{%
-        RFC \hi@kv@number
+        \hi@kv@number
     }%
-    \protected@edef\reserved@a{%
-        RFC \hi@kv@number
-    }
-    \@expand{\hi@supra@form{#1}}\reserved@a i%
-    %
-    % Full cite is done last because \hi@kv@number is modified by
-    % \hi@book@pubparen
-    %
-    \protected@edef\hi@kv@number{%
-        Internet Engineering Task Force, RFC \hi@kv@number
-    }%
+    \@expand{\hi@supra@form{#1}}\hi@kv@number i%
     \hi@book@pubparen
+    \hi@ifset\hi@kv@year{}{\PackageError\hi@pkgname{Year is required for #1}}%
     \hi@newcite@form{fc}{#1}{%
         \hi@ifset\hi@kv@author{%
             \noexpand\@gobble{\hi@kv@authln}%
@@ -72,10 +65,7 @@ data entry.
                 \hi@fn@booktitle{\hi@kv@name}%
                 \hi@maybepage{\hi@page@space\hi@kv@name}%
             }%
-            \hi@parens@add\hi@paren@date{%
-                \hi@book@paren
-                \hi@kv@year
-            }%
+            \hi@book@paren
             \the\hi@param@parens
         \noexpand\fi
     }%
