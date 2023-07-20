@@ -31,6 +31,7 @@ definitions.
 %    \begin{macrocode}
 \def\hi@bib@map#1#2{%
     \@namedef{hi@bib@kind@#1}{#2}%
+    \@namedef{hi@bib@hikind@#2}{#1}%
     \csletcs{def#2}{def#1}%
 }
 \hi@bib@map{jrnart}{article}
@@ -40,11 +41,19 @@ definitions.
 \hi@bib@map{procart}{inproceedings}
 %    \end{macrocode}
 %
-% Converts a bluebook reference type to a biblatex reference type.
+% Converts a \hia* reference type to a biblatex reference type.
 %
 %    \begin{macrocode}
-\def\hi@bib@mapkind#1{%
+\def\hi@bib@bibkind#1{%
     \@ifundefined{hi@bib@kind@#1}{#1}{\csname hi@bib@kind@#1\endcsname}%
+}
+%    \end{macrocode}
+%
+% Converts a biblatex reference type to a \hia* reference type.
+%
+%    \begin{macrocode}
+\def\hi@bib@hiakind#1{%
+    \@ifundefined{hi@bib@hikind@#1}{#1}{\csname hi@bib@hikind@#1\endcsname}%
 }
 %    \end{macrocode}
 %
@@ -69,6 +78,7 @@ definitions.
 %</package>
 %<*doc>
 
+
 \subsection{Producing Biblatex Files}
 
 \DescribeMacro\hiBibFile
@@ -77,24 +87,25 @@ command should be called before any \hia* references are defined.
 
 %</doc>
 %<*package>
-%    \begin{macrocode}
-\def\hiBibFile#1{%
-    \newwrite\tf@bib
-    \immediate\openout \tf@bib #1.bib\relax
-}
-\let\tf@bib\relax
-%    \end{macrocode}
 %
 % Internally, we patch |\hi@param@read| (described in \sec{refs}) to collect the
 % reference's parameters and then output the reference definition to the
 % bibliography file.
 %
 %    \begin{macrocode}
-\pretocmd\hi@param@read{\let\hi@bib@paramlist\@empty}{}{}
-\apptocmd\hi@param@read{\hi@bib@output}{}{}
+\def\hiBibFile#1{%
+    \newwrite\tf@bib
+    \immediate\openout \tf@bib #1.bib\relax
+    \pretocmd\hi@param@read{\let\hi@bib@paramlist\@empty}{}{}
+    \apptocmd\hi@param@read{\hi@bib@output}{}{}
+}
+\let\tf@bib\relax
 %    \end{macrocode}
 %
-% This macro actually saves a reference definition to the bibliography file.
+% If |\hiBibFile| has been executed, then the |\hi@bib@output| macro below is
+% executed after the parameters for a reference have been read. The macro
+% generates a Biblatex-style reference definition and writes it to the
+% bibliography file defined by |\hiBibFile|.
 %
 %    \begin{macrocode}
 \def\hi@bib@output{%
@@ -112,7 +123,7 @@ command should be called before any \hia* references are defined.
             }%
         }%
         \immediate\write\tf@bib{%
-            @\expandafter\hi@bib@mapkind\expandafter{\hi@kv@kind}{%
+            @\expandafter\hi@bib@bibkind\expandafter{\hi@kv@kind}{%
                 \@this@case,^^J%
                 \reserved@b
             }^^J%
@@ -125,20 +136,25 @@ command should be called before any \hia* references are defined.
 % \subsection{Reference Parameters}
 %
 %
-% List of parameters to be included when printing a bibliography reference. This
-% is set to |\@empty| inside |\hi@param@read| and then augmented.
+% |\hi@bib@paramlist| is a list of parameters to be included when printing a
+% bibliography reference. This is set to |\@empty| inside |\hi@param@read| (see
+% |\hiBibFile| above) and then augmented.
 %
 %    \begin{macrocode}
 \let\hi@bib@paramlist\relax
 %    \end{macrocode}
 %
-% Next, we patch each |\KV@hi@|\meta{param} macro. The |\hi@params| macro lists
+% We patch each |\KV@hi@|\meta{param} macro, to execute its normal
+% operations and then call |\hi@bib@doparam|. The |\hi@params| macro lists
 % every parameter with a |\do| command.
 %
 %    \begin{macrocode}
 \def\do#1#2{%
     \def\reserved@a##1{%
         \@namedef{KV@hi@#1}####1{%
+            % In here, |#1| is the param name, |##1| is the prior macro
+            % definition of the param, and |####1| is the variable name for the
+            % argument the param's new macro will take.
             ##1\hi@bib@doparam{#1}{####1}%
         }%
     }%
@@ -181,16 +197,9 @@ command should be called before any \hia* references are defined.
 }
 %    \end{macrocode}
 %
-% Note that the given parameter should be included in the bibliography
-% reference.
-%
-%    \begin{macrocode}
-\def\hi@bib@addparam#1{\addto@macro\hi@bib@paramlist{{#1}}}%
-%    \end{macrocode}
-%
-% Save a given value for the parameter. \#1 is the parameter; \#2 the value.
-% This also notes that the parameter should appear in the bibliography
-% reference.
+% Save a given value for the parameter by appending it to |\hi@bib@paramlist|,
+% and defining a new macro |\hi@bib@p@#1| with the parameter's value. \#1 is the
+% parameter; \#2 the value.
 %
 %    \begin{macrocode}
 \def\hi@bib@saveparam#1#2{%
@@ -198,7 +207,7 @@ command should be called before any \hia* references are defined.
     \expandafter\edef\csname hi@bib@p@#1\endcsname{%
         \expandafter\strip@prefix\meaning\reserved@a
     }%
-    \hi@bib@addparam{#1}%
+    \addto@macro\hi@bib@paramlist{{#1}}%
 }
 %    \end{macrocode}
 %
@@ -220,7 +229,7 @@ command should be called before any \hia* references are defined.
 %    \end{macrocode}
 %
 % By default, the Bibtex parameter's value is the user's given value, regardless
-% of the Bluebook package's processing. This macro directs the output to be the
+% of \hia*'s processing. This macro directs the output to be the
 % post-processed value.
 %
 %    \begin{macrocode}
@@ -293,49 +302,13 @@ command should be called before any \hia* references are defined.
 %
 % \subsubsection{Date Parameters}
 %
-% Deal with a date parameter. This sets up both the .bib output and the .bbl
-% input. \#1 is the prefix to the date parameter name.
+% Deal with a date parameter. This sets up just the .bib output.
+% \#1 is the prefix to the date parameter name.
 %
 %    \begin{macrocode}
 \def\hi@bib@date#1{%
     \hi@bib@ignore{#1date}% The date parameter is an alias
     \hi@bib@rename{#1year}{#1datetext}%
-    \@namedef{hi@bib@bbl@#1datetext}{%
-        \expandafter\usefield\csname KV@hi@#1year\endcsname{#1datetext}%
-    }%
-    \@namedef{hi@bib@bbl@#1year}{%
-        \iffieldundef{#1datetext}{%
-            \immediate\write16{For \csfield{entrykey}, #1datetext is undefined}%
-            \edef\reserved@a{%
-                \expandafter\noexpand\csname KV@hi@#1year\endcsname{%
-                    \csname if#1datecirca\endcsname{c. }{}%
-                    \iffieldundef{#1month}{}{%
-                        \usefield\hi@bib@month{#1month}%
-                        \iffieldundef{#1endmonth}{}{%
-                            \iffieldsequal{#1month}{#1endmonth}{}{%
-                                -\usefield\hi@bib@month{#1endmonth}%
-                            }%
-                        }%
-                        \iffieldundef{#1day}{}{%
-                            \space
-                            \csfield{#1day}%
-                            \iffieldundef{#1endday}{}{-\csfield{#1endday}}%
-                            ,%
-                        }%
-                        \space
-                    }%
-                    \csfield{#1year}%
-                    \iffieldundef{#1endyear}{}{%
-                        \iffieldsequal{#1year}{#1endyear}{}{%
-                            -\csfield{#1endyear}%
-                        }%
-                    }%
-                }%
-            }%
-            \immediate\write16{Parsed date as \meaning\reserved@a}%
-            \reserved@a
-        }{}%
-    }%
 }
 \def\hi@bib@month#1{%
     \ifcase#1\or
@@ -429,7 +402,8 @@ first, producing warnings about unknown references for every citation. Then
 %<*package>
 %
 % Biblatex does not offer a way to collect all the parameters it reads from the
-% |.bbl| file. So first we patch the necessary methods.
+% |.bbl| file. So first we patch the necessary methods. These will construct a
+% list |\hi@bib@bblparams| to contain every parameter in the bibliography entry.
 %
 %    \begin{macrocode}
 \apptocmd\blx@bbl@entry{\let\hi@bib@bblparams\@empty}{}{}
@@ -438,7 +412,15 @@ first, producing warnings about unknown references for every citation. Then
 \apptocmd\blx@bbl@listdef{\listadd\hi@bib@bblparams{#1}}{}{}
 %    \end{macrocode}
 %
-% Now install a hook performed at the time the .bbl file is read.
+% Now install a hook performed at the time the .bbl file is read. |\AtDataInput|
+% executes after a .bbl file entry is read, so the parameters are stored in
+% Biblatex's internal memory.
+%
+% At that point, |\hi@param@read| is redefined to iterate over all the
+% parameters found in |\hi@bib@bblparams|, and process each one using
+% |\hi@bib@setparams@do|. Next, the reference definer macro is constructed and
+% executed. This will call |\hi@param@read|, thereby defining a \hia* reference
+% using Biblatex's parameters.
 %
 %    \begin{macrocode}
 \AtDataInput{%
@@ -446,16 +428,34 @@ first, producing warnings about unknown references for every citation. Then
     \def\hi@param@read#1{%
         \forlistloop\hi@bib@setparams@do\hi@bib@bblparams
     }%
+    \hi@bib@writeconv{}{%
+        \expandafter\string\csname
+            def\usefield\hi@bib@hiakind{entrytype}%
+        \endcsname{%
+            \thefield{entrykey}%
+        }\@charlb
+    }%
     \edef\reserved@a{%
         \expandafter\noexpand \csname def\csfield{entrytype}\endcsname
         {\thefield{entrykey}}{}%
     }\reserved@a
+    \hi@bib@writeconv{}{\@charrb}%
     \endgroup
 }
 %    \end{macrocode}
 %
-% We redefine |\hi@param@read| to collect parameters from Biblatex's data store,
-% rather than from a reference definition string.
+% |\hi@bib@setparams@do| is called for each Biblatex parameter that was
+% recorded, during the execution of |\hi@param@read| as a reference is being
+% defined. It does one of the following depending on the parameter it finds:
+% \begin{itemize}
+% \item If a special processing macro |\hi@bib@bbl@|\meta{param} is defined,
+% then that macro is executed with no arguments.
+% \item If no default macro exists of the form |\KV@hi@|\meta{param}, then
+% nothing happens.
+% \item If the field is undefined in the .bbl file, a warning is given.
+% \item Otherwise, calls |\usefield| to get the Biblatex field value, and
+% executes |\hi@bib@sethiparam| to transfer the value to \hia*.
+% \end{itemize}
 %
 %    \begin{macrocode}
 \def\hi@bib@setparams@do#1{%
@@ -466,12 +466,23 @@ first, producing warnings about unknown references for every citation. Then
                     Field #1 in .bbl file not found%
                 }%
             }{%
-                \expandafter\usefield\csname KV@hi@#1\endcsname{#1}%
+                \usefield\hi@bib@sethiparam{#1}{#1}%
             }%
         }%
     }{%
         \csname hi@bib@bbl@#1\endcsname
     }%
+}
+%    \end{macrocode}
+%
+% Sets a \hia* parameter to a given value. Note that this is backwards in terms
+% of parameters: \#1 is the \emph{value}, and \#2 is the parameter name. This
+% macro also write the parameter to a file if requested.
+%
+%    \begin{macrocode}
+\def\hi@bib@sethiparam#1#2{%
+    \csname KV@hi@#2\endcsname{#1}%
+    \hi@bib@writeconv{}{\space\space#2={#1},}%
 }
 %    \end{macrocode}
 %
@@ -486,22 +497,24 @@ first, producing warnings about unknown references for every citation. Then
 }
 \DeclareIndexListFormat{bbparenprint}{%
     \gappto\hi@bib@tmp{%
-        \KV@hi@paren{#1}%
+        \hi@bib@sethiparam{#1}{paren}%
     }%
 }
 %    \end{macrocode}
 %
-% Special handling for name lists.
+% \subsubsection{Name Lists}
+%
+% These set up conversion of Biblatex's author lists to \hia* format.
 %
 %    \begin{macrocode}
-\def\hi@bib@bbl@author{\hi@bib@bblnamelist{author}\KV@hi@author\KV@hi@instauth}
-\def\hi@bib@bbl@editor{\hi@bib@bblnamelist{editor}\KV@hi@editor\KV@hi@insted}
-\def\hi@bib@bbl@to{\hi@bib@bblnamelist{to}\KV@hi@to\KV@hi@instto}
+\def\hi@bib@bbl@author{\hi@bib@bblnamelist{author}{author}{instauth}}
+\def\hi@bib@bbl@editor{\hi@bib@bblnamelist{editor}{editor}{insted}}
+\def\hi@bib@bbl@to{\hi@bib@bblnamelist{to}{to}{instto}}
 \def\hi@bib@bblnamelist#1#2#3{%
-    \let\hi@bib@bblhummac#2%
-    \let\hi@bib@bblinstmac#3%
+    \def\hi@bib@bblhummac{#2}%
+    \def\hi@bib@bblinstmac{#3}%
     \ifandothers{#1}{%
-        \gdef\hi@bib@maybeetal{\hi@etal}%
+        \gdef\hi@bib@maybeetal{et al.}%
     }{%
         \gdef\hi@bib@maybeetal{}%
     }%
@@ -513,18 +526,20 @@ first, producing warnings about unknown references for every citation. Then
     \ifdefvoid\namepartgiven{%
         % Institutional author.
         \edef\reserved@a{%
-            \noexpand\hi@bib@bblinstmac{\expandonce\namepartfamily}%
+            \noexpand\hi@bib@sethiparam{%
+                \expandonce\namepartfamily
+            }{\hi@bib@bblinstmac}%
         }%
     }{%
         % Human author.
         \edef\reserved@a{%
-            \noexpand\hi@bib@bblhummac{%
+            \noexpand\hi@bib@sethiparam{%
                 parts:%
                 {\expandonce\namepartgiven}%
                 {\expandonce\namepartfamily}%
                 {\expandonce\namepartsuffix}%
                 {\expandonce\hi@bib@maybeetal}%
-            }%
+            }{\hi@bib@bblhummac}%
         }%
         \global\let\maybeetal\@empty
     }%
@@ -544,6 +559,78 @@ first, producing warnings about unknown references for every citation. Then
 \def\bibnamedelimi{ }
 %    \end{macrocode}
 %
+% \subsubsection{Dates}
+%
+% This sets up date parameters for conversion from Biblatex to \hia*.
+%
+%    \begin{macrocode}
+\def\hi@bib@bbldate#1{%
+    \@namedef{hi@bib@bbl@#1datetext}{%
+        \usefield\hi@bib@sethiparam{#1datetext}{#1year}%
+    }%
+    \@namedef{hi@bib@bbl@#1year}{%
+        \iffieldundef{#1datetext}{%
+            \edef\reserved@a{%
+                \noexpand\hi@bib@sethiparam{%
+                    \hi@bib@bbldate@construct{#1}%
+                }{#1year}%
+            }\reserved@a
+        }{}%
+    }%
+}%
+\def\hi@bib@bbldate@construct#1{%
+    \csname if#1datecirca\endcsname{c. }{}%
+    \iffieldundef{#1month}{}{%
+        \usefield\hi@bib@month{#1month}%
+        \iffieldundef{#1endmonth}{}{%
+            \iffieldsequal{#1month}{#1endmonth}{}{%
+                -\usefield\hi@bib@month{#1endmonth}%
+            }%
+        }%
+        \iffieldundef{#1day}{}{%
+            \space
+            \csfield{#1day}%
+            \iffieldundef{#1endday}{}{-\csfield{#1endday}}%
+            ,%
+        }%
+        \space
+    }%
+    \csfield{#1year}%
+    \iffieldundef{#1endyear}{}{%
+        \iffieldsequal{#1year}{#1endyear}{}{%
+            -\csfield{#1endyear}%
+        }%
+    }%
+}%
+\hi@bib@bbldate{}
+\hi@bib@bbldate{orig}
+\hi@bib@bbldate{issue}
+%    \end{macrocode}
+%</package>
+%<*doc>
+
+\paragraph{Saving Biblatex Entries in \hia* Format}
+
+\DescribeMacro\hiBibConvert
+The |\hiBibConvert|\marg{file} macro constructs a \hia* format reference file
+based on any Biblatex entries read. This command should be called before any
+entries are read via |\addbibresource|.
+
+%</doc>
+%<*package>
+%    \begin{macrocode}
+\def\hiBibConvert#1{%
+    \newwrite\tf@bibconv
+    \immediate\openout\tf@bibconv #1.tex\relax
+    \def\hi@bib@writeconv##1##2{%
+        \begingroup
+            ##1%
+            \immediate\write\tf@bibconv{##2}%
+        \endgroup
+    }%
+}
+\let\hi@bib@writeconv\@gobbletwo
+%    \end{macrocode}
 %</package>
 %<*doc>
 

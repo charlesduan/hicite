@@ -5154,7 +5154,11 @@ scholarly weight.
 \hi@newcite\defwebsite{A web site or generic citation}{%
     \hi@citetype{#1}\hi@type@other
     \hi@book@pubparen
-    \hi@ifset\hi@kv@year{}{\PackageError\hi@pkgname{Year is required for #1}}%
+    \hi@ifset\hi@kv@year{}{%
+        \PackageError\hi@pkgname{Year is required for #1}{%
+            Enter a date for the reference%
+        }%
+    }%
     \hi@ifset\hi@kv@rep{\hi@abbrev@journal@check}{}%
     \hi@newcite@form{fc}{#1}{%
         \hi@citeguts{%
@@ -6998,6 +7002,14 @@ produce a |.bbl| file that actually provides reference definitions. This package
 requires the same process. The document with citation commands must be compiled
 first, producing warnings about unknown references for every citation. Then
 |biber| may be called and the document recompiled.
+
+
+\paragraph{Saving Biblatex Entries in \hia* Format}
+
+\DescribeMacro\hiBibConvert
+The |\hiBibConvert|\marg{file} macro constructs a \hia* format reference file
+based on any Biblatex entries read. This command should be called before any
+entries are read via |\addbibresource|.
 
 
 \subsection{Citation Command Compatibility}
