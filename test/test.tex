@@ -2515,7 +2515,11 @@ year=1954,
 \hi@newcite\defwebsite{A web site or generic citation}{%
     \hi@citetype{#1}\hi@type@other
     \hi@book@pubparen
-    \hi@ifset\hi@kv@year{}{\PackageError\hi@pkgname{Year is required for #1}}%
+    \hi@ifset\hi@kv@year{}{%
+        \PackageError\hi@pkgname{Year is required for #1}{%
+            Enter a date for the reference%
+        }%
+    }%
     \hi@ifset\hi@kv@rep{\hi@abbrev@journal@check}{}%
     \hi@newcite@form{fc}{#1}{%
         \hi@citeguts{%

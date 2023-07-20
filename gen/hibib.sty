@@ -29,6 +29,7 @@
 \RequirePackage[datamodel=hibl]{biblatex}
 \def\hi@bib@map#1#2{%
     \@namedef{hi@bib@kind@#1}{#2}%
+    \@namedef{hi@bib@hikind@#2}{#1}%
     \csletcs{def#2}{def#1}%
 }
 \hi@bib@map{jrnart}{article}
@@ -36,8 +37,11 @@
 \hi@bib@map{website}{online}
 \hi@bib@map{case}{jurisdiction}
 \hi@bib@map{procart}{inproceedings}
-\def\hi@bib@mapkind#1{%
+\def\hi@bib@bibkind#1{%
     \@ifundefined{hi@bib@kind@#1}{#1}{\csname hi@bib@kind@#1\endcsname}%
+}
+\def\hi@bib@hiakind#1{%
+    \@ifundefined{hi@bib@hikind@#1}{#1}{\csname hi@bib@hikind@#1\endcsname}%
 }
 \apptocmd\hi@pse@sigvolref{%
     \expandafter\ifx\csname fc@\@this@case\endcsname\fc@this \else
@@ -47,10 +51,10 @@
 \def\hiBibFile#1{%
     \newwrite\tf@bib
     \immediate\openout \tf@bib #1.bib\relax
+    \pretocmd\hi@param@read{\let\hi@bib@paramlist\@empty}{}{}
+    \apptocmd\hi@param@read{\hi@bib@output}{}{}
 }
 \let\tf@bib\relax
-\pretocmd\hi@param@read{\let\hi@bib@paramlist\@empty}{}{}
-\apptocmd\hi@param@read{\hi@bib@output}{}{}
 \def\hi@bib@output{%
     \ifx\tf@bib\relax\else
         \let\reserved@b\@empty
@@ -66,7 +70,7 @@
             }%
         }%
         \immediate\write\tf@bib{%
-            @\expandafter\hi@bib@mapkind\expandafter{\hi@kv@kind}{%
+            @\expandafter\hi@bib@bibkind\expandafter{\hi@kv@kind}{%
                 \@this@case,^^J%
                 \reserved@b
             }^^J%
@@ -77,6 +81,9 @@
 \def\do#1#2{%
     \def\reserved@a##1{%
         \@namedef{KV@hi@#1}####1{%
+            % In here, |#1| is the param name, |##1| is the prior macro
+            % definition of the param, and |####1| is the variable name for the
+            % argument the param's new macro will take.
             ##1\hi@bib@doparam{#1}{####1}%
         }%
     }%
@@ -108,13 +115,12 @@
         }%
     \fi
 }
-\def\hi@bib@addparam#1{\addto@macro\hi@bib@paramlist{{#1}}}%
 \def\hi@bib@saveparam#1#2{%
     \def\reserved@a{#2}%
     \expandafter\edef\csname hi@bib@p@#1\endcsname{%
         \expandafter\strip@prefix\meaning\reserved@a
     }%
-    \hi@bib@addparam{#1}%
+    \addto@macro\hi@bib@paramlist{{#1}}%
 }
 \def\hi@bib@ignore#1{\@namedef{hi@bib@param@#1}##1{}}%
 \def\hi@bib@rename#1#2{%
@@ -160,42 +166,6 @@
 \def\hi@bib@date#1{%
     \hi@bib@ignore{#1date}% The date parameter is an alias
     \hi@bib@rename{#1year}{#1datetext}%
-    \@namedef{hi@bib@bbl@#1datetext}{%
-        \expandafter\usefield\csname KV@hi@#1year\endcsname{#1datetext}%
-    }%
-    \@namedef{hi@bib@bbl@#1year}{%
-        \iffieldundef{#1datetext}{%
-            \immediate\write16{For \csfield{entrykey}, #1datetext is undefined}%
-            \edef\reserved@a{%
-                \expandafter\noexpand\csname KV@hi@#1year\endcsname{%
-                    \csname if#1datecirca\endcsname{c. }{}%
-                    \iffieldundef{#1month}{}{%
-                        \usefield\hi@bib@month{#1month}%
-                        \iffieldundef{#1endmonth}{}{%
-                            \iffieldsequal{#1month}{#1endmonth}{}{%
-                                -\usefield\hi@bib@month{#1endmonth}%
-                            }%
-                        }%
-                        \iffieldundef{#1day}{}{%
-                            \space
-                            \csfield{#1day}%
-                            \iffieldundef{#1endday}{}{-\csfield{#1endday}}%
-                            ,%
-                        }%
-                        \space
-                    }%
-                    \csfield{#1year}%
-                    \iffieldundef{#1endyear}{}{%
-                        \iffieldsequal{#1year}{#1endyear}{}{%
-                            -\csfield{#1endyear}%
-                        }%
-                    }%
-                }%
-            }%
-            \immediate\write16{Parsed date as \meaning\reserved@a}%
-            \reserved@a
-        }{}%
-    }%
 }
 \def\hi@bib@month#1{%
     \ifcase#1\or
@@ -269,10 +239,18 @@
     \def\hi@param@read#1{%
         \forlistloop\hi@bib@setparams@do\hi@bib@bblparams
     }%
+    \hi@bib@writeconv{}{%
+        \expandafter\string\csname
+            def\usefield\hi@bib@hiakind{entrytype}%
+        \endcsname{%
+            \thefield{entrykey}%
+        }\@charlb
+    }%
     \edef\reserved@a{%
         \expandafter\noexpand \csname def\csfield{entrytype}\endcsname
         {\thefield{entrykey}}{}%
     }\reserved@a
+    \hi@bib@writeconv{}{\@charrb}%
     \endgroup
 }
 \def\hi@bib@setparams@do#1{%
@@ -283,12 +261,16 @@
                     Field #1 in .bbl file not found%
                 }%
             }{%
-                \expandafter\usefield\csname KV@hi@#1\endcsname{#1}%
+                \usefield\hi@bib@sethiparam{#1}{#1}%
             }%
         }%
     }{%
         \csname hi@bib@bbl@#1\endcsname
     }%
+}
+\def\hi@bib@sethiparam#1#2{%
+    \csname KV@hi@#2\endcsname{#1}%
+    \hi@bib@writeconv{}{\space\space#2={#1},}%
 }
 \def\hi@bib@bbl@paren{%
     \gdef\hi@bib@tmp{}%
@@ -297,17 +279,17 @@
 }
 \DeclareIndexListFormat{bbparenprint}{%
     \gappto\hi@bib@tmp{%
-        \KV@hi@paren{#1}%
+        \hi@bib@sethiparam{#1}{paren}%
     }%
 }
-\def\hi@bib@bbl@author{\hi@bib@bblnamelist{author}\KV@hi@author\KV@hi@instauth}
-\def\hi@bib@bbl@editor{\hi@bib@bblnamelist{editor}\KV@hi@editor\KV@hi@insted}
-\def\hi@bib@bbl@to{\hi@bib@bblnamelist{to}\KV@hi@to\KV@hi@instto}
+\def\hi@bib@bbl@author{\hi@bib@bblnamelist{author}{author}{instauth}}
+\def\hi@bib@bbl@editor{\hi@bib@bblnamelist{editor}{editor}{insted}}
+\def\hi@bib@bbl@to{\hi@bib@bblnamelist{to}{to}{instto}}
 \def\hi@bib@bblnamelist#1#2#3{%
-    \let\hi@bib@bblhummac#2%
-    \let\hi@bib@bblinstmac#3%
+    \def\hi@bib@bblhummac{#2}%
+    \def\hi@bib@bblinstmac{#3}%
     \ifandothers{#1}{%
-        \gdef\hi@bib@maybeetal{\hi@etal}%
+        \gdef\hi@bib@maybeetal{et al.}%
     }{%
         \gdef\hi@bib@maybeetal{}%
     }%
@@ -319,18 +301,20 @@
     \ifdefvoid\namepartgiven{%
         % Institutional author.
         \edef\reserved@a{%
-            \noexpand\hi@bib@bblinstmac{\expandonce\namepartfamily}%
+            \noexpand\hi@bib@sethiparam{%
+                \expandonce\namepartfamily
+            }{\hi@bib@bblinstmac}%
         }%
     }{%
         % Human author.
         \edef\reserved@a{%
-            \noexpand\hi@bib@bblhummac{%
+            \noexpand\hi@bib@sethiparam{%
                 parts:%
                 {\expandonce\namepartgiven}%
                 {\expandonce\namepartfamily}%
                 {\expandonce\namepartsuffix}%
                 {\expandonce\hi@bib@maybeetal}%
-            }%
+            }{\hi@bib@bblhummac}%
         }%
         \global\let\maybeetal\@empty
     }%
@@ -343,6 +327,58 @@
 \def\bibnamedelimc{ }
 \def\bibnamedelimd{ }
 \def\bibnamedelimi{ }
+\def\hi@bib@bbldate#1{%
+    \@namedef{hi@bib@bbl@#1datetext}{%
+        \usefield\hi@bib@sethiparam{#1datetext}{#1year}%
+    }%
+    \@namedef{hi@bib@bbl@#1year}{%
+        \iffieldundef{#1datetext}{%
+            \edef\reserved@a{%
+                \noexpand\hi@bib@sethiparam{%
+                    \hi@bib@bbldate@construct{#1}%
+                }{#1year}%
+            }\reserved@a
+        }{}%
+    }%
+}%
+\def\hi@bib@bbldate@construct#1{%
+    \csname if#1datecirca\endcsname{c. }{}%
+    \iffieldundef{#1month}{}{%
+        \usefield\hi@bib@month{#1month}%
+        \iffieldundef{#1endmonth}{}{%
+            \iffieldsequal{#1month}{#1endmonth}{}{%
+                -\usefield\hi@bib@month{#1endmonth}%
+            }%
+        }%
+        \iffieldundef{#1day}{}{%
+            \space
+            \csfield{#1day}%
+            \iffieldundef{#1endday}{}{-\csfield{#1endday}}%
+            ,%
+        }%
+        \space
+    }%
+    \csfield{#1year}%
+    \iffieldundef{#1endyear}{}{%
+        \iffieldsequal{#1year}{#1endyear}{}{%
+            -\csfield{#1endyear}%
+        }%
+    }%
+}%
+\hi@bib@bbldate{}
+\hi@bib@bbldate{orig}
+\hi@bib@bbldate{issue}
+\def\hiBibConvert#1{%
+    \newwrite\tf@bibconv
+    \immediate\openout\tf@bibconv #1.tex\relax
+    \def\hi@bib@writeconv##1##2{%
+        \begingroup
+            ##1%
+            \immediate\write\tf@bibconv{##2}%
+        \endgroup
+    }%
+}
+\let\hi@bib@writeconv\@gobbletwo
 \DeclareRobustCommand\autocites{%
     \hi@pse@acc@reset
     \hi@pse@bib@read
