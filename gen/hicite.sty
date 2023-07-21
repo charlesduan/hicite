@@ -1152,6 +1152,7 @@
 }
 \def\hi@parseurl@forlink@chars#1#2{%
     \@test \ifcat\relax\noexpand#1\fi{%
+        % If the char is a macro
         \@ifundefined{hi@url@\string#1}{%
             \expandafter\addto@macro\expandafter\reserved@a\expandafter{%
                 \string#1%
@@ -1162,7 +1163,10 @@
             }{ii}%
         }%
     }{%
-        \addto@macro\reserved@a{#1}%
+        % All other non-word chars
+        \ifblank{#1}{}{% Ignore bare spaces
+            \addto@macro\reserved@a{#1}%
+        }%
     }%
     \hi@parseurl@forlink@{#2}%
 }
@@ -1191,41 +1195,13 @@
             \hi@parseurl@{#3}{#1}%
         }%
     }{%
-        \@ifundefined{hi@url@\hi@url@bslash\string#2}{%
+        \@ifundefined{hi@url@\@backslashchar\string#2}{%
             \addto@macro#1{\hi@parseurl@insertbox #2}%
         }{%
-            \csname hi@url@\hi@url@bslash\string#2\endcsname{#1}{#3}%
+            \csname hi@url@\@backslashchar\string#2\endcsname{#1}{#3}%
         }%
         \hi@parseurl@{#3}{#1}%
     }%
-}
-\edef\hi@url@bslash{\expandafter\@gobble\string\\}
-\def\UrlBreaks{\do\.\do\@\do\!\do\;\do\]\do\)\do\,\do\+%
-\do\=\do\#\do\:}
-\def\UrlBigBreaks{\do\/\do\?\do\&\do\-}
-\def\UrlNobreaks{\do\^\do\$}
-\def\UrlSpecials{%
-    \do\<{$\protect\langle$}%
-    % There's some bug in doc.sty that requires this
-    \expandafter\do\csname|\endcsname{$\protect\mid$}%
-    \do\{{$\protect\lbrace$}%
-    \do\\{$\protect\backslash$}%
-    \do\ {}%
-    \do\_{\_}%
-}
-\def\UrlNobreakSpecials{%
-    \do\>{$\protect\rangle$}\do\}{$\protect\rbrace$}\do\~{\char`\~}%
-    \do\%{\hi@url@spacebreak\%}%
-}
-\DeclareRobustCommand\hi@url@break{%
-    \penalty\exhyphenpenalty
-}
-\DeclareRobustCommand\hi@url@spacenobreak{%
-    \unskip\unpenalty\nobreak
-    \hskip\urlbreakskip
-}
-\DeclareRobustCommand\hi@url@spacebreak{%
-    \penalty\exhyphenpenalty\hskip\urlbreakskip
 }
 \def\do#1{%
     \@namedef{hi@url@\string #1}##1##2{%
@@ -1236,14 +1212,7 @@
         }{}%
     }%
 }
-\UrlBreaks
-\@namedef{hi@url@\string\ }#1#2{%
-    \ifstrempty{#2}{}{\addto@macro#1{\hi@url@break}}%
-}
-\@namedef{hi@url@\string\^^M}#1#2{%
-    \ifstrempty{#2}{}{\addto@macro#1{\hi@url@break}}%
-}
-\newskip\urlbreakskip \urlbreakskip=0pt plus .4pt
+\do\.\do\@\do\!\do\;\do\]\do\)\do\,\do\+\do\=\do\#\do\:
 \def\do#1{%
     \@namedef{hi@url@\string #1}##1##2{%
         \addto@macro##1{\hi@url@spacenobreak\hi@parseurl@insertbox}%
@@ -1257,14 +1226,14 @@
         }{}%
     }%
 }
-\UrlBigBreaks
+\do\/\do\?\do\&\do\-
 \def\do#1{%
     \@namedef{hi@url@\string #1}##1##2{%
         \addto@macro##1{\hi@parseurl@insertbox}%
         \@expand{\addto@macro##1}{\expandafter\@gobble\string #1}{ii}%
     }%
 }
-\UrlNobreaks
+\do\^\do\$
 \def\do#1#2{%
     \@namedef{hi@url@\string #1}##1##2{%
         \addto@macro##1{\hi@parseurl@insertbox{#2}}%
@@ -1273,13 +1242,41 @@
         }{}%
     }%
 }
-\UrlSpecials
+\do\<{$\protect\langle$}%
+\expandafter\do\csname|\endcsname{$\protect\mid$}%
+\do\{{$\protect\lbrace$}%
+\do\\{$\protect\backslash$}%
+\do\ {}%
+\do\_{\_}%
 \def\do#1#2{%
     \@namedef{hi@url@\string #1}##1##2{%
         \addto@macro##1{\hi@parseurl@insertbox{#2}}%
     }%
 }
-\UrlNobreakSpecials
+\do\>{$\protect\rangle$}
+\do\}{$\protect\rbrace$}
+\do\~{\char`\~}%
+\@namedef{hi@url@\string\%}#1#2{%
+    \ifstrempty{#2}{}{\addto@macro#1{\hi@url@spacebreak}}%
+    \addto@macro#1{\hi@parseurl@insertbox{\%}}%
+}%
+\newskip\urlbreakskip \urlbreakskip=0pt plus .4pt
+\DeclareRobustCommand\hi@url@break{%
+    \penalty\exhyphenpenalty
+}
+\DeclareRobustCommand\hi@url@spacenobreak{%
+    \unskip\unpenalty\nobreak
+    \hskip\urlbreakskip
+}
+\DeclareRobustCommand\hi@url@spacebreak{%
+    \penalty\exhyphenpenalty\hskip\urlbreakskip
+}
+\@namedef{hi@url@\string\ }#1#2{%
+    \ifstrempty{#2}{}{\addto@macro#1{\hi@url@break}}%
+}
+\@namedef{hi@url@\string\^^M}#1#2{%
+    \ifstrempty{#2}{}{\addto@macro#1{\hi@url@break}}%
+}
 \def\hi@urlstyle@full{%
     \def\hi@showurl##1{##1}%
 }

@@ -516,6 +516,31 @@ C, \hi@namelist@insts Z\hi@namelist@and Y}
 %%
 %% \iffalse filename: urls.dtx \fi
 %%
+
+\section{urls.dtx}
+
+\begingroup
+
+The following should not produce overfull boxes. Also ensure that the links
+themselves work as expected.
+
+\immediate\write16{THERE SHOULD BE NO OVERFULL BOXES AFTER THIS LINE}
+
+\def\testbox#1{%
+    \vrule\vbox{%
+        \hsize 1in \relax
+        \url{#1}%
+    }\vrule\quad
+}
+
+\testbox{http://www.google.com/search?q=hello+world}
+\testbox{http://www.google.com/search?q=hello\%20world\%20how\%20are\%20you}
+\testbox{http://www.google.com/search?q=antidis establishment arianism}
+
+\immediate\write16{THERE SHOULD BE NO OVERFULL BOXES BEFORE THIS LINE}
+
+\endgroup
+
 %%
 %% \iffalse filename: struct.dtx \fi
 %%
