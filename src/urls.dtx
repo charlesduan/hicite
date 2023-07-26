@@ -84,6 +84,12 @@ The command |\url|\marg{url} can be used to format a URL in text.
 \make@find@start{https://}
 \make@find@start{ftp://}
 \make@find@start{mailto:}
+%    \end{macrocode}
+%
+% Parses a URL for purposes of forming it into a link URL. This primarily strips
+% the URL of backslash escape characters.
+%
+%    \begin{macrocode}
 \def\hi@parseurl@forlink#1{%
     \let\reserved@a\@empty
     % Force the link to start with https:// unless it has a protocol already
@@ -110,6 +116,7 @@ The command |\url|\marg{url} can be used to format a URL in text.
 }
 \def\hi@parseurl@forlink@chars#1#2{%
     \@test \ifcat\relax\noexpand#1\fi{%
+        % If the char is a macro
         \@ifundefined{hi@url@\string#1}{%
             \expandafter\addto@macro\expandafter\reserved@a\expandafter{%
                 \string#1%
@@ -120,7 +127,10 @@ The command |\url|\marg{url} can be used to format a URL in text.
             }{ii}%
         }%
     }{%
-        \addto@macro\reserved@a{#1}%
+        % All other non-word chars
+        \ifblank{#1}{}{% Ignore bare spaces
+            \addto@macro\reserved@a{#1}%
+        }%
     }%
     \hi@parseurl@forlink@{#2}%
 }
@@ -177,77 +187,26 @@ The command |\url|\marg{url} can be used to format a URL in text.
 % character to the URL. In all cases, continue with parsing the
 % remainder of the string.
 %    \begin{macrocode}
-        \@ifundefined{hi@url@\hi@url@bslash\string#2}{%
+        \@ifundefined{hi@url@\@backslashchar\string#2}{%
             \addto@macro#1{\hi@parseurl@insertbox #2}%
         }{%
-            \csname hi@url@\hi@url@bslash\string#2\endcsname{#1}{#3}%
+            \csname hi@url@\@backslashchar\string#2\endcsname{#1}{#3}%
         }%
         \hi@parseurl@{#3}{#1}%
     }%
 }
 %    \end{macrocode}
-% |\hi@url@bslash| is just a backslash character.
-%    \begin{macrocode}
-\edef\hi@url@bslash{\expandafter\@gobble\string\\}
-%    \end{macrocode}
 %
-% Borrowed from url.sty
+% We now define macros of the form |\hi@url@|\meta{char} for each character that
+% will receive special processing. Each macro will take two arguments: \#1 is
+% the URL macro for adding content, and \#2 is the trailing text of the URL.
+%
+% The original lists of characters were borrowed from url.sty, by Donald
+% Arsenau. At this point the code no longer resembles the original beyond
+% standard TeX programming conventions, but I'd like to credit the original
+% package.
 %
 % These characters accept a breakpoint after them.
-%    \begin{macrocode}
-\def\UrlBreaks{\do\.\do\@\do\!\do\;\do\]\do\)\do\,\do\+%
-\do\=\do\#\do\:}
-%    \end{macrocode}
-%
-% These characters accept a breakpoint \emph{and} add a little extra space.
-%    \begin{macrocode}
-\def\UrlBigBreaks{\do\/\do\?\do\&\do\-}
-%    \end{macrocode}
-%
-% These characters accept no breakpoints, but are often backslashed; including
-% them forces the removal of the backslash.
-%    \begin{macrocode}
-\def\UrlNobreaks{\do\^\do\$}
-%    \end{macrocode}
-%
-% These characters require special treatment when they are seen.
-%    \begin{macrocode}
-\def\UrlSpecials{%
-    \do\<{$\protect\langle$}%
-    % There's some bug in doc.sty that requires this
-    \expandafter\do\csname|\endcsname{$\protect\mid$}%
-    \do\{{$\protect\lbrace$}%
-    \do\\{$\protect\backslash$}%
-    \do\ {}%
-    \do\_{\_}%
-}
-%    \end{macrocode}
-%
-% These characters require special treatment, but are not legal breakpoints.
-%    \begin{macrocode}
-\def\UrlNobreakSpecials{%
-    \do\>{$\protect\rangle$}\do\}{$\protect\rbrace$}\do\~{\char`\~}%
-    \do\%{\hi@url@spacebreak\%}%
-}
-%    \end{macrocode}
-%
-% Macros for types of breakpoints and spaces.
-%    \begin{macrocode}
-\DeclareRobustCommand\hi@url@break{%
-    \penalty\exhyphenpenalty
-}
-\DeclareRobustCommand\hi@url@spacenobreak{%
-    \unskip\unpenalty\nobreak
-    \hskip\urlbreakskip
-}
-\DeclareRobustCommand\hi@url@spacebreak{%
-    \penalty\exhyphenpenalty\hskip\urlbreakskip
-}
-%    \end{macrocode}
-%
-% Now actually apply commands to the character classes. Each macro defined for
-% the above characters will take two arguments: \#1 is the URL macro for adding
-% content, and \#2 is the trailing text of the URL.
 %    \begin{macrocode}
 \def\do#1{%
     \@namedef{hi@url@\string #1}##1##2{%
@@ -258,14 +217,11 @@ The command |\url|\marg{url} can be used to format a URL in text.
         }{}%
     }%
 }
-\UrlBreaks
-\@namedef{hi@url@\string\ }#1#2{%
-    \ifstrempty{#2}{}{\addto@macro#1{\hi@url@break}}%
-}
-\@namedef{hi@url@\string\^^M}#1#2{%
-    \ifstrempty{#2}{}{\addto@macro#1{\hi@url@break}}%
-}
-\newskip\urlbreakskip \urlbreakskip=0pt plus .4pt
+\do\.\do\@\do\!\do\;\do\]\do\)\do\,\do\+\do\=\do\#\do\:
+%    \end{macrocode}
+%
+% These characters accept a breakpoint \emph{and} add a little extra space.
+%    \begin{macrocode}
 \def\do#1{%
     \@namedef{hi@url@\string #1}##1##2{%
         \addto@macro##1{\hi@url@spacenobreak\hi@parseurl@insertbox}%
@@ -279,14 +235,24 @@ The command |\url|\marg{url} can be used to format a URL in text.
         }{}%
     }%
 }
-\UrlBigBreaks
+\do\/\do\?\do\&\do\-
+%    \end{macrocode}
+%
+% These characters accept no breakpoints, but are often backslashed; including
+% them forces the removal of the backslash.
+%    \begin{macrocode}
 \def\do#1{%
     \@namedef{hi@url@\string #1}##1##2{%
         \addto@macro##1{\hi@parseurl@insertbox}%
         \@expand{\addto@macro##1}{\expandafter\@gobble\string #1}{ii}%
     }%
 }
-\UrlNobreaks
+\do\^\do\$
+%    \end{macrocode}
+%
+% These characters require special treatment when they are seen, and a
+% breakpoint is inserted if the next character is a word character.
+%    \begin{macrocode}
 \def\do#1#2{%
     \@namedef{hi@url@\string #1}##1##2{%
         \addto@macro##1{\hi@parseurl@insertbox{#2}}%
@@ -295,13 +261,59 @@ The command |\url|\marg{url} can be used to format a URL in text.
         }{}%
     }%
 }
-\UrlSpecials
+\do\<{$\protect\langle$}%
+% There's some bug in doc.sty that requires this
+\expandafter\do\csname|\endcsname{$\protect\mid$}%
+\do\{{$\protect\lbrace$}%
+\do\\{$\protect\backslash$}%
+\do\ {}%
+\do\_{\_}%
+%    \end{macrocode}
+%
+% These characters require special treatment. The first ones are not legal
+% breakpoints; the percent sign is but the breakpoint comes before the
+% character. (Ideally the percent would be recognized as an entity escape,
+% collecting the next two characters, but that would require modifying the
+% URL parser.)
+%
+%    \begin{macrocode}
 \def\do#1#2{%
     \@namedef{hi@url@\string #1}##1##2{%
         \addto@macro##1{\hi@parseurl@insertbox{#2}}%
     }%
 }
-\UrlNobreakSpecials
+\do\>{$\protect\rangle$}
+\do\}{$\protect\rbrace$}
+\do\~{\char`\~}%
+\@namedef{hi@url@\string\%}#1#2{%
+    \ifstrempty{#2}{}{\addto@macro#1{\hi@url@spacebreak}}%
+    \addto@macro#1{\hi@parseurl@insertbox{\%}}%
+}%
+%    \end{macrocode}
+%
+% Macros for types of breakpoints and spaces.
+%    \begin{macrocode}
+\newskip\urlbreakskip \urlbreakskip=0pt plus .4pt
+\DeclareRobustCommand\hi@url@break{%
+    \penalty\exhyphenpenalty
+}
+\DeclareRobustCommand\hi@url@spacenobreak{%
+    \unskip\unpenalty\nobreak
+    \hskip\urlbreakskip
+}
+\DeclareRobustCommand\hi@url@spacebreak{%
+    \penalty\exhyphenpenalty\hskip\urlbreakskip
+}
+%    \end{macrocode}
+%
+% Now actually apply commands to the character classes.
+%    \begin{macrocode}
+\@namedef{hi@url@\string\ }#1#2{%
+    \ifstrempty{#2}{}{\addto@macro#1{\hi@url@break}}%
+}
+\@namedef{hi@url@\string\^^M}#1#2{%
+    \ifstrempty{#2}{}{\addto@macro#1{\hi@url@break}}%
+}
 %    \end{macrocode}
 %</package>
 %<*doc>
@@ -413,3 +425,30 @@ unbreakable word or the macro should be defined to include an unbreakable
 }
 %    \end{macrocode}
 %</package>
+%<*test>
+
+\section{urls.dtx}
+
+\begingroup
+
+The following should not produce overfull boxes. Also ensure that the links
+themselves work as expected.
+
+\immediate\write16{THERE SHOULD BE NO OVERFULL BOXES AFTER THIS LINE}
+
+\def\testbox#1{%
+    \vrule\vbox{%
+        \hsize 1in \relax
+        \url{#1}%
+    }\vrule\quad
+}
+
+\testbox{http://www.google.com/search?q=hello+world}
+\testbox{http://www.google.com/search?q=hello\%20world\%20how\%20are\%20you}
+\testbox{http://www.google.com/search?q=antidis establishment arianism}
+
+\immediate\write16{THERE SHOULD BE NO OVERFULL BOXES BEFORE THIS LINE}
+
+\endgroup
+
+%</test>

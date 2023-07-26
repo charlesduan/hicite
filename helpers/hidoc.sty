@@ -8,10 +8,15 @@
 \setmonofont[Scale=MatchLowercase]{Source Code Pro}
 \RequirePackage{etoolbox}
 \RequirePackage{strings}
+\sloppy
 \def\hia*{\emph{Hereinafter}}
+%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %
 % Doc options
 %
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
 \PageIndex
 \NewDocElement[printtype=,idxtype=,idxgroup=]{File}{fileenv}
 \NewDocElement[noprint=true,idxgroup=,noprint]{Param}{parameter}
@@ -25,7 +30,11 @@ reference type, or other item is described in detail. Other page numbers
 identify where the item is used.}
 \setcounter{IndexColumns}{2}
 %
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%
 % Macros for cross-referencing
+%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %
 \def\pt#1{the main documentation}
 \def\param#1{\hyperref[param:#1]{\textsf{%
@@ -44,7 +53,14 @@ identify where the item is used.}
     \SpecialMainAbbIndex{#1}%
     \color{brown}#1%
 }}}
-\sloppy
+%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%
+% Code blocks
+%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%
+\def\@xobeysp{\leavevmode\spacefactor1000\relax\space}
 \begingroup
     \catcode`\<=\active
     \gdef\ActivateBracket{%
@@ -94,7 +110,57 @@ identify where the item is used.}
 \AtBeginDocument{%
     \ActivateBracket
 }
+%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%
+% Sectioning.
+%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%
 \setcounter{secnumdepth}{100}
+\renewcommand\part{%
+   \if@noskipsec \leavevmode \fi
+   \clearpage
+   \hrule \@height \z@
+   \vskip 0.1\textheight
+   \@afterindentfalse
+   \secdef\@part\@spart}
+\def\@part[#1]#2{%
+    \ifnum \c@secnumdepth >\m@ne
+      \refstepcounter{part}%
+      \addcontentsline{toc}{part}{\thepart\hspace{1em}#1}%
+    \else
+      \addcontentsline{toc}{part}{#1}%
+    \fi
+    {\parindent \z@ \raggedright
+     \interlinepenalty \@M
+     \normalfont
+     \ifnum \c@secnumdepth >\m@ne
+       \Large\bfseries \partname\nobreakspace\thepart
+       \par\nobreak
+     \fi
+     \huge \bfseries #2%
+     \markboth{}{}\par}%
+    \nobreak
+    \vskip 24pt
+    \hidoc@line
+    \vskip 40pt
+    \@afterheading}
+\renewcommand\section{%
+    \clearpage
+    \@startsection
+        {section}{1}{\z@}%
+        {-3.5ex \@plus -1ex \@minus -.2ex}%
+        {16pt}%
+        {%
+            \aftergroup\hidoc@line
+            \normalfont\LARGE\bfseries
+        }%
+}
+\def\hidoc@line{%
+    \vskip 16pt
+    \hrule \@width 0.25\textwidth
+}
 \renewcommand\theparagraph{%
     \ifnum\c@subsubsection>\z@
         \thesubsubsection
@@ -109,6 +175,13 @@ identify where the item is used.}
 }
 \def\sec#1{\find@in{-}{#1}{\@tworun\sec\@gobble}{\texttt{#1.dtx}}}
 \make@find@in{-}
+%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%
+% Parameter lists.
+%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%
 \def\parameterlist#1#2#3\@stop{%
     \par\hangindent=2\parindent\indent
     \textbf{\parameterlist@params#1, \@stop}: #2\par
@@ -129,6 +202,13 @@ identify where the item is used.}
 \def\ExplainOption#1{%
     \paragraph*{\DescribeOpt{#1}\textsf{#1}}\label{opt:#1}
 }
+%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%
+% Informational boxes.
+%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%
 \renewenvironment{quote}{%
     \list{}{%
         \rightmargin=\leftmargin
@@ -137,7 +217,6 @@ identify where the item is used.}
     }%
     \item\relax
 }{\endlist}
-\def\@xobeysp{\leavevmode\spacefactor1000\relax\space}
 \newenvironment{hi@boxmaker}[1]{%
     \par
     \def\hi@color{#1}%
