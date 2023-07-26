@@ -14,7 +14,8 @@ To enter a list of names for a reference, include the appropriate parameter
 (e.g., \param{author} or \param{instauth}) once for each name in the list. The
 names will automatically be compiled into a formatted list. Every name entered
 will be listed, although a warning will be issued unless the \param{noetal}
-parameter is included. To truncate a list, enter only the initial name with ``et
+parameter is included or the \opt{noauthwarn} option is given for the package.
+To truncate a list, enter only the initial name with ``et
 al.''\ attached to the end. For example:
 \begin{demo}
 |\defbook{nimmer}{| \\
@@ -594,12 +595,23 @@ report)
 % \#5 are the results of splitting the old list.
 %    \begin{macrocode}
 \def\hi@namelist@andtocomma#1#2#3#4#5{%
+    \hi@namelist@addetalwarn{#2}%
+    \def#2{#3#4\hi@namelist@comma#5\hi@namelist@and#1}%
+}
+%    \end{macrocode}
+%
+% By default, |\hi@namelist@addetalwarn| produces a warning any time a third
+% name is added to the list. If the \param{noauthwarn} parameter is given, then
+% the command becomes a no-op.
+%
+%    \begin{macrocode}
+\def\hi@namelist@addetalwarn#1{%
     \ifx\hi@param@set@hooks\relax\else
         \hi@param@addhook{%
             \hi@ifset\hi@kv@noetal{}{%
                 \PackageWarning\hi@pkgname{%
                     In reference \@this@case, the\MessageBreak
-                    list of names for \noexpand#2 contains\MessageBreak
+                    list of names for \noexpand#1 contains\MessageBreak
                     3 or more names. You should specify\MessageBreak
                     `noetal' before adding these authors.\MessageBreak
                     This occured on
@@ -607,7 +619,9 @@ report)
             }%
         }%
     \fi
-    \def#2{#3#4\hi@namelist@comma#5\hi@namelist@and#1}%
+}
+\def\hi@namelist@noauthwarn{%
+    \let\hi@namelist@addetalwarn\@gobble
 }
 %    \end{macrocode}
 %

@@ -2545,6 +2545,7 @@ year=1954,
 }
 \hi@newcite\defmanuscript{An unpublished manuscript}{%
     \hi@citetype{#1}\hi@type@other
+    \hi@book@pubparen % Why not
     \hi@ifset\hi@kv@type{}{\def\hi@kv@type{manuscript}}
     \hi@newcite@form{fc}{#1}{%
         \hi@citeguts{%
@@ -2552,12 +2553,12 @@ year=1954,
             \hi@kv@name
             \hi@maybepage{\hi@page@space\hi@kv@name}%
         }%
+        \hi@book@paren
         \the\hi@param@parens
         \hi@parens@add\hi@paren@manuscript{%
             unpublished \hi@kv@type
             \hi@ifset\hi@kv@onfile{, on file with \hi@kv@onfile}{}%
         }%
-        \hi@parens@add\hi@paren@date{\hi@kv@year}%
     }%
     \protected@edef\reserved@a{%
         \hi@ifset\hi@kv@authln{\@capnext\hi@kv@authln}{\hi@kv@name}%

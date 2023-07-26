@@ -91,6 +91,7 @@
 \DeclareOption{useopturl}{\hi@param@alias{opturl}{url}}
 \DeclareOption{noterefs}{\hi@xref@opt@noterefs}
 \DeclareOption{pagerefs}{\hi@xref@opt@pagerefs}
+\DeclareOption{noauthwarn}{\hi@namelist@noauthwarn}
 \def\hi@hooks@review{}
 \def\hi@hooks@memo{}
 %%
@@ -647,12 +648,16 @@
     \addto@macro#2{, \hi@namelist@insts #4}
 }
 \def\hi@namelist@andtocomma#1#2#3#4#5{%
+    \hi@namelist@addetalwarn{#2}%
+    \def#2{#3#4\hi@namelist@comma#5\hi@namelist@and#1}%
+}
+\def\hi@namelist@addetalwarn#1{%
     \ifx\hi@param@set@hooks\relax\else
         \hi@param@addhook{%
             \hi@ifset\hi@kv@noetal{}{%
                 \PackageWarning\hi@pkgname{%
                     In reference \@this@case, the\MessageBreak
-                    list of names for \noexpand#2 contains\MessageBreak
+                    list of names for \noexpand#1 contains\MessageBreak
                     3 or more names. You should specify\MessageBreak
                     `noetal' before adding these authors.\MessageBreak
                     This occured on
@@ -660,7 +665,9 @@
             }%
         }%
     \fi
-    \def#2{#3#4\hi@namelist@comma#5\hi@namelist@and#1}%
+}
+\def\hi@namelist@noauthwarn{%
+    \let\hi@namelist@addetalwarn\@gobble
 }
 \def\hi@namelist@addinst#1#2{%
     \hi@ifset#2{%
@@ -6798,6 +6805,7 @@
 }
 \hi@newcite\defmanuscript{An unpublished manuscript}{%
     \hi@citetype{#1}\hi@type@other
+    \hi@book@pubparen % Why not
     \hi@ifset\hi@kv@type{}{\def\hi@kv@type{manuscript}}
     \hi@newcite@form{fc}{#1}{%
         \hi@citeguts{%
@@ -6805,12 +6813,12 @@
             \hi@kv@name
             \hi@maybepage{\hi@page@space\hi@kv@name}%
         }%
+        \hi@book@paren
         \the\hi@param@parens
         \hi@parens@add\hi@paren@manuscript{%
             unpublished \hi@kv@type
             \hi@ifset\hi@kv@onfile{, on file with \hi@kv@onfile}{}%
         }%
-        \hi@parens@add\hi@paren@date{\hi@kv@year}%
     }%
     \protected@edef\reserved@a{%
         \hi@ifset\hi@kv@authln{\@capnext\hi@kv@authln}{\hi@kv@name}%

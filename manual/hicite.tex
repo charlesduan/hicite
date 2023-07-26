@@ -555,6 +555,10 @@ footnote numbers. This is typical of law reviews and is the standard when the
 numbers on which the relevant text is found. This is typical of legal memoranda
 and is the standard when the \opt{memo} option is selected.
 
+
+\ExplainOption{noauthwarn} No warning will be issued if three or more authors
+are given without the \param{noetal} parameter.
+
 \part{References}
 \label{p:references}
 %%
@@ -918,7 +922,8 @@ To enter a list of names for a reference, include the appropriate parameter
 (e.g., \param{author} or \param{instauth}) once for each name in the list. The
 names will automatically be compiled into a formatted list. Every name entered
 will be listed, although a warning will be issued unless the \param{noetal}
-parameter is included. To truncate a list, enter only the initial name with ``et
+parameter is included or the \opt{noauthwarn} option is given for the package.
+To truncate a list, enter only the initial name with ``et
 al.''\ attached to the end. For example:
 \begin{demo}
 |\defbook{nimmer}{| \\
@@ -5195,6 +5200,7 @@ abbreviated according to the \abbscheme{journal} scheme.
 
 \hi@newcite\defmanuscript{An unpublished manuscript}{%
     \hi@citetype{#1}\hi@type@other
+    \hi@book@pubparen % Why not
     \hi@ifset\hi@kv@type{}{\def\hi@kv@type{manuscript}}
     \hi@newcite@form{fc}{#1}{%
         \hi@citeguts{%
@@ -5202,12 +5208,12 @@ abbreviated according to the \abbscheme{journal} scheme.
             \hi@kv@name
             \hi@maybepage{\hi@page@space\hi@kv@name}%
         }%
+        \hi@book@paren
         \the\hi@param@parens
         \hi@parens@add\hi@paren@manuscript{%
             unpublished \hi@kv@type
             \hi@ifset\hi@kv@onfile{, on file with \hi@kv@onfile}{}%
         }%
-        \hi@parens@add\hi@paren@date{\hi@kv@year}%
     }%
     \protected@edef\reserved@a{%
         \hi@ifset\hi@kv@authln{\@capnext\hi@kv@authln}{\hi@kv@name}%
