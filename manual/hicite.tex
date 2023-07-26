@@ -4973,12 +4973,12 @@ information, instead of the \param{citation} parameter.
 \hi@newcite\defjrnart{A consecutively paginated journal article}{%
     \hi@citetype{#1}\hi@type@other
     \hi@abbrev@journal@check
+    \hi@ifset\hi@kv@page{}{\def\hi@kv@page{?}}%
     \@expand{\find@eq{forthcoming}}{\hi@kv@page}{i}{%
         \hi@undefine\hi@kv@page
         \KV@hi@forthcoming\relax
     }{}%
     \hi@ifset\hi@kv@vol{}{\let\hi@kv@vol\hi@kv@year}%
-    \hi@ifset\hi@kv@page{}{\def\hi@kv@page{?}}%
     \hi@newcite@form{fc}{#1}{%
         \hi@inline@never{%
             \hi@citeguts{%
@@ -5091,7 +5091,9 @@ journals.
             \hi@ifset\hi@kv@page{\space \@format@page@macro\hi@kv@page}{}%
         }%
         \hi@ifset\hi@kv@vol{%
-            \hi@parens@add\hi@paren@date{\hi@kv@year}%
+            \ifx\hi@kv@vol\hi@kv@year\else
+                \hi@parens@add\hi@paren@date{\hi@kv@year}%
+            \fi
         }{}%
         \the\hi@param@parens
     }%

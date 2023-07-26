@@ -10,12 +10,12 @@
 \hi@newcite\defjrnart{A consecutively paginated journal article}{%
     \hi@citetype{#1}\hi@type@other
     \hi@abbrev@journal@check
+    \hi@ifset\hi@kv@page{}{\def\hi@kv@page{?}}%
     \@expand{\find@eq{forthcoming}}{\hi@kv@page}{i}{%
         \hi@undefine\hi@kv@page
         \KV@hi@forthcoming\relax
     }{}%
     \hi@ifset\hi@kv@vol{}{\let\hi@kv@vol\hi@kv@year}%
-    \hi@ifset\hi@kv@page{}{\def\hi@kv@page{?}}%
     \hi@newcite@form{fc}{#1}{%
         \hi@inline@never{%
             \hi@citeguts{%
@@ -135,7 +135,9 @@ journals.
             \hi@ifset\hi@kv@page{\space \@format@page@macro\hi@kv@page}{}%
         }%
         \hi@ifset\hi@kv@vol{%
-            \hi@parens@add\hi@paren@date{\hi@kv@year}%
+            \ifx\hi@kv@vol\hi@kv@year\else
+                \hi@parens@add\hi@paren@date{\hi@kv@year}%
+            \fi
         }{}%
         \the\hi@param@parens
     }%
@@ -336,3 +338,51 @@ This is for working papers with a serial number issued by an institution.
 }
 
 %</doc>
+%<*test>
+
+\section{artrefs.dtx}
+
+\defjrnart{jrnartyearonly}{
+author=A B,
+title=Year Only Article,
+journal=Journal of Law,
+year=2014,
+page=123
+}
+\AssertBox{\note{jrnartyearonly}}{\InFootnote{A B, \emph{Year Only Article},
+2014 \textsc{J.L.} 123.}}
+
+\defjrnart{jrnartyearvol}{
+author=C D,
+title=Same Year and Volume Article,
+journal=Journal of Law,
+year=2014,
+page=123
+}
+
+\AssertBox{\note{jrnartyearvol}}{\InFootnote{C D, \emph{Same Year and Volume
+Article}, 2014 \textsc{J.L.} 123.}}
+
+
+\defprocart{procartyearonly}{
+author=A B,
+title=Year Only Article,
+journal=Proceedings of Law,
+year=2014,
+page=number 15,
+}
+\AssertBox{\note{procartyearonly}}{\InFootnote{A B, \emph{Year Only Article},
+\emph{in} 2014 \textsc{Proc.\ L.} no.\ 15.}}
+
+\defjrnart{procartyearvol}{
+author=C D,
+title=Same Year and Volume Article,
+journal=Proceedings of Law,
+year=2014,
+page=number 15,
+}
+
+\AssertBox{\note{procartyearvol}}{\InFootnote{C D, \emph{Same Year and Volume
+Article}, 2014 \textsc{Proc.\ L.} no.\ 15.}}
+
+%</test>
