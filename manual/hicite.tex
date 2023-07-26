@@ -901,6 +901,19 @@ In other words, the full text is before the parentheses and the abbreviation
 inside them.
 
 
+\subsection{Aliases}
+
+The \rtype{alias} reference type can parse the following input syntax:
+\begin{grammar}
+\meta{alias} := \meta{citation} [ \littext{ at } \meta{page} ] \\
+\Example
+|\defalias{b18}{| \\
+|    brown at 18| \\
+|}|
+\end{grammar}
+the \param{cite} parameter, thereby setting \param{ref} to the alias reference
+appropriately.
+
 \subsection{The \texttt{cite} Parameter}
 
 The parameter \param{cite} accepts as input a string conforming to

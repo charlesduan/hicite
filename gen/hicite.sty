@@ -431,6 +431,12 @@
     \hi@cp@paren{#1}{\KV@hi@inline}{\KV@hi@name}%
 }
 \def\hi@cparse@selfcite#1{}%
+\def\hi@cparse@alias#1{%
+    \find@in{ at }{#1}{%
+        \@tworun\KV@hi@citation\KV@hi@page
+    }{\KV@hi@citation{#1}}%
+}
+\make@find@in{ at }
 %%
 %% \iffalse filename: names.dtx \fi
 %%

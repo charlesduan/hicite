@@ -151,6 +151,11 @@
     \testvrpwithyear{123/U.S.C./S 456 (2000)}{123}{U.S.C.}{S 456}{2000}%
     \testvrpwithyear{123 U.S.C. S 456 (2000)}{123}{U.S.C.}{S 456}{2000}%
 
+    \defabbrev{fda}{the Food and Drug Administration (the FDA)}
+    \defalias{thefda}{fda}
+    \AssertBox{\inline{thefda}}{the Food and Drug Administration (``FDA'')}
+    \AssertBox{\inline{thefda}}{the FDA}
+
 \endgroup
 
 %%

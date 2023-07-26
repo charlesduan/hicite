@@ -483,7 +483,6 @@ The \rtype{courtdoc} reference type can parse the following input syntax:
 %</package>
 %<*doc>
 
-
 \subsection{Abbreviations}
 
 The \rtype{abbrev} reference type can parse the following input syntax:
@@ -508,6 +507,31 @@ inside them.
 \def\hi@cparse@selfcite#1{}%
 %    \end{macrocode}
 %
+%</package>
+%<*doc>
+
+\subsection{Aliases}
+
+The \rtype{alias} reference type can parse the following input syntax:
+\begin{grammar}
+\meta{alias} := \meta{citation} [ \littext{ at } \meta{page} ] \\
+\Example
+|\defalias{b18}{| \\
+|    brown at 18| \\
+|}|
+\end{grammar}
+the \param{cite} parameter, thereby setting \param{ref} to the alias reference
+appropriately.
+%</doc>
+%<*package>
+%    \begin{macrocode}
+\def\hi@cparse@alias#1{%
+    \find@in{ at }{#1}{%
+        \@tworun\KV@hi@citation\KV@hi@page
+    }{\KV@hi@citation{#1}}%
+}
+\make@find@in{ at }
+%    \end{macrocode}
 %</package>
 %<*doc>
 
@@ -557,6 +581,11 @@ The parameter \param{cite} accepts as input a string conforming to
     \testvrpwithyear{123 F.3d 456 (2000)}{123}{F.3d}{456}{2000}%
     \testvrpwithyear{123/U.S.C./S 456 (2000)}{123}{U.S.C.}{S 456}{2000}%
     \testvrpwithyear{123 U.S.C. S 456 (2000)}{123}{U.S.C.}{S 456}{2000}%
+
+    \defabbrev{fda}{the Food and Drug Administration (the FDA)}
+    \defalias{thefda}{fda}
+    \AssertBox{\inline{thefda}}{the Food and Drug Administration (``FDA'')}
+    \AssertBox{\inline{thefda}}{the FDA}
 
 \endgroup
 
