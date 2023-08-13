@@ -645,6 +645,10 @@ themselves work as expected.
     {para.~15(a)\hi@psize@penalty(1)}
 \AssertExpand{\@format@pageno{paragraph 15/a1, /a2}}
     {para.~15(a)\hi@psize@penalty(1), (a)\hi@psize@penalty(2)}
+\AssertExpand{\@format@pageno{paragraph 15/a1-/2}}
+    {para.~15(a)\hi@psize@penalty(1)--(2)}
+\AssertExpand{\@format@pageno{paragraph 15/a1, /a2-/3}}
+    {para.~15(a)\hi@psize@penalty(1), (a)\hi@psize@penalty(2)--(3)}
 \AssertExpand{\@format@pageno{paragraph 15, table 4-5, at 36}}
     {para.~15, tbls.4--5, at 36}
 \AssertExpand{\@format@pageno{15 note 6}}{15 n.6}
@@ -2243,10 +2247,7 @@ year=1954,
                 }{}%
                 \hi@fn@booktitle{\hi@kv@name}%
             }%
-            \hi@parens@add\hi@paren@date{%
-                \hi@book@paren
-                \hi@pstruct@use{year}%
-            }%
+            \hi@book@paren
             \the\hi@param@parens
         }%
     }%
@@ -2408,7 +2409,9 @@ year=1954,
         \hi@undefine\hi@kv@page
         \KV@hi@forthcoming\relax
     }{}%
-    \hi@ifset\hi@kv@vol{}{\let\hi@kv@vol\hi@kv@year}%
+    \hi@ifset\hi@kv@forthcoming{}{%
+        \hi@ifset\hi@kv@vol{}{\let\hi@kv@vol\hi@kv@year}%
+    }%
     \hi@newcite@form{fc}{#1}{%
         \hi@inline@never{%
             \hi@citeguts{%
@@ -2476,7 +2479,9 @@ year=1954,
 \hi@newcite\defprocart{A non-consecutively paginated proceedings article}{%
     \hi@citetype{#1}\hi@type@other
     \hi@abbrev@journal@check
-    \hi@ifset\hi@kv@vol{}{\let\hi@kv@vol\hi@kv@year}%
+    \hi@ifset\hi@kv@forthcoming{}{%
+        \hi@ifset\hi@kv@vol{}{\let\hi@kv@vol\hi@kv@year}%
+    }%
     \hi@ifset\hi@kv@page{}{%
         \hi@ifset\hi@kv@issue{%
             \edef\hi@kv@page{No. \expandonce\hi@kv@issue}%

@@ -15,7 +15,9 @@
         \hi@undefine\hi@kv@page
         \KV@hi@forthcoming\relax
     }{}%
-    \hi@ifset\hi@kv@vol{}{\let\hi@kv@vol\hi@kv@year}%
+    \hi@ifset\hi@kv@forthcoming{}{%
+        \hi@ifset\hi@kv@vol{}{\let\hi@kv@vol\hi@kv@year}%
+    }%
     \hi@newcite@form{fc}{#1}{%
         \hi@inline@never{%
             \hi@citeguts{%
@@ -115,7 +117,9 @@ journals.
 \hi@newcite\defprocart{A non-consecutively paginated proceedings article}{%
     \hi@citetype{#1}\hi@type@other
     \hi@abbrev@journal@check
-    \hi@ifset\hi@kv@vol{}{\let\hi@kv@vol\hi@kv@year}%
+    \hi@ifset\hi@kv@forthcoming{}{%
+        \hi@ifset\hi@kv@vol{}{\let\hi@kv@vol\hi@kv@year}%
+    }%
     \hi@ifset\hi@kv@page{}{%
         \hi@ifset\hi@kv@issue{%
             \edef\hi@kv@page{No. \expandonce\hi@kv@issue}%

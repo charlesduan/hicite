@@ -137,7 +137,10 @@ Here, the word ``to'' must be used to separate the ranges to avoid ambiguity.
 \make@find@in{ to }
 \def\hi@fpg@onesegment#1{%
     \find@in{ to }{#1}{\hi@fpg@to}{%
-        \ifstrempty{#1}{}{\hi@fpg@split#1,\@stop{\hi@fpg@pagenumber{}{}}}%
+        \ifstrempty{#1}{}{%
+            \hi@fpg@split#1,\@stop{\hi@fpg@pagenumber{}{}}%
+            \hi@fpg@done
+        }%
     }%
 }
 \def\hi@fpg@to#1#2{%
@@ -146,8 +149,16 @@ Here, the word ``to'' must be used to separate the ranges to avoid ambiguity.
 %    \end{macrocode}
 %
 % Reads each pin cite item and runs |\hi@fpg@one| on each. Calls
-% |\hi@fpg@emitstate| at the end of the list. \#3 is the current page number
-% state, described below.
+% |\hi@fpg@emitstate| at the end of the list.
+%
+% The initial usage of this macro should look like:
+% \begin{grammar}
+% |\hi@fpg@split| \meta{list} \littext{,}|\@stop| \marg{state}
+% |\hi@fpg@done|
+% \end{grammar}
+% where \meta{list} is the comma-separated list of items, and \meta{state} is
+% described below. |\hi@fpg@done| is used to manage the trailing comma, as
+% described below.
 %
 %    \begin{macrocode}
 \def\hi@fpg@split#1,#2\@stop#3{%
@@ -165,9 +176,7 @@ Here, the word ``to'' must be used to separate the ranges to avoid ambiguity.
             \ifblank{#2}{\hi@fpg@emitstate}{\hi@fpg@split#2\@stop}%
         }%
     }%
-    \hi@fpg@done
 }
-
 %    \end{macrocode}
 %
 %</package>
@@ -214,7 +223,8 @@ proper dash. To include an actual hyphen, use |\-| instead.
 % whether a bare number is a page number or a division number, and (2)
 % determining whether to emit a singular or plural version of a division name.
 % To solve these problems, it is necessary to maintain some internal state wile
-% formatting a pin cite. The state contains the following as grouped elements
+% formatting a pin cite. The \meta{state} contains the following as grouped
+% elements
 % (other than the last element):
 % \begin{enumerate}
 % \item A macro to be run if a bare number is found, to format the number. The
@@ -341,7 +351,7 @@ named division \\
 %
 %    \begin{macrocode}
 \def\hi@fpg@symbol#1#2#3#4{%
-    \find@eq{/}{#1}{\hi@fpg@subsection{#2}{#3}{#4}}{%
+    \find@eq{/}{#1}{\hi@fpg@subdivision{#2}{#3}{#4}}{%
         \find@try\find@eq{%
             {-}{\hi@fpg@letter{ #2}{#3}{#4}}%
             {!}{\hi@fpg@number{\hi@pgnum@raw#2}{#3}{#4}}%
@@ -757,24 +767,44 @@ automatically parenthesized. The following are examples:
 % augments the state to add the subdivision to both the plural and singular
 % forms.
 %
-% \#1 is the subsection (without the slash); \#2 is the state; \#3 is the
+% \#1 is the subdivision (without the slash); \#2 is the state; \#3 is the
 % callback.
 %
 %    \begin{macrocode}
-\def\hi@fpg@subsection#1#2#3{%
-    \hi@fpg@subsection@alterstate{#1}{#3}#2\@stop
+\def\hi@fpg@subdivision#1#2#3{%
+    \hi@fpg@subdivision@alterstate{#1}{#3}#2\@stop
 }
 %    \end{macrocode}
-% \#1 is the subdivision, \#2 is the callback, \#3-\#5 the state
+% \#1 is the subdivision, \#2 is the callback, \#3--\#5 the state
 % elements, and \#6 any trailing material from the state.
 %    \begin{macrocode}
-\def\hi@fpg@subsection@alterstate#1#2#3#4#5#6\@stop{%
+\def\hi@fpg@subdivision@alterstate#1#2#3#4#5#6\@stop{%
     #2{%
         {#3}%
-        {#4\hi@parenize{#1}\hi@fpg@comma}%
-        {#5\hi@fpg@comma\hi@parenize{#1}}%
+        {#4\hi@fpg@subdivision@range{#1}\hi@fpg@comma}%
+        {#5\hi@fpg@comma\hi@fpg@subdivision@range{#1}}%
         #6%
     }%
+}
+%    \end{macrocode}
+%
+% Given a bare subdivision number, determines if it is a range. If so, separates
+% the range and parenthesizes each part separately. If not, parenthesizes the
+% whole number. Note that for a bare subdivision range, it is assumed that both
+% parts are subdivision numbers, not new divisions. As a result, the pin cite |S
+% 15/2, /3-4| is the same as |S 15/2, /3-/4|.
+%
+%    \begin{macrocode}
+\def\hi@fpg@subdivision@range#1{%
+    \find@try\find@in{%
+        {-/}{\hi@fpg@parenizetwo}%
+        {-}{\hi@fpg@parenizetwo}%
+    }{#1}{\hi@parenize{#1}}%
+}
+\make@find@in{-}
+\make@find@in{-/}
+\def\hi@fpg@parenizetwo#1#2{%
+    \hi@parenize{#1}--\hi@parenize{#2}%
 }
 %    \end{macrocode}
 %
@@ -1160,6 +1190,10 @@ command
     {para.~15(a)\hi@psize@penalty(1)}
 \AssertExpand{\@format@pageno{paragraph 15/a1, /a2}}
     {para.~15(a)\hi@psize@penalty(1), (a)\hi@psize@penalty(2)}
+\AssertExpand{\@format@pageno{paragraph 15/a1-/2}}
+    {para.~15(a)\hi@psize@penalty(1)--(2)}
+\AssertExpand{\@format@pageno{paragraph 15/a1, /a2-/3}}
+    {para.~15(a)\hi@psize@penalty(1), (a)\hi@psize@penalty(2)--(3)}
 \AssertExpand{\@format@pageno{paragraph 15, table 4-5, at 36}}
     {para.~15, tbls.4--5, at 36}
 \AssertExpand{\@format@pageno{15 note 6}}{15 n.6}

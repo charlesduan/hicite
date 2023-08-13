@@ -36,8 +36,8 @@ which are optional (although some reference types will require \param{year}):
 %<*package>
 %
 % Reference type definers should call this macro before creating citation format
-% macros, to set up |\hi@book@paren|. They must then include |\hi@book@paren| in
-% the content for the date parenthetical.
+% macros, to set up |\hi@book@paren|. They then execute |\hi@book@paren| which
+% adds the formatted parenthetical to the list of parentheticals.
 %
 %    \begin{macrocode}
 \def\hi@book@pubparen{%
@@ -181,10 +181,7 @@ which are optional (although some reference types will require \param{year}):
                 }{}%
                 \hi@fn@booktitle{\hi@kv@name}%
             }%
-            \hi@parens@add\hi@paren@date{%
-                \hi@book@paren
-                \hi@pstruct@use{year}%
-            }%
+            \hi@book@paren
             \the\hi@param@parens
         }%
     }%
