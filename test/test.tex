@@ -3561,6 +3561,10 @@ Article}, 2014 \textsc{Proc.\ L.} no.\ 15.}}
 \hi@newparam{onfile}{Where the document is on file}
 \hi@newparam{place}{Place (for speeches, constitutions, statutes)}
 \hi@param@alias{producer}{instauth}
+\hi@param@alias{pubdate}{pubyear}
+\hi@defparam{pubyear}{Year of publication (for French statutes)}{%
+    \hi@date@parse{#1}{\def\hi@kv@pubyear}%
+}
 \hi@param@alias{sponsor}{publisher}
 \hi@param@alias{state}{place}
 \hi@defparam{struct}{Structure for data of multivolume works}{%

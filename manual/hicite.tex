@@ -911,8 +911,7 @@ The \rtype{alias} reference type can parse the following input syntax:
 |    brown at 18| \\
 |}|
 \end{grammar}
-the \param{cite} parameter, thereby setting \param{ref} to the alias reference
-appropriately.
+This will set the \param{citation} and \param{page} parameters.
 
 \subsection{The \texttt{cite} Parameter}
 
@@ -6693,6 +6692,11 @@ This is equivalent to |date=issued |\meta{date}.
 \hi@newparam{onfile}{Where the document is on file}
 \hi@newparam{place}{Place (for speeches, constitutions, statutes)}
 \hi@param@alias{producer}{instauth}
+\hi@param@alias{pubdate}{pubyear}
+\hi@defparam{pubyear}{Year of publication (for French statutes)}{%
+    \hi@date@parse{#1}{\def\hi@kv@pubyear}%
+}
+This is an additional date parameter used for French statutes.
 \hi@param@alias{sponsor}{publisher}
 \hi@param@alias{state}{place}
 \hi@defparam{struct}{Structure for data of multivolume works}{%

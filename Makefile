@@ -1,5 +1,12 @@
 export TEXINPUTS := ./gen:./support:./helpers:
 
+ifeq (, $(shell which xelatex-dev))
+    XELATEX := xelatex
+else
+    XELATEX := xelatex-dev
+endif
+
+
 main: manual/hicite.pdf
 
 dist: hicite.tds.zip
@@ -9,12 +16,12 @@ test: test/test.pdf
 package: gen/hicite.sty
 
 manual/hicite.pdf: manual/hicite.tex
-	xelatex --output-directory=manual manual/hicite
+	$(XELATEX) --output-directory=manual manual/hicite
 	makeindex -s gind.ist manual/hicite
-	xelatex --output-directory=manual manual/hicite
+	$(XELATEX) --output-directory=manual manual/hicite
 
 test/test.pdf: test/test.tex
-	xelatex --output-directory=test test/test
+	$(XELATEX) --output-directory=test test/test
 
 hicite.tds.zip: gen/hicite.sty
 	mkdir -p tex/latex/hicite
@@ -32,7 +39,7 @@ test/test.tex: hicite.ins FORCE
 	latex hicite.ins
 
 doc/%.pdf: src/%.dtx helpers/driver.tex helpers/hidoc.sty helpers/docparams.tex
-	xelatex -output-directory=doc "$<"
+	$(XELATEX) -output-directory=doc "$<"
 
 doc: doc/*.pdf
 
