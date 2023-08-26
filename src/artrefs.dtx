@@ -101,6 +101,25 @@ journals.
     {useissue}{Include the issue number, which by default is omitted.}
 }
 
+
+\begin{demo}
+\Example
+\begin{verbatim}
+\defjrnart{griswold}{
+    author=Erwin N. Griswold,
+    title=Government in Ignorance of the Law---A Plea
+    for Better Publication of Executive Legislation,
+    cite=48 Harvard Law Review 198,
+    year=1934,
+}
+\end{verbatim}
+\Produces
+    Erwin N. Griswold, \emph{Government in Ignorance of the
+    Law---A Plea for Better Publication of Executive
+    Legislation}, 48 \textsc{Harv.\ L. Rev.}\ 198 (1934).
+\end{demo}
+Note the unabbreviated journal name in the input.
+
 %</doc>
 %<*package>
 %    \begin{macrocode}
@@ -211,6 +230,25 @@ scholarly weight.
     {publisher}{The magazine publisher, if relevant.}
 }
 
+\begin{demo}
+\Example
+\begin{verbatim}
+\defmagart{duhigg}{
+    author=Charles Duhigg,
+    title=How Companies Learn Your Secrets,
+    journal=New York Times Magazine,
+    page=!MM30,
+    date=Jan 1 2016,
+}
+\end{verbatim}
+\Produces Charles Duhigg, \emph{How Companies Learn Your Secrets}, \textsc{N.Y.
+Times Mag.}\ MM30 (Jan.~1, 2016).
+\end{demo}
+Note the exclamation mark in front of the page number, which must be included
+because the page number does not start with a digit (see \sec{pages}).
+
+
+
 %</doc>
 %
 \hi@alias@cite\defnewsart\defmagart
@@ -257,6 +295,23 @@ title separate from a particular page title. If given, \param{rep} will be
 abbreviated according to the \abbscheme{journal} scheme.
 \bookparenparameters
 
+\begin{demo}
+\Example
+\begin{verbatim}
+\defwebsite{mitzman}{
+    author=Dany Mitzman,
+    title=Nutella: How the World Went Nuts for a Hazelnut
+        Spread,
+    date=may 18 2014,
+    journal=BBC News,
+    url=http://www.bbc.com/news/magazine-27438001
+}
+\end{verbatim}
+\Produces Dany Mitzman, \emph{Nutella: How the World Went Nuts for a Hazelnut
+Spread}, \textsc{BBC News} (May 18, 2014), http://\ldots
+\end{demo}
+
+
 %</doc>
 %
 \hi@newcite\defmanuscript{An unpublished manuscript}{%
@@ -292,6 +347,20 @@ dissertations, manuscripts, and reports.
     choice.}
     {year}{The date of the manuscript.}
 }
+
+\begin{demo}
+\Example
+\begin{verbatim}
+\defmanuscript{princess-bride}{
+    title=The Princess Bride,
+    author=William Goldman,
+    type=draft screenplay,
+    date=may 3 1986,
+}
+\end{verbatim}
+\Produces William Goldman, The Princess Bride (May 3, 1986) (unpublished
+draft screenplay).
+\end{demo}
 
 %</doc>
 \hi@newcite\defworkingpaper{A working paper}{%
@@ -329,6 +398,26 @@ This is for working papers with a serial number issued by an institution.
     simultaneously.}
     {year}{The date of the paper.}
 }
+
+\begin{demo}
+\Example
+\begin{verbatim}
+\defworkingpaper{cockburn}{
+    author=Iain M. Cockburn,
+    author=Megan MacGarvie,
+    title={Patents, Thickets, and the Financing of Early-Stage
+        Firms: Evidence From the Software Industry},
+    sponsor=National Bureau of Economic Research,
+    serial=Working Paper No. 13644,
+    year=2007,
+    url=http://www.nber.org/papers/w13644.pdf
+}
+\end{verbatim}
+\Produces
+Iain M. Cockburn \& Megan MacGarvie, \emph{Patents, Thickets, and the Financing
+of Early-Stage Firms: Evidence from the Software Industry} (Nat'l Bureau of
+Econ.\ Res., Working Paper No. 13644, 2007).
+\end{demo}
 
 %</doc>
 %<*test>

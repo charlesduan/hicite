@@ -149,6 +149,39 @@ as well.
 
 \pagejoining
 
+\begin{demo}
+\Example
+\begin{verbatim}
+\defstatcode{15-usc-1}{
+    cite=15 U.S.C. S 1,
+}
+\end{verbatim}
+\Produces 15 U.S.C. \textsection~1.
+\end{demo}
+
+The \cmd\defcitegroup command is especially useful in
+combination with |\defstatcode|; see \sec{refs-citegroups} for examples.
+
+
+\begin{demo}
+\Example
+\begin{verbatim}
+\defstatcode{337}{
+    name=Tariff Act of 1930,
+    origsect=S 337,
+    cite=19 U.S.C. S 1337,
+    paren=as amended,
+}
+\end{verbatim}
+\Produces Tariff Act of 1930 \textsection~337, 19 U.S.C. \textsection~1337 (as
+amended).
+\end{demo}
+This demonstrates a statute that has been codified with a section number
+different from its session law section, where the session law section number is
+still commonly used.
+
+
+
 %</doc>
 %
 \hi@newcite\defregcode{A regulation in a code}{%
@@ -612,6 +645,25 @@ those for \rtype{statcode}.
     {place}{The place of publication (e.g., the state).}
     {publisher}{The publisher of the statute, if relevant.}
 }
+
+\begin{demo}
+\Example
+\begin{verbatim}
+\defstatsess{nttaa}{
+    name=National Technology Transfer and 
+    Advancement Act of 1995,
+    inline=NTTAA,
+    publiclaw=104-113,
+    cite=110 Stat. 775
+}
+\sentence{nttaa at S 12/d1 ::stat: 783}.
+\end{verbatim}
+\Produces National Technology Transfer and Advancement Act of 1995 (NTTAA),
+Pub.\ L.\ No.\ 104-113, \textsection~12(d)(1), 110 \textsc{Stat.}\ 775, 783.
+\end{demo}
+Note how a pin cite to a session law must include not only the section number,
+but also the Statutes at Large page number following a |::stat:| segment marker.
+See \sec{pages-segments} for more on segments in pin cites.
 
 %</doc>
 %<*package>

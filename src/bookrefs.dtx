@@ -32,6 +32,7 @@ which are optional (although some reference types will require \param{year}):
     {year}{The year of publication.}
 }
 
+
 %</doc>
 %<*package>
 %
@@ -208,6 +209,22 @@ which are optional (although some reference types will require \param{year}):
 }
 \bookparenparameters
 
+\begin{demo}
+\Example
+\begin{verbatim}
+\defbook{nimmer}{
+    author=Melville B. Nimmer,
+    author=David Nimmer,
+    title=Nimmer on Copyright,
+    year=2014,
+    hereinafter=\UseFontFor{booktitle}{Nimmer},
+}
+\end{verbatim}
+\Produces \textsc{Melville B. Nimmer \& David Nimmer}, \textsc{Nimmer on
+Copyright} (2014) [hereinafter \textsc{Nimmer}].
+\end{demo}
+
+
 %</doc>
 %<*package>
 %    \begin{macrocode}
@@ -295,27 +312,6 @@ standalone reference with a type, such as a letter or case. If so, then the
 contained item is defined as a reference and passed to the citation container's
 \param{citation} parameter. \unskip\footnote{This may be done through anonymous
 references as described in \sec{anonymous}.}
-For example, the following would cite a letter in a volume of collected works:
-\begin{demo}
-\ttfamily
-|\defletter|\{ltr\}\{\\
-|    |author=Benjamin Franklin,\\
-|    |to=George Washington,\\
-|    |\ldots\\
-\} \\
-|\defbook|\{works\}\{\\
-|    |name=Collected Works of Franklin,\\
-|    |\ldots\\
-\} \\
-|\defcitecontainer|\{franklin-ltr\}\{\\
-|    |citation=ltr, \\
-|    |in=works, \\
-|    |page=107, \\
-\}
-\end{demo}
-A command of |\sentence{franklin-ltr at 109}| would produce something along the
-lines of ``Letter from Benjamin Franklin to George Washington, \emph{in}
-\textsc{Collected Works of Franklin} 107, 109.''
 
 Second, the contained item may not require a standalone definition, as would be
 the case for a book chapter. In that case, the cite container takes parameters
@@ -344,6 +340,97 @@ information, instead of the \param{citation} parameter.
     {inline}{A short form name for the citation. The \param{hereinafter}
     parameter is probably better in most situations.}
 }
+
+\begin{demo}
+\Example
+\begin{verbatim}
+\defcitecontainer{pantzer}{
+    author=Katharine F. Pantzer,
+    title={Printing the English Statutes, 1484--1640:
+        Some Historical Implications},
+    in=book: {
+        title=Books and Society in History,
+        editor=Kenneth E. Carpenter,
+        year=1983
+    },
+    page=69,
+}
+\end{verbatim}
+\Produces Katharine F. Pantzer, \emph{Printing the English Statutes, 1484--1640:
+Some Historical Implications}, \emph{in} \textsc{Books and Society in History}
+69 (Kenneth E. Carpenter ed., 1983).
+\end{demo}
+This is the book-chapter type of cite container, where the contained item has a
+title and author but is not of its own reference type.
+
+
+\begin{demo}
+\Example
+\begin{verbatim}
+\defcitecontainer{adams-lee}{
+    citation=letter: {
+        author=Samuel Adams,
+        to=Arthur Lee,
+        date=july 31 1771,
+    },
+    vol=2,
+    page=173,
+    in=book: {
+        title={Life of Arthur Lee, LL. D.},
+        author=Richard Henry Lee,
+        year=1829,
+        publisher={Boston, Wells and Lilly},
+    },
+}
+\end{verbatim}
+\Produces 
+Letter from Samuel Adams to Arthur Lee (July 31, 1771), \emph{in} 2
+\textsc{Richard Henry Lee}, \textsc{Life of Arthur Lee, LL. D.} 173 (Boston,
+Wells \& Lilly, 1829).
+\end{demo}
+This exemplifies the first type of cite container, where a standalone reference
+(here, a letter) is republished inside another reference (here, a book). The
+contained and container references are both defined anonymously (see
+\sec{anonymous}).
+
+\begin{demo}
+\Example
+\begin{verbatim}
+\defcitecontainer{rastell}{
+    citation=citecontainer: {
+        author=John Rastell,
+        title=Prohemium,
+        type=to,
+        in=book: {
+            title=The Abbreviation of the Statutes,
+            year=1519,
+        },
+    },
+    vol=1,
+    page=327,
+    in=book: {
+        title=Typographical Antiquities,
+        year=1785,
+        editor=Joseph Ames,
+        editor=William Herbert,
+        publisher={London, Society of Antiquaries},
+    },
+    type=reprinted in,
+}
+\end{verbatim}
+\Produces
+John Rastell, \emph{Prohemium} to \textsc{The Abbreviation of the Statutes}
+(1519), \emph{reprinted in} 1 \textsc{Typographical Antiquities} 327
+(Joseph Ames \& William Herbert eds., London, Soc'y of Antiquaries 1785).
+\end{demo}
+This defines an introduction (Prohemium) to a publication of statutes (the
+\emph{Abbreviation}), where no copies of the publication itself are known to
+remain but the introduction alone was reprinted in another compilation called
+\emph{Typographical Antiquities}. The Prohemium is thus properly defined as a
+cite container (of the second type) where the container is the
+\emph{Abbreviation}, but then that whole thing is wrapped inside another cite
+container for \emph{Typographical Antiquities}. This is probably the most
+complex reference definition that I have constructed.
 
 %</doc>
 %<*package>

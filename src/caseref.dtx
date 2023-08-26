@@ -95,19 +95,24 @@
 
 \label{s:caseref-parties}
 
-The name of a case is generally defined by the following input parameters:
+There are three ways a case can be named, which dictate the parameters that must
+be given for a case reference definition:
 \begin{itemize}
-\item \param{p}: The party before the ``versus,'' generally the plaintiff.
-\item \param{d}: The party after the ``versus,'' generally the defendant.
-\item \param{name}: A non-versus name for the case, such as ``\emph{In re}
-\meta{party}.'' This will be called the ``common name'' in the discussion below.
-\item \param{inline}: Optionally, the short form name.
-\end{itemize}
-It is possible for cases to use both the versus-party parameters and
-a common name, for example in multidistrict litigation that both has lead
-parties and a topical name.
+\item With adversarial parties, such as \emph{Brown v.~Board of Education}. The
+parameters \param{p} and \param{d} set each party name, and the \param{parties}
+parameter can be used to set both at once.
 
-These inputs are used to produce five formatted names for the case:
+\item With a single name, such as \emph{In re Alappat}. The \param{name}
+parameter accepts this type of case name.
+
+\item With both adversarial parties and a common name. This occurs with older,
+well-known Supreme Court cases, such as \emph{Consolidated Electric Light Co.\
+v.\ McKeesport Light Co.}\ (The Incandescent Lamp Patent Case), and with modern
+class-action litigation. All of the aforementioned parameters should be used for
+these cases.
+\end{itemize}
+
+These input parameters are used to produce five formatted names for the case:
 \begin{itemize}
 \item The full title, used in full inline citations. This is abbreviated
 according to the \abbscheme{inlcase} scheme.
@@ -646,8 +651,8 @@ of ignored words follows:
 %</package>
 %<*doc>
 \begin{demo}
-\def\hi@case@shortfmt@add#1{\chop@space{#1}\\}%
-\begin{tabular}{l}
+\def\hi@case@shortfmt@add#1{\hb@xt@ 7em{\chop@space{#1}\hss} }%
+\leavevmode
 %</doc>
 %<*doc|package>
 \hi@case@shortfmt@add{,}
@@ -669,7 +674,6 @@ of ignored words follows:
 \hi@case@shortfmt@add{ of}
 %</doc|package>
 %<*doc>
-\end{tabular}
 \end{demo}
 
 
@@ -1031,6 +1035,41 @@ nom.''\ must be added to explanatory phrases that end with a comma.
     {enbanc, mem, percuriam}{Parentheticals denoting the nature of the
     opinion.}
 }
+\begin{demo}
+\Example
+\begin{verbatim}
+\defcase{goodyear-dunlop}{
+    parties={Goodyear Dunlop Tires Operations, SA v. Brown},
+    cite=564 U.S. 915,
+    year=2011,
+}
+\end{verbatim}
+\Produces \emph{Goodyear Dunlop Tires Operations, SA v.~Brown}, 564 U.S. 915
+(2011).
+\end{demo}
+In this example, note the use of the \param{parties} and \param{cite}
+parameters, as shortcuts to entering \param{p}, \param{d}, \param{vol},
+\param{rep}, and \param{page}. Also observe that the party names are entered
+unabbreviated, but reporters and court names are entered abbreviated (because
+those are never used unabbreviated, and the abbreviations are too inconsistent).
+
+\begin{demo}
+\Example
+\begin{verbatim}
+\defcase{nimitz}{
+    name=In re Nimitz Technologies LLC,
+    court=Fed. Cir.,
+    percuriam,
+    date=dec 8 2022,
+    docket=2023-103,
+}
+\end{verbatim}
+\Produces \emph{In re Nimitz Techs.\ LLC, No.\ 2023-103 (Fed.\ Cir.\ Dec.\ 8,
+2022)}.
+\end{demo}
+This demonstrates a case with a single name rather than adversarial parties, and
+with a docket number rather than a reporter citation.
+
 %</doc>
 \hi@newcite\defadmincase{An administrative decision}{%
     \hi@citetype{#1}\hi@type@admin
@@ -1041,6 +1080,28 @@ This is the same as a case with \param{citetype} set to |admin|. Parameters are
 identical to \rtype{case} with the following addition:
 
 \keyparameters{{agency}{Same as \param{court} but abbreviates the name.}}
+
+\begin{demo}
+\Example
+\begin{verbatim}
+\ExplanatoryPhrase{affirmed without opinion,}
+\defadmincase{biodelivery}{
+    parties={BioDelivery Sciences International, Inc. v. RB
+        Pharmaceuticals Ltd.},
+    docket=No. IPR2014-00325,
+    court=P.T.A.B.,
+    date=jun 30 2015,
+    slip,
+    paren=final written decision,
+    subsequent=affirmed without opinion: biodelivery-cafc
+}
+\end{verbatim}
+\Produces \emph{BioDelivery Scis.\ Int'l, Inc.\ v.\ RB
+        Pharms.\ Ltd.}, No.\ IPR2014-00325 (P.T.A.B. June 30, 2015) (final
+        written decision), \emph{aff'd without opinion}, \ldots
+\end{demo}
+This shows an administrative decision citation with subsequent history. The
+reference |biodelivery-cafc| would be defined elsewhere.
 
 %</doc>
 \hi@newcite\defcasedoc{Document used in a case}{%
@@ -1095,6 +1156,27 @@ identical to \rtype{case} with the following addition:
     {number}{The document number or docket list entry. This is added as a
     parenthetical, preceded by ``Doc.~No.''}
 }
+
+\begin{demo}
+\Example
+\begin{verbatim}
+\defcasedoc{wyze}{
+    citation=case: {
+        parties={Wyze Labs, Inc. v. Beijing Rockrobo
+            Technology Co.},
+        docket=2:21-cv-941,
+        court=W.D. Wash.,
+        date=dismissed jan 3 2022,
+    },
+    name=Complaint for Declaratory Judgment,
+    date=july 15 2021,
+}
+\end{verbatim}
+\Produces Complaint for Declaratory Judgment, \emph{Wyze Labs, Inc.\ v.\ Beijing
+Rockrobo Tech.\ Co.}, No.\ 2:21-cv-941 (W.D. Wash.\ July 15, 2021).
+\end{demo}
+Here, the underlying case is defined using an anonymous reference definition
+(see \sec{anonymous}).
 
 %</doc>
 %<*package>

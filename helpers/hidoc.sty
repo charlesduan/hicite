@@ -243,6 +243,10 @@ identify where the item is used.}
         \fontseries\mddefault
         \fontshape\shapedefault
         \small\def\@xobeysp{~}%
+        % Suppress spacing around verbatim resulting from \verbatim's use of
+        % \trivlist
+        \vskip-\@topsep
+        \@topsep\z@ \@topsepadd\z@
     }%
     \begin{hi@boxmaker}{[gray]{0.9}}%
 }{\end{hi@boxmaker}}
