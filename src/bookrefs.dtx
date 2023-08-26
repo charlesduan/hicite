@@ -110,39 +110,32 @@ which are optional (although some reference types will require \param{year}):
     \hi@citetype{#1}\hi@type@other
     \hi@book@pubparen
     \expandafter\hi@book@titlethe\expandafter{\hi@kv@name}%
-    \hi@newcite@form{ic}{#1}{%
-        \hi@citeguts{\hi@kv@author}%
-    }%
     \hi@newcite@form{fc}{#1}{%
         \hi@pstruct@initialize\@this@vol
         \hi@ifset\hi@kv@author{%
             \noexpand\@gobble{\hi@kv@authln}%
         }{}% For sorting purposes
-        \noexpand\if@hi@inline
-            \expandafter\noexpand\csname ic@#1\endcsname
-        \noexpand\else
-            \hi@citeguts{%
-                \noexpand\hi@citecontainer@suppress{%
-                    \noexpand\hi@usevol{%
-                        \hi@ifset\hi@kv@vol{\hi@kv@vol\space}{}%
-                    }%
-                    \hi@ifset\hi@kv@author{%
-                        \hi@pstruct@use@font{author}\hi@fn@bookauthor, % space
-                    }{}%
+        \hi@citeguts{%
+            \noexpand\hi@citecontainer@suppress{%
+                \noexpand\hi@usevol{%
+                    \hi@ifset\hi@kv@vol{\hi@kv@vol\space}{}%
                 }%
-                \hi@ifset\hi@kv@number{%
-                    \hi@ifset\hi@kv@publisher{}{%
-                        \noexpand\hi@fn@booktitle{%
-                            \hi@abbrev@pub{\hi@kv@number}{\@iden}%
-                        }, % space
-                    }%
+                \hi@ifset\hi@kv@author{%
+                    \hi@pstruct@use@font{author}\hi@fn@bookauthor, % space
                 }{}%
-                \hi@pstruct@use@font{name}\hi@fn@booktitle
-                \hi@maybepage{\hi@page@space\hi@kv@name}%
             }%
-            \hi@book@paren
-            \the\hi@param@parens
-        \noexpand\fi
+            \hi@ifset\hi@kv@number{%
+                \hi@ifset\hi@kv@publisher{}{%
+                    \noexpand\hi@fn@booktitle{%
+                        \hi@abbrev@pub{\hi@kv@number}{\@iden}%
+                    }, % space
+                }%
+            }{}%
+            \hi@pstruct@use@font{name}\hi@fn@booktitle
+            \hi@maybepage{\hi@page@space\hi@kv@name}%
+        }%
+        \hi@book@paren
+        \the\hi@param@parens
     }%
     \hi@ifset\hi@kv@toapage{%
         \hi@include@page@in@toa{#1}%

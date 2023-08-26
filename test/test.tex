@@ -102,6 +102,8 @@
 
 \section{refs.dtx}
 
+\subsection{defcitegroup}
+
 \begingroup
 
     \let\testregister\@empty
@@ -109,6 +111,11 @@
     \defcitegroup\deftest{Prefix }{a, b, c}
     \AssertMacro\testregister{{a}{Prefix a}{b}{Prefix b}{c}{Prefix c}}
 
+    \let\testregister\@empty
+    \defcitegroup[pre-]\deftest{Prefix }{a, b, c}
+    \AssertMacro\testregister{%
+        {pre-a}{Prefix a}{pre-b}{Prefix b}{pre-c}{Prefix c}%
+    }
 \endgroup
 
 %%
@@ -1058,6 +1065,25 @@ The following can only be tested visually. Make sure that these look acceptable.
 %%
 %% \iffalse filename: draw.dtx \fi
 %%
+
+\section{draw.dtx}
+
+\subsection{Which}
+
+\begingroup
+
+    \def\@this@case{whichtest}
+    \def\fc@whichtest{a}
+
+    \AssertCallback{\hi@draw@which{sc,fc}}{fc}
+
+    \def\sc@whichtest{a}
+
+    \AssertCallback{\hi@draw@which{sc,fc}}{sc}
+    \AssertCallback{\hi@draw@which{isc,sc,fc}}{sc}
+
+\endgroup
+
 %%
 %% \iffalse filename: abbrevs.dtx \fi
 %%
@@ -2167,39 +2193,32 @@ year=1954,
     \hi@citetype{#1}\hi@type@other
     \hi@book@pubparen
     \expandafter\hi@book@titlethe\expandafter{\hi@kv@name}%
-    \hi@newcite@form{ic}{#1}{%
-        \hi@citeguts{\hi@kv@author}%
-    }%
     \hi@newcite@form{fc}{#1}{%
         \hi@pstruct@initialize\@this@vol
         \hi@ifset\hi@kv@author{%
             \noexpand\@gobble{\hi@kv@authln}%
         }{}% For sorting purposes
-        \noexpand\if@hi@inline
-            \expandafter\noexpand\csname ic@#1\endcsname
-        \noexpand\else
-            \hi@citeguts{%
-                \noexpand\hi@citecontainer@suppress{%
-                    \noexpand\hi@usevol{%
-                        \hi@ifset\hi@kv@vol{\hi@kv@vol\space}{}%
-                    }%
-                    \hi@ifset\hi@kv@author{%
-                        \hi@pstruct@use@font{author}\hi@fn@bookauthor, % space
-                    }{}%
+        \hi@citeguts{%
+            \noexpand\hi@citecontainer@suppress{%
+                \noexpand\hi@usevol{%
+                    \hi@ifset\hi@kv@vol{\hi@kv@vol\space}{}%
                 }%
-                \hi@ifset\hi@kv@number{%
-                    \hi@ifset\hi@kv@publisher{}{%
-                        \noexpand\hi@fn@booktitle{%
-                            \hi@abbrev@pub{\hi@kv@number}{\@iden}%
-                        }, % space
-                    }%
+                \hi@ifset\hi@kv@author{%
+                    \hi@pstruct@use@font{author}\hi@fn@bookauthor, % space
                 }{}%
-                \hi@pstruct@use@font{name}\hi@fn@booktitle
-                \hi@maybepage{\hi@page@space\hi@kv@name}%
             }%
-            \hi@book@paren
-            \the\hi@param@parens
-        \noexpand\fi
+            \hi@ifset\hi@kv@number{%
+                \hi@ifset\hi@kv@publisher{}{%
+                    \noexpand\hi@fn@booktitle{%
+                        \hi@abbrev@pub{\hi@kv@number}{\@iden}%
+                    }, % space
+                }%
+            }{}%
+            \hi@pstruct@use@font{name}\hi@fn@booktitle
+            \hi@maybepage{\hi@page@space\hi@kv@name}%
+        }%
+        \hi@book@paren
+        \the\hi@param@parens
     }%
     \hi@ifset\hi@kv@toapage{%
         \hi@include@page@in@toa{#1}%
@@ -2405,58 +2424,53 @@ year=1954,
     \hi@ifset\hi@kv@vol{}{\let\hi@kv@vol\hi@kv@year}%
     \hi@ifset\hi@kv@page{}{\def\hi@kv@page{?}}%
     \hi@newcite@form{fc}{#1}{%
-        \hi@inline@never{%
-            \hi@citeguts{%
-                \hi@ifset\hi@kv@author{%
-                    \hi@toa@dupauthor{\noexpand\@iden}{\hi@kv@author@sortable}%
-                }{}%
-                \hi@ifset\hi@kv@type{\@capnext\hi@kv@type, }{}%
-                \hi@ifset\hi@kv@name{% Title
-                    \noexpand\hi@fn@arttitle{\hi@kv@name}\hi@font@comma
-                }{%
-                    % If no title set, if there's a citation, use that as the
-                    % title
-                    \hi@ifset\hi@kv@citation{%
-                        \noexpand\hi@fn@arttitle{%
-                            \protect\inline{\hi@kv@citation}%
-                        },
-                    }{}%
-                }%
-                \hi@ifset\hi@kv@vol{\hi@kv@vol\space}{%
-                    % Prompt error unless forthcoming
-                    \hi@ifset\hi@kv@forthcoming{}{\hi@kv@vol\space}%
-                }% Volume
-                \noexpand\hi@fn@jrntitle{\hi@kv@rep}% Magazine title
-                \hi@ifset\hi@kv@forthcoming{}{%
-                    \space
-                    \hi@ifset\hi@kv@useissue{%
-                        No.~\hi@kv@issue, at\space
-                    }{}%
-                    \@format@page@macro\hi@kv@page % First page
-                    \hi@maybepage{, }% Pin cite page
-                }%
-            }%
-            \the\hi@param@parens
-            \hi@ifset\hi@kv@forthcoming{%
-                \hi@parens@add\hi@paren@date{%
-                    forthcoming%
-                    \hi@ifset\hi@kv@year{ \hi@kv@year}{}%
-                }%
-                \noexpand\ifx\noexpand\@this@page\relax\noexpand\else
-                    \hi@parens@add\hi@paren@forthcomingms{%
-                        manuscript at \noexpand\@this@page
-                    }%
-                \noexpand\fi
+        \hi@citeguts{%
+            \hi@ifset\hi@kv@author{%
+                \hi@toa@dupauthor{\noexpand\@iden}{\hi@kv@author@sortable}%
+            }{}%
+            \hi@ifset\hi@kv@type{\@capnext\hi@kv@type, }{}%
+            \hi@ifset\hi@kv@name{% Title
+                \noexpand\hi@fn@arttitle{\hi@kv@name}\hi@font@comma
             }{%
-                \hi@ifset\hi@kv@vol{%
-                    \ifx\hi@kv@vol\hi@kv@year\else
-                        \hi@parens@add\hi@paren@date{\hi@kv@year}%
-                    \fi
+                % If no title set, if there's a citation, use that as the
+                % title
+                \hi@ifset\hi@kv@citation{%
+                    \noexpand\hi@fn@arttitle{%
+                        \protect\inline{\hi@kv@citation}%
+                    },
                 }{}%
+            }%
+            \hi@ifset\hi@kv@vol{\hi@kv@vol\space}{%
+                % Prompt error unless forthcoming
+                \hi@ifset\hi@kv@forthcoming{}{\hi@kv@vol\space}%
+            }% Volume
+            \noexpand\hi@fn@jrntitle{\hi@kv@rep}% Magazine title
+            \hi@ifset\hi@kv@forthcoming{}{%
+                \space
+                \hi@ifset\hi@kv@useissue{%
+                    No.~\hi@kv@issue, at\space
+                }{}%
+                \@format@page@macro\hi@kv@page % First page
+                \hi@maybepage{, }% Pin cite page
             }%
         }%
-        \hi@inline@only{%
-            \hi@citeguts{\hi@kv@author}%
+        \the\hi@param@parens
+        \hi@ifset\hi@kv@forthcoming{%
+            \hi@parens@add\hi@paren@date{%
+                forthcoming%
+                \hi@ifset\hi@kv@year{ \hi@kv@year}{}%
+            }%
+            \noexpand\ifx\noexpand\@this@page\relax\noexpand\else
+                \hi@parens@add\hi@paren@forthcomingms{%
+                    manuscript at \noexpand\@this@page
+                }%
+            \noexpand\fi
+        }{%
+            \hi@ifset\hi@kv@vol{%
+                \ifx\hi@kv@vol\hi@kv@year\else
+                    \hi@parens@add\hi@paren@date{\hi@kv@year}%
+                \fi
+            }{}%
         }%
     }%
     \protected@edef\reserved@a{%
@@ -2614,6 +2628,22 @@ year=1954,
     }%
     \@expand{\hi@supra@form{#1}}\reserved@a i%
 }
+
+\section{artrefs.dtx}
+
+\defmanuscript{testmanuscript}{
+author=John Doe,
+title=My Diary,
+date=jan 1 2021,
+}
+
+\AssertBox{\inline{testmanuscript}}{John Doe}
+
+\AssertBox{\note{testmanuscript}}{\InFootnote{John Doe, My Diary (Jan.~1, 2021)
+(unpublished manuscript).}}
+
+\AssertBox{\inline{testmanuscript}}{Doe}
+
 %%
 %% \iffalse filename: foreignrefs.dtx \fi
 %%
@@ -3284,7 +3314,20 @@ year=1954,
 %%
 \hi@newparam{authln}{Last name of the first author, for short citations}
 \hi@defparam{author}{Author of the reference}{%
+    \hi@defkey@author@addinlines
     \hi@nameproc@person{#1}{\hi@namelist@addtwo\hi@kv@author\hi@kv@authln}%
+}
+\def\hi@defkey@author@addinlines{%
+    \hi@ifset\hi@kv@author{}{%
+        \hi@param@addhook{%
+            \hi@newcite@form{ifc}{\@this@case}{%
+                \hi@citeguts{\hi@kv@author}%
+            }%
+            \hi@newcite@form{isc}{\@this@case}{%
+                \hi@citeguts{\hi@kv@authln}%
+            }%
+        }%
+    }%
 }
 \hi@defparam{cite}{Volume-reporter-page citation}{%
     \hi@cp@cite{#1}\KV@hi@vol\KV@hi@rep\KV@hi@page\KV@hi@year
@@ -3292,6 +3335,7 @@ year=1954,
 \hi@param@alias{date}{year}
 \hi@newparam{inline}{Short name for the reference}
 \hi@defparam{instauth}{Institutional author}{%
+    \hi@defkey@author@addinlines
     \hi@nameproc@inst{#1}{\hi@namelist@addinst}{\hi@kv@author}%
     \hi@nameproc@inst{#1}{\hi@namelist@addinst@ln}{\hi@kv@authln}%
 }

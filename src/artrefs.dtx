@@ -17,58 +17,53 @@
     \hi@ifset\hi@kv@vol{}{\let\hi@kv@vol\hi@kv@year}%
     \hi@ifset\hi@kv@page{}{\def\hi@kv@page{?}}%
     \hi@newcite@form{fc}{#1}{%
-        \hi@inline@never{%
-            \hi@citeguts{%
-                \hi@ifset\hi@kv@author{%
-                    \hi@toa@dupauthor{\noexpand\@iden}{\hi@kv@author@sortable}%
-                }{}%
-                \hi@ifset\hi@kv@type{\@capnext\hi@kv@type, }{}%
-                \hi@ifset\hi@kv@name{% Title
-                    \noexpand\hi@fn@arttitle{\hi@kv@name}\hi@font@comma
-                }{%
-                    % If no title set, if there's a citation, use that as the
-                    % title
-                    \hi@ifset\hi@kv@citation{%
-                        \noexpand\hi@fn@arttitle{%
-                            \protect\inline{\hi@kv@citation}%
-                        },
-                    }{}%
-                }%
-                \hi@ifset\hi@kv@vol{\hi@kv@vol\space}{%
-                    % Prompt error unless forthcoming
-                    \hi@ifset\hi@kv@forthcoming{}{\hi@kv@vol\space}%
-                }% Volume
-                \noexpand\hi@fn@jrntitle{\hi@kv@rep}% Magazine title
-                \hi@ifset\hi@kv@forthcoming{}{%
-                    \space
-                    \hi@ifset\hi@kv@useissue{%
-                        No.~\hi@kv@issue, at\space
-                    }{}%
-                    \@format@page@macro\hi@kv@page % First page
-                    \hi@maybepage{, }% Pin cite page
-                }%
-            }%
-            \the\hi@param@parens
-            \hi@ifset\hi@kv@forthcoming{%
-                \hi@parens@add\hi@paren@date{%
-                    forthcoming%
-                    \hi@ifset\hi@kv@year{ \hi@kv@year}{}%
-                }%
-                \noexpand\ifx\noexpand\@this@page\relax\noexpand\else
-                    \hi@parens@add\hi@paren@forthcomingms{%
-                        manuscript at \noexpand\@this@page
-                    }%
-                \noexpand\fi
+        \hi@citeguts{%
+            \hi@ifset\hi@kv@author{%
+                \hi@toa@dupauthor{\noexpand\@iden}{\hi@kv@author@sortable}%
+            }{}%
+            \hi@ifset\hi@kv@type{\@capnext\hi@kv@type, }{}%
+            \hi@ifset\hi@kv@name{% Title
+                \noexpand\hi@fn@arttitle{\hi@kv@name}\hi@font@comma
             }{%
-                \hi@ifset\hi@kv@vol{%
-                    \ifx\hi@kv@vol\hi@kv@year\else
-                        \hi@parens@add\hi@paren@date{\hi@kv@year}%
-                    \fi
+                % If no title set, if there's a citation, use that as the
+                % title
+                \hi@ifset\hi@kv@citation{%
+                    \noexpand\hi@fn@arttitle{%
+                        \protect\inline{\hi@kv@citation}%
+                    },
                 }{}%
+            }%
+            \hi@ifset\hi@kv@vol{\hi@kv@vol\space}{%
+                % Prompt error unless forthcoming
+                \hi@ifset\hi@kv@forthcoming{}{\hi@kv@vol\space}%
+            }% Volume
+            \noexpand\hi@fn@jrntitle{\hi@kv@rep}% Magazine title
+            \hi@ifset\hi@kv@forthcoming{}{%
+                \space
+                \hi@ifset\hi@kv@useissue{%
+                    No.~\hi@kv@issue, at\space
+                }{}%
+                \@format@page@macro\hi@kv@page % First page
+                \hi@maybepage{, }% Pin cite page
             }%
         }%
-        \hi@inline@only{%
-            \hi@citeguts{\hi@kv@author}%
+        \the\hi@param@parens
+        \hi@ifset\hi@kv@forthcoming{%
+            \hi@parens@add\hi@paren@date{%
+                forthcoming%
+                \hi@ifset\hi@kv@year{ \hi@kv@year}{}%
+            }%
+            \noexpand\ifx\noexpand\@this@page\relax\noexpand\else
+                \hi@parens@add\hi@paren@forthcomingms{%
+                    manuscript at \noexpand\@this@page
+                }%
+            \noexpand\fi
+        }{%
+            \hi@ifset\hi@kv@vol{%
+                \ifx\hi@kv@vol\hi@kv@year\else
+                    \hi@parens@add\hi@paren@date{\hi@kv@year}%
+                \fi
+            }{}%
         }%
     }%
     \protected@edef\reserved@a{%
@@ -336,3 +331,22 @@ This is for working papers with a serial number issued by an institution.
 }
 
 %</doc>
+%<*test>
+
+
+\section{artrefs.dtx}
+
+\defmanuscript{testmanuscript}{
+author=John Doe,
+title=My Diary,
+date=jan 1 2021,
+}
+
+\AssertBox{\inline{testmanuscript}}{John Doe}
+
+\AssertBox{\note{testmanuscript}}{\InFootnote{John Doe, My Diary (Jan.~1, 2021)
+(unpublished manuscript).}}
+
+\AssertBox{\inline{testmanuscript}}{Doe}
+
+%</test>

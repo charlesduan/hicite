@@ -322,6 +322,194 @@ Again, the value of this cross-referencing system is that the cited numbers
 automatically update as the document is edited, minimizing the amount of manual
 updating.
 
+\section{Example Reference Definitions}
+
+The following are a few items from my personal archives that may help to
+illustrate a variety of reference definitions.
+
+\subsection{Cases}
+
+A standard case:
+\begin{demo}
+\begin{verbatim}
+\defcase{goodyear-dunlop}{
+parties={Goodyear Dunlop Tires Operations, SA v. Brown},
+cite=564 U.S. 915,
+year=2011,
+}
+\end{verbatim}
+\end{demo}
+
+An unreported, per curiam, \emph{In re} case:
+\begin{demo}
+\begin{verbatim}
+\defcase{nimitz}{
+name=In re Nimitz Technologies LLC,
+court=Fed. Cir.,
+percuriam,
+date=dec 8 2022,
+docket=2023-103,
+}
+\end{verbatim}
+\end{demo}
+
+An administrative decision with subsequent history, using a shortened definition
+form:
+\begin{demo}
+\begin{verbatim}
+\ExplanatoryPhrase{affirmed without opinion,}
+\defadmincase{biodelivery}{
+BioDelivery Sciences International, Inc. v. RB Pharmaceuticals Ltd.,
+No. IPR2014-00325 (P.T.A.B. jun 30, 2015);
+slip,
+paren=final written decision,
+subsequent=affirmed without opinion: biodelivery-cafc
+}
+\end{verbatim}
+\end{demo}
+
+A document in a case, where the case has been defined as an anonymous reference
+(see \sec{anonymous}):
+\begin{demo}
+\begin{verbatim}
+\defcasedoc{wyze}{
+citation=case: {
+    parties={Wyze Labs, Inc. v. Beijing Rockrobo Technology Co.},
+    docket=2:21-cv-941,
+    court=W.D. Wash.,
+    date=dismissed jan 3 2022,
+},
+name=Complaint for Declaratory Judgment,
+date=july 15 2021,
+}
+\end{verbatim}
+\end{demo}
+
+\subsection{Constitutions and Statutes}
+
+A named clause of the Constitution:
+\begin{demo}
+\begin{verbatim}
+\defconst{a2s3}{
+name=the Take Care Clause,
+page={Article II, S 3}
+}
+\end{verbatim}
+\end{demo}
+
+A constitutional amendment:
+\begin{demo}
+\begin{verbatim}
+\defconstamend{1a}{
+number=1,
+}
+\end{verbatim}
+\end{demo}
+
+A statute in the U.S. Code:
+\begin{demo}
+\begin{verbatim}
+\defstatcode{15-usc-1}{
+15 U.S.C. S 1,
+}
+\end{verbatim}
+\end{demo}
+
+Several U.S. Code statutes (these may be cited using |\inline{101}| or such):
+\begin{demo}
+\begin{verbatim}
+\defcitegroup\defstatcode{35 U.S.C. S }{101, 102, 103, 112, 271}
+\end{verbatim}
+\end{demo}
+
+A named statute with an original section number:
+\begin{demo}
+\begin{verbatim}
+\defstatcode{337}{
+name=Tariff Act of 1930,
+origsect=S 337,
+cite=19 U.S.C. S 1337,
+paren=as amended,
+}
+\end{verbatim}
+\end{demo}
+
+A session law, with a short name:
+\begin{demo}
+\begin{verbatim}
+\defstatsess{nttaa}{
+name=National Technology Transfer and
+Advancement Act of 1995,
+inline=NTTAA,
+publiclaw=104-113,
+cite=110 Stat. 775
+}
+\end{verbatim}
+\end{demo}
+
+\subsection{Legislative and Administrative Materials}
+
+A bill:
+\begin{demo}
+\begin{verbatim}
+\defstatsess{mpdima}{
+title={Medicare Prescription Drug, Improvement, and Modernization Act of 2003},
+publiclaw=108-173,
+year=2003,
+cite=117 Stat. 2066,
+}
+\end{verbatim}
+\end{demo}
+
+A congressional report:
+\begin{demo}
+\begin{verbatim}
+\defcongdoc{aia-report}{
+name=America Invents Act,
+serial=H.R. Rep. No. 112-98,
+year=2011,
+}
+\end{verbatim}
+\end{demo}
+
+A congressional hearing:
+\begin{demo}
+\begin{verbatim}
+\defhearing{azar-hearing}{
+name=Nomination of Alex Azar to Serve as Secretary of Health and Human Services,
+committee={Senate Committee on Health, Education, Labor, and Pensions},
+congress=115,
+date=nov 29 2017,
+}
+\end{verbatim}
+\end{demo}
+
+A Federal Register notice:
+\begin{demo}
+\begin{verbatim}
+\defgovdoc{des}{
+name=Encryption Algorithm for Computer Data Protection,
+cite=40 Fed. Reg. 12134,
+date=mar 17 1975,
+}
+\end{verbatim}
+\end{demo}
+
+\subsection{Books and Articles}
+
+A treatise:
+\begin{demo}
+\begin{verbatim}
+\defbook{nimmer}{
+author=Melville B. Nimmer,
+author=David Nimmer,
+title=Nimmer on Copyright,
+year=2014,
+hereinafter=Nimmer,
+}
+\end{verbatim}
+\end{demo}
+
 \section{Structure of This Manual}
 
 Besides simply describing how \hia* works, this manual is intended to explain my
@@ -675,8 +863,10 @@ reference types there are shortcuts described in \sec{cparse}.
 \DescribeMacro\defcitegroup
 Often there will be several references that follow a standard conventional form,
 so it would be convenient to define all of them in one go. The |\defcitegroup|
-macro enables this to an extent. It takes three arguments:
+macro enables this to an extent. It takes four arguments:
 \begin{itemize}
+\item (optional) A prefix for the reference nicknames to be defined, default
+blank
 \item A reference definer macro (|\def|\meta{type})
 \item Initial text for the reference definition body
 \item A comma-separated list of texts used both as the nickname and as a suffix
@@ -697,6 +887,12 @@ you can write:
 \end{demo}
 Each of the items in the comma-separated list (e.g., |101|) becomes both a
 reference nickname and the end of the reference definition.
+
+With the optional argument, the reference names can be given a prefix:
+\begin{demo}
+|\defcitegroup[17usc]\defstatcode{17 U.S.C. S }{101, 102, 103}|
+\end{demo}
+would define |17usc101| as the statute ``17 U.S.C. \textsection~101'' and so on.
 
 %%
 %% \iffalse filename: cparse.dtx \fi
@@ -2608,12 +2804,42 @@ capitalized. That could be the signal or a part of the citation text itself.
 \end{enumerate}
 
 
+\subsection{Citation Forms}
+
+\label{s:draw-form}
+
+When formatting a citation item, each reference can generate a variety of
+citation texts. The types are given and explained here, along with their
+internal macro prefixes:
+\begin{description}
+\item[Full] (|fc|) The full citation form.
+\item[Short] (|sc|) The non-\emph{id.}\ short form. Defaults to the full form.
+\item[List] (|lc|) The form used in the Table of Authorities. Defaults to the
+full form.
+\item[Pin cite] (|pc|) Some references have special ways of treating pin cite
+numbers. This citation form is used in the pin cite formatting routine (see
+\sec{pages}).
+\item[\emph{Id.}] (|idc|) The form to be used for immediately successive
+citations, if not the standard \emph{id.}~form.
+\item[Inline full] (|ifc|) The inline citation form to be used upon the first
+inline usage.
+\item[Inline short] (|isc|) The inline citation form to be used on subsequent
+inline usages.
+\end{description}
+
+For each reference \meta{ref-name}, a macro of the form
+|\|\meta{prefix}|@|\meta{ref-name} may be defined containing the relevant text
+for the citation form. For example, |\fc@brown| would be the definition of the
+full citation for a reference named |brown|. It may be helpful for debugging to
+see these macros. To do so, include the following in your document:
+\begin{demo}
+|\expandafter\show\csname |\meta{prefix}|@|\meta{ref-name}|\endcsname|
+\end{demo}
+
 \subsection{Choosing the Citation Form}
 
-When formatting a citation item, each reference can have up to four citation
-forms: a full citation, a table of authorities form, a short citation, and an
-\emph{id.}\ citation. Upon each citation to the reference, it is necessary to
-choose among these three forms. The following rules inform that choice.
+Upon each citation to the reference, it is necessary to
+choose among these forms. The following rules inform that choice.
 
 \begin{itemize}
 \item An \emph{id.}\ citation is appropriate only when the reference being cited
@@ -2632,6 +2858,9 @@ used: A full citation in a footnote, for example, does not justify a short form
 in main body text.} This algorithm is described in \sec{short}.
 In any event, if no short citation form is defined for a reference, the full
 citation form is used.
+
+\item In an inline context, the same algorithm described in \sec{short} is used,
+except the inline full/short citation forms are preferred if they are defined.
 \end{itemize}
 
 In addition to choosing a citation form, the package sometimes allows a
@@ -4737,39 +4966,32 @@ which are optional (although some reference types will require \param{year}):
     \hi@citetype{#1}\hi@type@other
     \hi@book@pubparen
     \expandafter\hi@book@titlethe\expandafter{\hi@kv@name}%
-    \hi@newcite@form{ic}{#1}{%
-        \hi@citeguts{\hi@kv@author}%
-    }%
     \hi@newcite@form{fc}{#1}{%
         \hi@pstruct@initialize\@this@vol
         \hi@ifset\hi@kv@author{%
             \noexpand\@gobble{\hi@kv@authln}%
         }{}% For sorting purposes
-        \noexpand\if@hi@inline
-            \expandafter\noexpand\csname ic@#1\endcsname
-        \noexpand\else
-            \hi@citeguts{%
-                \noexpand\hi@citecontainer@suppress{%
-                    \noexpand\hi@usevol{%
-                        \hi@ifset\hi@kv@vol{\hi@kv@vol\space}{}%
-                    }%
-                    \hi@ifset\hi@kv@author{%
-                        \hi@pstruct@use@font{author}\hi@fn@bookauthor, % space
-                    }{}%
+        \hi@citeguts{%
+            \noexpand\hi@citecontainer@suppress{%
+                \noexpand\hi@usevol{%
+                    \hi@ifset\hi@kv@vol{\hi@kv@vol\space}{}%
                 }%
-                \hi@ifset\hi@kv@number{%
-                    \hi@ifset\hi@kv@publisher{}{%
-                        \noexpand\hi@fn@booktitle{%
-                            \hi@abbrev@pub{\hi@kv@number}{\@iden}%
-                        }, % space
-                    }%
+                \hi@ifset\hi@kv@author{%
+                    \hi@pstruct@use@font{author}\hi@fn@bookauthor, % space
                 }{}%
-                \hi@pstruct@use@font{name}\hi@fn@booktitle
-                \hi@maybepage{\hi@page@space\hi@kv@name}%
             }%
-            \hi@book@paren
-            \the\hi@param@parens
-        \noexpand\fi
+            \hi@ifset\hi@kv@number{%
+                \hi@ifset\hi@kv@publisher{}{%
+                    \noexpand\hi@fn@booktitle{%
+                        \hi@abbrev@pub{\hi@kv@number}{\@iden}%
+                    }, % space
+                }%
+            }{}%
+            \hi@pstruct@use@font{name}\hi@fn@booktitle
+            \hi@maybepage{\hi@page@space\hi@kv@name}%
+        }%
+        \hi@book@paren
+        \the\hi@param@parens
     }%
     \hi@ifset\hi@kv@toapage{%
         \hi@include@page@in@toa{#1}%
@@ -4980,58 +5202,53 @@ information, instead of the \param{citation} parameter.
     \hi@ifset\hi@kv@vol{}{\let\hi@kv@vol\hi@kv@year}%
     \hi@ifset\hi@kv@page{}{\def\hi@kv@page{?}}%
     \hi@newcite@form{fc}{#1}{%
-        \hi@inline@never{%
-            \hi@citeguts{%
-                \hi@ifset\hi@kv@author{%
-                    \hi@toa@dupauthor{\noexpand\@iden}{\hi@kv@author@sortable}%
-                }{}%
-                \hi@ifset\hi@kv@type{\@capnext\hi@kv@type, }{}%
-                \hi@ifset\hi@kv@name{% Title
-                    \noexpand\hi@fn@arttitle{\hi@kv@name}\hi@font@comma
-                }{%
-                    % If no title set, if there's a citation, use that as the
-                    % title
-                    \hi@ifset\hi@kv@citation{%
-                        \noexpand\hi@fn@arttitle{%
-                            \protect\inline{\hi@kv@citation}%
-                        },
-                    }{}%
-                }%
-                \hi@ifset\hi@kv@vol{\hi@kv@vol\space}{%
-                    % Prompt error unless forthcoming
-                    \hi@ifset\hi@kv@forthcoming{}{\hi@kv@vol\space}%
-                }% Volume
-                \noexpand\hi@fn@jrntitle{\hi@kv@rep}% Magazine title
-                \hi@ifset\hi@kv@forthcoming{}{%
-                    \space
-                    \hi@ifset\hi@kv@useissue{%
-                        No.~\hi@kv@issue, at\space
-                    }{}%
-                    \@format@page@macro\hi@kv@page % First page
-                    \hi@maybepage{, }% Pin cite page
-                }%
-            }%
-            \the\hi@param@parens
-            \hi@ifset\hi@kv@forthcoming{%
-                \hi@parens@add\hi@paren@date{%
-                    forthcoming%
-                    \hi@ifset\hi@kv@year{ \hi@kv@year}{}%
-                }%
-                \noexpand\ifx\noexpand\@this@page\relax\noexpand\else
-                    \hi@parens@add\hi@paren@forthcomingms{%
-                        manuscript at \noexpand\@this@page
-                    }%
-                \noexpand\fi
+        \hi@citeguts{%
+            \hi@ifset\hi@kv@author{%
+                \hi@toa@dupauthor{\noexpand\@iden}{\hi@kv@author@sortable}%
+            }{}%
+            \hi@ifset\hi@kv@type{\@capnext\hi@kv@type, }{}%
+            \hi@ifset\hi@kv@name{% Title
+                \noexpand\hi@fn@arttitle{\hi@kv@name}\hi@font@comma
             }{%
-                \hi@ifset\hi@kv@vol{%
-                    \ifx\hi@kv@vol\hi@kv@year\else
-                        \hi@parens@add\hi@paren@date{\hi@kv@year}%
-                    \fi
+                % If no title set, if there's a citation, use that as the
+                % title
+                \hi@ifset\hi@kv@citation{%
+                    \noexpand\hi@fn@arttitle{%
+                        \protect\inline{\hi@kv@citation}%
+                    },
                 }{}%
+            }%
+            \hi@ifset\hi@kv@vol{\hi@kv@vol\space}{%
+                % Prompt error unless forthcoming
+                \hi@ifset\hi@kv@forthcoming{}{\hi@kv@vol\space}%
+            }% Volume
+            \noexpand\hi@fn@jrntitle{\hi@kv@rep}% Magazine title
+            \hi@ifset\hi@kv@forthcoming{}{%
+                \space
+                \hi@ifset\hi@kv@useissue{%
+                    No.~\hi@kv@issue, at\space
+                }{}%
+                \@format@page@macro\hi@kv@page % First page
+                \hi@maybepage{, }% Pin cite page
             }%
         }%
-        \hi@inline@only{%
-            \hi@citeguts{\hi@kv@author}%
+        \the\hi@param@parens
+        \hi@ifset\hi@kv@forthcoming{%
+            \hi@parens@add\hi@paren@date{%
+                forthcoming%
+                \hi@ifset\hi@kv@year{ \hi@kv@year}{}%
+            }%
+            \noexpand\ifx\noexpand\@this@page\relax\noexpand\else
+                \hi@parens@add\hi@paren@forthcomingms{%
+                    manuscript at \noexpand\@this@page
+                }%
+            \noexpand\fi
+        }{%
+            \hi@ifset\hi@kv@vol{%
+                \ifx\hi@kv@vol\hi@kv@year\else
+                    \hi@parens@add\hi@paren@date{\hi@kv@year}%
+                \fi
+            }{}%
         }%
     }%
     \protected@edef\reserved@a{%
@@ -6361,12 +6578,28 @@ reference type.
 The \param{author} parameter will set this parameter automatically. This
 parameter can be set after giving the authors to customize the last name.
 \hi@defparam{author}{Author of the reference}{%
+    \hi@defkey@author@addinlines
     \hi@nameproc@person{#1}{\hi@namelist@addtwo\hi@kv@author\hi@kv@authln}%
+}
+\def\hi@defkey@author@addinlines{%
+    \hi@ifset\hi@kv@author{}{%
+        \hi@param@addhook{%
+            \hi@newcite@form{ifc}{\@this@case}{%
+                \hi@citeguts{\hi@kv@author}%
+            }%
+            \hi@newcite@form{isc}{\@this@case}{%
+                \hi@citeguts{\hi@kv@authln}%
+            }%
+        }%
+    }%
 }
 The value should be a name as described in \sec{names}. If there are multiple
 authors, provide this parameter multiple times, but see also parameter
 \param{noetal} if entering three or more names. For institutional authors, see
 parameter \param{instauth}.
+
+If at least one author is given, then the author names will automatically be
+used as the inline citation forms for the reference.
 \hi@defparam{cite}{Volume-reporter-page citation}{%
     \hi@cp@cite{#1}\KV@hi@vol\KV@hi@rep\KV@hi@page\KV@hi@year
 }
@@ -6381,6 +6614,7 @@ volume-reporter-page parsing in \sec{cparse} for more details.
 \hi@param@alias{date}{year}
 \hi@newparam{inline}{Short name for the reference}
 \hi@defparam{instauth}{Institutional author}{%
+    \hi@defkey@author@addinlines
     \hi@nameproc@inst{#1}{\hi@namelist@addinst}{\hi@kv@author}%
     \hi@nameproc@inst{#1}{\hi@namelist@addinst@ln}{\hi@kv@authln}%
 }

@@ -236,7 +236,16 @@ identify where the item is used.}
     \vskip\topsep
     \@endpetrue
 }
-\newenvironment{demo}{\begin{hi@boxmaker}{[gray]{0.9}}}{\end{hi@boxmaker}}
+\newenvironment{demo}{%
+    \def\MacroFont{%
+        \fontencoding\encodingdefault
+        \fontfamily\ttdefault
+        \fontseries\mddefault
+        \fontshape\shapedefault
+        \small\def\@xobeysp{~}%
+    }%
+    \begin{hi@boxmaker}{[gray]{0.9}}%
+}{\end{hi@boxmaker}}
 \newenvironment{grammar}{\begin{hi@boxmaker}{[rgb]{0.9,0.9,1}}}%
     {\end{hi@boxmaker}}
 \def\Example{%

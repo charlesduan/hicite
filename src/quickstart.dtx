@@ -230,6 +230,205 @@ updating.
 
 
 
+
+\section{Example Reference Definitions}
+
+The following are a few items from my personal archives that may help to
+illustrate a variety of reference definitions.
+
+\subsection{Cases}
+
+A standard case:
+\begin{demo}
+\begin{verbatim}
+\defcase{goodyear-dunlop}{
+parties={Goodyear Dunlop Tires Operations, SA v. Brown},
+cite=564 U.S. 915,
+year=2011,
+}
+\end{verbatim}
+\end{demo}
+
+An unreported, per curiam, \emph{In re} case:
+\begin{demo}
+\begin{verbatim}
+\defcase{nimitz}{
+name=In re Nimitz Technologies LLC,
+court=Fed. Cir.,
+percuriam,
+date=dec 8 2022,
+docket=2023-103,
+}
+\end{verbatim}
+\end{demo}
+
+An administrative decision with subsequent history, using a shortened definition
+form:
+\begin{demo}
+\begin{verbatim}
+\ExplanatoryPhrase{affirmed without opinion,}
+\defadmincase{biodelivery}{
+BioDelivery Sciences International, Inc. v. RB Pharmaceuticals Ltd.,
+No. IPR2014-00325 (P.T.A.B. jun 30, 2015);
+slip,
+paren=final written decision,
+subsequent=affirmed without opinion: biodelivery-cafc
+}
+\end{verbatim}
+\end{demo}
+
+A document in a case, where the case has been defined as an anonymous reference
+(see \sec{anonymous}):
+\begin{demo}
+\begin{verbatim}
+\defcasedoc{wyze}{
+citation=case: {
+    parties={Wyze Labs, Inc. v. Beijing Rockrobo Technology Co.},
+    docket=2:21-cv-941,
+    court=W.D. Wash.,
+    date=dismissed jan 3 2022,
+},
+name=Complaint for Declaratory Judgment,
+date=july 15 2021,
+}
+\end{verbatim}
+\end{demo}
+
+
+
+\subsection{Constitutions and Statutes}
+
+A named clause of the Constitution:
+\begin{demo}
+\begin{verbatim}
+\defconst{a2s3}{
+name=the Take Care Clause,
+page={Article II, S 3}
+}
+\end{verbatim}
+\end{demo}
+
+A constitutional amendment:
+\begin{demo}
+\begin{verbatim}
+\defconstamend{1a}{
+number=1,
+}
+\end{verbatim}
+\end{demo}
+
+A statute in the U.S. Code:
+\begin{demo}
+\begin{verbatim}
+\defstatcode{15-usc-1}{
+15 U.S.C. S 1,
+}
+\end{verbatim}
+\end{demo}
+
+Several U.S. Code statutes (these may be cited using |\inline{101}| or such):
+\begin{demo}
+\begin{verbatim}
+\defcitegroup\defstatcode{35 U.S.C. S }{101, 102, 103, 112, 271}
+\end{verbatim}
+\end{demo}
+
+A named statute with an original section number:
+\begin{demo}
+\begin{verbatim}
+\defstatcode{337}{
+name=Tariff Act of 1930,
+origsect=S 337,
+cite=19 U.S.C. S 1337,
+paren=as amended,
+}
+\end{verbatim}
+\end{demo}
+
+A session law, with a short name:
+\begin{demo}
+\begin{verbatim}
+\defstatsess{nttaa}{
+name=National Technology Transfer and 
+Advancement Act of 1995,
+inline=NTTAA,
+publiclaw=104-113,
+cite=110 Stat. 775
+}
+\end{verbatim}
+\end{demo}
+
+
+\subsection{Legislative and Administrative Materials}
+
+A bill:
+\begin{demo}
+\begin{verbatim}
+\defstatsess{mpdima}{
+title={Medicare Prescription Drug, Improvement, and Modernization Act of 2003},
+publiclaw=108-173,
+year=2003,
+cite=117 Stat. 2066,
+}
+\end{verbatim}
+\end{demo}
+
+A congressional report:
+\begin{demo}
+\begin{verbatim}
+\defcongdoc{aia-report}{
+name=America Invents Act,
+serial=H.R. Rep. No. 112-98,
+year=2011,
+}
+\end{verbatim}
+\end{demo}
+
+A congressional hearing:
+\begin{demo}
+\begin{verbatim}
+\defhearing{azar-hearing}{
+name=Nomination of Alex Azar to Serve as Secretary of Health and Human Services,
+committee={Senate Committee on Health, Education, Labor, and Pensions},
+congress=115,
+date=nov 29 2017,
+}
+\end{verbatim}
+\end{demo}
+
+A Federal Register notice:
+\begin{demo}
+\begin{verbatim}
+\defgovdoc{des}{
+name=Encryption Algorithm for Computer Data Protection,
+cite=40 Fed. Reg. 12134,
+date=mar 17 1975,
+}
+\end{verbatim}
+\end{demo}
+
+
+\subsection{Books and Articles}
+
+A treatise:
+\begin{demo}
+\begin{verbatim}
+\defbook{nimmer}{
+author=Melville B. Nimmer,
+author=David Nimmer,
+title=Nimmer on Copyright,
+year=2014,
+hereinafter=Nimmer,
+}
+\end{verbatim}
+\end{demo}
+
+
+
+
+
+
+
 \section{Structure of This Manual}
 
 Besides simply describing how \hia* works, this manual is intended to explain my

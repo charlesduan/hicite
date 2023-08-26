@@ -21,13 +21,29 @@ parameter can be set after giving the authors to customize the last name.
 %</doc>
 %
 \hi@defparam{author}{Author of the reference}{%
+    \hi@defkey@author@addinlines
     \hi@nameproc@person{#1}{\hi@namelist@addtwo\hi@kv@author\hi@kv@authln}%
+}
+\def\hi@defkey@author@addinlines{%
+    \hi@ifset\hi@kv@author{}{%
+        \hi@param@addhook{%
+            \hi@newcite@form{ifc}{\@this@case}{%
+                \hi@citeguts{\hi@kv@author}%
+            }%
+            \hi@newcite@form{isc}{\@this@case}{%
+                \hi@citeguts{\hi@kv@authln}%
+            }%
+        }%
+    }%
 }
 %<*doc>
 The value should be a name as described in \sec{names}. If there are multiple
 authors, provide this parameter multiple times, but see also parameter
 \param{noetal} if entering three or more names. For institutional authors, see
 parameter \param{instauth}.
+
+If at least one author is given, then the author names will automatically be
+used as the inline citation forms for the reference.
 %</doc>
 %
 \hi@defparam{cite}{Volume-reporter-page citation}{%
@@ -47,6 +63,7 @@ volume-reporter-page parsing in \sec{cparse} for more details.
 \hi@param@alias{date}{year}
 \hi@newparam{inline}{Short name for the reference}
 \hi@defparam{instauth}{Institutional author}{%
+    \hi@defkey@author@addinlines
     \hi@nameproc@inst{#1}{\hi@namelist@addinst}{\hi@kv@author}%
     \hi@nameproc@inst{#1}{\hi@namelist@addinst@ln}{\hi@kv@authln}%
 }

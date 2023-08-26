@@ -254,8 +254,9 @@ capitalized. That could be the signal or a part of the citation text itself.
 %
 %
 %
-% \paragraph{Reading Citation Item Components} These are macros corresponding to
-% each of the components from the citation state machine.
+% \paragraph{Reading Citation Item Components}
+% These are macros corresponding to each of the components from the citation
+% state machine.
 %
 % Reads the optional argument, setting the appropriate state variable.
 %
@@ -309,12 +310,42 @@ capitalized. That could be the signal or a part of the citation text itself.
 %</package>
 %<*doc>
 
+\subsection{Citation Forms}
+
+\label{s:draw-form}
+
+When formatting a citation item, each reference can generate a variety of
+citation texts. The types are given and explained here, along with their
+internal macro prefixes:
+\begin{description}
+\item[Full] (|fc|) The full citation form.
+\item[Short] (|sc|) The non-\emph{id.}\ short form. Defaults to the full form.
+\item[List] (|lc|) The form used in the Table of Authorities. Defaults to the
+full form.
+\item[Pin cite] (|pc|) Some references have special ways of treating pin cite
+numbers. This citation form is used in the pin cite formatting routine (see
+\sec{pages}).
+\item[\emph{Id.}] (|idc|) The form to be used for immediately successive
+citations, if not the standard \emph{id.}~form.
+\item[Inline full] (|ifc|) The inline citation form to be used upon the first
+inline usage.
+\item[Inline short] (|isc|) The inline citation form to be used on subsequent
+inline usages.
+\end{description}
+
+For each reference \meta{ref-name}, a macro of the form
+|\|\meta{prefix}|@|\meta{ref-name} may be defined containing the relevant text
+for the citation form. For example, |\fc@brown| would be the definition of the
+full citation for a reference named |brown|. It may be helpful for debugging to
+see these macros. To do so, include the following in your document:
+\begin{demo}
+|\expandafter\show\csname |\meta{prefix}|@|\meta{ref-name}|\endcsname|
+\end{demo}
+
 \subsection{Choosing the Citation Form}
 
-When formatting a citation item, each reference can have up to four citation
-forms: a full citation, a table of authorities form, a short citation, and an
-\emph{id.}\ citation. Upon each citation to the reference, it is necessary to
-choose among these three forms. The following rules inform that choice.
+Upon each citation to the reference, it is necessary to
+choose among these forms. The following rules inform that choice.
 
 \begin{itemize}
 \item An \emph{id.}\ citation is appropriate only when the reference being cited
@@ -333,6 +364,9 @@ used: A full citation in a footnote, for example, does not justify a short form
 in main body text.} This algorithm is described in \sec{short}.
 In any event, if no short citation form is defined for a reference, the full
 citation form is used.
+
+\item In an inline context, the same algorithm described in \sec{short} is used,
+except the inline full/short citation forms are preferred if they are defined.
 \end{itemize}
 
 In addition to choosing a citation form, the package sometimes allows a
@@ -347,14 +381,12 @@ the ``previous'' citation, as described in \sec{state}.
 %<*package>
 % 
 % Chooses among the citation forms. \#1 is a callback that is given the prefix
-% of the chosen citation form: |fc| for full citations, |lc| for table of
-% authorities forms, |sc| for short citations, and |idc| for \emph{id.}\ forms.
-% Also sets |\hi@noname| as appropriate.
+% of the chosen citation form. Also sets |\hi@noname| as appropriate.
 %
 %    \begin{macrocode}
 \def\hi@draw@choosecite#1{%
     \@testcase
-        \if@hi@inline\fi{\hi@draw@choosecite@{#1}}%
+        \if@hi@inline\fi{\hi@draw@choosecite@inline{#1}}%
         \ifx\@last@case\@this@case\fi{#1{idc}}%
         \default{%
             \ifx\@last@inline\@this@case \hi@noname \fi
@@ -371,25 +403,42 @@ the ``previous'' citation, as described in \sec{state}.
 \def\hi@draw@choosecite@#1{%
     \@test\if@hi@in@toa\fi{%
         \@test \ifnum\hi@citelevel=\@ne\fi{%
-            \hi@draw@choosecite@thatexists{lc}{fc}{#1}%
+            \hi@draw@which{lc,fc}{#1}%
         }{#1{fc}}%
     }{%
         \hi@record@choose{\@this@case}{%
             #1{fc}%
         }{%
-            \hi@draw@choosecite@thatexists{sc}{fc}{#1}%
+            \hi@draw@which{sc,fc}{#1}%
         }%
     }%
 }%
 %    \end{macrocode}
-
 %
-% \#1 and \#2 are possible prefixes for a citation reference. The first one that
-% exists is chosen and passed to the callback of \#3.
+%
+% Chooses the citation form for inline citations.
 %
 %    \begin{macrocode}
-\def\hi@draw@choosecite@thatexists#1#2#3{%
-    \@ifundefined{#1@\@this@case}{#3{#2}}{#3{#1}}%
+\def\hi@draw@choosecite@inline#1{%
+    \hi@record@choose{\@this@case}{%
+        \hi@draw@which{ifc,fc}{#1}%
+    }{%
+        \hi@draw@which{isc,ifc,sc,fc}{#1}%
+    }%
+}%
+%    \end{macrocode}
+%
+% Selects the first prefix for which the current reference has a defined macro.
+% \#1 is a comma-separated list of prefixes, and \#2 is a callback that is given
+% an argument of the selected reference.
+%
+%    \begin{macrocode}
+\def\hi@draw@which#1#2{%
+    \find@in{,}{#1}{\hi@draw@which@{#2}}{#2{#1}}%
+}
+% |#1| is the callback, |#2| the first prefix, |#3| the rest of the prefixes.
+\def\hi@draw@which@#1#2#3{%
+    \@ifundefined{#2@\@this@case}{\hi@draw@which{#3}{#1}}{#1{#2}}%
 }
 %    \end{macrocode}
 %
@@ -477,3 +526,24 @@ error will be raised for missing reference definitions.
 %
 %</package>
 %
+%<*test>
+
+\section{draw.dtx}
+
+\subsection{Which}
+
+\begingroup
+
+    \def\@this@case{whichtest}
+    \def\fc@whichtest{a}
+
+    \AssertCallback{\hi@draw@which{sc,fc}}{fc}
+
+    \def\sc@whichtest{a}
+
+    \AssertCallback{\hi@draw@which{sc,fc}}{sc}
+    \AssertCallback{\hi@draw@which{isc,sc,fc}}{sc}
+
+\endgroup
+
+%</test>
