@@ -922,6 +922,18 @@ In other words, the full text is before the parentheses and the abbreviation
 inside them.
 
 
+\subsection{Aliases}
+
+The \rtype{alias} reference type can parse the following input syntax:
+\begin{grammar}
+\meta{alias} := \meta{citation} [ \littext{ at } \meta{page} ] \\
+\Example
+|\defalias{b18}{| \\
+|    brown at 18| \\
+|}|
+\end{grammar}
+This will set the \param{citation} and \param{page} parameters.
+
 \subsection{The \texttt{cite} Parameter}
 
 The parameter \param{cite} accepts as input a string conforming to
@@ -5081,10 +5093,7 @@ which are optional (although some reference types will require \param{year}):
                 }{}%
                 \hi@fn@booktitle{\hi@kv@name}%
             }%
-            \hi@parens@add\hi@paren@date{%
-                \hi@book@paren
-                \hi@pstruct@use{year}%
-            }%
+            \hi@book@paren
             \the\hi@param@parens
         }%
     }%
@@ -5330,12 +5339,14 @@ complex reference definition that I have constructed.
 \hi@newcite\defjrnart{A consecutively paginated journal article}{%
     \hi@citetype{#1}\hi@type@other
     \hi@abbrev@journal@check
+    \hi@ifset\hi@kv@page{}{\def\hi@kv@page{?}}%
     \@expand{\find@eq{forthcoming}}{\hi@kv@page}{i}{%
         \hi@undefine\hi@kv@page
         \KV@hi@forthcoming\relax
     }{}%
-    \hi@ifset\hi@kv@vol{}{\let\hi@kv@vol\hi@kv@year}%
-    \hi@ifset\hi@kv@page{}{\def\hi@kv@page{?}}%
+    \hi@ifset\hi@kv@forthcoming{}{%
+        \hi@ifset\hi@kv@vol{}{\let\hi@kv@vol\hi@kv@year}%
+    }%
     \hi@newcite@form{fc}{#1}{%
         \hi@citeguts{%
             \hi@ifset\hi@kv@author{%
@@ -5441,7 +5452,9 @@ Note the unabbreviated journal name in the input.
 \hi@newcite\defprocart{A non-consecutively paginated proceedings article}{%
     \hi@citetype{#1}\hi@type@other
     \hi@abbrev@journal@check
-    \hi@ifset\hi@kv@vol{}{\let\hi@kv@vol\hi@kv@year}%
+    \hi@ifset\hi@kv@forthcoming{}{%
+        \hi@ifset\hi@kv@vol{}{\let\hi@kv@vol\hi@kv@year}%
+    }%
     \hi@ifset\hi@kv@page{}{%
         \hi@ifset\hi@kv@issue{%
             \edef\hi@kv@page{No. \expandonce\hi@kv@issue}%
@@ -5461,7 +5474,9 @@ Note the unabbreviated journal name in the input.
             \hi@ifset\hi@kv@page{\space \@format@page@macro\hi@kv@page}{}%
         }%
         \hi@ifset\hi@kv@vol{%
-            \hi@parens@add\hi@paren@date{\hi@kv@year}%
+            \ifx\hi@kv@vol\hi@kv@year\else
+                \hi@parens@add\hi@paren@date{\hi@kv@year}%
+            \fi
         }{}%
         \the\hi@param@parens
     }%
@@ -7174,6 +7189,11 @@ This is equivalent to |date=issued |\meta{date}.
 \hi@newparam{onfile}{Where the document is on file}
 \hi@newparam{place}{Place (for speeches, constitutions, statutes)}
 \hi@param@alias{producer}{instauth}
+\hi@param@alias{pubdate}{pubyear}
+\hi@defparam{pubyear}{Year of publication (for French statutes)}{%
+    \hi@date@parse{#1}{\def\hi@kv@pubyear}%
+}
+This is an additional date parameter used for French statutes.
 \hi@param@alias{sponsor}{publisher}
 \hi@param@alias{state}{place}
 \hi@defparam{struct}{Structure for data of multivolume works}{%

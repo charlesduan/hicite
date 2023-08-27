@@ -432,6 +432,12 @@
     \hi@cp@paren{#1}{\KV@hi@inline}{\KV@hi@name}%
 }
 \def\hi@cparse@selfcite#1{}%
+\def\hi@cparse@alias#1{%
+    \find@in{ at }{#1}{%
+        \@tworun\KV@hi@citation\KV@hi@page
+    }{\KV@hi@citation{#1}}%
+}
+\make@find@in{ at }
 %%
 %% \iffalse filename: names.dtx \fi
 %%
@@ -2140,7 +2146,10 @@
 \make@find@in{ to }
 \def\hi@fpg@onesegment#1{%
     \find@in{ to }{#1}{\hi@fpg@to}{%
-        \ifstrempty{#1}{}{\hi@fpg@split#1,\@stop{\hi@fpg@pagenumber{}{}}}%
+        \ifstrempty{#1}{}{%
+            \hi@fpg@split#1,\@stop{\hi@fpg@pagenumber{}{}}%
+            \hi@fpg@done
+        }%
     }%
 }
 \def\hi@fpg@to#1#2{%
@@ -2161,9 +2170,7 @@
             \ifblank{#2}{\hi@fpg@emitstate}{\hi@fpg@split#2\@stop}%
         }%
     }%
-    \hi@fpg@done
 }
-
 \def\hi@fpg@emitstate#1{%
     \@secondofthree#1%
 }
@@ -2195,7 +2202,7 @@
     \hi@fpg@division{#1}{\hi@fpg@nextdivision}{#3}%
 }
 \def\hi@fpg@symbol#1#2#3#4{%
-    \find@eq{/}{#1}{\hi@fpg@subsection{#2}{#3}{#4}}{%
+    \find@eq{/}{#1}{\hi@fpg@subdivision{#2}{#3}{#4}}{%
         \find@try\find@eq{%
             {-}{\hi@fpg@letter{ #2}{#3}{#4}}%
             {!}{\hi@fpg@number{\hi@pgnum@raw#2}{#3}{#4}}%
@@ -2388,16 +2395,27 @@
         \@tworun\hi@fpg@singlenum\hi@parenize
     }{\hi@fpg@singlenum{#1}}%
 }
-\def\hi@fpg@subsection#1#2#3{%
-    \hi@fpg@subsection@alterstate{#1}{#3}#2\@stop
+\def\hi@fpg@subdivision#1#2#3{%
+    \hi@fpg@subdivision@alterstate{#1}{#3}#2\@stop
 }
-\def\hi@fpg@subsection@alterstate#1#2#3#4#5#6\@stop{%
+\def\hi@fpg@subdivision@alterstate#1#2#3#4#5#6\@stop{%
     #2{%
         {#3}%
-        {#4\hi@parenize{#1}\hi@fpg@comma}%
-        {#5\hi@fpg@comma\hi@parenize{#1}}%
+        {#4\hi@fpg@subdivision@range{#1}\hi@fpg@comma}%
+        {#5\hi@fpg@comma\hi@fpg@subdivision@range{#1}}%
         #6%
     }%
+}
+\def\hi@fpg@subdivision@range#1{%
+    \find@try\find@in{%
+        {-/}{\hi@fpg@parenizetwo}%
+        {-}{\hi@fpg@parenizetwo}%
+    }{#1}{\hi@parenize{#1}}%
+}
+\make@find@in{-}
+\make@find@in{-/}
+\def\hi@fpg@parenizetwo#1#2{%
+    \hi@parenize{#1}--\hi@parenize{#2}%
 }
 \def\hi@parenize#1{%
     \ifstrempty{#1}{}{%
@@ -6313,10 +6331,7 @@
                 }{}%
                 \hi@fn@booktitle{\hi@kv@name}%
             }%
-            \hi@parens@add\hi@paren@date{%
-                \hi@book@paren
-                \hi@pstruct@use{year}%
-            }%
+            \hi@book@paren
             \the\hi@param@parens
         }%
     }%
@@ -6632,12 +6647,14 @@
 \hi@newcite\defjrnart{A consecutively paginated journal article}{%
     \hi@citetype{#1}\hi@type@other
     \hi@abbrev@journal@check
+    \hi@ifset\hi@kv@page{}{\def\hi@kv@page{?}}%
     \@expand{\find@eq{forthcoming}}{\hi@kv@page}{i}{%
         \hi@undefine\hi@kv@page
         \KV@hi@forthcoming\relax
     }{}%
-    \hi@ifset\hi@kv@vol{}{\let\hi@kv@vol\hi@kv@year}%
-    \hi@ifset\hi@kv@page{}{\def\hi@kv@page{?}}%
+    \hi@ifset\hi@kv@forthcoming{}{%
+        \hi@ifset\hi@kv@vol{}{\let\hi@kv@vol\hi@kv@year}%
+    }%
     \hi@newcite@form{fc}{#1}{%
         \hi@citeguts{%
             \hi@ifset\hi@kv@author{%
@@ -6701,7 +6718,9 @@
 \hi@newcite\defprocart{A non-consecutively paginated proceedings article}{%
     \hi@citetype{#1}\hi@type@other
     \hi@abbrev@journal@check
-    \hi@ifset\hi@kv@vol{}{\let\hi@kv@vol\hi@kv@year}%
+    \hi@ifset\hi@kv@forthcoming{}{%
+        \hi@ifset\hi@kv@vol{}{\let\hi@kv@vol\hi@kv@year}%
+    }%
     \hi@ifset\hi@kv@page{}{%
         \hi@ifset\hi@kv@issue{%
             \edef\hi@kv@page{No. \expandonce\hi@kv@issue}%
@@ -6721,7 +6740,9 @@
             \hi@ifset\hi@kv@page{\space \@format@page@macro\hi@kv@page}{}%
         }%
         \hi@ifset\hi@kv@vol{%
-            \hi@parens@add\hi@paren@date{\hi@kv@year}%
+            \ifx\hi@kv@vol\hi@kv@year\else
+                \hi@parens@add\hi@paren@date{\hi@kv@year}%
+            \fi
         }{}%
         \the\hi@param@parens
     }%
@@ -7775,6 +7796,10 @@
 \hi@newparam{onfile}{Where the document is on file}
 \hi@newparam{place}{Place (for speeches, constitutions, statutes)}
 \hi@param@alias{producer}{instauth}
+\hi@param@alias{pubdate}{pubyear}
+\hi@defparam{pubyear}{Year of publication (for French statutes)}{%
+    \hi@date@parse{#1}{\def\hi@kv@pubyear}%
+}
 \hi@param@alias{sponsor}{publisher}
 \hi@param@alias{state}{place}
 \hi@defparam{struct}{Structure for data of multivolume works}{%

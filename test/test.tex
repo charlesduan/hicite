@@ -159,6 +159,11 @@
     \testvrpwithyear{123/U.S.C./S 456 (2000)}{123}{U.S.C.}{S 456}{2000}%
     \testvrpwithyear{123 U.S.C. S 456 (2000)}{123}{U.S.C.}{S 456}{2000}%
 
+    \defabbrev{fda}{the Food and Drug Administration (the FDA)}
+    \defalias{thefda}{fda}
+    \AssertBox{\inline{thefda}}{the Food and Drug Administration (``FDA'')}
+    \AssertBox{\inline{thefda}}{the FDA}
+
 \endgroup
 
 %%
@@ -648,6 +653,10 @@ themselves work as expected.
     {para.~15(a)\hi@psize@penalty(1)}
 \AssertExpand{\@format@pageno{paragraph 15/a1, /a2}}
     {para.~15(a)\hi@psize@penalty(1), (a)\hi@psize@penalty(2)}
+\AssertExpand{\@format@pageno{paragraph 15/a1-/2}}
+    {para.~15(a)\hi@psize@penalty(1)--(2)}
+\AssertExpand{\@format@pageno{paragraph 15/a1, /a2-/3}}
+    {para.~15(a)\hi@psize@penalty(1), (a)\hi@psize@penalty(2)--(3)}
 \AssertExpand{\@format@pageno{paragraph 15, table 4-5, at 36}}
     {para.~15, tbls.4--5, at 36}
 \AssertExpand{\@format@pageno{15 note 6}}{15 n.6}
@@ -2258,10 +2267,7 @@ year=1954,
                 }{}%
                 \hi@fn@booktitle{\hi@kv@name}%
             }%
-            \hi@parens@add\hi@paren@date{%
-                \hi@book@paren
-                \hi@pstruct@use{year}%
-            }%
+            \hi@book@paren
             \the\hi@param@parens
         }%
     }%
@@ -2418,12 +2424,14 @@ year=1954,
 \hi@newcite\defjrnart{A consecutively paginated journal article}{%
     \hi@citetype{#1}\hi@type@other
     \hi@abbrev@journal@check
+    \hi@ifset\hi@kv@page{}{\def\hi@kv@page{?}}%
     \@expand{\find@eq{forthcoming}}{\hi@kv@page}{i}{%
         \hi@undefine\hi@kv@page
         \KV@hi@forthcoming\relax
     }{}%
-    \hi@ifset\hi@kv@vol{}{\let\hi@kv@vol\hi@kv@year}%
-    \hi@ifset\hi@kv@page{}{\def\hi@kv@page{?}}%
+    \hi@ifset\hi@kv@forthcoming{}{%
+        \hi@ifset\hi@kv@vol{}{\let\hi@kv@vol\hi@kv@year}%
+    }%
     \hi@newcite@form{fc}{#1}{%
         \hi@citeguts{%
             \hi@ifset\hi@kv@author{%
@@ -2486,7 +2494,9 @@ year=1954,
 \hi@newcite\defprocart{A non-consecutively paginated proceedings article}{%
     \hi@citetype{#1}\hi@type@other
     \hi@abbrev@journal@check
-    \hi@ifset\hi@kv@vol{}{\let\hi@kv@vol\hi@kv@year}%
+    \hi@ifset\hi@kv@forthcoming{}{%
+        \hi@ifset\hi@kv@vol{}{\let\hi@kv@vol\hi@kv@year}%
+    }%
     \hi@ifset\hi@kv@page{}{%
         \hi@ifset\hi@kv@issue{%
             \edef\hi@kv@page{No. \expandonce\hi@kv@issue}%
@@ -2506,7 +2516,9 @@ year=1954,
             \hi@ifset\hi@kv@page{\space \@format@page@macro\hi@kv@page}{}%
         }%
         \hi@ifset\hi@kv@vol{%
-            \hi@parens@add\hi@paren@date{\hi@kv@year}%
+            \ifx\hi@kv@vol\hi@kv@year\else
+                \hi@parens@add\hi@paren@date{\hi@kv@year}%
+            \fi
         }{}%
         \the\hi@param@parens
     }%
@@ -2631,6 +2643,52 @@ year=1954,
 }
 
 \section{artrefs.dtx}
+
+\subsection{Article Dates}
+
+\defjrnart{jrnartyearonly}{
+author=A B,
+title=Year Only Article,
+journal=Journal of Law,
+year=2014,
+page=123
+}
+\AssertBox{\note{jrnartyearonly}}{\InFootnote{A B, \emph{Year Only Article},
+2014 \textsc{J.L.} 123.}}
+
+\defjrnart{jrnartyearvol}{
+author=C D,
+title=Same Year and Volume Article,
+journal=Journal of Law,
+year=2014,
+page=123
+}
+
+\AssertBox{\note{jrnartyearvol}}{\InFootnote{C D, \emph{Same Year and Volume
+Article}, 2014 \textsc{J.L.} 123.}}
+
+\defprocart{procartyearonly}{
+author=A B,
+title=Year Only Article,
+journal=Proceedings of Law,
+year=2014,
+page=number 15,
+}
+\AssertBox{\note{procartyearonly}}{\InFootnote{A B, \emph{Year Only Article},
+\emph{in} 2014 \textsc{Proc.\ L.} no.\ 15.}}
+
+\defjrnart{procartyearvol}{
+author=C D,
+title=Same Year and Volume Article,
+journal=Proceedings of Law,
+year=2014,
+page=number 15,
+}
+
+\AssertBox{\note{procartyearvol}}{\InFootnote{C D, \emph{Same Year and Volume
+Article}, 2014 \textsc{Proc.\ L.} no.\ 15.}}
+
+\subsection{Manuscript}
 
 \defmanuscript{testmanuscript}{
 author=John Doe,
@@ -3549,6 +3607,10 @@ date=jan 1 2021,
 \hi@newparam{onfile}{Where the document is on file}
 \hi@newparam{place}{Place (for speeches, constitutions, statutes)}
 \hi@param@alias{producer}{instauth}
+\hi@param@alias{pubdate}{pubyear}
+\hi@defparam{pubyear}{Year of publication (for French statutes)}{%
+    \hi@date@parse{#1}{\def\hi@kv@pubyear}%
+}
 \hi@param@alias{sponsor}{publisher}
 \hi@param@alias{state}{place}
 \hi@defparam{struct}{Structure for data of multivolume works}{%

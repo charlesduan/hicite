@@ -4,13 +4,23 @@
 \@ut@verbosetrue
 \newcount\ut@testcount
 \newcount\ut@failcount
+\def\ut@failtest#1{%
+    \PackageWarning{unittest}{TEST FAILED}%
+    \textbf{TEST FAILED}: #1%
+    \global\advance\ut@failcount\@ne
+}
 \AtEndDocument{%
     \par\vskip\baselineskip
     \the\ut@testcount\ tests performed.
     \ifcase\ut@failcount
-        All tests passed.
-    \or \textbf{One test failed.}
-    \else \textbf{\the\ut@failcount\ tests failed.}
+        All tests passed.%
+        \immediate\write16{All tests passed.}%
+    \or
+        \textbf{One test failed.}%
+        \PackageWarning{unittest}{ONE TEST FAILED}%
+    \else
+        \textbf{\the\ut@failcount\ tests failed.}%
+        \PackageWarning{unittest}{\the\ut@failcount\space TESTS FAILED}%
     \fi
 }
 \def\ut@showcmd#1{{\frenchspacing\ttfamily\upshape\detokenize{#1}}}
@@ -43,12 +53,11 @@
             }%
         \fi
     \else
-        \expect[\textbf{TEST FAILED}: #1]{%
+        \expect[\ut@failtest{#1}]{%
             \texttt{\expandafter\strip@prefix\meaning\unittest@a}%
         }{%
             \texttt{\expandafter\strip@prefix\meaning\unittest@b}%
         }%
-        \global\advance\ut@failcount\@ne
     \fi
 }
 \newcommand\AssertCharEqual[3][AssertUCEqual]{%
@@ -70,8 +79,7 @@
             \par Test passed: #1: \ut@showcmd{#2#3}\par
         \fi
     \else
-        \par \textbf{TEST FAILED}: #1: \ut@showcmd{#2#3}\par
-        \global\advance\ut@failcount\@ne
+        \par \ut@failtest{#1}: \ut@showcmd{#2#3}\par
     \fi
 }
 \newcommand\AssertTrue[2][AssertTrue]{%
@@ -81,15 +89,13 @@
             \par Test passed: #1: \ut@showcmd{#2}\par
         \fi
     }{%
-        \par \textbf{TEST FAILED}: #1: \ut@showcmd{#2}\par
-        \global\advance\ut@failcount\@ne
+        \par \ut@failtest{#1}: \ut@showcmd{#2}\par
     }%
 }
 \newcommand\AssertFalse[2][AssertFalse]{%
     \global\advance\ut@testcount\@ne
     #2{%
-        \par \textbf{TEST FAILED}: #1: \ut@showcmd{#2}\par
-        \global\advance\ut@failcount\@ne
+        \par \ut@failtest{#1}: \ut@showcmd{#2}\par
     }{%
         \if@ut@verbose
             \par Test passed: #1: \ut@showcmd{#2}\par
@@ -140,12 +146,11 @@
         %    \showbox\unittest@boxa
         %    \showbox\unittest@boxb
         %\endgroup
-        \expect[\textbf{TEST FAILED}: #1: \ut@showcmd{#2}]{%
+        \expect[\ut@failtest{#1}: \ut@showcmd{#2}]{%
             \the\wd\unittest@boxa: \unhbox\unittest@boxa
         }{%
             \the\wd\unittest@boxb: \unhbox\unittest@boxb
         }%
-        \global\advance\ut@failcount\@ne
     \fi
 }
 \long\def\@footnotetext#1{%
