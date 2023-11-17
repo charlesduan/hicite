@@ -4208,6 +4208,7 @@ See \sec{pages-segments} for more on segments in pin cites.
             \hi@inline@never{%
                 \noexpand\if@hi@name
                     \hi@kv@inline
+                    \hi@short@use{#1}%
                     \hi@maybepage{ },\space
                 \noexpand\else
                     \hi@ifpage{\noexpand\@this@page, }{}%
@@ -4224,6 +4225,7 @@ See \sec{pages-segments} for more on segments in pin cites.
                 }{%
                     \hi@kv@inline
                 }%
+                \hi@short@use{#1}%
             }%
         }%
     }%
@@ -4381,7 +4383,9 @@ into the above categories.
         }%
         \hi@inline@only{%
             \hi@citeguts{%
-                \hi@ifset\hi@kv@inline{\hi@kv@inline}{\hi@kv@number}%
+                \hi@ifset\hi@kv@inline{%
+                    \hi@kv@inline\hi@short@use{#1}%
+                }{\hi@kv@number}%
             }%
         }%
     }%
@@ -5059,6 +5063,7 @@ which are optional (although some reference types will require \param{year}):
     \hi@ifset\hi@kv@toapage{%
         \hi@include@page@in@toa{#1}%
         \hi@newcite@form{lc}{#1}{%
+            \hi@pstruct@initialize\@this@vol
             \noexpand\hi@toa@duptitle{}{%
                 \noexpand\hi@fn@bookauthor{\relax\hi@kv@author@sortable},\space
                 \noexpand\hi@usevol{\hi@ifset\hi@kv@vol{\hi@kv@vol\space}{}}%
@@ -5081,6 +5086,7 @@ which are optional (although some reference types will require \param{year}):
         }%
     }{%
         \hi@newcite@form{lc}{#1}{%
+            \hi@pstruct@initialize\@this@vol
             \hi@citeguts{%
                 \hi@ifset\hi@kv@author{%
                     \hi@toa@dupauthor{\hi@fn@bookauthor}{%

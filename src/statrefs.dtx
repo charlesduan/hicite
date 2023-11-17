@@ -94,12 +94,6 @@ as well.
             \addto@macro\hi@kv@name{ (\hi@kv@inline)}%
         }{}%
     }%
-    %
-    % Indicate use of the short form in the inline macro.
-    %
-    \hi@ifset\hi@kv@inline{%
-        \addto@macro\hi@kv@inline{\hi@short@use{#1}}%
-    }{}%
 }
 %
 % If #2 is a year (a number greater than 1000), then define the inline form as
@@ -349,6 +343,7 @@ those for \rtype{statcode}.
                         \hi@id
                     }{%
                         \@capnext\hi@kv@inline
+                        \hi@short@use{#1}%
                     }%
                     \def\noexpand\reserved@a{ }%
                 }%
@@ -371,7 +366,7 @@ those for \rtype{statcode}.
 \def\hi@statcode@sc@noorigsect#1{%
     \hi@newcite@form{sc}{#1}{%
         \hi@maybeusedefaultopt
-        \hi@statcode@makeshortname
+        \hi@statcode@makeshortname{#1}%
         \hi@citeguts{%
             \hi@inline@only{\hi@citeguts{\noexpand\@nameuse{ic@#1}{s}}}%
             \hi@inline@never{%
@@ -422,10 +417,13 @@ those for \rtype{statcode}.
 % some user control over whether id. is displayed for matching titles; id.
 % should rely on title matching and not reference name matching.
 %
-\def\hi@statcode@makeshortname{%
+\def\hi@statcode@makeshortname#1{%
     \hi@ifset\hi@kv@inline{%
         \noexpand\hi@statcode@choosename\noexpand\hi@statcode@shortname
-            {\@capnext\hi@kv@inline}{\hi@statcode@volandrep}%
+            {%
+                \@capnext\hi@kv@inline
+                \hi@short@use{#1}%
+            }{\hi@statcode@volandrep}%
     }{%
         \def\noexpand\hi@statcode@shortname{\hi@statcode@volandrep}%
     }%
@@ -886,6 +884,7 @@ See \sec{pages-segments} for more on segments in pin cites.
             \hi@inline@never{%
                 \noexpand\if@hi@name
                     \hi@kv@inline
+                    \hi@short@use{#1}%
                     \hi@maybepage{ },\space
                 \noexpand\else
                     \hi@ifpage{\noexpand\@this@page, }{}%
@@ -902,6 +901,7 @@ See \sec{pages-segments} for more on segments in pin cites.
                 }{%
                     \hi@kv@inline
                 }%
+                \hi@short@use{#1}%
             }%
         }%
     }%
@@ -1029,6 +1029,20 @@ name.
 
 \AssertBox{\note{271 at /b}}{%
     \InFootnote{35 \textsc{U.S.C.} \textsection~271(b).}%
+}
+
+
+\defstatsess{fdara}{
+name=FDA Reauthorization Act of 2017, 
+inline=FDARA,
+publiclaw=115-52,
+year=2017,
+cite=131 Stat. 1005,
+}
+
+\AssertBox{\note{fdara}}{%
+    \InFootnote{FDA Reauthorization Act of 2017, Pub.~L.~No.~115-52, 131
+    \textsc{Stat.}~1005.}%
 }
 
 %</test>

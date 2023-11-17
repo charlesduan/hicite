@@ -307,7 +307,7 @@ none.
 %    \begin{macrocode}
 \def\make@find@in#1{%
     \@ifundefined{finder@in@#1}{%
-        \@namedef{finder@in@#1}##1#1##2\str@mark##3\str@stop##4##5{%
+        \global\@namedef{finder@in@#1}##1#1##2\str@mark##3\str@stop##4##5{%
             \ifstrempty{##3}{##5}{##4{##1}{##2}}%
         }%
     }{}%
@@ -358,10 +358,10 @@ none.
     %     [text-to-find]\str@mark\str@stop
     %     {[text-to-search]}{[callback-if-found]}{[callback-if-not-found]}
     \@ifundefined{finder@cs@in@#1}{%
-        \@namedef{finder@cs@in@#1}##1#2##2\str@mark##3\str@stop##4##5{%
+        \global\@namedef{finder@cs@in@#1}##1#2##2\str@mark##3\str@stop##4##5{%
             \ifstrempty{##3}{##5}{##4{##1}{##2}}%
         }%
-        \@namedef{findcs@in@#1}##1{%
+        \global\@namedef{findcs@in@#1}##1{%
             \@nameuse{finder@cs@in@#1}##1\str@mark#2\str@mark\str@stop
         }%
     }{}%
@@ -388,7 +388,7 @@ none.
         %     [text-of-finder]\str@mark\str@stop
         %     {macro-if-yes}{macro-if-no}
         % Both macros take no arguments.
-        \@namedef{finder@eq@#1}##1#1##2\str@mark##3\str@stop##4##5{%
+        \global\@namedef{finder@eq@#1}##1#1##2\str@mark##3\str@stop##4##5{%
             \ifstrempty{##1##2}{##4}{##5}%
         }%
     }{}%
@@ -410,7 +410,7 @@ none.
 %    \begin{macrocode}
 \def\make@find@end#1{%
     \@ifundefined{finder@end@#1}{%
-        \@namedef{finder@end@#1}##1#1\str@mark##2\str@stop##3##4{%
+        \global\@namedef{finder@end@#1}##1#1\str@mark##2\str@stop##3##4{%
             \ifstrempty{##2}{##4}{##3{##1}}%
         }%
     }{}%
@@ -433,7 +433,9 @@ none.
 %    \begin{macrocode}
 \def\make@find@start#1{%
     \@ifundefined{finder@start@#1}{%
-        \@namedef{finder@start@#1}##1\str@mark#1##2\str@mark##3\str@stop##4##5{%
+        \global\@namedef{%
+            finder@start@#1%
+        }##1\str@mark#1##2\str@mark##3\str@stop##4##5{%
             \ifstrempty{##1}{##4{##2}}{##5}%
         }%
     }{}%
@@ -457,12 +459,12 @@ none.
 %    \begin{macrocode}
 \def\make@find@start@cs#1#2{%
     \@ifundefined{finder@cs@start@#1}{%
-        \@namedef{%
+        \global\@namedef{%
             finder@cs@start@#1%
         }##1\str@mark#2##2\str@mark##3\str@stop##4##5{%
             \ifstrempty{##1}{##4{##2}}{##5}%
         }%
-        \@namedef{findcs@start@#1}##1{%
+        \global\@namedef{findcs@start@#1}##1{%
             \@nameuse{finder@cs@start@#1}%
                 \str@mark##1\str@mark#2\str@mark\str@stop
         }%

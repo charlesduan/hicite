@@ -141,6 +141,7 @@ which are optional (although some reference types will require \param{year}):
     \hi@ifset\hi@kv@toapage{%
         \hi@include@page@in@toa{#1}%
         \hi@newcite@form{lc}{#1}{%
+            \hi@pstruct@initialize\@this@vol
             \noexpand\hi@toa@duptitle{}{%
                 \noexpand\hi@fn@bookauthor{\relax\hi@kv@author@sortable},\space
                 \noexpand\hi@usevol{\hi@ifset\hi@kv@vol{\hi@kv@vol\space}{}}%
@@ -163,6 +164,7 @@ which are optional (although some reference types will require \param{year}):
         }%
     }{%
         \hi@newcite@form{lc}{#1}{%
+            \hi@pstruct@initialize\@this@vol
             \hi@citeguts{%
                 \hi@ifset\hi@kv@author{%
                     \hi@toa@dupauthor{\hi@fn@bookauthor}{%

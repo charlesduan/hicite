@@ -5124,12 +5124,6 @@
             \addto@macro\hi@kv@name{ (\hi@kv@inline)}%
         }{}%
     }%
-    %
-    % Indicate use of the short form in the inline macro.
-    %
-    \hi@ifset\hi@kv@inline{%
-        \addto@macro\hi@kv@inline{\hi@short@use{#1}}%
-    }{}%
 }
 \def\hi@inlinestatname@stripyear#1#2{%
     \edef\reserved@a{\ifnum1000<0#2 \else no\fi}%
@@ -5298,6 +5292,7 @@
                         \hi@id
                     }{%
                         \@capnext\hi@kv@inline
+                        \hi@short@use{#1}%
                     }%
                     \def\noexpand\reserved@a{ }%
                 }%
@@ -5320,7 +5315,7 @@
 \def\hi@statcode@sc@noorigsect#1{%
     \hi@newcite@form{sc}{#1}{%
         \hi@maybeusedefaultopt
-        \hi@statcode@makeshortname
+        \hi@statcode@makeshortname{#1}%
         \hi@citeguts{%
             \hi@inline@only{\hi@citeguts{\noexpand\@nameuse{ic@#1}{s}}}%
             \hi@inline@never{%
@@ -5352,10 +5347,13 @@
         \hi@invis@inline
     }%
 }
-\def\hi@statcode@makeshortname{%
+\def\hi@statcode@makeshortname#1{%
     \hi@ifset\hi@kv@inline{%
         \noexpand\hi@statcode@choosename\noexpand\hi@statcode@shortname
-            {\@capnext\hi@kv@inline}{\hi@statcode@volandrep}%
+            {%
+                \@capnext\hi@kv@inline
+                \hi@short@use{#1}%
+            }{\hi@statcode@volandrep}%
     }{%
         \def\noexpand\hi@statcode@shortname{\hi@statcode@volandrep}%
     }%
@@ -5722,6 +5720,7 @@
             \hi@inline@never{%
                 \noexpand\if@hi@name
                     \hi@kv@inline
+                    \hi@short@use{#1}%
                     \hi@maybepage{ },\space
                 \noexpand\else
                     \hi@ifpage{\noexpand\@this@page, }{}%
@@ -5738,6 +5737,7 @@
                 }{%
                     \hi@kv@inline
                 }%
+                \hi@short@use{#1}%
             }%
         }%
     }%
@@ -5826,7 +5826,9 @@
         }%
         \hi@inline@only{%
             \hi@citeguts{%
-                \hi@ifset\hi@kv@inline{\hi@kv@inline}{\hi@kv@number}%
+                \hi@ifset\hi@kv@inline{%
+                    \hi@kv@inline\hi@short@use{#1}%
+                }{\hi@kv@number}%
             }%
         }%
     }%
@@ -6296,6 +6298,7 @@
     \hi@ifset\hi@kv@toapage{%
         \hi@include@page@in@toa{#1}%
         \hi@newcite@form{lc}{#1}{%
+            \hi@pstruct@initialize\@this@vol
             \noexpand\hi@toa@duptitle{}{%
                 \noexpand\hi@fn@bookauthor{\relax\hi@kv@author@sortable},\space
                 \noexpand\hi@usevol{\hi@ifset\hi@kv@vol{\hi@kv@vol\space}{}}%
@@ -6318,6 +6321,7 @@
         }%
     }{%
         \hi@newcite@form{lc}{#1}{%
+            \hi@pstruct@initialize\@this@vol
             \hi@citeguts{%
                 \hi@ifset\hi@kv@author{%
                     \hi@toa@dupauthor{\hi@fn@bookauthor}{%
@@ -7508,11 +7512,11 @@
     \hi@param@addparen\hi@paren@parallel{%
         #2%
         \@test\ifx\@this@page\relax\fi{}{%
-            \@expandarg\hi@fpg@segment{\@this@page}{#1}{, }{%
+            \@expandarg\hi@fpg@segment{\@this@orig@page}{#1}{, }{%
                 \PackageWarning\hi@pkgname{%
                     In citation to \@this@case, parallel cite\MessageBreak
                     with key `#1' not given in page number%
-                }\textbf{??}%
+                }, \textbf{??}%
             }%
         }%
     }%

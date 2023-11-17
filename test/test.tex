@@ -1062,9 +1062,9 @@ The following can only be tested visually. Make sure that these look acceptable.
 \testbox{ABC}{1--2, 3, 4, 5}
 \testbox{ABCD}{1--2, 3, 4, 5}
 \testbox{ABCDE}{1--2, 3, 4, 5}
-\testbox{ABCDEF}{1--2, 3, 4, 5}
-\testbox{ABCDEFG}{1--2, 3, 4, 5}
-\testbox{ABCDEFGH}{1--2, 3, 4, 5}
+\testbox{A B C D E F}{1--2, 3, 4, 5}
+\testbox{A B C D E F G}{1--2, 3, 4, 5}
+\testbox{A B C D E F G H}{1--2, 3, 4, 5}
 
 %%
 %% \iffalse filename: endnotes.dtx \fi
@@ -1588,7 +1588,8 @@ subsequent=rehearing denied: unocal-cafc,
 
 \fullcite{unocal-cafc}
 
-\AssertBox{\note{unocal-rf-rd-dct}}{%
+\AssertBox{\tiny\note{unocal-rf-rd-dct}}{%
+    \tiny
     \InFootnote{Oil Co.\ v.\ Atl.\ Richfield, 34 F. Supp.\
     2d 1208 (C.D. Cal.\ 1998), \emph{reh'g denied}{}, 208 F.3d 989 (Fed.\ Cir.\
     2000).}}
@@ -1604,7 +1605,8 @@ cite=347 U.S. 483,
 year=1954,
 }
 
-\AssertBox{\note{plessy}}{%
+\AssertBox{\tiny\note{plessy}}{%
+    \tiny
     \InFootnote{%
         Plessy v.\ Ferguson, 163 U.S. 537 (1896), \emph{overruled by}
         Brown v.\ Bd.\ of Educ.\ of Topeka, 347 U.S. 483 (1954).%
@@ -1756,6 +1758,7 @@ year=1954,
             \hi@inline@never{%
                 \noexpand\if@hi@name
                     \hi@kv@inline
+                    \hi@short@use{#1}%
                     \hi@maybepage{ },\space
                 \noexpand\else
                     \hi@ifpage{\noexpand\@this@page, }{}%
@@ -1772,6 +1775,7 @@ year=1954,
                 }{%
                     \hi@kv@inline
                 }%
+                \hi@short@use{#1}%
             }%
         }%
     }%
@@ -1821,6 +1825,19 @@ year=1954,
     \InFootnote{35 \textsc{U.S.C.} \textsection~271(b).}%
 }
 
+\defstatsess{fdara}{
+name=FDA Reauthorization Act of 2017,
+inline=FDARA,
+publiclaw=115-52,
+year=2017,
+cite=131 Stat. 1005,
+}
+
+\AssertBox{\note{fdara}}{%
+    \InFootnote{FDA Reauthorization Act of 2017, Pub.~L.~No.~115-52, 131
+    \textsc{Stat.}~1005.}%
+}
+
 %%
 %% \iffalse filename: specrefs.dtx \fi
 \hi@newcite\defbill{An bill or resolution of Congress}{%
@@ -1864,7 +1881,9 @@ year=1954,
         }%
         \hi@inline@only{%
             \hi@citeguts{%
-                \hi@ifset\hi@kv@inline{\hi@kv@inline}{\hi@kv@number}%
+                \hi@ifset\hi@kv@inline{%
+                    \hi@kv@inline\hi@short@use{#1}%
+                }{\hi@kv@number}%
             }%
         }%
     }%
@@ -2233,6 +2252,7 @@ year=1954,
     \hi@ifset\hi@kv@toapage{%
         \hi@include@page@in@toa{#1}%
         \hi@newcite@form{lc}{#1}{%
+            \hi@pstruct@initialize\@this@vol
             \noexpand\hi@toa@duptitle{}{%
                 \noexpand\hi@fn@bookauthor{\relax\hi@kv@author@sortable},\space
                 \noexpand\hi@usevol{\hi@ifset\hi@kv@vol{\hi@kv@vol\space}{}}%
@@ -2255,6 +2275,7 @@ year=1954,
         }%
     }{%
         \hi@newcite@form{lc}{#1}{%
+            \hi@pstruct@initialize\@this@vol
             \hi@citeguts{%
                 \hi@ifset\hi@kv@author{%
                     \hi@toa@dupauthor{\hi@fn@bookauthor}{%
@@ -3368,6 +3389,31 @@ date=jan 1 2021,
         \@expandarg\hi@defkey@url{\hi@kv@url}%
     }%
 }
+
+\section{genparams.dtx}
+
+\subsection{Parallel Cites}
+
+\defcase{semayne}{
+name=Semayne's Case,
+court=K.B.,
+cite=77 Eng. Rep. 194,
+year=1604,
+parallel=coke: 5 Coke 91a,
+}
+
+\AssertBox{\note{semayne}}{%
+    \InFootnote{Semayne's Case, 77 Eng.~Rep.~194, 5 Coke 91a (K.B.
+    1604).}%
+}
+
+\fullcite{semayne}
+
+\AssertBox{\note{semayne at 195 ::coke: 91b}}{%
+    \InFootnote{Semayne's Case, 77 Eng.~Rep.~194, 195, 5 Coke 91a, 91b (K.B.
+    1604).}%
+}
+
 %%
 %% \iffalse filename: commparams.dtx \fi
 %%

@@ -52,7 +52,9 @@ into the above categories.
         }%
         \hi@inline@only{%
             \hi@citeguts{%
-                \hi@ifset\hi@kv@inline{\hi@kv@inline}{\hi@kv@number}%
+                \hi@ifset\hi@kv@inline{%
+                    \hi@kv@inline\hi@short@use{#1}%
+                }{\hi@kv@number}%
             }%
         }%
     }%
