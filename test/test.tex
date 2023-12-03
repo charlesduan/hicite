@@ -2257,7 +2257,11 @@ cite=131 Stat. 1005,
                 \noexpand\hi@fn@bookauthor{\relax\hi@kv@author@sortable},\space
                 \noexpand\hi@usevol{\hi@ifset\hi@kv@vol{\hi@kv@vol\space}{}}%
                 \hi@ifset\hi@kv@number{%
-                    \noexpand\hi@fn@booktitle{\hi@kv@number}, % space
+                    \hi@ifset\hi@kv@publisher{}{%
+                        \noexpand\hi@fn@booktitle{%
+                            \hi@abbrev@pub{\hi@kv@number}{\@iden}%
+                        }, % space
+                    }%
                 }{}%
                 \hi@fn@booktitle{\hi@kv@name}%
             }{%
@@ -2284,7 +2288,11 @@ cite=131 Stat. 1005,
                 }{\hi@toa@dupnone}%
                 \noexpand\hi@usevol{\hi@ifset\hi@kv@vol{\hi@kv@vol\space}{}}%
                 \hi@ifset\hi@kv@number{%
-                    \noexpand\hi@fn@booktitle{\hi@kv@number}, % space
+                    \hi@ifset\hi@kv@publisher{}{%
+                        \noexpand\hi@fn@booktitle{%
+                            \hi@abbrev@pub{\hi@kv@number}{\@iden}%
+                        }, % space
+                    }%
                 }{}%
                 \hi@fn@booktitle{\hi@kv@name}%
             }%
