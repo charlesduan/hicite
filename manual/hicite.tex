@@ -249,8 +249,8 @@ legal citation. The following would generate a two-element string-cite to
 \emph{Wheaton v.~Peters}, describing a (hypothetical) tension between two parts
 of the decision:
 \begin{demo}
-|\sentence{|see, e.g., wheaton at 598 note 3 (Story, J.) (describing holding);
-but see wheaton at 600-602 (noting alternative views)|}|.
+\inputtext{\sentence{see, e.g., wheaton at 598 note 3 (Story, J.)
+(describing holding); but see wheaton at 600-602 (noting alternative views)}.}
 \Produces
 \emph{See, e.g.}, \emph{Wheaton v.~Peters}, 33 U.S. 591, 598 n.3
 (1834) (Story, J.) (describing holding); \emph{but see} \emph{id.}~at 600--02
@@ -283,8 +283,7 @@ The relevant commands are |\inline|, |\Inline|, |\adjective|, and |\Adjective|
 depending on whether the reference is being cited at the beginning of a sentence
 and the part of speech the reference is taking on:
 \begin{demo}
-|In \inline{wheaton}, the Court....| \\
-|\sentence{wheaton at 603}.| \\
+\inputtext{In \inline{wheaton}, the Court.... \sentence{wheaton at 603}.}
 \Produces In \emph{Wheaton v.~Peters}, the Court\ldots. \emph{See} 33 U.S. 591,
 603 (1834).
 \end{demo}
@@ -5091,24 +5090,29 @@ journals.
         }{}%
     }%
     \hi@newcite@form{fc}{#1}{%
-        \hi@citeguts{%
-            \hi@ifset\hi@kv@author{%
-                \hi@toa@dupauthor{\noexpand\@iden}{\hi@kv@author@sortable}%
+        \hi@inline@never{%
+            \hi@citeguts{%
+                \hi@ifset\hi@kv@author{%
+                    \hi@toa@dupauthor{\noexpand\@iden}{\hi@kv@author@sortable}%
+                }{}%
+                \hi@ifset\hi@kv@type{\@capnext\hi@kv@type, }{}%
+                \noexpand\hi@fn@arttitle{\hi@kv@name}%
+                \hi@maybepage{ }\hi@font@comma
+                \noexpand\hi@fn@sig{in}\space
+                \hi@ifset\hi@kv@vol{\hi@kv@vol}{\hi@kv@year} % Volume
+                \noexpand\hi@fn@jrntitle{\hi@kv@rep}%
+                \hi@ifset\hi@kv@page{\space \@format@page@macro\hi@kv@page}{}%
+            }%
+            \hi@ifset\hi@kv@vol{%
+                \ifx\hi@kv@vol\hi@kv@year\else
+                    \hi@parens@add\hi@paren@date{\hi@kv@year}%
+                \fi
             }{}%
-            \hi@ifset\hi@kv@type{\@capnext\hi@kv@type, }{}%
-            \noexpand\hi@fn@arttitle{\hi@kv@name}%
-            \hi@maybepage{ }\hi@font@comma
-            \noexpand\hi@fn@sig{in}\space
-            \hi@ifset\hi@kv@vol{\hi@kv@vol}{\hi@kv@year} % Volume
-            \noexpand\hi@fn@jrntitle{\hi@kv@rep}%
-            \hi@ifset\hi@kv@page{\space \@format@page@macro\hi@kv@page}{}%
+            \the\hi@param@parens
         }%
-        \hi@ifset\hi@kv@vol{%
-            \ifx\hi@kv@vol\hi@kv@year\else
-                \hi@parens@add\hi@paren@date{\hi@kv@year}%
-            \fi
-        }{}%
-        \the\hi@param@parens
+        \hi@inline@only{%
+            \hi@citeguts{\hi@kv@author}%
+        }%
     }%
     \protected@edef\reserved@a{%
         \hi@ifset\hi@kv@authln{\@capnext\hi@kv@authln}{%

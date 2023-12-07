@@ -2483,24 +2483,29 @@ year=1954,
         }{}%
     }%
     \hi@newcite@form{fc}{#1}{%
-        \hi@citeguts{%
-            \hi@ifset\hi@kv@author{%
-                \hi@toa@dupauthor{\noexpand\@iden}{\hi@kv@author@sortable}%
+        \hi@inline@never{%
+            \hi@citeguts{%
+                \hi@ifset\hi@kv@author{%
+                    \hi@toa@dupauthor{\noexpand\@iden}{\hi@kv@author@sortable}%
+                }{}%
+                \hi@ifset\hi@kv@type{\@capnext\hi@kv@type, }{}%
+                \noexpand\hi@fn@arttitle{\hi@kv@name}%
+                \hi@maybepage{ }\hi@font@comma
+                \noexpand\hi@fn@sig{in}\space
+                \hi@ifset\hi@kv@vol{\hi@kv@vol}{\hi@kv@year} % Volume
+                \noexpand\hi@fn@jrntitle{\hi@kv@rep}%
+                \hi@ifset\hi@kv@page{\space \@format@page@macro\hi@kv@page}{}%
+            }%
+            \hi@ifset\hi@kv@vol{%
+                \ifx\hi@kv@vol\hi@kv@year\else
+                    \hi@parens@add\hi@paren@date{\hi@kv@year}%
+                \fi
             }{}%
-            \hi@ifset\hi@kv@type{\@capnext\hi@kv@type, }{}%
-            \noexpand\hi@fn@arttitle{\hi@kv@name}%
-            \hi@maybepage{ }\hi@font@comma
-            \noexpand\hi@fn@sig{in}\space
-            \hi@ifset\hi@kv@vol{\hi@kv@vol}{\hi@kv@year} % Volume
-            \noexpand\hi@fn@jrntitle{\hi@kv@rep}%
-            \hi@ifset\hi@kv@page{\space \@format@page@macro\hi@kv@page}{}%
+            \the\hi@param@parens
         }%
-        \hi@ifset\hi@kv@vol{%
-            \ifx\hi@kv@vol\hi@kv@year\else
-                \hi@parens@add\hi@paren@date{\hi@kv@year}%
-            \fi
-        }{}%
-        \the\hi@param@parens
+        \hi@inline@only{%
+            \hi@citeguts{\hi@kv@author}%
+        }%
     }%
     \protected@edef\reserved@a{%
         \hi@ifset\hi@kv@authln{\@capnext\hi@kv@authln}{%
