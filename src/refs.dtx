@@ -178,17 +178,8 @@ reference types there are shortcuts described in \sec{cparse}.
 % for the reference, \#2 a textual description, and \#3 the macro code to be run
 % to define the reference. Executing the reference definition command should
 % cause the definition of the following formatting macros of the form
-% |\|\meta{prefix}|@|\meta{ref-name}:
-% \begin{demo}
-% \begin{tabular}{rl}
-%    |fc|  & full citation. Required. \\
-%    |sc|  & short citation. Optional, with full cite form used otherwise. \\
-%    |lc|  & full citation, for use in table of authorities. Optional. \\
-%    |pc|  & page number formatter. Optional; defaults to |\@format@pageno|. \\
-%    |ic|  & inline citation, for internal use if desired. \\
-%    |idc| & \emph{id.}\ citation. Optional. \\
-% \end{tabular}
-% \end{demo}
+% |\|\meta{prefix}|@|\meta{ref-name}, with prefixes given in \sec{draw-form}.
+%
 % For convenience of parameter definition macros, |\@this@case| is set to the
 % name of the reference being defined.
 %
@@ -223,20 +214,20 @@ reference types there are shortcuts described in \sec{cparse}.
 %
 % Within a reference definer macro, defines a new formatting macro of the form
 % |\|\meta{prefix}|@|\meta{name}, where \#1 is \meta{prefix} and \#2 is
-% \meta{name}. Mainly, this checks to make sure that the formatting macro isn't
+% \meta{name}. Mainly, this checks to make sure that a full citation macro isn't
 % being redefined (indicating that the writer has used a duplicate name).
 %    \begin{macrocode}
 \def\hi@newcite@form#1#2{%
     \@ifundefined{#1@#2}{%
         \expandafter\protected@xdef\csname#1@#2\endcsname
     }{%
-        \find@eq{sc}{#1}{}{%
+        \find@eq{fc}{#1}{%
             \PackageWarning\hi@pkgname{Refusing to redefine #1@#2}%
-        }%
+        }{}%
         \hi@newcite@form@gobble
     }%
 }
-\make@find@eq{sc}
+\make@find@eq{fc}
 \def\hi@newcite@form@gobble#1#{\@gobble}
 %    \end{macrocode}
 %
@@ -407,11 +398,15 @@ reference types there are shortcuts described in \sec{cparse}.
 
 \subsection{Citation Groups}
 
+\label{s:refs-citegroups}
+
 \DescribeMacro\defcitegroup
 Often there will be several references that follow a standard conventional form,
 so it would be convenient to define all of them in one go. The |\defcitegroup|
-macro enables this to an extent. It takes three arguments:
+macro enables this to an extent. It takes four arguments:
 \begin{itemize}
+\item (optional) A prefix for the reference nicknames to be defined, default
+blank
 \item A reference definer macro (|\def|\meta{type})
 \item Initial text for the reference definition body
 \item A comma-separated list of texts used both as the nickname and as a suffix
@@ -433,18 +428,27 @@ you can write:
 Each of the items in the comma-separated list (e.g., |101|) becomes both a
 reference nickname and the end of the reference definition.
 
+With the optional argument, the reference names can be given a prefix:
+\begin{demo}
+|\defcitegroup[17usc]\defstatcode{17 U.S.C. S }{101, 102, 103}|
+\end{demo}
+would define |17usc101| as the statute ``17 U.S.C. \textsection~101'' and so on.
+
+
 %</doc>
 %<*package>
 %    \begin{macrocode}
-\def\defcitegroup#1#2#3{%
-    \forcsvlist{\hi@citegroup@{#1}{#2}}{#3}%
+\newcommand\defcitegroup[4][]{%
+    \forcsvlist{\hi@citegroup@{#1}{#2}{#3}}{#4}%
 }
-\def\hi@citegroup@#1#2#3{#1{#3}{#2#3}}
+\def\hi@citegroup@#1#2#3#4{#2{#1#4}{#3#4}}
 %    \end{macrocode}
 %</package>
 %<*test>
 
 \section{refs.dtx}
+
+\subsection{defcitegroup}
 
 \begingroup
 
@@ -453,6 +457,11 @@ reference nickname and the end of the reference definition.
     \defcitegroup\deftest{Prefix }{a, b, c}
     \AssertMacro\testregister{{a}{Prefix a}{b}{Prefix b}{c}{Prefix c}}
 
+    \let\testregister\@empty
+    \defcitegroup[pre-]\deftest{Prefix }{a, b, c}
+    \AssertMacro\testregister{%
+        {pre-a}{Prefix a}{pre-b}{Prefix b}{pre-c}{Prefix c}%
+    }
 \endgroup
 
 %</test>

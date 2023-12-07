@@ -15,60 +15,57 @@
         \hi@undefine\hi@kv@page
         \KV@hi@forthcoming\relax
     }{}%
-    \hi@ifset\hi@kv@vol{}{\let\hi@kv@vol\hi@kv@year}%
+    \hi@ifset\hi@kv@forthcoming{}{%
+        \hi@ifset\hi@kv@vol{}{\let\hi@kv@vol\hi@kv@year}%
+    }%
     \hi@newcite@form{fc}{#1}{%
-        \hi@inline@never{%
-            \hi@citeguts{%
-                \hi@ifset\hi@kv@author{%
-                    \hi@toa@dupauthor{\noexpand\@iden}{\hi@kv@author@sortable}%
-                }{}%
-                \hi@ifset\hi@kv@type{\@capnext\hi@kv@type, }{}%
-                \hi@ifset\hi@kv@name{% Title
-                    \noexpand\hi@fn@arttitle{\hi@kv@name}\hi@font@comma
-                }{%
-                    % If no title set, if there's a citation, use that as the
-                    % title
-                    \hi@ifset\hi@kv@citation{%
-                        \noexpand\hi@fn@arttitle{%
-                            \protect\inline{\hi@kv@citation}%
-                        },
-                    }{}%
-                }%
-                \hi@ifset\hi@kv@vol{\hi@kv@vol\space}{%
-                    % Prompt error unless forthcoming
-                    \hi@ifset\hi@kv@forthcoming{}{\hi@kv@vol\space}%
-                }% Volume
-                \noexpand\hi@fn@jrntitle{\hi@kv@rep}% Magazine title
-                \hi@ifset\hi@kv@forthcoming{}{%
-                    \space
-                    \hi@ifset\hi@kv@useissue{%
-                        No.~\hi@kv@issue, at\space
-                    }{}%
-                    \@format@page@macro\hi@kv@page % First page
-                    \hi@maybepage{, }% Pin cite page
-                }%
-            }%
-            \the\hi@param@parens
-            \hi@ifset\hi@kv@forthcoming{%
-                \hi@parens@add\hi@paren@date{%
-                    forthcoming%
-                    \hi@ifset\hi@kv@year{ \hi@kv@year}{}%
-                }%
-                \noexpand\ifx\noexpand\@this@page\relax\noexpand\else
-                    \hi@parens@add\hi@paren@forthcomingms{%
-                        manuscript at \noexpand\@this@page
-                    }%
-                \noexpand\fi
+        \hi@citeguts{%
+            \hi@ifset\hi@kv@author{%
+                \hi@toa@dupauthor{\noexpand\@iden}{\hi@kv@author@sortable}%
+            }{}%
+            \hi@ifset\hi@kv@type{\@capnext\hi@kv@type, }{}%
+            \hi@ifset\hi@kv@name{% Title
+                \noexpand\hi@fn@arttitle{\hi@kv@name}\hi@font@comma
             }{%
-                \hi@ifset\hi@kv@vol{%
-                    \ifx\hi@kv@vol\hi@kv@year\else
-                        \hi@parens@add\hi@paren@date{\hi@kv@year}%
-                    \fi
+                % If no title set, if there's a citation, use that as the
+                % title
+                \hi@ifset\hi@kv@citation{%
+                    \noexpand\hi@fn@arttitle{%
+                        \protect\inline{\hi@kv@citation}%
+                    },
                 }{}%
+            }%
+            \hi@ifset\hi@kv@vol{\hi@kv@vol\space}{%
+                % Prompt error unless forthcoming
+                \hi@ifset\hi@kv@forthcoming{}{\hi@kv@vol\space}%
+            }% Volume
+            \noexpand\hi@fn@jrntitle{\hi@kv@rep}% Magazine title
+            \hi@ifset\hi@kv@forthcoming{}{%
+                \space
+                \hi@ifset\hi@kv@useissue{%
+                    No.~\hi@kv@issue, at\space
+                }{}%
+                \@format@page@macro\hi@kv@page % First page
+                \hi@maybepage{, }% Pin cite page
             }%
         }%
-        \hi@inline@only{%
-            \hi@citeguts{\hi@kv@author}%
+        \the\hi@param@parens
+        \hi@ifset\hi@kv@forthcoming{%
+            \hi@parens@add\hi@paren@date{%
+                forthcoming%
+                \hi@ifset\hi@kv@year{ \hi@kv@year}{}%
+            }%
+            \noexpand\ifx\noexpand\@this@page\relax\noexpand\else
+                \hi@parens@add\hi@paren@forthcomingms{%
+                    manuscript at \noexpand\@this@page
+                }%
+            \noexpand\fi
+        }{%
+            \hi@ifset\hi@kv@vol{%
+                \ifx\hi@kv@vol\hi@kv@year\else
+                    \hi@parens@add\hi@paren@date{\hi@kv@year}%
+                \fi
+            }{}%
         }%
     }%
     \protected@edef\reserved@a{%
@@ -106,6 +103,25 @@ journals.
     {useissue}{Include the issue number, which by default is omitted.}
 }
 
+
+\begin{demo}
+\Example
+\begin{verbatim}
+\defjrnart{griswold}{
+    author=Erwin N. Griswold,
+    title=Government in Ignorance of the Law---A Plea
+    for Better Publication of Executive Legislation,
+    cite=48 Harvard Law Review 198,
+    year=1934,
+}
+\end{verbatim}
+\Produces
+    Erwin N. Griswold, \emph{Government in Ignorance of the
+    Law---A Plea for Better Publication of Executive
+    Legislation}, 48 \textsc{Harv.\ L. Rev.}\ 198 (1934).
+\end{demo}
+Note the unabbreviated journal name in the input.
+
 %</doc>
 %<*package>
 %    \begin{macrocode}
@@ -115,7 +131,9 @@ journals.
 \hi@newcite\defprocart{A non-consecutively paginated proceedings article}{%
     \hi@citetype{#1}\hi@type@other
     \hi@abbrev@journal@check
-    \hi@ifset\hi@kv@vol{}{\let\hi@kv@vol\hi@kv@year}%
+    \hi@ifset\hi@kv@forthcoming{}{%
+        \hi@ifset\hi@kv@vol{}{\let\hi@kv@vol\hi@kv@year}%
+    }%
     \hi@ifset\hi@kv@page{}{%
         \hi@ifset\hi@kv@issue{%
             \edef\hi@kv@page{No. \expandonce\hi@kv@issue}%
@@ -223,6 +241,25 @@ scholarly weight.
     {publisher}{The magazine publisher, if relevant.}
 }
 
+\begin{demo}
+\Example
+\begin{verbatim}
+\defmagart{duhigg}{
+    author=Charles Duhigg,
+    title=How Companies Learn Your Secrets,
+    journal=New York Times Magazine,
+    page=!MM30,
+    date=Jan 1 2016,
+}
+\end{verbatim}
+\Produces Charles Duhigg, \emph{How Companies Learn Your Secrets}, \textsc{N.Y.
+Times Mag.}\ MM30 (Jan.~1, 2016).
+\end{demo}
+Note the exclamation mark in front of the page number, which must be included
+because the page number does not start with a digit (see \sec{pages}).
+
+
+
 %</doc>
 %
 \hi@alias@cite\defnewsart\defmagart
@@ -269,6 +306,23 @@ title separate from a particular page title. If given, \param{rep} will be
 abbreviated according to the \abbscheme{journal} scheme.
 \bookparenparameters
 
+\begin{demo}
+\Example
+\begin{verbatim}
+\defwebsite{mitzman}{
+    author=Dany Mitzman,
+    title=Nutella: How the World Went Nuts for a Hazelnut
+        Spread,
+    date=may 18 2014,
+    journal=BBC News,
+    url=http://www.bbc.com/news/magazine-27438001
+}
+\end{verbatim}
+\Produces Dany Mitzman, \emph{Nutella: How the World Went Nuts for a Hazelnut
+Spread}, \textsc{BBC News} (May 18, 2014), http://\ldots
+\end{demo}
+
+
 %</doc>
 %
 \hi@newcite\defmanuscript{An unpublished manuscript}{%
@@ -304,6 +358,20 @@ dissertations, manuscripts, and reports.
     choice.}
     {year}{The date of the manuscript.}
 }
+
+\begin{demo}
+\Example
+\begin{verbatim}
+\defmanuscript{princess-bride}{
+    title=The Princess Bride,
+    author=William Goldman,
+    type=draft screenplay,
+    date=may 3 1986,
+}
+\end{verbatim}
+\Produces William Goldman, The Princess Bride (May 3, 1986) (unpublished
+draft screenplay).
+\end{demo}
 
 %</doc>
 \hi@newcite\defworkingpaper{A working paper}{%
@@ -342,10 +410,35 @@ This is for working papers with a serial number issued by an institution.
     {year}{The date of the paper.}
 }
 
+\begin{demo}
+\Example
+\begin{verbatim}
+\defworkingpaper{cockburn}{
+    author=Iain M. Cockburn,
+    author=Megan MacGarvie,
+    title={Patents, Thickets, and the Financing of Early-Stage
+        Firms: Evidence From the Software Industry},
+    sponsor=National Bureau of Economic Research,
+    serial=Working Paper No. 13644,
+    year=2007,
+    url=http://www.nber.org/papers/w13644.pdf
+}
+\end{verbatim}
+\Produces
+Iain M. Cockburn \& Megan MacGarvie, \emph{Patents, Thickets, and the Financing
+of Early-Stage Firms: Evidence from the Software Industry} (Nat'l Bureau of
+Econ.\ Res., Working Paper No. 13644, 2007).
+\end{demo}
+
 %</doc>
 %<*test>
 
 \section{artrefs.dtx}
+
+
+
+\subsection{Article Dates}
+
 
 \defjrnart{jrnartyearonly}{
 author=A B,
@@ -389,5 +482,27 @@ page=number 15,
 
 \AssertBox{\note{procartyearvol}}{\InFootnote{C D, \emph{Same Year and Volume
 Article}, 2014 \textsc{Proc.\ L.} no.\ 15.}}
+
+
+\subsection{Manuscript}
+
+
+\defmanuscript{testmanuscript}{
+author=John Doe,
+title=My Diary,
+date=jan 1 2021,
+}
+
+\AssertBox{\inline{testmanuscript}}{John Doe}
+
+\AssertBox{\note{testmanuscript}}{\InFootnote{John Doe, My Diary (Jan.~1, 2021)
+(unpublished manuscript).}}
+
+\AssertBox{\inline{testmanuscript}}{Doe}
+
+
+
+
+
 
 %</test>

@@ -55,10 +55,11 @@ month can also be a season.
 
 Dates are entered, generally as parameters to references, as follows:
 \begin{grammar}
-\meta{date} := [ \meta{qualifier} ] ( \meta{date-range} \| \meta{date-word} )*
+\meta{date} := [ \meta{qualifier} ] ( \meta{date-range} \| \meta{date-word} \|
+\meta{modifier} )*
 \\
 \meta{date-range} := \meta{date-word} \littext{-} \meta{date-word} \\
-\meta{date-word} := \meta{modifier} \| \meta{month} \| \meta{day} \| \meta{year}
+\meta{date-word} := \meta{month} \| \meta{day} \| \meta{year}
 \\
 \Examples |2009|\\
 |sept-oct 1980|\\
@@ -337,9 +338,9 @@ Alternately, a date beginning with |!| will be used unformatted.
 The following are permissible words in dates.
 
 \begin{demo}
-\def\hi@setup@month#1#2{#1&#2\\}
+\def\hi@setup@month#1#2{\texttt{#2}&#1\\}
 \begin{tabular}{ll}
-\textbf{Output} & \textbf{Input} \\
+\textbf{Date Word Input} & \textbf{Output} \\
 \hline
 %</doc>
 %<*doc|package>
@@ -355,19 +356,18 @@ The following are permissible words in dates.
 \hi@setup@month{Oct.}{oct, Oct, october, October}
 \hi@setup@month{Nov.}{nov, Nov, november, November}
 \hi@setup@month{Dec.}{dec, Dec, december, December}
-\hi@setup@month{Winter}{winter, win, Win}
-\hi@setup@month{Summer}{summer, sum, summ, Sum, Summ}
+\hi@setup@month{Winter}{winter, win, Winter, Win}
+\hi@setup@month{Summer}{summer, sum, summ, Summer, Sum, Summ}
 \hi@setup@month{Fall}{fall, Fall}
-\hi@setup@month{Spring}{spring, spr, Spr}
+\hi@setup@month{Spring}{spring, spr, Spring, Spr}
 %</doc|package>
 %<*doc>
-c.\ [circa] & c, circa \\
-n.d.\ [no date] & nd \\
-A.D. & ad, AD \\
-B.C. & bc, BC \\
-A.C.E. & ace, ACE \\
-B.C.E. & bce, BCE \\
-
+\texttt{c, circa} & c.\ [circa]    \\
+\texttt{nd}       & n.d.\ [no date]\\
+\texttt{ad, AD}   & A.D.           \\
+\texttt{bc, BC}   & B.C.           \\
+\texttt{ace, ACE} & A.C.E.         \\
+\texttt{bce, BCE} & B.C.E.         \\
 \end{tabular}
 \end{demo}
 

@@ -57,9 +57,9 @@ in the last-name-only forms.
 Separating these parts is necessary, for example, to enable short citations
 using just the author's last name.
 
-Institutional affiliations attached to human names are distinct from
+Institutional affiliations attached to personal names are distinct from
 institutional names included in a name list.
-Consider, for example, a government report written by persoAl Anderson
+Consider, for example, a government report written by Al Anderson
 at the Federal
 Trade Commission and Bob Baker at the Department of Justice. If the report
 expresses
@@ -74,7 +74,8 @@ individuals should be authors, with their affiliations attached to their names:
 Al Anderson, Fed.~Trade Comm'n \& Bob Baker, Dep't of Justice
 \end{demo}
 Providing these options gives
-writers more flexibility to cite mixed human and institutional authors to convey
+writers more flexibility to cite mixed personal and institutional authors to
+convey
 accurate and useful information.
 
 %</doc>
@@ -92,7 +93,7 @@ accurate and useful information.
 \subsection{Inputs}
 
 For each type of name list, there will be two reference definition parameters,
-one for human names and one for institutions:
+one for personal names and one for institutions:
 \begin{demo}
 \catcode`\|=12
 \begin{tabular}{l|ll}
@@ -109,7 +110,7 @@ handles abbreviation. If an ``et al.''\ is desired after an institutional
 author, that may be appended to the name. It is treated as if it were part of
 the institution's name and not processed further.
 
-Because human authors have five component parts that need to be analyzed
+Because personal authors have five component parts that need to be analyzed
 individually, they must be given in a specific format. An institutional
 affiliation is always any part of a name following a comma. To separate the
 given name, family name, and suffix, the most explicit way is to surround the
@@ -123,8 +124,8 @@ family name and name suffix with curly braces:
 \qquad[ \littext{, } \meta{institution} ] \\
 \qquad[ \littext{et al.} ]
 \Examples
-\texttt{John Marshall} \\
-\texttt{Fiona {Scott Morton}} \\
+\texttt{John \{Marshall\}} \\
+\texttt{Fiona \{Scott Morton\}} \\
 \texttt{Nicholson \{Price \{II\}\}} \\
 \texttt{Oliver Wendell \{Holmes \{Jr.\}\}, Massachusetts Supreme Judicial Court}
 \end{grammar}
@@ -294,15 +295,20 @@ last word in the remaining name as the family name.
 
 \paragraph{Name suffixes.} When no braces delimit the suffix, the package looks
 for common suffixes (Jr., Sr., and roman numerals through X). The first such
-suffix found is treated as a name suffix. As a result, the example above could
-have been parsed correctly without braces:
+suffix found is treated as a name suffix.
+
+To see this automatic parsing in action, consider the following name input,
+which would be parsed as follows:
 \begin{demo}
-\texttt{Oliver Wendell Holmes Jr., Massachusetts Supreme Judicial Court}
+\texttt{author=\{Georg von Trapp Jr., Family Singers\}}
+\vskip\baselineskip
+\begin{tabular}{lp{0.6\textwidth}}
+|Georg| & Given name \\
+|von Trapp| & Family name, based on the nobiliary particle ``von'' \\
+|Jr.| & Name suffix, as it is on the list of common suffixes \\
+|Family Singers| & Institutional affiliation, as it follows a comma \\
+\end{tabular}
 \end{demo}
-since everything following the comma would be used as the institution, ``Jr.''
-would be identified as a suffix, ``Holmes'' being the last remaining word would
-be the family name, and the remaining text ``Oliver Wendell'' would be the
-given name.
 
 %</doc>
 %<*package>
@@ -512,7 +518,7 @@ report)
 % The following macros define the punctuation itself. They are also used as
 % markers within the data structure implementation to help separate the lists,
 % necessitating the |\iffalse| elements to render the macros distinct.
-% |\hi@namelist@insts| separates the human author list from the institutional
+% |\hi@namelist@insts| separates the personal author list from the institutional
 % author list; |\hi@namelist@and| is the ampersand, and |\hi@namelist@comma| is
 % the comma.
 %
@@ -697,8 +703,8 @@ package itself.
 %    \end{macrocode}
 %
 % \DescribeMacro\hi@namelist@personpart
-% Retrieves only the human author part of the given name list macro, and runs
-% the given callback on it. If there is no human part, then nothing is run.
+% Retrieves only the personal author part of the given name list macro, and runs
+% the given callback on it. If there is no personal part, then nothing is run.
 %    \begin{macrocode}
 \def\hi@namelist@personpart#1#2{%
     \expandafter\hi@namelist@personpart@\expandafter{#1}{#2}%

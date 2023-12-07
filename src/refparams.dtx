@@ -61,6 +61,14 @@ This is equivalent to |date=issued |\meta{date}.
 \hi@newparam{onfile}{Where the document is on file}
 \hi@newparam{place}{Place (for speeches, constitutions, statutes)}
 \hi@param@alias{producer}{instauth}
+\hi@param@alias{pubdate}{pubyear}
+\hi@defparam{pubyear}{Year of publication (for French statutes)}{%
+    \hi@date@parse{#1}{\def\hi@kv@pubyear}%
+}
+%<*doc>
+This is an additional date parameter used for French statutes.
+%</doc>
+%
 \hi@param@alias{sponsor}{publisher}
 \hi@param@alias{state}{place}
 \hi@defparam{struct}{Structure for data of multivolume works}{%

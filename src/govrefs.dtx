@@ -52,7 +52,9 @@ into the above categories.
         }%
         \hi@inline@only{%
             \hi@citeguts{%
-                \hi@ifset\hi@kv@inline{\hi@kv@inline}{\hi@kv@number}%
+                \hi@ifset\hi@kv@inline{%
+                    \hi@kv@inline\hi@short@use{#1}%
+                }{\hi@kv@number}%
             }%
         }%
     }%
@@ -77,6 +79,22 @@ into the above categories.
     the date if this parameter is used. Text after ``by'' will be abbreviated
     according to the \abbscheme{leg} abbreviation scheme.}
 }
+
+\begin{demo}
+\Example
+\begin{verbatim}
+\defbill{yoda-2015}{
+    bill=H.R. 862,
+    congress=114,
+    name=You Own Devices Act,
+    date=feb 11 2015
+}
+\end{verbatim}
+\Produces You Own Devices Act, H.R. 862, 114th Cong.\ (Feb. 11, 2015).
+\end{demo}
+
+
+
 %</doc>
 %<*package>
 %    \begin{macrocode}
@@ -152,6 +170,19 @@ This is for reports, and documents. Unnumbered documents should use
     used, for example, for multipart reports (i.e., \texttt{page} could be
     \texttt{part~2}).}
 }
+
+\begin{demo}
+\Example
+\begin{verbatim}
+\defcongdoc{aia-report}{
+    name=America Invents Act,
+    serial=H.R. Rep. No. 112-98,
+    year=2011,
+}
+\end{verbatim}
+\Produces \textsc{America Invents Act}, \textsc{H.R. Rep.\ No.}\ 112-98 (2011).
+\end{demo}
+
 %</doc>
 %
 %<*package>
@@ -268,6 +299,17 @@ on the page number. Note also the \rtype{cr} reference below.
 \bookparenparameters\ This is primarily useful for volume 1 of the \emph{Annals
 of Congress}.
 
+\begin{demo}
+\Example
+\begin{verbatim}
+\defcongrec{kastenmeier-statement}{
+cite=126 Cong. Rec. 29895,
+year=1980,
+paren=statement of Mr.\ Kastenmeier
+}
+\end{verbatim}
+\end{demo}
+
 %</doc>
 %
 %<*package>
@@ -298,7 +340,7 @@ edition. The date should be given as the optional argument:
 %<*package>
 %    \begin{macrocode}
 \def\lc@cr{Congressional Record}
-\def\tcpg@cr{} % Note: not sure if the volumes will show up
+%\def\tcpg@cr{} % Note: not sure if the volumes will show up
 \def\fc@cr{%
     \hi@citeguts{%
         \@this@vol\space
@@ -364,6 +406,23 @@ published testimony in a hearing.
     {number}{A bill number (same as the \rtype{bill} reference type), to be
     given if the hearing deals with a specific bill.}
 }
+
+\begin{demo}
+\Example
+\begin{verbatim}
+\defhearing{azar-hearing}{
+    name=Nomination of Alex Azar to Serve as Secretary
+        of Health and Human Services,
+    committee={Senate Committee on Health, Education,
+        Labor, and Pensions},
+    congress=115,
+    date=nov 29 2017,
+}
+\end{verbatim}
+\end{demo}
+
+
+
 %</doc>
 %
 %<*package>
@@ -580,6 +639,21 @@ origin of the document.
     {number}{A serial number for the document, placed before the document
     title.}
 }
+
+\begin{demo}
+\Example
+\begin{verbatim}
+\defgovdoc{des}{
+    name=Encryption Algorithm for Computer Data Protection,
+    cite=40 Fed. Reg. 12134,
+    date=mar 17 1975,
+}
+\end{verbatim}
+\Produces Encryption Algorithm for Computer Data Protection, 40 Fed.\ Reg.\
+12134 (Mar.\ 17, 1975).
+\end{demo}
+
+
 %</doc>
 %
 \hi@alias@cite\deffedreg\defgovdoc

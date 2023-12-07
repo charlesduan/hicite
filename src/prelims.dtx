@@ -1,0 +1,162 @@
+%<*doc>
+
+
+\section{Structure of This Manual}
+
+Besides simply describing how \hia* works, this manual is intended to explain my
+conceptual framework for legal citation that is embedded in the system.
+With that framework in mind, this manual on a
+more practical level then teaches writers how to write citation input commands
+that will produce formatted citations meeting their needs, and explains how
+those inputs are formatted. As a result, it has three main objectives:
+\begin{itemize}
+\item Describing the data model behind \hia*'s legal citations
+\item Specifying the input formats that writers must use
+\item To a lesser extent, explaining the algorithms for producing formatted
+citations
+\end{itemize}
+
+The manual is organized topically for different elements of legal citations,
+with each section covering these three objectives of the data model, input
+formats, and formatting algorithms (to the extent that each objective is
+relevant). There are five parts:
+\begin{enumerate}
+\item How references are defined, including common parameters of references such
+as authors and dates.
+\item How citations are entered into documents.
+\item General formatting algorithms used, such as keeping track of previous
+citations for short forms.
+\item All reference definition parameters.
+\item All reference types.
+\end{enumerate}
+
+As currently written, this manual is primarily for writers of legal
+documents who already have a baseline knowledge of legal citation, and
+secondarily for software developers who wish to learn how the system works so
+that they can modify it to produce different citation formats. It is not as
+useful for learning how to format legal citations, as most citation manuals are.
+First, it explains the formatting of citations in a manner that is useful to
+programmers but probably confusing to human cite-checkers. \unskip\footnote{In
+particular, a computer reads and formats citations sequentially, starting
+from the beginning and never looking backwards, so at any given point it must
+keep track of a great deal of information in memory about prior citations.
+Computers do this easily, but a person would have to write copious and
+error-prone notes to check the citations purely in forward order. A more
+reasonable approach for a person would be to read the citations backwards to
+find necessary information about previous citations.} Second, this manual does
+not discuss the meanings of citation elements: It does not explain what citation
+signals mean, when parentheticals are appropriate, or which edition of a book to
+cite, for example.
+
+It would not be difficult to revise this manual to address
+these deficiencies and turn it into a guide on manual citation formatting, by
+augmenting the data model sections to describe semantics and by rewriting the
+formatting algorithm sections. Were that work to be done, the hope is that
+presenting students with a data model and principles in tandem with formats
+would offer them a clearer, enriched view of the seemingly arcane world of legal
+citation.
+
+\paragraph{Grammatical structures}
+In many places, this manual describes expected inputs in terms of grammatical
+structures. These are shown in blue boxes and use a version of Backus-Naur form.
+\unskip\footnote{Spaces between items are not specified rigorously in these
+grammars.}
+For example:
+\begin{grammar}
+\meta{address} := \meta{number} \meta{street} [ \meta{apartment} ] \|
+\littext{PO Box} \meta{number}
+\end{grammar}
+For those unfamiliar with this notation:
+\begin{itemize}
+\item The items between angle brackets represent text values, akin to entry
+spaces in a form.
+\item := means that the item on the left is defined to consist of the specified
+items on the right.
+\item \| means to choose either of the items to the left or right.
+\item Square brackets [ ]  mean that the material inside is optional.
+\item \underline{Underlined} text needs to be included literally.
+\item ( \meta{item} )* means that whatever is inside the parentheses can be
+repeated (or used once, or omitted entirely).
+\end{itemize}
+
+So to explain the above statement, an \meta{address} can take on two forms. It
+can be a \meta{number} followed by a \meta{street} and optionally an
+\meta{apartment} number, such as ``123 Elm Lane'' or ``15 Broadway \#5. Or it
+can be a post office box like ``PO Box 123''. In general, grammatical
+definitions will be followed by examples to help demonstrate what input is
+expected.
+
+In other cases, the manual will show expected inputs using a \LaTeX\ syntax:
+\begin{grammar}
+|\command|\oarg{option}\marg{required}
+\end{grammar}
+This means that the macro |\command| accepts an optional argument \meta{option},
+surrounded by square brackets if present, and needs a mandatory argument
+\meta{required}, surrounded by curly braces.
+
+\paragraph{Documentation files}
+This manual is one of two parts of documentation for \hia*. The package source
+code is contained in multiple module files compiled into a unified main package,
+and most chapters of this manual correspond to module files. The module files
+are written as literate programming \LaTeX\ |.dtx| files, and contain further
+documentation of the internal macros and implementation. For each chapter
+having a corresponding module file, the filename is listed in the margin so that
+the expanded documentation can be identified.
+
+The manual alone should be sufficient for writers of legal documents to
+understand how to use \hia*. The module file documentation is intended to help
+package authors who wish to correct, modify, or extend the citation program
+itself, perhaps to adapt it to other citation formatting regimes.
+
+
+
+
+\section{Installation and Usage}
+
+
+\hia* comprises a suite of files:
+\begin{itemize}
+\item The package file itself, \texttt{hicite.sty}.
+\item Several auxiliary package files, described in \pt{support}.
+\item Tables of abbreviations and other information.
+\end{itemize}
+All of these files need to be installed in a \TeX-accessible location.
+
+To use the package, simply include it in a document:
+\begin{demo}
+|\usepackage|\oarg{options}|{hicite}|
+\end{demo}
+Then compile it using \LaTeX\ or an equivalent. No auxiliary programs are
+needed, even for table indexing. However, multiple compilation runs may be
+necessary in order to get cross-references and short citations to be correct.
+
+If you have an existing Biblatex file, see \sec{hibib} for possible
+compatibility options.
+
+
+
+\section{Intellectual Property Concerns}
+
+Over the years, there have been multiple disputes over intellectual property in
+legal citation systems and manuals. It is both necessary to address both what
+rights I claim as the author of \hia*, and what rights of others it implicates.
+
+The source code of \hia* is released under the GNU General Public License (GPL)
+version 3.0. That license applies to any executable code. The text of this
+manual itself and all other documentation is released under a Creative Commons
+license as described on the first page of the manual.
+For purposes of clarity, the Creative Commons license applies to any text found
+in this user manual and any text found in comments in the package source code;
+the GPL license applies otherwise.
+
+With respect to other legal citation manuals and systems, this software and
+manual are not endorsed by, affiliated with, or authorized by any other legal
+citation system, such as the Bluebook, the University of Chicago Manual of Legal
+Citation (the ``Maroonbook''), the ALWD Guide to Legal Citation, or the Indigo
+Book. It does not claim to be compatible with or identical to any of those
+systems; indeed a design principle of \hia* is to be more flexible than any of
+these existing systems. To the extent that material from existing citation
+systems is used (primarily for tables of abbreviations), it has been taken from
+the Indigo Book, which has been placed in the public domain.
+
+%</doc>

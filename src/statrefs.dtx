@@ -94,12 +94,6 @@ as well.
             \addto@macro\hi@kv@name{ (\hi@kv@inline)}%
         }{}%
     }%
-    %
-    % Indicate use of the short form in the inline macro.
-    %
-    \hi@ifset\hi@kv@inline{%
-        \addto@macro\hi@kv@inline{\hi@short@use{#1}}%
-    }{}%
 }
 %
 % If #2 is a year (a number greater than 1000), then define the inline form as
@@ -148,6 +142,39 @@ as well.
 \bookparenparameters
 
 \pagejoining
+
+\begin{demo}
+\Example
+\begin{verbatim}
+\defstatcode{15-usc-1}{
+    cite=15 U.S.C. S 1,
+}
+\end{verbatim}
+\Produces 15 U.S.C. \textsection~1.
+\end{demo}
+
+The \cmd\defcitegroup command is especially useful in
+combination with |\defstatcode|; see \sec{refs-citegroups} for examples.
+
+
+\begin{demo}
+\Example
+\begin{verbatim}
+\defstatcode{337}{
+    name=Tariff Act of 1930,
+    origsect=S 337,
+    cite=19 U.S.C. S 1337,
+    paren=as amended,
+}
+\end{verbatim}
+\Produces Tariff Act of 1930 \textsection~337, 19 U.S.C. \textsection~1337 (as
+amended).
+\end{demo}
+This demonstrates a statute that has been codified with a section number
+different from its session law section, where the session law section number is
+still commonly used.
+
+
 
 %</doc>
 %
@@ -316,6 +343,7 @@ those for \rtype{statcode}.
                         \hi@id
                     }{%
                         \@capnext\hi@kv@inline
+                        \hi@short@use{#1}%
                     }%
                     \def\noexpand\reserved@a{ }%
                 }%
@@ -338,7 +366,7 @@ those for \rtype{statcode}.
 \def\hi@statcode@sc@noorigsect#1{%
     \hi@newcite@form{sc}{#1}{%
         \hi@maybeusedefaultopt
-        \hi@statcode@makeshortname
+        \hi@statcode@makeshortname{#1}%
         \hi@citeguts{%
             \hi@inline@only{\hi@citeguts{\noexpand\@nameuse{ic@#1}{s}}}%
             \hi@inline@never{%
@@ -389,10 +417,13 @@ those for \rtype{statcode}.
 % some user control over whether id. is displayed for matching titles; id.
 % should rely on title matching and not reference name matching.
 %
-\def\hi@statcode@makeshortname{%
+\def\hi@statcode@makeshortname#1{%
     \hi@ifset\hi@kv@inline{%
         \noexpand\hi@statcode@choosename\noexpand\hi@statcode@shortname
-            {\@capnext\hi@kv@inline}{\hi@statcode@volandrep}%
+            {%
+                \@capnext\hi@kv@inline
+                \hi@short@use{#1}%
+            }{\hi@statcode@volandrep}%
     }{%
         \def\noexpand\hi@statcode@shortname{\hi@statcode@volandrep}%
     }%
@@ -612,6 +643,25 @@ those for \rtype{statcode}.
     {place}{The place of publication (e.g., the state).}
     {publisher}{The publisher of the statute, if relevant.}
 }
+
+\begin{demo}
+\Example
+\begin{verbatim}
+\defstatsess{nttaa}{
+    name=National Technology Transfer and 
+    Advancement Act of 1995,
+    inline=NTTAA,
+    publiclaw=104-113,
+    cite=110 Stat. 775
+}
+\sentence{nttaa at S 12/d1 ::stat: 783}.
+\end{verbatim}
+\Produces National Technology Transfer and Advancement Act of 1995 (NTTAA),
+Pub.\ L.\ No.\ 104-113, \textsection~12(d)(1), 110 \textsc{Stat.}\ 775, 783.
+\end{demo}
+Note how a pin cite to a session law must include not only the section number,
+but also the Statutes at Large page number following a |::stat:| segment marker.
+See \sec{pages-segments} for more on segments in pin cites.
 
 %</doc>
 %<*package>
@@ -834,6 +884,7 @@ those for \rtype{statcode}.
             \hi@inline@never{%
                 \noexpand\if@hi@name
                     \hi@kv@inline
+                    \hi@short@use{#1}%
                     \hi@maybepage{ },\space
                 \noexpand\else
                     \hi@ifpage{\noexpand\@this@page, }{}%
@@ -850,6 +901,7 @@ those for \rtype{statcode}.
                 }{%
                     \hi@kv@inline
                 }%
+                \hi@short@use{#1}%
             }%
         }%
     }%
@@ -977,6 +1029,20 @@ name.
 
 \AssertBox{\note{271 at /b}}{%
     \InFootnote{35 \textsc{U.S.C.} \textsection~271(b).}%
+}
+
+
+\defstatsess{fdara}{
+name=FDA Reauthorization Act of 2017, 
+inline=FDARA,
+publiclaw=115-52,
+year=2017,
+cite=131 Stat. 1005,
+}
+
+\AssertBox{\note{fdara}}{%
+    \InFootnote{FDA Reauthorization Act of 2017, Pub.~L.~No.~115-52, 131
+    \textsc{Stat.}~1005.}%
 }
 
 %</test>

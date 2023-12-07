@@ -61,6 +61,23 @@ communicants.
     {name}{A subject line or title of the letter (more common for memoranda).}
 }
 
+\begin{demo}
+\Example
+\begin{verbatim}
+\defletter{alice-memo}{
+    date=may 13 2013,
+    type=Memorandum,
+    author={Andrew H. Hirshfeld, United States Patent and Trademark Office},
+    instto=Patent Examining Corps,
+    title=Federal Circuit Decision in \emph{CLS Bank et al. v. Alice Corp.},
+}
+\end{verbatim}
+\Produces Memorandum from Andrew H. Hirshfeld, U.S. Patent \& Trademark Off., to
+Patent Examining Corps, \emph{Federal Circuit Decision in \emph{CLS Bank et al.\
+v.\ Alice Corp.}}\ (May 13, 2013).
+\end{demo}
+
+
 %</doc>
 %
 \hi@newcite\defpressrelease{A press release}{%
@@ -97,6 +114,18 @@ communicants.
     published the press release.}
 }
 
+\begin{demo}
+\Example
+\begin{verbatim}
+\defpressrelease{lockyer-pr}{
+title=Attorney General Bill Lockyer Files ``Friend of Court'' Brief over Unocal
+Gasoline Patent,
+date=Sep 14 2000,
+}
+\end{verbatim}
+\Produces Press Release, \emph{Attorney General Bill Lockyer Files ``Friend of
+Court'' Brief over Unocal Gasoline Patent} (Sept.\ 14, 2000).
+\end{demo}
 
 %</doc>
 %
@@ -135,6 +164,20 @@ authoritative weight than is due most slide decks.
     {place}{The location, event, or institution where the speech was given.}
     {name}{A title of the speech.}
 }
+
+\begin{demo}
+\Example
+\begin{verbatim}
+\defspeech{purvis}{
+    author={Sue A. Purvis, U.S. Patent and Trademark Office},
+    type=Presentation,
+    title=The Role of the Patent Examiner,
+    date=april 8 2013,
+}
+\end{verbatim}
+\Produces Sue A. Purvis, U.S. Patent \& Trademark Off., Presentation: The Role
+of the Patent Examiner (Apr.~8, 2013).
+\end{demo}
 
 %</doc>
 %

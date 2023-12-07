@@ -149,20 +149,27 @@ document-level parentheticals in short citations. Hopefully this will be fixed
 in the future.
 %</doc>
 %<*package>
+%
+% Sets up the parallel citation. This adds a parenthetical of level
+% |\hi@paren@parallel| that inserts the parallel citation text. If a page number
+% is defined, then the parallel citation page number is extracted and inserted
+% as well. \#1 is the key, \#2 is the parallel citation text.
+%    \begin{macrocode}
 \def\hi@defkey@parallel#1#2{%
     \hi@fpg@defsegment{#1}%
     \hi@param@addparen\hi@paren@parallel{%
         #2%
         \@test\ifx\@this@page\relax\fi{}{%
-            \@expandarg\hi@fpg@segment{\@this@page}{#1}{, }{%
+            \@expandarg\hi@fpg@segment{\@this@orig@page}{#1}{, }{%
                 \PackageWarning\hi@pkgname{%
                     In citation to \@this@case, parallel cite\MessageBreak
                     with key `#1' not given in page number%
-                }\textbf{??}%
+                }, \textbf{??}%
             }%
         }%
     }%
 }
+%    \end{macrocode}
 %</package>
 %
 \hi@defparam{paren}{A parenthetical to be included with citation}{%
@@ -277,3 +284,30 @@ formatted.
 }
 %    \end{macrocode}
 %</package>
+%<*test>
+
+\section{genparams.dtx}
+
+\subsection{Parallel Cites}
+
+\defcase{semayne}{
+name=Semayne's Case,
+court=K.B.,
+cite=77 Eng. Rep. 194,
+year=1604,
+parallel=coke: 5 Coke 91a,
+}
+
+\AssertBox{\note{semayne}}{%
+    \InFootnote{Semayne's Case, 77 Eng.~Rep.~194, 5 Coke 91a (K.B.
+    1604).}%
+}
+
+\fullcite{semayne}
+
+\AssertBox{\note{semayne at 195 ::coke: 91b}}{%
+    \InFootnote{Semayne's Case, 77 Eng.~Rep.~194, 195, 5 Coke 91a, 91b (K.B.
+    1604).}%
+}
+
+%</test>
