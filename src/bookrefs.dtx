@@ -625,14 +625,14 @@ complex reference definition that I have constructed.
 %
 % This flag determines whether other citations should suppress display of the
 % volume number and author (because they've already been included in the
-% \cs\citecontainer).
+% \cs{citecontainer}).
 %
 %    \begin{macrocode}
 \let\hi@citecontainer@suppress\@iden
 %    \end{macrocode}
 %
 % Cite container short form. \#1 is the reference name, \#2 is |\sc@|\meta{\#1},
-% \#3 is |\sc@|\meta{\cs\hi@kv@citation} (or \cs\relax).
+% \#3 is |\sc@|\meta{\cs{hi@kv@citation}} (or \cs{relax}).
 %
 %    \begin{macrocode}
 \def\hi@citecontainer@sc#1#2#3{%
@@ -651,9 +651,10 @@ complex reference definition that I have constructed.
 %    \end{macrocode}
 %
 % Cite container TOA form. \#1 is the reference name, \#2 is |\lc@|\meta{\#1},
-% \#3 is |\lc@|\meta{|\hi@kv@citation|} (or |\fc@|\meta{\cs\hi@kv@citation}, or
-% \cs\relax, depending on what is defined), \#4 is |\lc@|\meta{\cs\hi@kv@in} (or
-% |\fc@|\meta{\cs\hi@kv@in}).
+% \#3 is |\lc@|\meta{\cs{hi@kv@citation}} (or |\fc@|\meta{\cs{hi@kv@citation}},
+% or
+% |\relax|, depending on what is defined), \#4 is |\lc@|\meta{\cs{hi@kv@in}} (or
+% |\fc@|\meta{\cs{hi@kv@in}}).
 %
 %    \begin{macrocode}
 \def\hi@citecontainer@lc#1#2#3#4#5{%

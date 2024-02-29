@@ -97,6 +97,10 @@ license. To view a copy of this license, visit
 \url{http://creativecommons.org/licenses/by-nc-sa/4.0/} or send a letter to
 Creative Commons, PO Box 1866, Mountain View, CA 94042, USA.}}
 
+\date{\today\\Version
+\input VERSION
+}
+
 \begin{document}
 \maketitle
 \tableofcontents
@@ -3664,8 +3668,8 @@ those are never used unabbreviated, and the abbreviations are too inconsistent).
     docket=2023-103,
 }
 \end{verbatim}
-\Produces \emph{In re Nimitz Techs.\ LLC, No.\ 2023-103 (Fed.\ Cir.\ Dec.\ 8,
-2022)}.
+\Produces \emph{In re Nimitz Techs.\ LLC}, No.\ 2023-103 (Fed.\ Cir.\ Dec.\ 8,
+2022).
 \end{demo}
 This demonstrates a case with a single name rather than adversarial parties, and
 with a docket number rather than a reporter citation.
@@ -7574,7 +7578,7 @@ which could help with automatic conversion of Pandoc markdown documents.
 %% \iffalse filename: conclusion.dtx \fi
 %%
 
-\PrintIndex
+\ifdefined\PrintIndex \PrintIndex \fi
 
 \end{document}
 \endinput
