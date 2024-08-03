@@ -1825,6 +1825,48 @@ year=1954,
     \InFootnote{35 \textsc{U.S.C.} \textsection~271(b).}%
 }
 
+\defstatcode{dmca}{
+    cite=17 U.S.C. S 1201-1204,
+    name=Digital Millennium Copyright Act,
+    inline=the DMCA,
+}
+
+\AssertBox{\note{dmca}}{\InFootnote{%
+    Digital Millennium Copyright Act (DMCA), 17 \textsc{U.S.C.} \S\S\
+    1201--1204.%
+}}
+
+\AssertBox{\inline{dmca}}{the Digital Millennium Copyright Act (``DMCA'')}
+
+\AssertBox{\note{dmca at S 1201}}{\InFootnote{%
+    DMCA \S\ 1201.%
+}}
+
+\AssertBox{\inline{dmca}}{the DMCA}
+
+\AssertBox{\inline{dmca at S 1201}}{\S\ 1201}
+
+\defstatcode{337}{
+    name=Tariff Act of 1930,
+    origsect=S 337,
+    cite=19 U.S.C. S 1337,
+    paren=as amended,
+}
+
+\AssertBox{\note{337}}{\InFootnote{%
+    Tariff Act of 1930 \S\ 337, 19 \textsc{U.S.C.} \S\ 1337 (as amended).%
+}}
+
+\AssertBox{\inline{337}}{section 337 of the Tariff Act of 1930}
+
+\AssertBox{\note{337 at /a}}{\InFootnote{%
+    Tariff Act \S\ 337(a).%
+}}
+
+\AssertBox{\inline{337}}{section 337}
+
+\AssertBox{\inline{337 at /a}}{section 337(a)}
+
 \defstatsess{fdara}{
 name=FDA Reauthorization Act of 2017,
 inline=FDARA,
@@ -1834,9 +1876,15 @@ cite=131 Stat. 1005,
 }
 
 \AssertBox{\note{fdara}}{%
-    \InFootnote{FDA Reauthorization Act of 2017, Pub.~L.~No.~115-52, 131
+    \InFootnote{FDA Reauthorization Act of 2017 (FDARA), Pub.~L.~No.~115-52, 131
     \textsc{Stat.}~1005.}%
 }
+
+\AssertBox{\inline{fdara}}{the FDA Reauthorization Act of 2017 (``FDARA'')}
+
+\AssertBox{\inline{fdara}}{FDARA}
+
+\AssertBox{\inline{fdara at S 1}}{\S\ 1 of FDARA}
 
 %%
 %% \iffalse filename: specrefs.dtx \fi

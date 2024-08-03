@@ -216,6 +216,10 @@ reference types there are shortcuts described in \sec{cparse}.
 % |\|\meta{prefix}|@|\meta{name}, where \#1 is \meta{prefix} and \#2 is
 % \meta{name}. Mainly, this checks to make sure that a full citation macro isn't
 % being redefined (indicating that the writer has used a duplicate name).
+%
+% If a non-full form is being defined and it already exists, then the existing
+% definition is not overwritten.
+%
 %    \begin{macrocode}
 \def\hi@newcite@form#1#2{%
     \@ifundefined{#1@#2}{%

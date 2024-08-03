@@ -210,47 +210,30 @@ those for \rtype{statcode}.
     \hi@book@pubparen
     \hi@newcite@form{fc}{#1}{%
         \hi@maybeusedefaultopt
-        \hi@inline@never{%
-            \hi@citeguts{%
-                \hi@statcode@fmtname
-                \hi@statcode@full@title{\hi@kv@vol/\hi@kv@rep}{%
-                    \let\noexpand\reserved@a\relax
-                }{%
-                    \hi@statcode@volandrep\def\noexpand\reserved@a{ }%
-                }%
-                \hi@ifset\hi@kv@origsect{%
+        \hi@citeguts{%
+            \hi@statcode@fmtname
+            \hi@statcode@full@title{\hi@kv@vol/\hi@kv@rep}{%
+                \let\noexpand\reserved@a\relax
+            }{%
+                \hi@statcode@volandrep\def\noexpand\reserved@a{ }%
+            }%
+            \hi@ifset\hi@kv@origsect{%
+                \hi@ifset\hi@kv@page{%
+                    \noexpand\reserved@a\@format@page@macro\hi@kv@page
+                }{}%
+            }{%
+                \hi@pageordefault{\noexpand\reserved@a}{%
                     \hi@ifset\hi@kv@page{%
-                        \noexpand\reserved@a\@format@page@macro\hi@kv@page
-                    }{}%
-                }{%
-                    \hi@pageordefault{\noexpand\reserved@a}{%
-                        \hi@ifset\hi@kv@page{%
-                            \noexpand\reserved@a
-                            \@format@page@macro\hi@kv@page
-                        }{}%
-                    }%
-                }%
-            }%
-            \hi@book@paren
-            \the\hi@param@parens
-        }%
-        \hi@inline@only{%
-            \hi@citeguts{\noexpand\@nameuse{ic@#1}{st}}%
-            % We will count this as the sufficient full citation if there appear
-            % to be no parentheticals to be added to this citation (including no
-            % date specified).
-            \hi@ifset\hi@kv@name{}{%
-                \hi@ifset\hi@kv@year{}{%
-                    \@expand\ifstrempty{\the\hi@param@parens}i{%
-                        \hi@record@cite{#1}%
+                        \noexpand\reserved@a
+                        \@format@page@macro\hi@kv@page
                     }{}%
                 }%
             }%
         }%
+        \hi@book@paren
+        \the\hi@param@parens
         \hi@ifset\hi@kv@name{%
-            \hi@inline@never{%
-                \noexpand\hi@set@title{\hi@kv@vol/\hi@kv@rep}%
-            }%
+            \noexpand\hi@set@title{\hi@kv@vol/\hi@kv@rep}%
         }{%
             \noexpand\hi@set@title{\hi@kv@vol/\hi@kv@rep}%
         }%
@@ -296,10 +279,12 @@ those for \rtype{statcode}.
         \hi@statcode@sc@noorigsect{#1}%
     }%
 }
+%    \end{macrocode}
 %
 % Sets up the id. form of a statutory code citation, and the page numbering form
-% (idc@[ref] and pc@[ref]).
+% (|idc@[ref]| and |pc@[ref]|).
 %
+%    \begin{macrocode}
 \def\hi@statcode@setup@idpc#1{%
     \global\@namedef{idc@#1}{%
         \@test \ifx\@this@page\@last@page \fi{%
@@ -323,100 +308,98 @@ those for \rtype{statcode}.
         }%
     }%
 }
+%    \end{macrocode}
 %
 % Short form of statutory code citation, when an original section is given.
 %
+%    \begin{macrocode}
 \def\hi@statcode@sc@origsect#1{%
     \hi@newcite@form{sc}{#1}{%
         \hi@maybeusedefaultopt
         \hi@citeguts{%
-            \hi@inline@only{\hi@citeguts{\noexpand\@nameuse{ic@#1}{s}}}%
-            \hi@inline@never{%
-                % \reserved@a holds any space to follow the title
-                \def\noexpand\reserved@a{}%
-                \hi@name@only{% Suppress name text for * citations
-                    %
-                    % If the name was previously shown, then use Id. instead.
-                    % Otherwise, display the short-form name.
-                    %
-                    \noexpand\hi@if@title{\hi@kv@inline}{%
-                        \hi@id
-                    }{%
-                        \@capnext\hi@kv@inline
-                        \hi@short@use{#1}%
-                    }%
-                    \def\noexpand\reserved@a{ }%
-                }%
+            % \reserved@a holds any space to follow the title
+            \def\noexpand\reserved@a{}%
+            \hi@name@only{% Suppress name text for * citations
                 %
-                % pc@[ref] will have set \@this@page to join \hi@kv@origsect and
-                % any given page descriptor.
-                \hi@pageordefault{\noexpand\reserved@a}{%
-                    \noexpand\reserved@a
-                    \@capnext\@format@page@macro\hi@kv@origsect
+                % If the name was previously shown, then use Id. instead.
+                % Otherwise, display the short-form name.
+                %
+                \noexpand\hi@if@title{\hi@kv@inline}{%
+                    \hi@id
+                }{%
+                    \@capnext\hi@kv@inline
+                    \hi@short@use{#1}%
                 }%
+                \def\noexpand\reserved@a{ }%
+            }%
+            %
+            % pc@[ref] will have set \@this@page to join \hi@kv@origsect and
+            % any given page descriptor.
+            \hi@pageordefault{\noexpand\reserved@a}{%
+                \noexpand\reserved@a
+                \@capnext\@format@page@macro\hi@kv@origsect
             }%
         }%
         % Set the last title to \hi@kv@inline, which is the title to be
         % suppressed on the next citation.
-        \hi@inline@never{%
-            \noexpand\hi@set@title{\hi@kv@inline}%
-        }%
+        \noexpand\hi@set@title{\hi@kv@inline}%
     }%
 }
+%    \end{macrocode}
+%
+% Short form of statutory code citation, when no original section is given.
+%
+%    \begin{macrocode}
 \def\hi@statcode@sc@noorigsect#1{%
     \hi@newcite@form{sc}{#1}{%
         \hi@maybeusedefaultopt
         \hi@statcode@makeshortname{#1}%
         \hi@citeguts{%
-            \hi@inline@only{\hi@citeguts{\noexpand\@nameuse{ic@#1}{s}}}%
-            \hi@inline@never{%
-                \def\noexpand\reserved@a{}%
-                \hi@name@only{% Suppress name text for * citations
-                    \noexpand\@expand\noexpand\hi@if@title{%
-                        \noexpand\hi@statcode@shortname
-                    }i{%
-                        \hi@id
-                    }{%
-                        \noexpand\hi@statcode@shortname
-                    }%
-                    \def\noexpand\reserved@a{ }%
+            \def\noexpand\reserved@a{}%
+            \hi@name@only{% Suppress name text for * citations
+                \noexpand\@expand\noexpand\hi@if@title{%
+                    \noexpand\hi@statcode@shortname
+                }i{%
+                    \hi@id
+                }{%
+                    \noexpand\hi@statcode@shortname
                 }%
-                %
-                \hi@pageordefault{\noexpand\reserved@a}{%
-                    \hi@ifset\hi@kv@page{%
-                        \noexpand\reserved@a
-                        \@capnext\@format@page@macro\hi@kv@page
-                    }{}%
-                }%
+                \def\noexpand\reserved@a{ }%
+            }%
+            %
+            \hi@pageordefault{\noexpand\reserved@a}{%
+                \hi@ifset\hi@kv@page{%
+                    \noexpand\reserved@a
+                    \@capnext\@format@page@macro\hi@kv@page
+                }{}%
             }%
         }%
-        \hi@inline@never{%
-            \noexpand\@expand\noexpand\hi@set@title{%
-                \noexpand\hi@statcode@shortname
-            }i%
-        }%
-        \hi@invis@inline
+        \noexpand\@expand\noexpand\hi@set@title{%
+            \noexpand\hi@statcode@shortname
+        }i%
     }%
 }
+%    \end{macrocode}
 %
-% Insertable into citation body, to define \hi@statcode@shortname as the short
+% Insertable into citation body, to define |\hi@statcode@shortname| as the short
 % name form for a statutory citation (for title matching and display purposes).
 %
-% XXX TODO: There is a major problem with this right now. fc@[statcode] uses
-% [vol]/[rep] as the format for \@this@title, but the short-forms use a
+% XXX TODO: There is a major problem with this right now. |fc@[statcode]| uses
+% [vol]/[rep] as the format for |\@this@title|, but the short-forms use a
 % formatted text, meaning that they don't match up. But I'm also not sure why
-% this makeshortname macro exists: It seems to set \@this@title based on
-% irrelevant user-provided parameters from \hi@statcode@choosename. The better
-% approach would be (1) to define a consistent standard for \@this@title used
+% this makeshortname macro exists: It seems to set |\@this@title| based on
+% irrelevant user-provided parameters from |\hi@statcode@choosename|. The better
+% approach would be (1) to define a consistent standard for |\@this@title| used
 % across the full and short citation forms; and (2) to define a better standard
 % for using the optional parameters to control the names. Probably the best
 % approach is to say that (1) user parameters control, and in the absence of
-% them we rely on \@last@title--\@this@title matching; (2) there should be three
-% user parameters (``title'' is used sometimes to mean the textual statute title
-% and sometimes to mean the U.S. Code title number); and (3) there should be
-% some user control over whether id. is displayed for matching titles; id.
+% them we rely on |\@last@title--\@this@title| matching; (2) there should be
+% three user parameters (``title'' is used sometimes to mean the textual statute
+% title and sometimes to mean the U.S. Code title number); and (3) there should
+% be some user control over whether id. is displayed for matching titles; id.
 % should rely on title matching and not reference name matching.
 %
+%    \begin{macrocode}
 \def\hi@statcode@makeshortname#1{%
     \hi@ifset\hi@kv@inline{%
         \noexpand\hi@statcode@choosename\noexpand\hi@statcode@shortname
@@ -428,11 +411,13 @@ those for \rtype{statcode}.
         \def\noexpand\hi@statcode@shortname{\hi@statcode@volandrep}%
     }%
 }
+%    \end{macrocode}
 %
-% Chooses a title to use for this citation based on the option parameters. #1 is
-% the macro to define, #2 is the value if "t" is set, #3 is the value if "v" is
-% set. If neither is set, defaults to "t".
+% Chooses a title to use for this citation based on the option parameters.
+% \meta{\#1} is the macro to define, \meta{\#2} is the value if "t" is set,
+% \meta{\#3} is the value if "v" is set. If neither is set, defaults to "t".
 %
+%    \begin{macrocode}
 \DeclareRobustCommand\hi@statcode@choosename[3]{%
     \hi@ifinopt{t}{t}{%
         \hi@ifinopt{v}{t}{\def#1{#2, #3}}{\def#1{#2}}%
@@ -441,6 +426,12 @@ those for \rtype{statcode}.
     }%
 }
 \make@find@in{v}
+%    \end{macrocode}
+%
+% Produces the statute name in the full citation forms. This macro is expanded
+% within the |fc@[name]| definition.
+%
+%    \begin{macrocode}
 \def\hi@statcode@fmtname{%
     \hi@ifset\hi@kv@name{%
         \hi@name@only{%
@@ -455,19 +446,22 @@ those for \rtype{statcode}.
         }%
     }{}%
 }
+%    \end{macrocode}
 %
 % In a full citation for a statute, decide whether or not to display the volume
 % and title information. There are two options:
 %
-% - If the statute has no name, then show the title based on \@last@title (using
-%   \hi@if@title) as usual.
+% - If the statute has no name, then show the title based on |\@last@title|
+%   (using |\hi@if@title|) as usual.
 % - If the statute has a name, then always show the volume and title information
 %   if the name is being shown. If the name is being suppressed (with
-%   \@hi@namefalse), then use \hi@if@title as usual.
-% - In all cases, \@this@title gets set.
+%   |\@hi@namefalse|), then use |\hi@if@title| as usual.
+% - In all cases, |\@this@title| gets set.
 %
-% #1 is the \@this@title information, #2 is what to do if the title is to be
-% suppressed; #3 is what to do if the title is to be shown.
+% \meta{\#1} is the |\@this@title| information, \meta{\#2} is what to do if the
+% title is to be suppressed; \meta{\#3} is what to do if the title is to be
+% shown.
+%    \begin{macrocode}
 \def\hi@statcode@full@title#1#2#3{%
     \hi@ifset\hi@kv@name{%
         \noexpand\if@hi@name
@@ -480,17 +474,21 @@ those for \rtype{statcode}.
         \noexpand\hi@if@title{#1}{#2}{#3}%
     }%
 }
+%    \end{macrocode}
 %
 % Produces the volume and reporter.
 %
+%    \begin{macrocode}
 \def\hi@statcode@volandrep{%
     \hi@ifset\hi@kv@vol{\@capnext\hi@kv@vol\space}{}%
     \noexpand\hi@fn@statute{\hi@kv@rep}%
 }
-\make@find@eq{U.S.C.}
-\make@find@eq{C.F.R.}
-\make@find@in{s}
-\make@find@in{t}
+%    \end{macrocode}
+%
+% This macro is called during |\hi@statcode@setup|, prior to defining the
+% citation macros. It determines the 
+%
+%    \begin{macrocode}
 \def\hi@statcode@inlinesect#1{%
     %
     % Ensure that if \hi@kv@origsect is given, then there is a name given as
@@ -504,13 +502,19 @@ those for \rtype{statcode}.
         % It is assumed that \hi@kv@inline was generated, since it can be taken
         % from \hi@kv@name.
     }{}%
+    %
     % Format the page numbers, and store them in \reserved@a
+    %
     \protected@edef\reserved@a{%
         \hi@ifset\hi@kv@origsect{%
-            \@format@page@macro\hi@kv@origsect
+            \@expand{\find@in{-}}\hi@kv@origsect i{\@gobbletwo}{%
+                \@format@page@macro\hi@kv@origsect
+            }%
         }{%
             \hi@ifset\hi@kv@page{%
-                \@format@page@macro\hi@kv@page
+                \@expand{\find@in{-}}\hi@kv@page i{\@gobbletwo}{%
+                    \@format@page@macro\hi@kv@page
+                }%
             }{}%
         }%
     }%
@@ -526,63 +530,114 @@ those for \rtype{statcode}.
         }}\hi@kv@rep i{}%
     }%
     %
-    % Now define the general case for inline citations of statutes, in which we
-    % expand \textsection to words.
-    \@ifundefined{ic@#1}{%
+    % If one of the special forms was used, then we're done. Otherwise:
+    %
+    \@ifundefined{isc@#1}{%
+        %
+        % If the page number starts with a symbol (S or P), expand it to a word.
+        %
         \protected@edef\reserved@a{%
             \@expand \hi@expand@symbols@ \reserved@a i{\@firstofone}%
         }%
-        \hi@newcite@form{ic}{#1}##1{%
-            \hi@ifinopt{s}{##1}{%
+        \hi@newcite@form{isc}{#1}{%
+            \hi@citeguts{%
                 \hi@expandedpageordefault{}{\@capnext\reserved@a}%
-                \hi@ifset\hi@kv@name{%
-                    \hi@ifinopt{t}{##1}{%
-                        \hi@nocap\space of \hi@statcode@nameorinline{#1}%
-                    }{}%
-                }{%
-                }%
-            }{%
-                \hi@statcode@nameorinline{#1}%
             }%
-        }
+            \hi@invis@inline
+        }%
+        \hi@newcite@form{ifc}{#1}{%
+            \hi@citeguts{%
+                \hi@expandedpageordefault{}{\@capnext\reserved@a}%
+                \hi@nocap\space of \hi@statcode@nameorinline{#1}%
+                % We will count this as the sufficient full citation if there
+                % appear to be no parentheticals to be added to this citation
+                % (including no date specified).
+                \hi@ifset\hi@kv@name{}{%
+                    \hi@ifset\hi@kv@year{}{%
+                        \@expand\ifstrempty{\the\hi@param@parens}i{%
+                            \hi@record@cite{#1}%
+                        }{}%
+                    }%
+                }%
+            }%
+            \hi@invis@inline
+        }%
     }{}%
 }
+\make@find@in{-}
+\make@find@eq{U.S.C.}
+\make@find@eq{C.F.R.}
+\make@find@in{s}
+\make@find@in{t}
+%    \end{macrocode}
 %
-% Creates the inline citation form where the reporter is U.S.C. or C.F.R.
+% Creates the inline citation form where the reporter is U.S.C. or C.F.R. \#1 is
+% the reference name, \#2 the textual form of the reporter.
 %
+%    \begin{macrocode}
 \def\hi@statcode@special#1#2{%
-    \hi@newcite@form{ic}{#1}##1{%
-        %
-        % If there is no section number, then force \@this@opt to be
-        % just "t".
-        \ifx\reserved@a\@empty
-            \hi@ifpage{}{\def\noexpand\@this@opt{t}}%
-        \fi
-        \hi@ifinopt{s}{##1}{%
+    \hi@newcite@form{isc}{#1}{%
+        \hi@citeguts{%
+            \ifx\reserved@a\@empty
+                \hi@pageordefault{}{%
+                    % No section number given, either in the reference or the
+                    % citation. Use the statute name if given, or else construct
+                    % a textual description of the title.
+                    \hi@ifset\hi@kv@name{%
+                        \hi@statcode@nameorinline{#1}%
+                    }{%
+                        \noexpand\@capnext title \hi@kv@vol % \space of the #2%
+                    }%
+                }%
+            \else
+                % A section number was given.
+                RESERVED@A IS \reserved@a
+                \hi@pageordefault{}{%
+                    \@capnext\reserved@a
+                }%
+            \fi
+        }%
+        \hi@invis@inline
+    }%
+    \hi@newcite@form{ifc}{#1}{%
+        \hi@citeguts{%
+            \ifx\reserved@a\@empty
+                \hi@pageordefault{}{%
+                    % No section number given, either in the reference or the
+                    % citation. Use the statute name if given, or else construct
+                    % a textual description of the title.
+                    \hi@ifset\hi@kv@name{%
+                        \hi@statcode@nameorinline{#1}%
+                    }{%
+                        \noexpand\@capnext title \hi@kv@vol \space of the #2%
+                    }%
+                }%
+            \else
+                % A section number was given.
+                \hi@pageordefault{}{%
+                    \@capnext\reserved@a
+                }%
+                \hi@nocap\space of \hi@statcode@nameorinline{#1}%
+            \fi
+            % We will count this as the sufficient full citation if there appear
+            % to be no parentheticals to be added to this citation (including no
+            % date specified).
             \hi@ifset\hi@kv@name{}{%
-                \hi@ifinopt{t}{##1}{%
-                    \noexpand\hi@nocap
-                    \hi@ifset\hi@kv@vol{\hi@kv@vol\space}{}%
-                    \hi@kv@rep\space
-                }{}%
-            }%
-            \hi@pageordefault{}{%
-                \@capnext\reserved@a
-            }%
-            \hi@ifset\hi@kv@name{%
-                \hi@ifinopt{t}{##1}{%
-                    \hi@nocap\space of \hi@statcode@nameorinline{#1}%
-                }{}%
-            }{}%
-        }{%
-            \hi@ifset\hi@kv@name{%
-                \hi@statcode@nameorinline{#1}%
-            }{%
-                \noexpand\@capnext title \hi@kv@vol \space of the #2%
+                \hi@ifset\hi@kv@year{}{%
+                    \@expand\ifstrempty{\the\hi@param@parens}i{%
+                        \hi@record@cite{#1}%
+                    }{}%
+                }%
             }%
         }%
+        \hi@invis@inline
     }%
 }
+%    \end{macrocode}
+%
+% Choose either the name or inline form.
+%
+%    \begin{macrocode}
 \def\hi@statcode@nameorinline#1{%
     \hi@ifset\hi@kv@inline{%
         \hi@record@choose@inline{#1}{%
@@ -754,6 +809,16 @@ See \sec{pages-segments} for more on segments in pin cites.
                     \noexpand\hi@fn@statute{\hi@kv@rep}\space
                     \noexpand\hi@atorsect@withpage
                 }%
+            }%
+        }%
+    }
+    \hi@newcite@form{isc}{#1}{%
+        \hi@citeguts{%
+            \hi@ifpage{%
+                \noexpand\@capnext\noexpand\@this@page\space of\space
+            }{}%
+            \hi@ifset\hi@kv@inline{\hi@kv@inline\hi@short@use{#1}}{%
+                \hi@inline@the\@capnext\hi@kv@name
             }%
         }%
     }
@@ -1031,6 +1096,48 @@ name.
     \InFootnote{35 \textsc{U.S.C.} \textsection~271(b).}%
 }
 
+\defstatcode{dmca}{
+    cite=17 U.S.C. S 1201-1204,
+    name=Digital Millennium Copyright Act,
+    inline=the DMCA,
+}
+
+\AssertBox{\note{dmca}}{\InFootnote{%
+    Digital Millennium Copyright Act (DMCA), 17 \textsc{U.S.C.} \S\S\
+    1201--1204.%
+}}
+
+\AssertBox{\inline{dmca}}{the Digital Millennium Copyright Act (``DMCA'')}
+
+\AssertBox{\note{dmca at S 1201}}{\InFootnote{%
+    DMCA \S\ 1201.%
+}}
+
+\AssertBox{\inline{dmca}}{the DMCA}
+
+\AssertBox{\inline{dmca at S 1201}}{\S\ 1201}
+
+\defstatcode{337}{
+    name=Tariff Act of 1930,
+    origsect=S 337,
+    cite=19 U.S.C. S 1337,
+    paren=as amended,
+}
+
+
+\AssertBox{\note{337}}{\InFootnote{%
+    Tariff Act of 1930 \S\ 337, 19 \textsc{U.S.C.} \S\ 1337 (as amended).%
+}}
+
+\AssertBox{\inline{337}}{section 337 of the Tariff Act of 1930}
+
+\AssertBox{\note{337 at /a}}{\InFootnote{%
+    Tariff Act \S\ 337(a).%
+}}
+
+\AssertBox{\inline{337}}{section 337}
+
+\AssertBox{\inline{337 at /a}}{section 337(a)}
 
 \defstatsess{fdara}{
 name=FDA Reauthorization Act of 2017, 
@@ -1041,8 +1148,14 @@ cite=131 Stat. 1005,
 }
 
 \AssertBox{\note{fdara}}{%
-    \InFootnote{FDA Reauthorization Act of 2017, Pub.~L.~No.~115-52, 131
+    \InFootnote{FDA Reauthorization Act of 2017 (FDARA), Pub.~L.~No.~115-52, 131
     \textsc{Stat.}~1005.}%
 }
+
+\AssertBox{\inline{fdara}}{the FDA Reauthorization Act of 2017 (``FDARA'')}
+
+\AssertBox{\inline{fdara}}{FDARA}
+
+\AssertBox{\inline{fdara at S 1}}{\S\ 1 of FDARA}
 
 %</test>
