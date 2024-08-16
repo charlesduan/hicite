@@ -98,31 +98,9 @@
 %%
 %% \iffalse filename: refs.dtx \fi
 %%
-\def\hi@citetype#1#2{%
-    \@ifundefined{tc@#1}{%
-        \global\expandafter\let\csname tc@#1\endcsname#2%
-    }{}%
-}
-\let\hi@newcitetype\def
-\hi@newcitetype\hi@type@other{other:Other Source/s}
-\hi@newcitetype\hi@type@const{const:Constitutional Provision/s}
-\hi@newcitetype\hi@type@found{const:Foundational Document/s}
-\hi@newcitetype\hi@type@statute{statute:Statute/s}
-\hi@newcitetype\hi@type@regulation{statute:Regulation/s}
-\hi@newcitetype\hi@type@rule{statute:Rule/s}
-\hi@newcitetype\hi@type@case{case:Case/s}
-\hi@newcitetype\hi@type@admin{case:Administrative Decision/s}
-\hi@newcitetype\hi@type@treaty{statute:Treat/y/ies}
-\def\hi@type@doforall{%
-    \do{case}%
-    \do{const}%
-    \do{statute}%
-    \do{other}%
-}
-\let\hi@citeforms\@empty
-\def\hi@newcite#1#2#3{%
-    \g@addto@macro\hi@citeforms{\do{#1}{#2}}%
-    \gdef#1##1##2{%
+\def\hi@newcite#1#2#3#4{%
+    \DefaultTOACategory{#1}{#3}%
+    \global\@namedef{def#1}##1##2{%
         \@ifundefined{fc@##1}{}{%
             \PackageError\hi@pkgname{%
                 Citation for ##1 already defined
@@ -133,13 +111,14 @@
         }%
         \begingroup
             \def\@this@case{##1}%
+            \hi@toacat@setdefault{##1}{#1}%
             \hi@param@set{#1}{##2}%
-            #3%
+            #4%
             % \hi@bib@output
         \endgroup
     }%
 }
-\def\hi@alias@cite#1#2{\def#1{#2}}
+\def\hi@alias@cite#1#2{\@namedef{def#1}{\@nameuse{def#2}}}
 \def\hi@newcite@form#1#2{%
     \@ifundefined{#1@#2}{%
         \expandafter\protected@xdef\csname#1@#2\endcsname
@@ -199,7 +178,7 @@
 }
 \def\hi@param@set#1#2{%
     \let\hi@param@set@hooks\@empty
-    \expandafter\hi@param@set@kind\string#1\@stop
+    \def\hi@kv@kind{#1}%
     \hi@param@read{#2}%
     \hi@param@set@hooks
 }
@@ -218,9 +197,6 @@
 }
 \make@find@in{=}
 \make@find@in{;}
-\def\hi@param@set@kind#1#2#3#4#5\@stop{%
-    \def\hi@kv@kind{#5}%
-}
 \def\hi@param@addhook#1{%
     \addto@macro\hi@param@set@hooks{#1}%
 }
@@ -238,6 +214,83 @@
     \forcsvlist{\hi@citegroup@{#1}{#2}{#3}}{#4}%
 }
 \def\hi@citegroup@#1#2#3#4{#2{#1#4}{#3#4}}
+\def\NewTOACategory#1#2#3{%
+    \@namedef{hi@cats@#1}{#2:#3}%
+    \AddToList{hi@toacat@supercats}{#2}%
+}
+\def\DefaultTOACategory#1#2{%
+    \ifstrempty{#2}{%
+        \cslet{hi@catd@#1}\relax
+    }{%
+        \@ifundefined{hi@cats@#2}{%
+            \PackageError\hi@pkgname{%
+                TOA category #2 does not exist, in setting the\MessageBreak
+                default for reference type #1%
+            }{Define TOA category #2 first with \string\NewTOACategory}%
+        }{%
+            \@namedef{hi@catd@#1}{#2}%
+        }%
+    }%
+}
+\def\SetTOACategory#1#2{%
+    \ifstrempty{#2}{%
+        \global\cslet{hi@cat@#1}\relax
+    }{%
+        \@ifundefined{hi@cats@#2}{%
+            \PackageError\hi@pkgname{%
+                Invalid Table of Authorities category #1,\MessageBreak
+                given for reference #2%
+            }{%
+                Please enter a valid Table of Authorities category.
+            }%
+        }{%
+            \global\csletcs{hi@cat@#1}{hi@cats@#2}%
+        }%
+    }
+}
+\def\hi@toacat@get#1#2{%
+    \@ifundefined{hi@cat@#1}{}{%
+        \@expand{#2}{\csname hi@cat@#1\endcsname}{ii}%
+    }%
+}
+\def\hi@toacat@transfer#1#2{%
+    \global\csletcs{hi@cat@#2}{hi@cat@#1}%
+    \global\cslet{hi@cat@#1}\relax
+}
+\def\hi@toacat@setdefault#1#2{%
+    \@ifundefined{hi@cat@#1}{%
+        \@ifundefined{hi@catd@#2}{}{%
+            \SetTOACategory{#1}{\csname hi@catd@#2\endcsname}%
+        }%
+    }{}%
+}
+\NewSortedList{hi@toacat@supercats}{\SortEasyAlpha}{\StripForAlpha{#1}{\def#2}}
+\ListElementsMustBeUnique{hi@toacat@supercats}
+\NewTOACategory{other}{other}{Other Source/s}
+\NewTOACategory{const}{const}{Constitutional Provision/s}
+\NewTOACategory{found}{const}{Foundational Document/s}
+\NewTOACategory{statute}{edict}{Statute/s}
+\NewTOACategory{regulation}{edict}{Regulation/s}
+\NewTOACategory{rule}{edict}{Rule/s}
+\NewTOACategory{case}{case}{Case/s}
+\NewTOACategory{admin}{case}{Administrative Decision/s}
+\NewTOACategory{treaty}{edict}{Treat/y/ies}
+\long\def\hi@toacat@each#1{%
+    %
+    % Unfortunately, this macro is used to iterate over items in the TOA, which
+    % also stores items in SortedLists. So we can't just use \ShowList directly
+    % since \ShowList can't be used in a nested fashion. So instead, we iterate
+    % over the supercategory list to construct a series of macro expansions of
+    % the given parameter, and then execute that series.
+    %
+    \begingroup % Will be ended when \reserved@a runs
+    \def\hi@toacat@temp{\endgroup}%
+    \def\hi@toacat@do##1{#1}%
+    \ShowList{hi@toacat@supercats}{%
+        \@expand{\appto\hi@toacat@temp}{\hi@toacat@do{##1}}{i}%
+    }%
+    \hi@toacat@temp
+}
 %%
 %% \iffalse filename: cparse.dtx \fi
 %%
@@ -2745,32 +2798,30 @@
 \let\disabletoa\@hi@toa@disabledtrue
 \let\enabletoa\@hi@toa@disabledfalse
 \def\hi@addtotoa#1#2{%
-    \expandafter\hi@addtotoa@\csname tc@#1\endcsname{#1}{#2}%
+    \hi@toacat@get{#1}{\hi@addtotoa@{#1}{#2}}%
 }
 \def\hi@addtotoa@#1#2#3{%
     \if@hi@in@toa\else \if@hi@toa@disabled\else
-        \ifx#1\relax\else \ifx#1\@empty\else
-            \addtocontents{toa}{%
-                \protect\contentsline{hi@toa}{%
-                    #2\@ifundefined{tcpg@#2}{}{\ifstrempty{#3}{}{ at #3}}%
+        \addtocontents{toa}{%
+            \protect\contentsline{hi@toa}{%
+                #1\@ifundefined{tcpg@#1}{}{\ifstrempty{#2}{}{ at #2}}%
+            }{%
+                {%
+                    \thepage
                 }{%
-                    {%
-                        \thepage
-                    }{%
-                        \noexpand\the\noexpand\c@page
-                    }{%
-                        % We want this to run at the time the |\write| is
-                        % executed.
-                        \noexpand\expandonce\thepage
-                    }{%
-                        #1%
-                        \ifx\hi@toa@locationtag\relax\else
-                            ,\hi@toa@locationtag
-                        \fi
-                    }%
-                }{}%
-            }%
-        \fi\fi
+                    \noexpand\the\noexpand\c@page
+                }{%
+                    % We want this to run at the time the |\write| is
+                    % executed.
+                    \noexpand\expandonce\thepage
+                }{%
+                    #3%
+                    \ifx\hi@toa@locationtag\relax\else
+                        ,\hi@toa@locationtag
+                    \fi
+                }%
+            }{}%
+        }%
     \fi\fi
 }
 \def\hi@include@page@in@toa#1{%
@@ -2921,7 +2972,14 @@
 \def\hi@toa@usepg@#1#2#3#4#5{%
     \find@in{:}{#4#1}{%
         \@tworun\@gobble\hi@toa@usepg@passim
-    }{\ThisShouldNeverBeReached}{#5}%
+    }{%
+        \PackageError\hi@pkgname{%
+            Page data structure `#4#1' contains \MessageBreak
+            no colon, but it should. This indicates \MessageBreak
+            a bug in the hicite program%
+        }{Check the hicite program.}%
+        \@gobble
+    }{#5}%
 }
 \make@find@in{:}
 \def\hi@toa@usepg@passim#1#2{%
@@ -2942,7 +3000,14 @@
     \@expand{\@unbrace\hi@toa@refcount@}{\csname hi@pg@#1\endcsname}{ii}{#2}%
 }
 \def\hi@toa@refcount@#1#2#3#4#5{%
-    \find@in{:}{#4}{\hi@toa@refcount@@}{\ThisShouldNeverBeReached}{#5}%
+    \find@in{:}{#4}{\hi@toa@refcount@@}{%
+        \PackageError\hi@pkgname{%
+            Reference count data `#4' should have contained a \MessageBreak
+            colon, but it does not. This probably indicates \MessageBreak
+            a programming error.
+        }{Check the hicite program.}%
+        \@gobble
+    }{#5}%
 }
 \def\hi@toa@refcount@@#1#2#3{\hi@toa@refcount@@@{1}#1\@stop{#3}}%
 \def\hi@toa@refcount@@@#1#2#3\@stop#4{%
@@ -2969,7 +3034,7 @@
         \StarText
     \fi
     \begingroup
-        \def\do##1{%
+        \hi@toacat@each{%
             \AuthorityTable[%
                 \toaheading{\hi@toa@sublist@show{##1}}\par
                 \ifdim\lastskip<\toaskip
@@ -2981,7 +3046,6 @@
                 \parskip=\toaskip
             ]{##1}%
         }%
-        \hi@type@doforall
     \endgroup
 }
 \def\toaheading{\section*}
@@ -4853,16 +4917,13 @@
         }%
     \fi
 }
-\hi@newcite\defcase{A case citation}{%
-    \hi@citetype{#1}\hi@type@case
+\hi@newcite{case}{A case citation}{case}{%
     \hi@case@def{#1}%
 }
-\hi@newcite\defadmincase{An administrative decision}{%
-    \hi@citetype{#1}\hi@type@admin
+\hi@newcite{admincase}{An administrative decision}{admin}{%
     \hi@case@def{#1}%
 }
-\hi@newcite\defcasedoc{Document used in a case}{%
-    \hi@citetype{#1}\hi@type@other
+\hi@newcite{casedoc}{Document used in a case}{other}{%
     \hi@ifset\hi@kv@citation{}{%
         \PackageError\hi@pkgname{%
             Missing citation for casedoc #1
@@ -4903,7 +4964,7 @@
 }
 \let\hi@casedoc@docket\relax
 \let\hi@casedoc@date\relax
-\hi@newcite\defcourtdoc{A document in the docket of current litigation}{
+\hi@newcite{courtdoc}{A document in the docket of current litigation}{}{
     \@expand\hi@abbrev@cdoc\hi@kv@name i{\def\hi@kv@name}%
     \hi@ifset\hi@kv@inline{%
         \@expand\hi@abbrev@cdoc\hi@kv@inline i{\def\hi@kv@inline}%
@@ -4937,8 +4998,7 @@
 %%
 %% \iffalse filename: constrefs.dtx \fi
 %%
-\hi@newcite\defconst{Citation to a constitution}{%
-    \hi@citetype{#1}\hi@type@const
+\hi@newcite{const}{Citation to a constitution}{const}{%
     \hi@ifset\hi@kv@name\relax{%
         \PackageWarning\hi@pkgname{%
             Constitution citation requires "name" argument
@@ -4949,8 +5009,7 @@
         \hi@const@part{#1}{\@capnext\hi@kv@name}%
     }%
 }
-\hi@newcite\defconstamend{A Constitutional amendment}{%
-    \hi@citetype{#1}\hi@type@const
+\hi@newcite{constamend}{A Constitutional amendment}{const}{%
     \edef\hi@kv@page{amendment \expandafter\@Roman\hi@kv@number}%
     \hi@const@part{#1}{%
         \hi@inline@the
@@ -5016,8 +5075,7 @@
         \the\hi@param@parens
     }%
 }
-\hi@newcite\deffounding{A national founding document}{%
-    \hi@citetype{#1}\hi@type@found
+\hi@newcite{founding}{A national founding document}{found}{%
     \hi@statcode@setup@idpc{#1}% Set up id. and page numbering
     \hi@include@page@in@toa{#1}
     \hi@newcite@form{fc}{#1}{%
@@ -5052,8 +5110,7 @@
         }{}%
     }%
 }
-\hi@newcite\deffederalist{A Federalist paper}{%
-    \hi@citetype{#1}\hi@type@other
+\hi@newcite{federalist}{A Federalist paper}{other}{%
     % TODO: add editor info
     \hi@newcite@form{fc}{#1}{%
         \hi@citeguts{%
@@ -5137,12 +5194,10 @@
 \def\hi@inlinestatname@addthe#1{%
     \hi@replacethe{The #1}{\def\hi@kv@inline}{}%
 }
-\hi@newcite\defstatcode{A statute in a code}{%
-    \hi@citetype{#1}\hi@type@statute
+\hi@newcite{statcode}{A statute in a code}{statute}{%
     \hi@statcode@setup{#1}%
 }
-\hi@newcite\defregcode{A regulation in a code}{%
-    \hi@citetype{#1}\hi@type@regulation
+\hi@newcite{regcode}{A regulation in a code}{regulation}{%
     \hi@statcode@setup{#1}%
 }
 \def\hi@statcode@setup#1{%
@@ -5517,8 +5572,7 @@
         \hi@inline@the\@capnext\hi@kv@name
     }%
 }
-\hi@newcite\defstatsess{A statute in session laws}{%
-    \hi@citetype{#1}\hi@type@statute
+\hi@newcite{statsess}{A statute in session laws}{statute}{%
     \hi@statsess@name
     \hi@inlinestatname{#1}%
     \hi@ifset\hi@kv@type{}{\def\hi@kv@type{Pub. L. No.}}%
@@ -5708,8 +5762,7 @@
         number is placed in a ::stat: segment.%
     }%
 }
-\hi@newcite\defstattitle{A titled statutory citation}{%
-    \hi@citetype{#1}\hi@type@statute
+\hi@newcite{stattitle}{A titled statutory citation}{statute}{%
     \hi@include@page@in@toa{#1}%
     \hi@inlinestatname{#1}% Set up \hi@kv@inline based on \hi@kv@name
     \@expand\hi@abbrev@name{\hi@kv@rep}i{\def\hi@kv@rep}%
@@ -5790,8 +5843,7 @@
         \@tworun{\def\hi@stattitle@choppedpage}\@gobble
     }{\let\hi@stattitle@choppedpage\@this@orig@page}%
 }
-\hi@newcite\defrule{A rule of evidence or procedure}{%
-    \hi@citetype{#1}\hi@type@rule
+\hi@newcite{rule}{A rule of evidence or procedure}{rule}{%
     \hi@statcode@setup@idpc{#1}% Set up id. and page numbering
     \hi@include@page@in@toa{#1}%
     \hi@newcite@form{fc}{#1}{%
@@ -5812,8 +5864,7 @@
 }
 %%
 %% \iffalse filename: specrefs.dtx \fi
-\hi@newcite\defbill{An bill or resolution of Congress}{%
-    \hi@citetype{#1}\hi@type@other
+\hi@newcite{bill}{An bill or resolution of Congress}{other}{%
     \hi@inlinestatname{#1}%
     \hi@ifset\hi@kv@congress{}{%
         \PackageError\hi@pkgname{%
@@ -5864,8 +5915,7 @@
     \def\hi@kv@status{#1 by }%
     \hi@abbrev@leg{#2}{\appto\hi@kv@status}%
 }
-\hi@newcite\defcongdoc{A Congressional numbered document}{%
-    \hi@citetype{#1}\hi@type@other
+\hi@newcite{congdoc}{A Congressional numbered document}{other}{%
     \hi@newcite@form{fc}{#1}{%
         \hi@ifset\hi@kv@author{%
             \noexpand\@gobble{\hi@kv@authln}%
@@ -5936,8 +5986,7 @@
 \hi@congdoc@add{Doc.}{Document}
 \hi@congdoc@add{Exec. Doc.}{Executive Document}
 \hi@congdoc@add{Misc. Doc.}{Miscellaneous Document}
-\hi@newcite\defcongprint{A Congressional unnumbered document}{%
-    \hi@citetype{#1}\hi@type@other
+\hi@newcite{congprint}{A Congressional unnumbered document}{other}{%
     \hi@newcite@form{fc}{#1}{%
         \hi@ifset\hi@kv@author{%
             \noexpand\@gobble{\hi@kv@authln}%
@@ -5967,11 +6016,10 @@
     }%
     \@expand{\hi@supra@form{#1}}\reserved@a i%
 }
-\hi@newcite\defcongrec{A Congressional Record debate}{%
+\hi@newcite{congrec}{A Congressional Record debate}{other}{%
     \expandafter\hi@congrec@testpg\hi@kv@page\@stop
     \hi@book@pubparen
     \hi@ifset\hi@kv@year{}{\PackageError\hi@pkgname{Year is required for #1}}%
-    \hi@citetype{#1}\hi@type@other
     \hi@newcite@form{fc}{#1}{%
         \hi@citeguts{%
             \hi@usevol{\hi@ifset\hi@kv@vol{\hi@kv@vol\space}{}}%
@@ -6005,9 +6053,8 @@
         \hi@parens@add\hi@paren@date{\@expandarg\hi@date@parse\@this@opt}%
     \fi
 }
-\hi@citetype{cr}\hi@type@other
-\hi@newcite\defhearing{A hearing in Congress}{%
-    \hi@citetype{#1}\hi@type@other
+\SetTOACategory{cr}{other}
+\hi@newcite{hearing}{A hearing in Congress}{other}{%
     \hi@ifset\hi@kv@type{}{\def\hi@kv@type{Hearing}}%
     \hi@newcite@form{fc}{#1}{%
         \hi@citeguts{%
@@ -6042,8 +6089,7 @@
     \@expand{\hi@supra@form{#1}}\reserved@a i%
 }
 \make@find@in{, }
-\hi@newcite\defprespaper{A Presidential Paper}{%
-    \hi@citetype{#1}\hi@type@other
+\hi@newcite{prespaper}{A Presidential Paper}{other}{%
     \hi@newcite@form{fc}{#1}{%
         \hi@citeguts{%
             \hi@kv@name, % Title
@@ -6056,8 +6102,7 @@
         \the\hi@param@parens
     }%
 }
-\hi@newcite\defdcpd{Daily Compilation of Presidential Documents}{
-    \hi@citetype{#1}\hi@type@other
+\hi@newcite{dcpd}{Daily Compilation of Presidential Documents}{other}{
     \hi@newcite@form{fc}{#1}{%
         \hi@citeguts{%
             \hi@kv@name,
@@ -6075,8 +6120,7 @@
         }%
     }%
 }
-\hi@newcite\defpatent{A U.S. patent}{%
-    \hi@citetype{#1}\hi@type@other
+\hi@newcite{patent}{A U.S. patent}{other}{%
     \let\reserved@a\@empty
     \@expand{\find@start{D}}\hi@kv@number i{%
         \def\reserved@a{D}\def\hi@kv@number
@@ -6126,12 +6170,11 @@
 }
 \make@find@start{D}
 \make@find@start@cs{/hi@fn@dateprefix}{\hi@fn@dateprefix}
-\hi@newcite\defgovdoc{A government document}{%
+\hi@newcite{govdoc}{A government document}{other}{%
     \hi@ifset\hi@kv@court{}{%
         \hi@ifset\hi@kv@author{\let\hi@kv@court\hi@kv@author}{}%
     }%
     \hi@cite@history
-    \hi@citetype{#1}\hi@type@other
     \hi@newcite@form{fc}{#1}{%
         \hi@citeguts{%
             \hi@ifset\hi@kv@number{%
@@ -6174,9 +6217,8 @@
         \@expand{\hi@supra@form{#1}}\hi@kv@name i%
     }%
 }
-\hi@alias@cite\deffedreg\defgovdoc
-\hi@newcite\deftestimony{Testimony in a congressional hearing}{%
-    \hi@citetype{#1}\hi@type@other
+\hi@alias@cite{fedreg}{govdoc}
+\hi@newcite{testimony}{Testimony in a congressional hearing}{other}{%
     \hi@ifset\hi@kv@type{}{\def\hi@kv@type{Testimony}}%
     \hi@ifset\hi@kv@citation{}{%
         \hi@ifset\hi@kv@in{\let\hi@kv@citation\hi@kv@in}{%
@@ -6197,8 +6239,7 @@
     }%
     \@expand{\hi@supra@form{#1}}\hi@kv@author i%
 }
-\hi@newcite\defcomments{Comments on an agency proceeding}{%
-    \hi@citetype{#1}\hi@type@other
+\hi@newcite{comments}{Comments on an agency proceeding}{other}{%
     \hi@ifset\hi@kv@type{}{\def\hi@kv@type{Comments}}%
     \hi@newcite@form{fc}{#1}{%
         \hi@citeguts{%
@@ -6222,8 +6263,7 @@
     }%
     \@expand{\hi@supra@form{#1}}\reserved@a i%
 }
-\hi@newcite\defsecfiling{An SEC filing}{%
-    \hi@citetype{#1}\hi@type@other
+\hi@newcite{secfiling}{An SEC filing}{other}{%
     \hi@newcite@form{fc}{#1}{%
         \hi@citeguts{%
             \hi@ifset\hi@kv@author{\hi@kv@author@sortable, }{}%
@@ -6291,8 +6331,7 @@
     \addto@macro\hi@book@paren{#1}%
     \def\hi@book@sep{#2}%
 }
-\hi@newcite\defbook{A book or non-periodic material}{%
-    \hi@citetype{#1}\hi@type@other
+\hi@newcite{book}{A book or non-periodic material}{other}{%
     \hi@book@pubparen
     \expandafter\hi@book@titlethe\expandafter{\hi@kv@name}%
     \hi@newcite@form{fc}{#1}{%
@@ -6382,25 +6421,18 @@
 }
 \DeclareRobustCommand\hi@book@the{The }
 \make@find@in{, }
-\hi@newcite\defcitecontainer{A citation in another citation}{%
+\hi@newcite{citecontainer}{A citation in another citation}{other}{%
     %
     % Set the joining phrase.
     %
     \hi@citecontainer@settype
     %
-    % Perform initial matters to set up the citecontainer; see the comment
-    % before \hi@citecontainer@init.
-    \edef\reserved@a{%
-        {#1}%
-        \expandafter\noexpand\csname tc@#1\endcsname
-        \hi@ifset\hi@kv@citation{%
-            \expandafter\noexpand\csname tc@\hi@kv@citation\endcsname
-            \expandafter\noexpand\csname fc@\hi@kv@citation\endcsname
-        }{\relax\relax}%
-    }%
-    \expandafter\hi@citecontainer@init\reserved@a
+    % Initialize the TOA category and token list.
+    %
+    \hi@citecontainer@init{#1}%
     %
     % Prepare the full citation form.
+    %
     \edef\reserved@a{%
         {#1}%
         \expandafter\noexpand\csname fc@#1\endcsname
@@ -6455,9 +6487,9 @@
         \def\hi@kv@type{, \noexpand\hi@fn@sig{in}}%
     }%
 }
-\def\hi@citecontainer@init#1#2#3#4{%
+\def\hi@citecontainer@init#1{%
     %
-    % 2. If \hi@kv@citation is set, then the contained element is a citation.
+    % If \hi@kv@citation is set, then the contained element is a citation.
     % Otherwise, the contained element is a generic article within the work, so
     % a citation form is constructed for it.
     %
@@ -6465,18 +6497,23 @@
     % \hi@citecontainer@toks, to be added subsequently to the \fc@[#1] macro.
     %
     \hi@ifset\hi@kv@citation{%
-        % In the case that the contained element is a citation:
         %
-        % The TOA type for the citecontainer should be the TOA type of the
-        % contained element.
-        \global\let#2#3%
-        %
-        % No TOA entry should be made for the contained element alone.
-        \global\let#3\relax
+        % Check that \hi@kv@citation is defined.
+        \@ifundefined{fc@\hi@kv@citation}{%
+            \PackageError\hi@pkgname{%
+                Reference #1 contains undefined citation \hi@kv@citation
+            }{Define \hi@kv@citation first}%
+        }{}%
+        % In the case that the contained element is a citation, transfer the
+        % contained element's TOA category to the citecontainer and delete the
+        % contained element's individual TOA category.
+        \@expandarg\hi@toacat@transfer\hi@kv@citation{#1}%
         %
         % Set \hi@citecontainer@toks to the (already-created) full-cite material
         % of \fc@[citation].
-        \expandafter\hi@citecontainer@toks\expandafter{#4}%
+        \@expand\hi@citecontainer@toks{%
+            \csname fc@\hi@kv@citation\endcsname
+        }{ii}%
     }{%
         % In the case that no citation is provided:
         %
@@ -6520,9 +6557,6 @@
                 }%
             }%
         }%
-        %
-        % Set the TOA cite type to 'other'.
-        \hi@citetype{#1}\hi@type@other
     }%
     %
     % 3. The citation reference for the container should be in the citation
@@ -6674,8 +6708,7 @@
 %%
 %% \iffalse filename: artrefs.dtx \fi
 %%
-\hi@newcite\defjrnart{A consecutively paginated journal article}{%
-    \hi@citetype{#1}\hi@type@other
+\hi@newcite{jrnart}{A consecutively paginated journal article}{other}{%
     \hi@abbrev@journal@check
     \hi@ifset\hi@kv@page{}{\def\hi@kv@page{?}}%
     \@expand{\find@eq{forthcoming}}{\hi@kv@page}{i}{%
@@ -6745,8 +6778,9 @@
     \@expand{\hi@supra@form{#1}}\reserved@a i%
 }
 \make@find@eq{forthcoming}
-\hi@newcite\defprocart{A non-consecutively paginated proceedings article}{%
-    \hi@citetype{#1}\hi@type@other
+\hi@newcite{procart}{%
+    A non-consecutively paginated proceedings article%
+}{other}{%
     \hi@abbrev@journal@check
     \hi@ifset\hi@kv@forthcoming{}{%
         \hi@ifset\hi@kv@vol{}{\let\hi@kv@vol\hi@kv@year}%
@@ -6785,8 +6819,7 @@
     }%
     \@expand{\hi@supra@form{#1}}\reserved@a i%
 }%
-\hi@newcite\defmagart{A magazine article}{%
-    \hi@citetype{#1}\hi@type@other
+\hi@newcite{magart}{A magazine article}{other}{%
     \hi@abbrev@journal@check
     \hi@ifset\hi@kv@page{%
         \protected@edef\hi@kv@page{\@format@page@macro\hi@kv@page}%
@@ -6817,9 +6850,8 @@
     }%
     \@expand{\hi@supra@form{#1}}\reserved@a i%
 }
-\hi@alias@cite\defnewsart\defmagart
-\hi@newcite\defwebsite{A web site or generic citation}{%
-    \hi@citetype{#1}\hi@type@other
+\hi@alias@cite{newsart}{magart}
+\hi@newcite{website}{A web site or generic citation}{other}{%
     \hi@book@pubparen
     \hi@ifset\hi@kv@year{}{%
         \PackageError\hi@pkgname{Year is required for #1}{%
@@ -6849,8 +6881,7 @@
     }%
     \@expand{\hi@supra@form{#1}}\reserved@a i%
 }
-\hi@newcite\defmanuscript{An unpublished manuscript}{%
-    \hi@citetype{#1}\hi@type@other
+\hi@newcite{manuscript}{An unpublished manuscript}{other}{%
     \hi@book@pubparen % Why not
     \hi@ifset\hi@kv@type{}{\def\hi@kv@type{manuscript}}
     \hi@newcite@form{fc}{#1}{%
@@ -6871,8 +6902,7 @@
     }%
     \@expand{\hi@supra@form{#1}}\reserved@a i%
 }
-\hi@newcite\defworkingpaper{A working paper}{%
-    \hi@citetype{#1}\hi@type@other
+\hi@newcite{workingpaper}{A working paper}{other}{%
     \hi@newcite@form{fc}{#1}{%
         \hi@citeguts{%
             \hi@ifset\hi@kv@author{\hi@kv@author@sortable, }{}%
@@ -6898,8 +6928,7 @@
 %%
 %% \iffalse filename: foreignrefs.dtx \fi
 %%
-\hi@newcite\defengdebate{An English parliamentary debate}{%
-    \hi@citetype{#1}\hi@type@other
+\hi@newcite{engdebate}{An English parliamentary debate}{other}{%
     \hi@newcite@form{sc}{#1}{%
         \hi@citeguts{%
             \hi@usevol{\hi@ifset\hi@kv@vol{\hi@kv@vol\space}{}}%
@@ -6930,8 +6959,7 @@
         \the\hi@param@parens
     }%
 }
-\hi@newcite\defengstat{An English statute}{%
-    \hi@citetype{#1}\hi@type@statute
+\hi@newcite{engstat}{An English statute}{statute}{%
     \hi@statcode@setup@idpc{#1}% Set up id. and page numbering
     %\hi@include@page@in@toa{#1}
     \hi@newcite@form{ic}{#1}{%
@@ -6987,8 +7015,7 @@
         }%
     }%
 }
-\hi@newcite\defengcommand{A command paper in England}{%
-    \hi@citetype{#1}\hi@type@other
+\hi@newcite{engcommand}{A command paper in England}{other}{%
     \hi@newcite@form{fc}{#1}{%
         \hi@ifset\hi@kv@author{%
             \noexpand\@gobble{\hi@kv@authln}%
@@ -7003,8 +7030,7 @@
         \the\hi@param@parens
     }%
 }
-\hi@newcite\defforeignconst{A foreign constitution}{%
-    \hi@citetype{#1}\hi@type@const
+\hi@newcite{foreignconst}{A foreign constitution}{const}{%
     \hi@newcite@form{fc}{#1}{%
         \hi@citeguts{%
             \noexpand\hi@fn@const{\hi@kv@name}%
@@ -7015,8 +7041,7 @@
         \the\hi@param@parens
     }%
 }
-\hi@newcite\deftreaty{A treaty or international agreement}{%
-    \hi@citetype{#1}\hi@type@treaty
+\hi@newcite{treaty}{A treaty or international agreement}{treaty}{%
     \hi@ifset\hi@kv@inline{%
         \hi@replacethe\hi@kv@inline{\def\hi@kv@inline}{}%
         \expandafter\KV@hi@hereinafter\expandafter{\hi@kv@inline}%
@@ -7051,8 +7076,7 @@
         }%
     }%
 }
-\hi@newcite\defeucase{A European Union case}{%
-    \hi@citetype{#1}\hi@type@case
+\hi@newcite{eucase}{A European Union case}{case}{%
     \hi@case@setparties{#1}%
     \hi@ifset\hi@kv@inline{%
         \@expand{\hi@short@register{#1}}\hi@kv@inline i{y}%
@@ -7115,8 +7139,7 @@
         \hi@case@dateparen{}n%
     }%
 }
-\hi@newcite\defunresolution{A U.N. resolution}{%
-    \hi@citetype{#1}\hi@type@other
+\hi@newcite{unresolution}{A U.N. resolution}{other}{%
     \hi@ifset\hi@kv@type{}{\def\hi@kv@type{U.N.}}%
     \hi@newcite@form{fc}{#1}{%
         \hi@citeguts{%
@@ -7132,8 +7155,7 @@
     }%
     \@expand{\hi@supra@form{#1}}\hi@kv@number i%
 }
-\hi@newcite\defintdoc{A U.N. or international document}{%
-    \hi@citetype{#1}\hi@type@other
+\hi@newcite{intdoc}{A U.N. or international document}{other}{%
     \hi@ifset\hi@kv@type{}{\def\hi@kv@type{U.N.}}%
     \hi@newcite@form{fc}{#1}{%
         \hi@citeguts{%
@@ -7157,8 +7179,7 @@
 \def\hi@intdoc@personauth#1{%
     \hi@parens@add{\hi@paren@preparedby}{\noexpand\hi@fn@sig{prepared by} #1}%
 }
-\hi@newcite\deffrcase{A French case}{%
-    \hi@citetype{#1}\hi@type@case
+\hi@newcite{frcase}{A French case}{case}{%
     \hi@newcite@form{fc}{#1}{%
         \hi@citeguts{%
             \hi@kv@court\space
@@ -7172,8 +7193,7 @@
     \protected@edef\reserved@a{\hi@kv@court\space decision no.\ \hi@kv@number}%
     \@expand{\hi@supra@form{#1}}\reserved@a i%
 }
-\hi@newcite\deffrstat{A French statute}{%
-    \hi@citetype{#1}\hi@type@statute
+\hi@newcite{frstat}{A French statute}{statute}{%
     \hi@newcite@form{fc}{#1}{%
         \hi@citeguts{%
             Law No. \hi@kv@number\space
@@ -7188,8 +7208,7 @@
 }
 %%
 %% \iffalse filename: specrefs.dtx \fi
-\hi@newcite\defcjs{Corpus Juris Secondum}{%
-    \hi@citetype{#1}\hi@type@other
+\hi@newcite{cjs}{Corpus Juris Secondum}{other}{%
     \hi@newcite@form{fc}{#1}{%
         \hi@citeguts{%
             \hi@kv@vol\space
@@ -7205,8 +7224,7 @@
     }%
     \@expand{\hi@supra@form{#1}}\reserved@a i%
 }
-\hi@newcite\defrfc{An IETF Request for Comments}{%
-    \hi@citetype{#1}\hi@type@other
+\hi@newcite{rfc}{An IETF Request for Comments}{other}{%
     \expandafter\hi@book@titlethe\expandafter{\hi@kv@name}%
     \hi@abbrev@name{Internet Engineering Task Force}{\def\hi@kv@publisher}%
     \protected@edef\reserved@a{%
@@ -7242,8 +7260,7 @@
 %%
 %% \iffalse filename: otherrefs.dtx \fi
 %%
-\hi@newcite\defletter{A letter or memorandum}{%
-    \hi@citetype{#1}\hi@type@other
+\hi@newcite{letter}{A letter or memorandum}{other}{%
     \hi@ifset\hi@kv@type{}{\def\hi@kv@type{Letter}}
     \@expand{\find@in{, }}{\hi@kv@author}i{%
         \def\reserved@a{, }\@gobbletwo
@@ -7274,8 +7291,7 @@
     }%
     \@expand{\hi@supra@form{#1}}\hi@kv@authln i%
 }
-\hi@newcite\defpressrelease{A press release}{%
-    \hi@citetype{#1}\hi@type@other
+\hi@newcite{pressrelease}{A press release}{other}{%
     \hi@ifset\hi@kv@type{}{\def\hi@kv@type{Press Release}}%
     \hi@newcite@form{fc}{#1}{%
         \hi@citeguts{%
@@ -7294,8 +7310,7 @@
     }%
     \@expand{\hi@supra@form{#1}}\reserved@a i%
 }
-\hi@newcite\defspeech{A speech, address, or presentation}{%
-    \hi@citetype{#1}\hi@type@other
+\hi@newcite{speech}{A speech, address, or presentation}{other}{%
     \hi@ifset\hi@kv@type{}{\def\hi@kv@type{Address}}
     \hi@newcite@form{fc}{#1}{%
         \hi@citeguts{%
@@ -7313,8 +7328,7 @@
     }%
     \@expand{\hi@supra@form{#1}}\reserved@a i%
 }
-\hi@newcite\deffilm{A film (movie/motion picture)}{%
-    \hi@citetype{#1}\hi@type@other
+\hi@newcite{film}{A film (movie/motion picture)}{other}{%
     \hi@newcite@form{fc}{#1}{%
         \hi@citeguts{%
             \noexpand\hi@fn@booktitle{\hi@kv@name}%
@@ -7327,8 +7341,7 @@
     }%
     \@expand{\hi@supra@form{#1}}\reserved@a i%
 }
-\hi@newcite\deftvshow{A television show}{%
-    \hi@citetype{#1}\hi@type@other
+\hi@newcite{tvshow}{A television show}{other}{%
     \hi@newcite@form{fc}{#1}{%
         \hi@citeguts{%
             \hi@fn@arttitle{\hi@kv@name}%
@@ -7343,8 +7356,7 @@
     }%
     \@expand{\hi@supra@form{#1}}\reserved@a i%
 }
-\hi@newcite\defopinion{An ethics or other opinion}{%
-    \hi@citetype{#1}\hi@type@other
+\hi@newcite{opinion}{An ethics or other opinion}{other}{%
     \hi@ifset\hi@kv@type{}{\def\hi@kv@type{Formal Opinion}}%
     \@expand\hi@abbrev@cdoc\hi@kv@type i{\def\hi@kv@type}%
     \hi@newcite@form{fc}{#1}{%
@@ -7362,7 +7374,7 @@
 %%
 %% \iffalse filename: nondocrefs.dtx \fi
 %%
-\hi@newcite\defabbrev{An abbreviation for a name}{%
+\hi@newcite{abbrev}{An abbreviation for a name}{}{%
     \hi@ifset\hi@kv@name{%
         \hi@replacethe\hi@kv@name{\def\hi@kv@name}{}%
         \@expandarg\hi@abbrev@name{\hi@kv@name}{\def\hi@kv@aname}%
@@ -7406,7 +7418,7 @@
         \hi@invis@inline
     }%
 }
-\hi@newcite\defalias{An alias for a citation reference}{%
+\hi@newcite{alias}{An alias for a citation reference}{}{%
     \hi@ifset\hi@kv@citation{}{%
         \hi@ifset\hi@kv@rep{%
             \let\hi@kv@citation\hi@kv@rep
@@ -7456,7 +7468,7 @@
     }%
 }
 \newcount\hi@anonselfcitecount
-\hi@newcite\defselfcite{A self-citation}{%
+\hi@newcite{selfcite}{A self-citation}{}{%
     \global\advance\hi@anonselfcitecount\@ne
     \hi@newcite@form{fc}{#1}{%
         \hi@citeguts{%
@@ -7489,14 +7501,8 @@
         \hi@param@addparen\hi@paren@bookreview{reviewing \clause{#1}}%
     }%
 }
-\hi@defparam{citetype}{Table of Authorities category for this citation}{%
-    \@ifundefined{hi@type@#1}{%
-        \PackageError\hi@pkgname{Invalid Table of Authorities section #1}{%
-            Please enter a valid section identifier.
-        }%
-    }{%
-        \@expand{\hi@citetype{\@this@case}}{\csname hi@type@#1\endcsname}{i}%
-    }%
+\hi@defparam{toacat}{Table of Authorities category for this citation}{%
+    \@expandarg\SetTOACategory\@this@case{#1}%
 }
 \hi@param@alias{comment}{paren}
 \hi@defparam{country}{Country for citation}{%
@@ -7519,7 +7525,7 @@
 \hi@newparam{kind}{Type of reference}
 \hi@newparam@noval{noetal}{No et al. with 3 or more authors}
 \hi@defparam@noval{notoa}{Do not include in the table of authorities}{%
-    \hi@citetype\@this@case\@empty
+    \SetTOACategory{\@this@case}{}%
 }
 \hi@newparam{opturl}{Optional URL}
 \hi@defparam{origyear}{Year of original publication of the reference}{%

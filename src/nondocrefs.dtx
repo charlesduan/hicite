@@ -13,7 +13,7 @@ authorities, but serve other purposes in this package's system.
 
 
 %</doc>
-\hi@newcite\defabbrev{An abbreviation for a name}{%
+\hi@newcite{abbrev}{An abbreviation for a name}{}{%
     \hi@ifset\hi@kv@name{%
         \hi@replacethe\hi@kv@name{\def\hi@kv@name}{}%
         \@expandarg\hi@abbrev@name{\hi@kv@name}{\def\hi@kv@aname}%
@@ -97,7 +97,7 @@ that it does not affect \emph{id.}\ citations surrounding it.
 }
 %</doc>
 %
-\hi@newcite\defalias{An alias for a citation reference}{%
+\hi@newcite{alias}{An alias for a citation reference}{}{%
     \hi@ifset\hi@kv@citation{}{%
         \hi@ifset\hi@kv@rep{%
             \let\hi@kv@citation\hi@kv@rep
@@ -177,7 +177,7 @@ will cite \textsection~5(a) of the statute.
 %</doc>
 %
 \newcount\hi@anonselfcitecount
-\hi@newcite\defselfcite{A self-citation}{%
+\hi@newcite{selfcite}{A self-citation}{}{%
     \global\advance\hi@anonselfcitecount\@ne
     \hi@newcite@form{fc}{#1}{%
         \hi@citeguts{%

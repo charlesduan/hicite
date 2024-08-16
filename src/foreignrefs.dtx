@@ -11,8 +11,7 @@ extent it is necessary, use \rtype{verbatim}.
 \input docparams
 %</doc>
 %
-\hi@newcite\defengdebate{An English parliamentary debate}{%
-    \hi@citetype{#1}\hi@type@other
+\hi@newcite{engdebate}{An English parliamentary debate}{other}{%
     \hi@newcite@form{sc}{#1}{%
         \hi@citeguts{%
             \hi@usevol{\hi@ifset\hi@kv@vol{\hi@kv@vol\space}{}}%
@@ -52,8 +51,7 @@ extent it is necessary, use \rtype{verbatim}.
 
 %</doc>
 %
-\hi@newcite\defengstat{An English statute}{%
-    \hi@citetype{#1}\hi@type@statute
+\hi@newcite{engstat}{An English statute}{statute}{%
     \hi@statcode@setup@idpc{#1}% Set up id. and page numbering
     %\hi@include@page@in@toa{#1}
     \hi@newcite@form{ic}{#1}{%
@@ -131,8 +129,7 @@ difference in \param{page} for each.
 
 %</doc>
 %
-\hi@newcite\defengcommand{A command paper in England}{%
-    \hi@citetype{#1}\hi@type@other
+\hi@newcite{engcommand}{A command paper in England}{other}{%
     \hi@newcite@form{fc}{#1}{%
         \hi@ifset\hi@kv@author{%
             \noexpand\@gobble{\hi@kv@authln}%
@@ -161,8 +158,7 @@ difference in \param{page} for each.
 
 %</doc>
 %
-\hi@newcite\defforeignconst{A foreign constitution}{%
-    \hi@citetype{#1}\hi@type@const
+\hi@newcite{foreignconst}{A foreign constitution}{const}{%
     \hi@newcite@form{fc}{#1}{%
         \hi@citeguts{%
             \noexpand\hi@fn@const{\hi@kv@name}%
@@ -183,8 +179,7 @@ difference in \param{page} for each.
 
 %</doc>
 %
-\hi@newcite\deftreaty{A treaty or international agreement}{%
-    \hi@citetype{#1}\hi@type@treaty
+\hi@newcite{treaty}{A treaty or international agreement}{treaty}{%
     \hi@ifset\hi@kv@inline{%
         \hi@replacethe\hi@kv@inline{\def\hi@kv@inline}{}%
         \expandafter\KV@hi@hereinafter\expandafter{\hi@kv@inline}%
@@ -233,8 +228,7 @@ difference in \param{page} for each.
 
 %</doc>
 %
-\hi@newcite\defeucase{A European Union case}{%
-    \hi@citetype{#1}\hi@type@case
+\hi@newcite{eucase}{A European Union case}{case}{%
     \hi@case@setparties{#1}%
     \hi@ifset\hi@kv@inline{%
         \@expand{\hi@short@register{#1}}\hi@kv@inline i{y}%
@@ -309,8 +303,7 @@ difference in \param{page} for each.
 
 %</doc>
 %
-\hi@newcite\defunresolution{A U.N. resolution}{%
-    \hi@citetype{#1}\hi@type@other
+\hi@newcite{unresolution}{A U.N. resolution}{other}{%
     \hi@ifset\hi@kv@type{}{\def\hi@kv@type{U.N.}}%
     \hi@newcite@form{fc}{#1}{%
         \hi@citeguts{%
@@ -341,8 +334,7 @@ difference in \param{page} for each.
 
 %</doc>
 %
-\hi@newcite\defintdoc{A U.N. or international document}{%
-    \hi@citetype{#1}\hi@type@other
+\hi@newcite{intdoc}{A U.N. or international document}{other}{%
     \hi@ifset\hi@kv@type{}{\def\hi@kv@type{U.N.}}%
     \hi@newcite@form{fc}{#1}{%
         \hi@citeguts{%
@@ -387,8 +379,7 @@ Typically these are reports.
 }
 %    \end{macrocode}
 %</package>
-\hi@newcite\deffrcase{A French case}{%
-    \hi@citetype{#1}\hi@type@case
+\hi@newcite{frcase}{A French case}{case}{%
     \hi@newcite@form{fc}{#1}{%
         \hi@citeguts{%
             \hi@kv@court\space
@@ -413,8 +404,7 @@ Typically these are reports.
 
 %</doc>
 %
-\hi@newcite\deffrstat{A French statute}{%
-    \hi@citetype{#1}\hi@type@statute
+\hi@newcite{frstat}{A French statute}{statute}{%
     \hi@newcite@form{fc}{#1}{%
         \hi@citeguts{%
             Law No. \hi@kv@number\space

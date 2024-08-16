@@ -12,21 +12,12 @@
     \label{param:#1}
     Alias for \param{#2}.
 }
-\def\hi@newcite#1{%
-    \expandafter\hi@newcite@\string #1\@stop
-}
-\long\expandafter\def\expandafter\hi@newcite@\string\def #1\@stop#2#3{%
+\long\def\hi@newcite#1#2#3#4{%
     \subsection[\textsf{#1}: #2]{\DescribeRefType{#1}\textsf{#1}: #2}
     \label{rtype:#1}
     \space\ignorespaces
 }
 \def\hi@alias@cite#1#2{%
-    \expandafter\hi@alias@cite@\string#2\@stop{#1}%
-}
-\expandafter\def\expandafter\hi@alias@cite@\string\def #1\@stop#2{%
-    \expandafter\hi@alias@cite@@\string#2\@stop{#1}%
-}
-\expandafter\def\expandafter\hi@alias@cite@@\string\def #1\@stop#2{%
     \subsection[\textsf{\emph{#1}}]{\DescribeRefType{#1}\textsf{\emph{#1}}}
     \label{rtype:#1}
     Alias for \rtype{#2}. \ignorespaces

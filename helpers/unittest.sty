@@ -156,7 +156,7 @@
 \long\def\@footnotetext#1{%
     \protected@edef\@currentlabel{\csname p@footnote\endcsname\@thefnmark}%
     \begingroup
-        [\hbox{#1}]%
+        \hbox{[}#1\hbox{]}%
     \endgroup
 }
-\long\def\InFootnote#1{\@footnotemark[\hbox{#1}]}%
+\long\def\InFootnote#1{\@footnotemark\hbox{[}#1\hbox{]}}%

@@ -123,8 +123,7 @@ as well.
 
 %</doc>
 %
-\hi@newcite\defstatcode{A statute in a code}{%
-    \hi@citetype{#1}\hi@type@statute
+\hi@newcite{statcode}{A statute in a code}{statute}{%
     \hi@statcode@setup{#1}%
 }
 %<*doc>
@@ -178,12 +177,11 @@ still commonly used.
 
 %</doc>
 %
-\hi@newcite\defregcode{A regulation in a code}{%
-    \hi@citetype{#1}\hi@type@regulation
+\hi@newcite{regcode}{A regulation in a code}{regulation}{%
     \hi@statcode@setup{#1}%
 }
 %<*doc>
-This only differs from \rtype{statcode} in the \param{citetype} being
+This only differs from \rtype{statcode} in the \param{toacat} being
 |regulation| rather than |statute|. The parameters and features are the same as
 those for \rtype{statcode}.
 %</doc>
@@ -652,8 +650,7 @@ those for \rtype{statcode}.
 %    \end{macrocode}
 %</package>
 %
-\hi@newcite\defstatsess{A statute in session laws}{%
-    \hi@citetype{#1}\hi@type@statute
+\hi@newcite{statsess}{A statute in session laws}{statute}{%
     \hi@statsess@name
     \hi@inlinestatname{#1}%
     \hi@ifset\hi@kv@type{}{\def\hi@kv@type{Pub. L. No.}}%
@@ -910,8 +907,7 @@ See \sec{pages-segments} for more on segments in pin cites.
 %    \end{macrocode}
 %</package>
 %
-\hi@newcite\defstattitle{A titled statutory citation}{%
-    \hi@citetype{#1}\hi@type@statute
+\hi@newcite{stattitle}{A titled statutory citation}{statute}{%
     \hi@include@page@in@toa{#1}%
     \hi@inlinestatname{#1}% Set up \hi@kv@inline based on \hi@kv@name
     \@expand\hi@abbrev@name{\hi@kv@rep}i{\def\hi@kv@rep}%
@@ -1029,8 +1025,7 @@ statutes if a particular section number is repeatedly used.
 }
 %    \end{macrocode}
 %</package>
-\hi@newcite\defrule{A rule of evidence or procedure}{%
-    \hi@citetype{#1}\hi@type@rule
+\hi@newcite{rule}{A rule of evidence or procedure}{rule}{%
     \hi@statcode@setup@idpc{#1}% Set up id. and page numbering
     \hi@include@page@in@toa{#1}%
     \hi@newcite@form{fc}{#1}{%

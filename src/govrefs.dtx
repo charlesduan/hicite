@@ -11,8 +11,7 @@ into the above categories.
 \input docparams
 
 %</doc>
-\hi@newcite\defbill{An bill or resolution of Congress}{%
-    \hi@citetype{#1}\hi@type@other
+\hi@newcite{bill}{An bill or resolution of Congress}{other}{%
     \hi@inlinestatname{#1}%
     \hi@ifset\hi@kv@congress{}{%
         \PackageError\hi@pkgname{%
@@ -105,8 +104,7 @@ into the above categories.
 %    \end{macrocode}
 %</package>
 %
-\hi@newcite\defcongdoc{A Congressional numbered document}{%
-    \hi@citetype{#1}\hi@type@other
+\hi@newcite{congdoc}{A Congressional numbered document}{other}{%
     \hi@newcite@form{fc}{#1}{%
         \hi@ifset\hi@kv@author{%
             \noexpand\@gobble{\hi@kv@authln}%
@@ -213,8 +211,7 @@ This is for reports, and documents. Unnumbered documents should use
 \hi@congdoc@add{Misc. Doc.}{Miscellaneous Document}
 %    \end{macrocode}
 %</package>
-\hi@newcite\defcongprint{A Congressional unnumbered document}{%
-    \hi@citetype{#1}\hi@type@other
+\hi@newcite{congprint}{A Congressional unnumbered document}{other}{%
     \hi@newcite@form{fc}{#1}{%
         \hi@ifset\hi@kv@author{%
             \noexpand\@gobble{\hi@kv@authln}%
@@ -259,11 +256,10 @@ This is essentially a more structured citation to a book.
 }
 %</doc>
 %
-\hi@newcite\defcongrec{A Congressional Record debate}{%
+\hi@newcite{congrec}{A Congressional Record debate}{other}{%
     \expandafter\hi@congrec@testpg\hi@kv@page\@stop
     \hi@book@pubparen
     \hi@ifset\hi@kv@year{}{\PackageError\hi@pkgname{Year is required for #1}}%
-    \hi@citetype{#1}\hi@type@other
     \hi@newcite@form{fc}{#1}{%
         \hi@citeguts{%
             \hi@usevol{\hi@ifset\hi@kv@vol{\hi@kv@vol\space}{}}%
@@ -351,11 +347,10 @@ edition. The date should be given as the optional argument:
         \hi@parens@add\hi@paren@date{\@expandarg\hi@date@parse\@this@opt}%
     \fi
 }
-\hi@citetype{cr}\hi@type@other
+\SetTOACategory{cr}{other}
 %    \end{macrocode}
 %</package>
-\hi@newcite\defhearing{A hearing in Congress}{%
-    \hi@citetype{#1}\hi@type@other
+\hi@newcite{hearing}{A hearing in Congress}{other}{%
     \hi@ifset\hi@kv@type{}{\def\hi@kv@type{Hearing}}%
     \hi@newcite@form{fc}{#1}{%
         \hi@citeguts{%
@@ -430,8 +425,7 @@ published testimony in a hearing.
 \make@find@in{, }
 %    \end{macrocode}
 %</package>
-\hi@newcite\defprespaper{A Presidential Paper}{%
-    \hi@citetype{#1}\hi@type@other
+\hi@newcite{prespaper}{A Presidential Paper}{other}{%
     \hi@newcite@form{fc}{#1}{%
         \hi@citeguts{%
             \hi@kv@name, % Title
@@ -454,8 +448,7 @@ published testimony in a hearing.
 }
 %</doc>
 %
-\hi@newcite\defdcpd{Daily Compilation of Presidential Documents}{
-    \hi@citetype{#1}\hi@type@other
+\hi@newcite{dcpd}{Daily Compilation of Presidential Documents}{other}{
     \hi@newcite@form{fc}{#1}{%
         \hi@citeguts{%
             \hi@kv@name,
@@ -484,8 +477,7 @@ a different reference type is required.
 }
 %</doc>
 %
-\hi@newcite\defpatent{A U.S. patent}{%
-    \hi@citetype{#1}\hi@type@other
+\hi@newcite{patent}{A U.S. patent}{other}{%
     \let\reserved@a\@empty
     \@expand{\find@start{D}}\hi@kv@number i{%
         \def\reserved@a{D}\def\hi@kv@number
@@ -555,12 +547,11 @@ a different reference type is required.
 \make@find@start@cs{/hi@fn@dateprefix}{\hi@fn@dateprefix}
 %    \end{macrocode}
 %</package>
-\hi@newcite\defgovdoc{A government document}{%
+\hi@newcite{govdoc}{A government document}{other}{%
     \hi@ifset\hi@kv@court{}{%
         \hi@ifset\hi@kv@author{\let\hi@kv@court\hi@kv@author}{}%
     }%
     \hi@cite@history
-    \hi@citetype{#1}\hi@type@other
     \hi@newcite@form{fc}{#1}{%
         \hi@citeguts{%
             \hi@ifset\hi@kv@number{%
@@ -656,9 +647,8 @@ origin of the document.
 
 %</doc>
 %
-\hi@alias@cite\deffedreg\defgovdoc
-\hi@newcite\deftestimony{Testimony in a congressional hearing}{%
-    \hi@citetype{#1}\hi@type@other
+\hi@alias@cite{fedreg}{govdoc}
+\hi@newcite{testimony}{Testimony in a congressional hearing}{other}{%
     \hi@ifset\hi@kv@type{}{\def\hi@kv@type{Testimony}}%
     \hi@ifset\hi@kv@citation{}{%
         \hi@ifset\hi@kv@in{\let\hi@kv@citation\hi@kv@in}{%
@@ -709,8 +699,7 @@ is cited with the short form for the second witness cited.
 }
 %</doc>
 %
-\hi@newcite\defcomments{Comments on an agency proceeding}{%
-    \hi@citetype{#1}\hi@type@other
+\hi@newcite{comments}{Comments on an agency proceeding}{other}{%
     \hi@ifset\hi@kv@type{}{\def\hi@kv@type{Comments}}%
     \hi@newcite@form{fc}{#1}{%
         \hi@citeguts{%
@@ -757,8 +746,7 @@ title of the document would be given as ``Comments of \meta{party}.''
 }
 %</doc>
 %
-\hi@newcite\defsecfiling{An SEC filing}{%
-    \hi@citetype{#1}\hi@type@other
+\hi@newcite{secfiling}{An SEC filing}{other}{%
     \hi@newcite@form{fc}{#1}{%
         \hi@citeguts{%
             \hi@ifset\hi@kv@author{\hi@kv@author@sortable, }{}%

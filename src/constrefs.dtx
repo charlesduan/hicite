@@ -12,8 +12,7 @@ Independence.
 \input docparams
 
 %</doc>
-\hi@newcite\defconst{Citation to a constitution}{%
-    \hi@citetype{#1}\hi@type@const
+\hi@newcite{const}{Citation to a constitution}{const}{%
     \hi@ifset\hi@kv@name\relax{%
         \PackageWarning\hi@pkgname{%
             Constitution citation requires "name" argument
@@ -58,8 +57,7 @@ defined as a separate reference.
 
 %</doc>
 %
-\hi@newcite\defconstamend{A Constitutional amendment}{%
-    \hi@citetype{#1}\hi@type@const
+\hi@newcite{constamend}{A Constitutional amendment}{const}{%
     \edef\hi@kv@page{amendment \expandafter\@Roman\hi@kv@number}%
     \hi@const@part{#1}{%
         \hi@inline@the
@@ -155,8 +153,7 @@ Amendment\\ and ``amendment \meta{number}'' respectively.
 }
 %    \end{macrocode}
 %</package>
-\hi@newcite\deffounding{A national founding document}{%
-    \hi@citetype{#1}\hi@type@found
+\hi@newcite{founding}{A national founding document}{found}{%
     \hi@statcode@setup@idpc{#1}% Set up id. and page numbering
     \hi@include@page@in@toa{#1}
     \hi@newcite@form{fc}{#1}{%
@@ -227,8 +224,7 @@ title in the same font as that for constitutions.
 
 %</doc>
 %
-\hi@newcite\deffederalist{A Federalist paper}{%
-    \hi@citetype{#1}\hi@type@other
+\hi@newcite{federalist}{A Federalist paper}{other}{%
     % TODO: add editor info
     \hi@newcite@form{fc}{#1}{%
         \hi@citeguts{%

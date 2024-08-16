@@ -67,38 +67,38 @@ cited in a document in order to produce a correct listing of pages in the table.
 % \begin{itemize}
 % \item The TOA is not disabled
 % \item The reference to be added to the TOA is not itself in the TOA
-% \item A macro |\tc@|\meta{\#1} is defined, identifying the reference class for
-% indexing.
+% \item The reference has an associated category (see \sec{refs-categories}).
 % \end{itemize}
 %
 %    \begin{macrocode}
 \def\hi@addtotoa#1#2{%
-    \expandafter\hi@addtotoa@\csname tc@#1\endcsname{#1}{#2}%
+    \hi@toacat@get{#1}{\hi@addtotoa@{#1}{#2}}%
 }
+%
+% Called only if the reference had a category. |#1| is the reference name, |#2|
+% the page number, |#3| the category text.
 \def\hi@addtotoa@#1#2#3{%
     \if@hi@in@toa\else \if@hi@toa@disabled\else
-        \ifx#1\relax\else \ifx#1\@empty\else
-            \addtocontents{toa}{%
-                \protect\contentsline{hi@toa}{%
-                    #2\@ifundefined{tcpg@#2}{}{\ifstrempty{#3}{}{ at #3}}%
+        \addtocontents{toa}{%
+            \protect\contentsline{hi@toa}{%
+                #1\@ifundefined{tcpg@#1}{}{\ifstrempty{#2}{}{ at #2}}%
+            }{%
+                {%
+                    \thepage
                 }{%
-                    {%
-                        \thepage
-                    }{%
-                        \noexpand\the\noexpand\c@page
-                    }{%
-                        % We want this to run at the time the |\write| is
-                        % executed.
-                        \noexpand\expandonce\thepage
-                    }{%
-                        #1%
-                        \ifx\hi@toa@locationtag\relax\else
-                            ,\hi@toa@locationtag
-                        \fi
-                    }%
-                }{}%
-            }%
-        \fi\fi
+                    \noexpand\the\noexpand\c@page
+                }{%
+                    % We want this to run at the time the |\write| is
+                    % executed.
+                    \noexpand\expandonce\thepage
+                }{%
+                    #3%
+                    \ifx\hi@toa@locationtag\relax\else
+                        ,\hi@toa@locationtag
+                    \fi
+                }%
+            }{}%
+        }%
     \fi\fi
 }
 %    \end{macrocode}
@@ -483,7 +483,14 @@ number listing and revising the last element of that listing as necessary.
 \def\hi@toa@usepg@#1#2#3#4#5{%
     \find@in{:}{#4#1}{%
         \@tworun\@gobble\hi@toa@usepg@passim
-    }{\ThisShouldNeverBeReached}{#5}%
+    }{%
+        \PackageError\hi@pkgname{%
+            Page data structure `#4#1' contains \MessageBreak
+            no colon, but it should. This indicates \MessageBreak
+            a bug in the hicite program%
+        }{Check the hicite program.}%
+        \@gobble
+    }{#5}%
 }
 \make@find@in{:}
 % \#1 is the page list, \#2 is the callback.
@@ -512,7 +519,14 @@ number listing and revising the last element of that listing as necessary.
     \@expand{\@unbrace\hi@toa@refcount@}{\csname hi@pg@#1\endcsname}{ii}{#2}%
 }
 \def\hi@toa@refcount@#1#2#3#4#5{%
-    \find@in{:}{#4}{\hi@toa@refcount@@}{\ThisShouldNeverBeReached}{#5}%
+    \find@in{:}{#4}{\hi@toa@refcount@@}{%
+        \PackageError\hi@pkgname{%
+            Reference count data `#4' should have contained a \MessageBreak
+            colon, but it does not. This probably indicates \MessageBreak
+            a programming error.
+        }{Check the hicite program.}%
+        \@gobble
+    }{#5}%
 }
 \def\hi@toa@refcount@@#1#2#3{\hi@toa@refcount@@@{1}#1\@stop{#3}}%
 \def\hi@toa@refcount@@@#1#2#3\@stop#4{%
@@ -588,7 +602,7 @@ heading will be created using whatever
         \StarText
     \fi
     \begingroup
-        \def\do##1{%
+        \hi@toacat@each{%
             \AuthorityTable[%
                 \toaheading{\hi@toa@sublist@show{##1}}\par
                 \ifdim\lastskip<\toaskip
@@ -600,7 +614,6 @@ heading will be created using whatever
                 \parskip=\toaskip
             ]{##1}%
         }%
-        \hi@type@doforall
     \endgroup
 }
 \def\toaheading{\section*}
@@ -868,7 +881,7 @@ text.)
 \begingroup
 
 
-    \def\tc@ref{other:Other Source/s}
+    \SetTOACategory{ref}{other}
     \let\tcpg@ref\relax
     \@hi@in@toafalse
     \@hi@toa@disabledfalse

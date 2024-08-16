@@ -1005,8 +1005,7 @@ nom.''\ must be added to explanatory phrases that end with a comma.
 
 
 %</doc>
-\hi@newcite\defcase{A case citation}{%
-    \hi@citetype{#1}\hi@type@case
+\hi@newcite{case}{A case citation}{case}{%
     \hi@case@def{#1}%
 }
 %<*doc>
@@ -1071,13 +1070,12 @@ This demonstrates a case with a single name rather than adversarial parties, and
 with a docket number rather than a reporter citation.
 
 %</doc>
-\hi@newcite\defadmincase{An administrative decision}{%
-    \hi@citetype{#1}\hi@type@admin
+\hi@newcite{admincase}{An administrative decision}{admin}{%
     \hi@case@def{#1}%
 }
 %<*doc>
-This is the same as a case with \param{citetype} set to |admin|. Parameters are
-identical to \rtype{case} with the following addition:
+This is the same as a case with the default category set to |admin|. Parameters
+are identical to \rtype{case} with the following addition:
 
 \keyparameters{{agency}{Same as \param{court} but abbreviates the name.}}
 
@@ -1104,8 +1102,7 @@ This shows an administrative decision citation with subsequent history. The
 reference |biodelivery-cafc| would be defined elsewhere.
 
 %</doc>
-\hi@newcite\defcasedoc{Document used in a case}{%
-    \hi@citetype{#1}\hi@type@other
+\hi@newcite{casedoc}{Document used in a case}{other}{%
     \hi@ifset\hi@kv@citation{}{%
         \PackageError\hi@pkgname{%
             Missing citation for casedoc #1
@@ -1185,7 +1182,7 @@ Here, the underlying case is defined using an anonymous reference definition
 \let\hi@casedoc@date\relax
 %    \end{macrocode}
 %</package>
-\hi@newcite\defcourtdoc{A document in the docket of current litigation}{
+\hi@newcite{courtdoc}{A document in the docket of current litigation}{}{
     \@expand\hi@abbrev@cdoc\hi@kv@name i{\def\hi@kv@name}%
     \hi@ifset\hi@kv@inline{%
         \@expand\hi@abbrev@cdoc\hi@kv@inline i{\def\hi@kv@inline}%

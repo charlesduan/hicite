@@ -107,8 +107,7 @@ which are optional (although some reference types will require \param{year}):
 \input docparams
 
 %</doc>
-\hi@newcite\defbook{A book or non-periodic material}{%
-    \hi@citetype{#1}\hi@type@other
+\hi@newcite{book}{A book or non-periodic material}{other}{%
     \hi@book@pubparen
     \expandafter\hi@book@titlethe\expandafter{\hi@kv@name}%
     \hi@newcite@form{fc}{#1}{%
@@ -238,25 +237,18 @@ Copyright} (2014) [hereinafter \textsc{Nimmer}].
 \make@find@in{, }
 %    \end{macrocode}
 %</package>
-\hi@newcite\defcitecontainer{A citation in another citation}{%
+\hi@newcite{citecontainer}{A citation in another citation}{other}{%
     %
     % Set the joining phrase.
     %
     \hi@citecontainer@settype
     %
-    % Perform initial matters to set up the citecontainer; see the comment
-    % before \hi@citecontainer@init.
-    \edef\reserved@a{%
-        {#1}%
-        \expandafter\noexpand\csname tc@#1\endcsname
-        \hi@ifset\hi@kv@citation{%
-            \expandafter\noexpand\csname tc@\hi@kv@citation\endcsname
-            \expandafter\noexpand\csname fc@\hi@kv@citation\endcsname
-        }{\relax\relax}%
-    }%
-    \expandafter\hi@citecontainer@init\reserved@a
+    % Initialize the TOA category and token list.
+    %
+    \hi@citecontainer@init{#1}%
     %
     % Prepare the full citation form.
+    %
     \edef\reserved@a{%
         {#1}%
         \expandafter\noexpand\csname fc@#1\endcsname
@@ -458,19 +450,16 @@ complex reference definition that I have constructed.
 %
 % Initializing a citecontainer involves two steps.
 % \begin{enumerate}
-% \item Set the TOA type |\tc@|\meta{\#1}, |\hi@citecontainer@toks| to the
+% \item Set the TOA category, |\hi@citecontainer@toks| to the
 % contained citation matter, and |\hi@kv@inline| as necessary.
 % \item Set |\hi@kv@in|, if it was put into |\hi@kv@rep| instead.
 % \end{enumerate}
-% \#1 is the reference name; \#2 is the macro
-% |\tc@|\meta{\#1}, \#3 is the macro |\tc@|\meta{\string\hi@kv@citation}, \#4 is
-% |\fc@|\meta{\string\hi@kv@citation}.
-% (If there is no |\hi@kv@citation|, \#3 and \#4 are |\relax|.)
+% \#1 is the reference name.
 %
 %    \begin{macrocode}
-\def\hi@citecontainer@init#1#2#3#4{%
+\def\hi@citecontainer@init#1{%
     %
-    % 2. If \hi@kv@citation is set, then the contained element is a citation.
+    % If \hi@kv@citation is set, then the contained element is a citation.
     % Otherwise, the contained element is a generic article within the work, so
     % a citation form is constructed for it.
     %
@@ -478,18 +467,23 @@ complex reference definition that I have constructed.
     % \hi@citecontainer@toks, to be added subsequently to the \fc@[#1] macro.
     %
     \hi@ifset\hi@kv@citation{%
-        % In the case that the contained element is a citation:
         %
-        % The TOA type for the citecontainer should be the TOA type of the
-        % contained element.
-        \global\let#2#3%
-        %
-        % No TOA entry should be made for the contained element alone.
-        \global\let#3\relax
+        % Check that \hi@kv@citation is defined.
+        \@ifundefined{fc@\hi@kv@citation}{%
+            \PackageError\hi@pkgname{%
+                Reference #1 contains undefined citation \hi@kv@citation
+            }{Define \hi@kv@citation first}%
+        }{}%
+        % In the case that the contained element is a citation, transfer the
+        % contained element's TOA category to the citecontainer and delete the
+        % contained element's individual TOA category.
+        \@expandarg\hi@toacat@transfer\hi@kv@citation{#1}%
         %
         % Set \hi@citecontainer@toks to the (already-created) full-cite material
         % of \fc@[citation].
-        \expandafter\hi@citecontainer@toks\expandafter{#4}%
+        \@expand\hi@citecontainer@toks{%
+            \csname fc@\hi@kv@citation\endcsname
+        }{ii}%
     }{%
         % In the case that no citation is provided:
         %
@@ -533,9 +527,6 @@ complex reference definition that I have constructed.
                 }%
             }%
         }%
-        %
-        % Set the TOA cite type to 'other'.
-        \hi@citetype{#1}\hi@type@other
     }%
     %
     % 3. The citation reference for the container should be in the citation
@@ -625,14 +616,14 @@ complex reference definition that I have constructed.
 %
 % This flag determines whether other citations should suppress display of the
 % volume number and author (because they've already been included in the
-% \cs\citecontainer).
+% |\citecontainer|).
 %
 %    \begin{macrocode}
 \let\hi@citecontainer@suppress\@iden
 %    \end{macrocode}
 %
 % Cite container short form. \#1 is the reference name, \#2 is |\sc@|\meta{\#1},
-% \#3 is |\sc@|\meta{\cs\hi@kv@citation} (or \cs\relax).
+% \#3 is |\sc@|\meta{\string\hi@kv@citation} (or |\relax|).
 %
 %    \begin{macrocode}
 \def\hi@citecontainer@sc#1#2#3{%
@@ -651,9 +642,10 @@ complex reference definition that I have constructed.
 %    \end{macrocode}
 %
 % Cite container TOA form. \#1 is the reference name, \#2 is |\lc@|\meta{\#1},
-% \#3 is |\lc@|\meta{|\hi@kv@citation|} (or |\fc@|\meta{\cs\hi@kv@citation}, or
-% \cs\relax, depending on what is defined), \#4 is |\lc@|\meta{\cs\hi@kv@in} (or
-% |\fc@|\meta{\cs\hi@kv@in}).
+% \#3 is |\lc@|\meta{\string\hi@kv@citation} (or
+% |\fc@|\meta{\string\hi@kv@citation}, or \string\relax, depending on what is
+% defined), \#4 is |\lc@|\meta{\string\hi@kv@in} (or
+% |\fc@|\meta{\string\hi@kv@in}).
 %
 %    \begin{macrocode}
 \def\hi@citecontainer@lc#1#2#3#4#5{%
@@ -797,8 +789,56 @@ complex reference definition that I have constructed.
         }%
     }%
 
-
 \endgroup
 
+\subsection{Cite Containers}
+
+\defcitecontainer{pantzer}{
+    author=Katharine F. Pantzer,
+    title={Printing the English Statutes, 1484--1640:
+        Some Historical Implications},
+    in=book: {
+        title=Books and Society in History,
+        editor=Kenneth E. Carpenter,
+        year=1983
+    },
+    page=69,
+}
+
+%
+% There is a minuscule error here, in that if the contained citation ends in
+% italics, the extra italics space adjustment is added even if a comma follows.
+% I don't think it's significant enough to fix here.
+%
+
+\AssertBox{\note{pantzer at 100}}{\InFootnote{%
+    Katharine F. Pantzer, \emph{Printing the English Statutes, 1484--1640: Some
+    Historical Implications}\relax, \emph{in} \textsc{Books and Society in
+    History} 69, 100 (Kenneth E. Carpenter ed., 1983).%
+}}
+
+
+
+\defcitecontainer{adams-lee}{
+    citation=letter: {
+        author=Samuel Adams,
+        to=Arthur Lee,
+        date=july 31 1771,
+    },
+    vol=2,
+    page=173,
+    in=book: {
+        title={Life of Arthur Lee, LL. D.},
+        author=Richard Henry Lee,
+        year=1829,
+        publisher={Boston, Wells and Lilly},
+    },
+}
+
+\AssertBox{\note{adams-lee at 174}}{\InFootnote{%
+    Letter from Samuel Adams to Arthur Lee (July 31, 1771), \emph{in}
+    2 \textsc{Richard Henry Lee}, \textsc{Life of Arthur Lee, LL. D.} 173, 174
+    (Bos., Wells \& Lilly 1829).%
+}}
 
 %</test>
