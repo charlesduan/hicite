@@ -589,7 +589,6 @@ those for \rtype{statcode}.
                 }%
             \else
                 % A section number was given.
-                RESERVED@A IS \reserved@a
                 \hi@pageordefault{}{%
                     \@capnext\reserved@a
                 }%
@@ -607,7 +606,7 @@ those for \rtype{statcode}.
                     \hi@ifset\hi@kv@name{%
                         \hi@statcode@nameorinline{#1}%
                     }{%
-                        \noexpand\@capnext title \hi@kv@vol \space of the #2%
+                        \@capnext title \hi@kv@vol \space of the #2%
                     }%
                 }%
             \else
@@ -1110,6 +1109,8 @@ name.
 
 \AssertBox{\inline{dmca}}{the DMCA}
 
+\AssertBox{\Inline{dmca}}{The DMCA}
+
 \AssertBox{\inline{dmca at S 1201}}{\S\ 1201}
 
 \defstatcode{337}{
@@ -1150,6 +1151,8 @@ cite=131 Stat. 1005,
 \AssertBox{\inline{fdara}}{the FDA Reauthorization Act of 2017 (``FDARA'')}
 
 \AssertBox{\inline{fdara}}{FDARA}
+
+\AssertBox{\Inline{fdara}}{FDARA}
 
 \AssertBox{\inline{fdara at S 1}}{\S\ 1 of FDARA}
 

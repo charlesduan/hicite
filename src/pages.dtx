@@ -1137,14 +1137,15 @@ command
 %    \end{macrocode}
 %
 % Shows either \meta{\#1}|\@this@page| or \meta{\#2}, depending on whether
-% |\@this@page| is set.
+% |\@this@page| is set. The arguments are not automatically capitalized (though
+% the page number is).
 %
 %    \begin{macrocode}
 \DeclareRobustCommand\hi@pageordefault[2]{%
     \@test\ifx\@this@page\relax\fi{%
-        \ifstrempty{#2}{}{\@capnext#2\hi@dot@set{#2}}%
+        \ifstrempty{#2}{}{#2\hi@dot@set{#2}}%
     }{%
-        \ifstrempty{#1}{\expandafter\@capnext}{#1\hi@dot@set{#1}}\@this@page
+        \ifstrempty{#1}{\expandafter\@capnext}{#1}\@this@page
         \hi@dot@set@page
     }%
 }

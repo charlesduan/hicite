@@ -5784,56 +5784,58 @@ extent it is necessary, use \rtype{verbatim}.
 \hi@newcite{engstat}{An English statute}{statute}{%
     \hi@statcode@setup@idpc{#1}% Set up id. and page numbering
     %\hi@include@page@in@toa{#1}
-    \hi@newcite@form{ic}{#1}{%
-        \hi@ifset\hi@kv@name{\hi@inline@the\@capnext\hi@kv@name}{}%
-    }%
-    \hi@newcite@form{fc}{#1}{%
-        \hi@inline@only{\hi@citeguts{\noexpand\@nameuse{ic@#1}}}%
-        \hi@inline@never{%
-            \hi@citeguts{%
-                \hi@name@only{%
-                    \hi@ifset\hi@kv@name{\@capnext\hi@kv@name, \hi@kv@year, }{}%
-                }%
-                \hi@ifset\hi@kv@regnal{\@capnext\hi@kv@regnal, }{}%
-                \@capnext c. \hi@kv@number
-                \hi@pageordefault{, }{%
-                    % Don't put the page here if \hi@kv@rep is set because the
-                    % page is assumed to refer to the code book, not a statutory
-                    % section.
-                    \hi@ifset\hi@kv@rep{}{%
-                        \hi@ifset\hi@kv@page{%
-                            , \@format@page@macro\hi@kv@page
-                        }{}%
-                    }%
-                }%
-                \hi@ifset\hi@kv@rep{%
-                    ,\space
-                    \hi@ifset\hi@kv@vol{\hi@kv@vol\space}{}%
-                    \noexpand\hi@fn@statute{\hi@kv@rep}\space
-                    \@format@page@macro\hi@kv@page
-                }{}%
+    \hi@newcite@form{ifc}{#1}{%
+        \hi@citeguts{%
+            \hi@ifset\hi@kv@name{\hi@inline@the\@capnext\hi@kv@name}{%
+                \textbf{???}%
             }%
-            \hi@ifset\hi@kv@name{%
-                \noexpand\if@hi@name\noexpand\else
-                    \hi@ifset\hi@kv@year{%
-                        \hi@parens@add\hi@paren@date{\hi@kv@year}%
-                    }{}%
-                \noexpand\fi
-            }{%
-                \hi@ifset\hi@kv@year{\hi@addparen\hi@paren@date{\hi@kv@year}}{}%
-            }%
-            \the\hi@param@parens
         }%
     }%
-    \hi@newcite@form{sc}{#1}{%
-        \hi@inline@only{\hi@citeguts{\noexpand\@nameuse{ic@#1}}}%
-        \hi@inline@never{%
-            \hi@citeguts{%
-                \hi@name@only{%
-                    \hi@ifset\hi@kv@name{\@capnext\hi@kv@name}{}%
-                }%
-                \hi@pageordefault{\hi@name@only{ \hi@page@atorsect}}{}%
+    \hi@newcite@form{fc}{#1}{%
+        \hi@citeguts{%
+            \hi@name@only{%
+                \hi@ifset\hi@kv@name{\@capnext\hi@kv@name, \hi@kv@year, }{}%
             }%
+            \hi@ifset\hi@kv@regnal{\@capnext\hi@kv@regnal, }{}%
+            \@capnext c. \hi@kv@number
+            \hi@pageordefault{, }{%
+                % Don't put the page here if \hi@kv@rep is set because the
+                % page is assumed to refer to the code book, not a statutory
+                % section.
+                \hi@ifset\hi@kv@rep{}{%
+                    \hi@ifset\hi@kv@page{%
+                        , \@format@page@macro\hi@kv@page
+                    }{}%
+                }%
+            }%
+            \hi@ifset\hi@kv@rep{%
+                ,\space
+                \hi@ifset\hi@kv@vol{\hi@kv@vol\space}{}%
+                \noexpand\hi@fn@statute{\hi@kv@rep}\space
+                \@format@page@macro\hi@kv@page
+            }{}%
+        }%
+        \hi@ifset\hi@kv@name{%
+            \noexpand\if@hi@name\noexpand\else
+                \hi@ifset\hi@kv@year{%
+                    \hi@parens@add\hi@paren@date{\hi@kv@year}%
+                }{}%
+            \noexpand\fi
+        }{%
+            \hi@ifset\hi@kv@year{\hi@addparen\hi@paren@date{\hi@kv@year}}{}%
+        }%
+        \the\hi@param@parens
+    }%
+    \hi@newcite@form{sc}{#1}{%
+        \hi@citeguts{%
+            \noexpand\if@hi@name
+                \hi@ifset\hi@kv@name{\@capnext\hi@kv@name}{}%
+                \hi@pageordefault{\hi@name@only{ \hi@page@atorsect}}{}%
+            \noexpand\else
+                \hi@pageordefault{%
+                    \hi@pageordefault{}{\@capnext\hi@kv@name}%
+                }%
+            \noexpand\fi
         }%
     }%
 }

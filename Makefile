@@ -6,11 +6,11 @@ else
     XELATEX := xelatex-dev
 endif
 
+main: manual/hicite.pdf
+
 ctan: dist
 	( ls | grep -v 'gen|test|manual|doc' ; echo 'manual/hicite.pdf' ) \
 		| xargs tar czvf ctan.tgz
-
-main: manual/hicite.pdf
 
 dist: hicite.tds.zip
 
