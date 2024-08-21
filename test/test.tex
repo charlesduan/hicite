@@ -1653,6 +1653,28 @@ year=1954,
     }%
 }
 
+\defcase{us-v-craft}{
+United States v. Craft, 535 U.S. 274 (2002)
+}
+
+\AssertBox{\note{us-v-craft}}{%
+    \InFootnote{United States v.\ Craft, 535 U.S. 274 (2002).}%
+}
+
+\defcase{berge-v-board}{
+parties=United States ex rel. Berge v. Board of Trustees,
+cite=104 F.3d 1453,
+court=4th Cir.,
+year=1997,
+}
+
+\AssertBox{\note{berge-v-board}}{%
+    \InFootnote{%
+        United States \emph{ex rel.}\ Berge v.\ Bd.\ of Trs., 104 F.3d 1453 (4th
+        Cir.\ 1997).%
+    }%
+}
+
 %%
 %% \iffalse filename: constrefs.dtx \fi
 %%
@@ -2626,24 +2648,29 @@ cite=131 Stat. 1005,
         }{}%
     }%
     \hi@newcite@form{fc}{#1}{%
-        \hi@citeguts{%
-            \hi@ifset\hi@kv@author{%
-                \hi@toa@dupauthor{\noexpand\@iden}{\hi@kv@author@sortable}%
+        \hi@inline@never{%
+            \hi@citeguts{%
+                \hi@ifset\hi@kv@author{%
+                    \hi@toa@dupauthor{\noexpand\@iden}{\hi@kv@author@sortable}%
+                }{}%
+                \hi@ifset\hi@kv@type{\@capnext\hi@kv@type, }{}%
+                \noexpand\hi@fn@arttitle{\hi@kv@name}%
+                \hi@maybepage{ }\hi@font@comma
+                \noexpand\hi@fn@sig{in}\space
+                \hi@ifset\hi@kv@vol{\hi@kv@vol}{\hi@kv@year} % Volume
+                \noexpand\hi@fn@jrntitle{\hi@kv@rep}%
+                \hi@ifset\hi@kv@page{\space \@format@page@macro\hi@kv@page}{}%
+            }%
+            \hi@ifset\hi@kv@vol{%
+                \ifx\hi@kv@vol\hi@kv@year\else
+                    \hi@parens@add\hi@paren@date{\hi@kv@year}%
+                \fi
             }{}%
-            \hi@ifset\hi@kv@type{\@capnext\hi@kv@type, }{}%
-            \noexpand\hi@fn@arttitle{\hi@kv@name}%
-            \hi@maybepage{ }\hi@font@comma
-            \noexpand\hi@fn@sig{in}\space
-            \hi@ifset\hi@kv@vol{\hi@kv@vol}{\hi@kv@year} % Volume
-            \noexpand\hi@fn@jrntitle{\hi@kv@rep}%
-            \hi@ifset\hi@kv@page{\space \@format@page@macro\hi@kv@page}{}%
+            \the\hi@param@parens
         }%
-        \hi@ifset\hi@kv@vol{%
-            \ifx\hi@kv@vol\hi@kv@year\else
-                \hi@parens@add\hi@paren@date{\hi@kv@year}%
-            \fi
-        }{}%
-        \the\hi@param@parens
+        \hi@inline@only{%
+            \hi@citeguts{\hi@kv@author}%
+        }%
     }%
     \protected@edef\reserved@a{%
         \hi@ifset\hi@kv@authln{\@capnext\hi@kv@authln}{%

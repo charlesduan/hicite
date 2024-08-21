@@ -1,3 +1,8 @@
+*Note*: This license covers the executable code contained in this package. The
+contents of the manual are under a Creative Commons license, as described in the
+manual itself.
+
+
 ### GNU GENERAL PUBLIC LICENSE
 
 Version 3, 29 June 2007

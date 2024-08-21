@@ -191,6 +191,23 @@ beginning). It is abbreviated according to the \abbscheme{inlcase} scheme.
     \add@macro@to@macro#1{\expandafter\def\expandafter#2\expandafter{#2}}%
 }
 %    \end{macrocode}
+%
+% This macro is called if party names (|\hi@kv@p| and |\hi@kv@d|) are given. It
+% will execute |\hi@case@procparty| on both parties, giving appropriate scores
+% depending on whether |\hi@kv@inlinedefendant| has been set.
+%
+%    \begin{macrocode}
+\def\hi@case@procparties{%
+    \hi@ifset\hi@kv@inlinedefendant{%
+        \@expandarg\hi@case@procparty\hi@kv@p{-20000}{%
+            \@twodef\hi@tmp@p\hi@tmp@pa
+        }%
+    }{%
+        \@expandarg\hi@case@procparty\hi@kv@p{5}{\@twodef\hi@tmp@p\hi@tmp@pa}%
+    }%
+    \@expandarg\hi@case@procparty\hi@kv@d{3}{\@twodef\hi@tmp@d\hi@tmp@da}%
+}
+%    \end{macrocode}
 %</package>
 %<*doc>
 
@@ -214,6 +231,12 @@ names, each a candidate for being the case's short name.
 % is the baseline score, \#3 the callback that should take two arguments for the
 % unabbreviated and abbreviated name.
 %
+% Technically abbreviations should be performed after ex-rel separation.
+% However, the inline-case abbreviations for words like ``Inc.''\ are not
+% really affected by ex-rel, so to save a little effort, the inline-case
+% abbreviations are done at the beginning. The citation-case abbreviations are
+% done later.
+%
 %    \begin{macrocode}
 \def\hi@case@procparty#1#2#3{%
     \hi@abbrev@inlcase{#1}{\hi@case@procparty@}{#2}{#3}%
@@ -236,28 +259,26 @@ names, each a candidate for being the case's short name.
     }{%
         % With an ex-rel. 
         \hi@case@cmpname{#2}{#3}%
-        \hi@abbrev@name{#1\hi@case@exrel#2}{#4{#1\hi@case@exrel#2}}%
+        \hi@abbrev@name{#2}{\hi@abbrev@name{#1}{%
+            \hi@case@procparty@parts@assemble{#4{#1\hi@case@exrel#2}}%
+        }}%
     }%
 }
-%
-% Draw the word "ex rel.", with fonts.
-\DeclareRobustCommand\hi@case@exrel{ \hi@fn@caseproc{ex rel.} }
 %    \end{macrocode}
 %
-% If the case has party names, we must form the full titles and then pick the
-% party for the short form.
+% \#1 is a one-argument callback to be followed by the abbreviated assembled
+% name, \#2 the abbreviated base name, and \#3 the abbreviated ex-rel part.
 %
 %    \begin{macrocode}
-\def\hi@case@procparties{%
-    \hi@ifset\hi@kv@inlinedefendant{%
-        \@expandarg\hi@case@procparty\hi@kv@p{-20000}{%
-            \@twodef\hi@tmp@p\hi@tmp@pa
-        }%
-    }{%
-        \@expandarg\hi@case@procparty\hi@kv@p{5}{\@twodef\hi@tmp@p\hi@tmp@pa}%
-    }%
-    \@expandarg\hi@case@procparty\hi@kv@d{3}{\@twodef\hi@tmp@d\hi@tmp@da}%
+\def\hi@case@procparty@parts@assemble#1#2#3{%
+    #1{#2\hi@case@exrel#3}%
 }
+%    \end{macrocode}
+%
+% Draw the word "ex rel.", with fonts.
+%
+%    \begin{macrocode}
+\DeclareRobustCommand\hi@case@exrel{ \hi@fn@caseproc{ex rel.} }
 %    \end{macrocode}
 %</package>
 %<*doc>
@@ -1063,8 +1084,8 @@ those are never used unabbreviated, and the abbreviations are too inconsistent).
     docket=2023-103,
 }
 \end{verbatim}
-\Produces \emph{In re Nimitz Techs.\ LLC, No.\ 2023-103 (Fed.\ Cir.\ Dec.\ 8,
-2022)}.
+\Produces \emph{In re Nimitz Techs.\ LLC}, No.\ 2023-103 (Fed.\ Cir.\ Dec.\ 8,
+2022).
 \end{demo}
 This demonstrates a case with a single name rather than adversarial parties, and
 with a docket number rather than a reporter citation.
@@ -1637,6 +1658,28 @@ year=1954,
     }%
 }
 
+\defcase{us-v-craft}{
+United States v. Craft, 535 U.S. 274 (2002)
+}
+
+\AssertBox{\note{us-v-craft}}{%
+    \InFootnote{United States v.\ Craft, 535 U.S. 274 (2002).}%
+}
+
+
+\defcase{berge-v-board}{
+parties=United States ex rel. Berge v. Board of Trustees,
+cite=104 F.3d 1453,
+court=4th Cir.,
+year=1997,
+}
+
+\AssertBox{\note{berge-v-board}}{%
+    \InFootnote{%
+        United States \emph{ex rel.}\ Berge v.\ Bd.\ of Trs., 104 F.3d 1453 (4th
+        Cir.\ 1997).%
+    }%
+}
 
 
 %</test>

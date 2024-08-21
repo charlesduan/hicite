@@ -162,8 +162,8 @@ legal citation. The following would generate a two-element string-cite to
 \emph{Wheaton v.~Peters}, describing a (hypothetical) tension between two parts
 of the decision:
 \begin{demo}
-|\sentence{|see, e.g., wheaton at 598 note 3 (Story, J.) (describing holding);
-but see wheaton at 600-602 (noting alternative views)|}|.
+\inputtext{\sentence{see, e.g., wheaton at 598 note 3 (Story, J.)
+(describing holding); but see wheaton at 600-602 (noting alternative views)}.}
 \Produces
 \emph{See, e.g.}, \emph{Wheaton v.~Peters}, 33 U.S. 591, 598 n.3
 (1834) (Story, J.) (describing holding); \emph{but see} \emph{id.}~at 600--02
@@ -196,8 +196,7 @@ The relevant commands are |\inline|, |\Inline|, |\adjective|, and |\Adjective|
 depending on whether the reference is being cited at the beginning of a sentence
 and the part of speech the reference is taking on:
 \begin{demo}
-|In \inline{wheaton}, the Court....| \\
-|\sentence{wheaton at 603}.| \\
+\inputtext{In \inline{wheaton}, the Court.... \sentence{wheaton at 603}.}
 \Produces In \emph{Wheaton v.~Peters}, the Court\ldots. \emph{See} 33 U.S. 591,
 603 (1834).
 \end{demo}

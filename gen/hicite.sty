@@ -4515,6 +4515,16 @@
 \def\hi@redef@macro#1#2{%
     \add@macro@to@macro#1{\expandafter\def\expandafter#2\expandafter{#2}}%
 }
+\def\hi@case@procparties{%
+    \hi@ifset\hi@kv@inlinedefendant{%
+        \@expandarg\hi@case@procparty\hi@kv@p{-20000}{%
+            \@twodef\hi@tmp@p\hi@tmp@pa
+        }%
+    }{%
+        \@expandarg\hi@case@procparty\hi@kv@p{5}{\@twodef\hi@tmp@p\hi@tmp@pa}%
+    }%
+    \@expandarg\hi@case@procparty\hi@kv@d{3}{\@twodef\hi@tmp@d\hi@tmp@da}%
+}
 \def\hi@case@procparty#1#2#3{%
     \hi@abbrev@inlcase{#1}{\hi@case@procparty@}{#2}{#3}%
 }
@@ -4532,20 +4542,15 @@
     }{%
         % With an ex-rel.
         \hi@case@cmpname{#2}{#3}%
-        \hi@abbrev@name{#1\hi@case@exrel#2}{#4{#1\hi@case@exrel#2}}%
+        \hi@abbrev@name{#2}{\hi@abbrev@name{#1}{%
+            \hi@case@procparty@parts@assemble{#4{#1\hi@case@exrel#2}}%
+        }}%
     }%
+}
+\def\hi@case@procparty@parts@assemble#1#2#3{%
+    #1{#2\hi@case@exrel#3}%
 }
 \DeclareRobustCommand\hi@case@exrel{ \hi@fn@caseproc{ex rel.} }
-\def\hi@case@procparties{%
-    \hi@ifset\hi@kv@inlinedefendant{%
-        \@expandarg\hi@case@procparty\hi@kv@p{-20000}{%
-            \@twodef\hi@tmp@p\hi@tmp@pa
-        }%
-    }{%
-        \@expandarg\hi@case@procparty\hi@kv@p{5}{\@twodef\hi@tmp@p\hi@tmp@pa}%
-    }%
-    \@expandarg\hi@case@procparty\hi@kv@d{3}{\@twodef\hi@tmp@d\hi@tmp@da}%
-}
 \def\hi@case@procname#1{%
     \let\hi@tmp@npre\@empty
     \@expand{\find@try\find@start{%
@@ -6791,24 +6796,29 @@
         }{}%
     }%
     \hi@newcite@form{fc}{#1}{%
-        \hi@citeguts{%
-            \hi@ifset\hi@kv@author{%
-                \hi@toa@dupauthor{\noexpand\@iden}{\hi@kv@author@sortable}%
+        \hi@inline@never{%
+            \hi@citeguts{%
+                \hi@ifset\hi@kv@author{%
+                    \hi@toa@dupauthor{\noexpand\@iden}{\hi@kv@author@sortable}%
+                }{}%
+                \hi@ifset\hi@kv@type{\@capnext\hi@kv@type, }{}%
+                \noexpand\hi@fn@arttitle{\hi@kv@name}%
+                \hi@maybepage{ }\hi@font@comma
+                \noexpand\hi@fn@sig{in}\space
+                \hi@ifset\hi@kv@vol{\hi@kv@vol}{\hi@kv@year} % Volume
+                \noexpand\hi@fn@jrntitle{\hi@kv@rep}%
+                \hi@ifset\hi@kv@page{\space \@format@page@macro\hi@kv@page}{}%
+            }%
+            \hi@ifset\hi@kv@vol{%
+                \ifx\hi@kv@vol\hi@kv@year\else
+                    \hi@parens@add\hi@paren@date{\hi@kv@year}%
+                \fi
             }{}%
-            \hi@ifset\hi@kv@type{\@capnext\hi@kv@type, }{}%
-            \noexpand\hi@fn@arttitle{\hi@kv@name}%
-            \hi@maybepage{ }\hi@font@comma
-            \noexpand\hi@fn@sig{in}\space
-            \hi@ifset\hi@kv@vol{\hi@kv@vol}{\hi@kv@year} % Volume
-            \noexpand\hi@fn@jrntitle{\hi@kv@rep}%
-            \hi@ifset\hi@kv@page{\space \@format@page@macro\hi@kv@page}{}%
+            \the\hi@param@parens
         }%
-        \hi@ifset\hi@kv@vol{%
-            \ifx\hi@kv@vol\hi@kv@year\else
-                \hi@parens@add\hi@paren@date{\hi@kv@year}%
-            \fi
-        }{}%
-        \the\hi@param@parens
+        \hi@inline@only{%
+            \hi@citeguts{\hi@kv@author}%
+        }%
     }%
     \protected@edef\reserved@a{%
         \hi@ifset\hi@kv@authln{\@capnext\hi@kv@authln}{%
