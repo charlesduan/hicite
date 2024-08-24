@@ -452,6 +452,12 @@ between citation contexts (inline, nameless, optional arguments), and spacing.
 % ends with a quotation mark, the comma is placed inside the quotation mark. \#1
 % is the font command, and \#2 is the text.
 %
+% TODO: There are some situations where a title is followed by a space in some
+% situations and a comma in others (e.g., depending on whether a page number is
+% given). A macro is needed for these cases. One approach might be to store the
+% post-comma text in a macro, allowing the caller to place that post-comma text
+% in an appropriate place afterwards.
+%
 %    \begin{macrocode}
 \def\hi@font@with@comma#1#2{%
     \find@end{''}{#2}{%

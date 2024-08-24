@@ -2644,7 +2644,7 @@ cite=131 Stat. 1005,
             }{}%
             \hi@ifset\hi@kv@type{\@capnext\hi@kv@type, }{}%
             \hi@ifset\hi@kv@name{% Title
-                \@expand{\hi@font@with@comma{\noexpand\hi@fn@arttitle}}{\hi@kv@name}{i}%
+                \@expand{\hi@font@with@comma\hi@fn@arttitle}{\hi@kv@name}{i}%
             }{%
                 % If no title set, if there's a citation, use that as the
                 % title
@@ -2750,7 +2750,7 @@ cite=131 Stat. 1005,
     \hi@newcite@form{fc}{#1}{%
         \hi@citeguts{%
             \hi@ifset\hi@kv@author{\hi@kv@author@sortable, }{}%
-            \noexpand\hi@fn@arttitle{\hi@kv@name}\hi@font@comma % Title
+            \@expand{\hi@font@with@comma\hi@fn@arttitle}{\hi@kv@name}{i}%
             \noexpand\hi@fn@jrntitle{\hi@kv@rep}% Magazine title
             \hi@ifset\hi@kv@publisher{ (\hi@kv@publisher)}{}%
             \hi@font@comma
@@ -2787,11 +2787,17 @@ cite=131 Stat. 1005,
             \hi@ifset\hi@kv@author{%
                 \hi@toa@dupauthor{\noexpand\@iden}{\hi@kv@author@sortable}%
             }{}%
-            \hi@ifset\hi@kv@name{\noexpand\hi@fn@webtitle{\hi@kv@name}}{}%
-            \hi@ifset\hi@kv@rep{%
-                \hi@ifset\hi@kv@name{\hi@font@comma}{}%
-                \noexpand\hi@fn@jrntitle{\hi@kv@rep}%
-            }{}%
+            \hi@ifset\hi@kv@name{%
+                \hi@ifset\hi@kv@rep{%
+                    \@expand{\hi@font@with@comma\hi@fn@webtitle}{\hi@kv@name}i%
+                    \hi@fn@jrntitle{\hi@kv@rep}%
+                }{%
+                    \hi@fn@webtitle{\hi@kv@name}{}%
+                }%
+            }{%
+                % \hi@kv@rep assumed to be set here
+                \hi@fn@jrntitle{\hi@kv@rep}%
+            }%
             \hi@maybepage{ }%
         }%
         \hi@book@paren
@@ -2859,7 +2865,8 @@ Therapeutics 22 (2024)
 
 \AssertBox{\note{tu-kesselheim}}{\InFootnote{S. Sean Tu \& Aaron S. Kesselheim,
 \emph{Preserving Timely Generic Drug Competition with Legislation on ``Skinny
-Labeling},\emph{''} 115 Clinical Pharmacology \& Therapeutics 22 (2024).}}
+Labeling},\emph{''} 115 \textsc{Clinical Pharmacology \& Therapeutics} 22
+(2024).}}
 
 \subsection{Article Dates}
 
@@ -2919,6 +2926,19 @@ date=jan 1 2021,
 (unpublished manuscript).}}
 
 \AssertBox{\inline{testmanuscript}}{Doe}
+
+\subsection{Website}
+
+\defwebsite{romano}{
+author=Nick Romano,
+title=Julie Andrews Recalls Wiping out While Filming ``The Sound of Music'',
+date=Jul 1 2017,
+journal=Entertainment Weekly,
+}
+
+\AssertBox{\note{romano}}{\InFootnote{Nick Romano, \emph{Julie Andrews Recalls
+Wiping out While Filming ``The Sound of Music},\emph{''} \textsc{Ent.\ Wkly.}\
+(July 1, 2017).}}
 
 %%
 %% \iffalse filename: foreignrefs.dtx \fi
