@@ -13,7 +13,6 @@ immediately in sequence, \emph{id.}\ should be used for the second item. In some
 cases this is a matter of the writer's taste, so this package generally gives
 writers the flexibility to define references however they see fit.
 
-
 If a reference is used in a citation string but not defined, this package will
 issue an error, or it will keep track of the missing citation. See \sec{draw}
 for more information on missing references.
@@ -39,98 +38,10 @@ is documented in Part~\ref{p:alltypes}.
 There are also parameters of general applicability to all reference types,
 described in \sec{genparams}. The complete list of parameters
 is given in Part~\ref{p:allparams}.
+
+\item A Table of Authorities category, described below.
 \end{itemize}
 
-Each reference type is further associated with a category, used to organize a
-Table of Authorities as described in \sec{toa}.
-The category can be altered using the reference
-definition parameter \param{citetype}.
-The categories are associated with a textual
-description that is used to assemble the headings for the table of authorities,
-as described in \sec{toa}.
-
-
-
-%</doc>
-%<*package>
-%
-% Unfortunately, when I first started writing this program I used the word
-% ``cite'' to refer to what I now call references. While I have tried to be
-% consistent in the documentation, I have not revised the internal macro names
-% in the program to follow the current paradigm.
-%
-% \DescribeMacro\hi@citetype
-% Defines a macro |\tc@|\meta{reference} to be the TOA category desired for
-% \meta{reference}. This macro should be called within the reference definer
-% macros to set the category, or it is invoked by the |citetype| parameter. If
-% it is not called such that no |\tc@|\meta{reference} macro is set, then the
-% reference will not appear in the table. \#1 should be the reference name, \#2
-% a macro defined to the category name.
-%    \begin{macrocode}
-\def\hi@citetype#1#2{%
-    \@ifundefined{tc@#1}{%
-        \global\expandafter\let\csname tc@#1\endcsname#2%
-    }{}%
-}
-\let\hi@newcitetype\def
-%    \end{macrocode}
-%
-% Definitions of the categories follow in the source code, but they are used to
-% produce a table in the documentation, so please consult the documentation for
-% the code.
-%
-%</package>
-%<*doc>
-
-The following are the reference categories. The group associated with each
-category is a label for the group in the table of authorities that the reference
-will be placed together with (so, for example, statutes and regulations are
-placed in the same category). The text associated with each category will be
-used for the heading in the table of authorities.
-
-\begin{demo}
-\def\hi@newcitetype#1#2{\expandafter\hi@newcitetype@\string#1\@mark#2\@stop}
-\expandafter\def\expandafter\hi@newcitetype@
-    \string\hi@type@#1\@mark#2:#3\@stop{%
-    #1&#2&#3\\%
-}
-\begin{tabular}{lll}
-\textbf{Category} & \textbf{Group} & \textbf{Text} \\
-\hline
-%</doc>
-%<*doc|package>
-\hi@newcitetype\hi@type@other{other:Other Source/s}
-\hi@newcitetype\hi@type@const{const:Constitutional Provision/s}
-\hi@newcitetype\hi@type@found{const:Foundational Document/s}
-\hi@newcitetype\hi@type@statute{statute:Statute/s}
-\hi@newcitetype\hi@type@regulation{statute:Regulation/s}
-\hi@newcitetype\hi@type@rule{statute:Rule/s}
-\hi@newcitetype\hi@type@case{case:Case/s}
-\hi@newcitetype\hi@type@admin{case:Administrative Decision/s}
-\hi@newcitetype\hi@type@treaty{statute:Treat/y/ies}
-%</doc|package>
-%<*doc>
-\end{tabular}
-\end{demo}
-
-
-%</doc>
-%<*package>
-%
-% \DescribeMacro\hi@type@doforall
-% This macro will perform |\do| for each of the Table of Authorities groups, in
-% the proper order.
-%    \begin{macrocode}
-\def\hi@type@doforall{%
-    \do{case}%
-    \do{const}%
-    \do{statute}%
-    \do{other}%
-}
-%    \end{macrocode}
-%
-%</package>
-%<*doc>
 
 
 \subsection{Input Syntax}
@@ -167,15 +78,11 @@ reference types there are shortcuts described in \sec{cparse}.
 %</doc>
 %<*package>
 %
-% Contains a list of every reference type.
-%    \begin{macrocode}
-\let\hi@citeforms\@empty
-%    \end{macrocode}
 %
 %
-%
-% Creates a new reference definer macro. \#1 is the |\def|\meta{type} command
-% for the reference, \#2 a textual description, and \#3 the macro code to be run
+% Creates a new reference definer macro. \#1 is the type name (used to create a
+% |\def|\meta{type} macro), \#2 a textual description (used only for generating
+% documentation), \#3 the default TOA category, and \#4 the macro code to be run
 % to define the reference. Executing the reference definition command should
 % cause the definition of the following formatting macros of the form
 % |\|\meta{prefix}|@|\meta{ref-name}, with prefixes given in \sec{draw-form}.
@@ -184,9 +91,9 @@ reference types there are shortcuts described in \sec{cparse}.
 % name of the reference being defined.
 %
 %    \begin{macrocode}
-\def\hi@newcite#1#2#3{%
-    \g@addto@macro\hi@citeforms{\do{#1}{#2}}%
-    \gdef#1##1##2{%
+\def\hi@newcite#1#2#3#4{%
+    \DefaultTOACategory{#1}{#3}%
+    \global\@namedef{def#1}##1##2{%
         \@ifundefined{fc@##1}{}{%
             \PackageError\hi@pkgname{%
                 Citation for ##1 already defined
@@ -197,8 +104,9 @@ reference types there are shortcuts described in \sec{cparse}.
         }%
         \begingroup
             \def\@this@case{##1}%
+            \hi@toacat@setdefault{##1}{#1}%
             \hi@param@set{#1}{##2}%
-            #3%
+            #4%
             % \hi@bib@output
         \endgroup
     }%
@@ -209,13 +117,17 @@ reference types there are shortcuts described in \sec{cparse}.
 % Aliases a cite definer macro to another.
 %
 %    \begin{macrocode}
-\def\hi@alias@cite#1#2{\def#1{#2}}
+\def\hi@alias@cite#1#2{\@namedef{def#1}{\@nameuse{def#2}}}
 %    \end{macrocode}
 %
 % Within a reference definer macro, defines a new formatting macro of the form
 % |\|\meta{prefix}|@|\meta{name}, where \#1 is \meta{prefix} and \#2 is
 % \meta{name}. Mainly, this checks to make sure that a full citation macro isn't
 % being redefined (indicating that the writer has used a duplicate name).
+%
+% If a non-full form is being defined and it already exists, then the existing
+% definition is not overwritten.
+%
 %    \begin{macrocode}
 \def\hi@newcite@form#1#2{%
     \@ifundefined{#1@#2}{%
@@ -333,10 +245,12 @@ reference types there are shortcuts described in \sec{cparse}.
 % otherwise uses |keyval| to read the parameters. It also executes any
 % post-parameter hooks.
 %
+% \#1 is the reference type name, and \#2 is the parameter set.
+%
 %    \begin{macrocode}
 \def\hi@param@set#1#2{%
     \let\hi@param@set@hooks\@empty
-    \expandafter\hi@param@set@kind\string#1\@stop
+    \def\hi@kv@kind{#1}%
     \hi@param@read{#2}%
     \hi@param@set@hooks
 }
@@ -355,15 +269,6 @@ reference types there are shortcuts described in \sec{cparse}.
 }
 \make@find@in{=}
 \make@find@in{;}
-%    \end{macrocode}
-%
-% Sets the reference kind by removing |\def| from the beginning of the reference
-% definer macro name.
-%
-%    \begin{macrocode}
-\def\hi@param@set@kind#1#2#3#4#5\@stop{%
-    \def\hi@kv@kind{#5}%
-}
 %    \end{macrocode}
 %
 % Adds a post-parameter-setting hook. \#1 is code to be run.
@@ -444,6 +349,241 @@ would define |17usc101| as the statute ``17 U.S.C. \textsection~101'' and so on.
 \def\hi@citegroup@#1#2#3#4{#2{#1#4}{#3#4}}
 %    \end{macrocode}
 %</package>
+%<*doc>
+
+\subsection{Table of Authorities Categories}
+
+\label{s:refs-categories}
+
+Each reference type is associated with a category, used to organize a
+Table of Authorities as described in \sec{toa}.
+The category can be altered using the reference
+definition parameter \param{toacat} or by the |\SetTOACategory| macro.
+The categories are used to assemble the headings for the table of authorities,
+as described in \sec{toa}.
+
+Specifically, every category has three properties:
+\begin{enumerate}
+\item A name for internal use.
+
+\item A ``supercategory'' that associates the category with others that this
+category should be joined with in the Table of Authorities. For example, the
+categories for statutes and regulations should have the same supercategory, so
+that they are placed in a single section with the Table of Authorities.
+Supercategories are presented in alphabetical order.
+
+\item A textual description of the category, for use in constructing the Table
+of Authorities heading. Because both the singular and plural forms are needed,
+the textual description consists of two to three parts, separated by slashes:
+\begin{enumerate}
+\item The base text common to both forms.
+\item \relax[\emph{Optional}] Text to append to the singular form only.
+\item Text to append to the plural form only.
+\end{enumerate}
+\end{enumerate}
+
+\DescribeMacro\NewTOACategory
+A new TOA category may be defined with |\NewTOACategory|. The macro takes
+three parameters, corresponding to the three properties of categories above.
+
+%</doc>
+%<*package>
+%
+% TODO: The underlying implementation here could be improved to rely less on
+% marker symbols. Also, categories should have a precedence number indicating
+% the order in which they should appear in the TOA heading. Finally, this
+% section should probably be in the TOA chapter, not here.
+%
+%    \begin{macrocode}
+\def\NewTOACategory#1#2#3{%
+    \@namedef{hi@cats@#1}{#2:#3}%
+    \AddToList{hi@toacat@supercats}{#2}%
+}
+%    \end{macrocode}
+%
+%
+% \subsubsection{Setting and Getting Categories}
+%
+%</package>
+%<*doc>
+%
+% \DescribeMacro\DefaultTOACategory
+% Each reference type may have a default category, set with the
+% |\DefaultTOACategory| macro. The parameters are \#1 the reference type, and
+% \#2 the category name. If the category name is blank, then there will be no
+% default category. This default category will be used unless another category
+% is specified for a particular reference, overriding the default category.
+%
+%</doc>
+%<*package>
+%    \begin{macrocode}
+\def\DefaultTOACategory#1#2{%
+    \ifstrempty{#2}{%
+        \cslet{hi@catd@#1}\relax
+    }{%
+        \@ifundefined{hi@cats@#2}{%
+            \PackageError\hi@pkgname{%
+                TOA category #2 does not exist, in setting the\MessageBreak
+                default for reference type #1%
+            }{Define TOA category #2 first with \string\NewTOACategory}%
+        }{%
+            \@namedef{hi@catd@#1}{#2}%
+        }%
+    }%
+}
+%    \end{macrocode}
+%</package>
+%<*doc>
+%
+% \DescribeMacro\SetTOACategory
+% The |\SetTOACategory|\marg{reference}\marg{category} macro sets the TOA
+% category for \meta{reference}. This macro should be called within the
+% reference definer macros to set the category, or it is invoked by the
+% \param{toacat} parameter. If it is called multiple times, then the last
+% category will prevail. If it is not called, then the reference will not appear
+% in the table. If \meta{category} is empty, then any previously set category
+% will be removed.
+%
+%</doc>
+%<*package>
+%
+%    \begin{macrocode}
+\def\SetTOACategory#1#2{%
+    \ifstrempty{#2}{%
+        \global\cslet{hi@cat@#1}\relax
+    }{%
+        \@ifundefined{hi@cats@#2}{%
+            \PackageError\hi@pkgname{%
+                Invalid Table of Authorities category #1,\MessageBreak
+                given for reference #2%
+            }{%
+                Please enter a valid Table of Authorities category.
+            }%
+        }{%
+            \global\csletcs{hi@cat@#1}{hi@cats@#2}%
+        }%
+    }
+}
+%    \end{macrocode}
+%
+% Retrieves the TOA category for a reference |#1|, and executes a callback |#2|
+% with the category text as an argument. If the reference has no category, then
+% the callback will not be executed.
+%
+%    \begin{macrocode}
+\def\hi@toacat@get#1#2{%
+    \@ifundefined{hi@cat@#1}{}{%
+        \@expand{#2}{\csname hi@cat@#1\endcsname}{ii}%
+    }%
+}
+%    \end{macrocode}
+%
+% Transfers a reference's category to another reference. \#1 is the reference
+% with the already-defined category; \#2 is the reference to receive the
+% category. The category for \#1 is deleted.
+%
+%    \begin{macrocode}
+\def\hi@toacat@transfer#1#2{%
+    \global\csletcs{hi@cat@#2}{hi@cat@#1}%
+    \global\cslet{hi@cat@#1}\relax
+}
+%    \end{macrocode}
+%
+% Sets a reference's TOA category to the reference type's default category. \#1
+% is the reference name, and \#2 the reference type. The category will not be
+% changed if it is already set, or if the reference type has no default
+% category.
+%
+%    \begin{macrocode}
+\def\hi@toacat@setdefault#1#2{%
+    \@ifundefined{hi@cat@#1}{%
+        \@ifundefined{hi@catd@#2}{}{%
+            \SetTOACategory{#1}{\csname hi@catd@#2\endcsname}%
+        }%
+    }{}%
+}
+%    \end{macrocode}
+%
+%
+% \subsubsection{Supercategories}
+%
+% Supercategories are stored in a sorted list (see \sec{sortlist}), which is
+% sorted alphabetically.
+%
+%    \begin{macrocode}
+\NewSortedList{hi@toacat@supercats}{\SortEasyAlpha}{\StripForAlpha{#1}{\def#2}}
+\ListElementsMustBeUnique{hi@toacat@supercats}
+%    \end{macrocode}
+%
+%
+%
+%
+% \subsubsection{Predefined Categories}
+%
+% Definitions of the categories follow in the source code, but they are used to
+% produce a table in the documentation, so please consult the package file for
+% the code.
+%
+%</package>
+%<*doc>
+
+The following are the TOA categories, with their supercategories and display
+texts as described above. Note the choice of supercategory names, which
+coincidentally sort alphabetically in the correct order. Because the actual
+supercategory names are never displayed, any new supercategories can be named to
+fit into the existing ordering.
+
+\begin{demo}
+\def\NewTOACategory#1#2#3{#1&#2&#3\\}
+\begin{tabular}{lll}
+\textbf{Category} & \textbf{Supercategory} & \textbf{Text} \\
+\hline
+%</doc>
+%<*doc|package>
+\NewTOACategory{other}{other}{Other Source/s}
+\NewTOACategory{const}{const}{Constitutional Provision/s}
+\NewTOACategory{found}{const}{Foundational Document/s}
+\NewTOACategory{statute}{edict}{Statute/s}
+\NewTOACategory{regulation}{edict}{Regulation/s}
+\NewTOACategory{rule}{edict}{Rule/s}
+\NewTOACategory{case}{case}{Case/s}
+\NewTOACategory{admin}{case}{Administrative Decision/s}
+\NewTOACategory{treaty}{edict}{Treat/y/ies}
+%</doc|package>
+%<*doc>
+\end{tabular}
+\end{demo}
+
+
+%</doc>
+%<*package>
+%
+% \DescribeMacro\hi@toacat@each
+% This macro will perform a function for each of the Table of Authorities
+% groups, in the proper order. The function should be given as a macro
+% definition in \#1, the macro definition accepting one argument which will be
+% the supercategory name.
+%
+%    \begin{macrocode}
+\long\def\hi@toacat@each#1{%
+    %
+    % Unfortunately, this macro is used to iterate over items in the TOA, which
+    % also stores items in SortedLists. So we can't just use \ShowList directly
+    % since \ShowList can't be used in a nested fashion. So instead, we iterate
+    % over the supercategory list to construct a series of macro expansions of
+    % the given parameter, and then execute that series.
+    %
+    \begingroup % Will be ended when \reserved@a runs
+    \def\hi@toacat@temp{\endgroup}%
+    \def\hi@toacat@do##1{#1}%
+    \ShowList{hi@toacat@supercats}{%
+        \@expand{\appto\hi@toacat@temp}{\hi@toacat@do{##1}}{i}%
+    }%
+    \hi@toacat@temp
+}
+%    \end{macrocode}
+%
+%</package>
 %<*test>
 
 \section{refs.dtx}
@@ -463,5 +603,51 @@ would define |17usc101| as the statute ``17 U.S.C. \textsection~101'' and so on.
         {pre-a}{Prefix a}{pre-b}{Prefix b}{pre-c}{Prefix c}%
     }
 \endgroup
+
+
+
+\subsection{TOA Categories}
+
+\defcase{garcia}{
+parties={Garcia v. Google, Inc.},
+cite=786 F.3d 733,
+court=9th Cir.,
+year=2015,
+enbanc,
+}
+
+\AssertCallback{\hi@toacat@get{garcia}}{case:Case/s}
+
+\defcase{dc-comics}{
+parties=DC Comics v. Towle,
+cite=802 F.3d 1012,
+court=9th Cir.,
+year=2015,
+toacat=other,
+}
+
+\AssertCallback{\hi@toacat@get{dc-comics}}{other:Other Source/s}
+
+\NewTOACategory{movie}{m}{Motion Picture/s}
+\DefaultTOACategory{film}{movie}
+
+\deffilm{faceoff}{
+name=Face/Off,
+year=1997,
+publisher=Paramount Pictures,
+}
+\AssertCallback{\hi@toacat@get{faceoff}}{m:Motion Picture/s}
+
+\begingroup
+
+    \def\catlist{}
+    \hi@toacat@each{%
+        \ifx\catlist\@empty\else \addto@macro\catlist{, }\fi
+        \addto@macro\catlist{#1}%
+    }%
+    \AssertMacro\catlist{case, const, edict, m, other}
+
+\endgroup
+
 
 %</test>

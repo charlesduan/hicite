@@ -215,6 +215,10 @@ macro definition that accepts one argument, which will be set to the list item.
 
 %</doc>
 %<*package>
+%
+% TODO: This macro can't be used in a nested manner, because it relies on global
+% variables |\sli@do| and |\sli@act|. This ought to be fixed somehow.
+%
 %    \begin{macrocode}
 \def\ShowList#1{%
     \def\sli@list{\csname sli@@#1\endcsname}%

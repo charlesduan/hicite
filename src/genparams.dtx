@@ -36,17 +36,11 @@ just ``book review.'' Otherwise, the value should be a reference name for the
 book being reviewed, which will be cited in the parenthetical.
 %</doc>
 %
-\hi@defparam{citetype}{Table of Authorities category for this citation}{%
-    \@ifundefined{hi@type@#1}{%
-        \PackageError\hi@pkgname{Invalid Table of Authorities section #1}{%
-            Please enter a valid section identifier.
-        }%
-    }{%
-        \@expand{\hi@citetype{\@this@case}}{\csname hi@type@#1\endcsname}{i}%
-    }%
+\hi@defparam{toacat}{Table of Authorities category for this citation}{%
+    \@expandarg\SetTOACategory\@this@case{#1}%
 }
 %<*doc>
-The valid category types are listed in \sec{refs}.
+The valid category types are listed in \sec{refs-categories}.
 %</doc>
 %
 \hi@param@alias{comment}{paren}
@@ -106,7 +100,7 @@ warning if it detects an name list of three or more entities.
 %</doc>
 %
 \hi@defparam@noval{notoa}{Do not include in the table of authorities}{%
-    \hi@citetype\@this@case\@empty
+    \SetTOACategory{\@this@case}{}%
 }
 %
 \hi@newparam{opturl}{Optional URL}

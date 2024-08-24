@@ -7,8 +7,7 @@
 
 \input docparams
 %</doc>
-\hi@newcite\defjrnart{A consecutively paginated journal article}{%
-    \hi@citetype{#1}\hi@type@other
+\hi@newcite{jrnart}{A consecutively paginated journal article}{other}{%
     \hi@abbrev@journal@check
     \hi@ifset\hi@kv@page{}{\def\hi@kv@page{?}}%
     \@expand{\find@eq{forthcoming}}{\hi@kv@page}{i}{%
@@ -128,8 +127,9 @@ Note the unabbreviated journal name in the input.
 \make@find@eq{forthcoming}
 %    \end{macrocode}
 %</package>
-\hi@newcite\defprocart{A non-consecutively paginated proceedings article}{%
-    \hi@citetype{#1}\hi@type@other
+\hi@newcite{procart}{%
+    A non-consecutively paginated proceedings article%
+}{other}{%
     \hi@abbrev@journal@check
     \hi@ifset\hi@kv@forthcoming{}{%
         \hi@ifset\hi@kv@vol{}{\let\hi@kv@vol\hi@kv@year}%
@@ -140,24 +140,29 @@ Note the unabbreviated journal name in the input.
         }{}%
     }%
     \hi@newcite@form{fc}{#1}{%
-        \hi@citeguts{%
-            \hi@ifset\hi@kv@author{%
-                \hi@toa@dupauthor{\noexpand\@iden}{\hi@kv@author@sortable}%
+        \hi@inline@never{%
+            \hi@citeguts{%
+                \hi@ifset\hi@kv@author{%
+                    \hi@toa@dupauthor{\noexpand\@iden}{\hi@kv@author@sortable}%
+                }{}%
+                \hi@ifset\hi@kv@type{\@capnext\hi@kv@type, }{}%
+                \noexpand\hi@fn@arttitle{\hi@kv@name}%
+                \hi@maybepage{ }\hi@font@comma
+                \noexpand\hi@fn@sig{in}\space
+                \hi@ifset\hi@kv@vol{\hi@kv@vol}{\hi@kv@year} % Volume
+                \noexpand\hi@fn@jrntitle{\hi@kv@rep}%
+                \hi@ifset\hi@kv@page{\space \@format@page@macro\hi@kv@page}{}%
+            }%
+            \hi@ifset\hi@kv@vol{%
+                \ifx\hi@kv@vol\hi@kv@year\else
+                    \hi@parens@add\hi@paren@date{\hi@kv@year}%
+                \fi
             }{}%
-            \hi@ifset\hi@kv@type{\@capnext\hi@kv@type, }{}%
-            \noexpand\hi@fn@arttitle{\hi@kv@name}%
-            \hi@maybepage{ }\hi@font@comma
-            \noexpand\hi@fn@sig{in}\space
-            \hi@ifset\hi@kv@vol{\hi@kv@vol}{\hi@kv@year} % Volume
-            \noexpand\hi@fn@jrntitle{\hi@kv@rep}%
-            \hi@ifset\hi@kv@page{\space \@format@page@macro\hi@kv@page}{}%
+            \the\hi@param@parens
         }%
-        \hi@ifset\hi@kv@vol{%
-            \ifx\hi@kv@vol\hi@kv@year\else
-                \hi@parens@add\hi@paren@date{\hi@kv@year}%
-            \fi
-        }{}%
-        \the\hi@param@parens
+        \hi@inline@only{%
+            \hi@citeguts{\hi@kv@author}%
+        }%
     }%
     \protected@edef\reserved@a{%
         \hi@ifset\hi@kv@authln{\@capnext\hi@kv@authln}{%
@@ -189,8 +194,7 @@ following exceptions.
 }
 %</doc>
 %
-\hi@newcite\defmagart{A magazine article}{%
-    \hi@citetype{#1}\hi@type@other
+\hi@newcite{magart}{A magazine article}{other}{%
     \hi@abbrev@journal@check
     \hi@ifset\hi@kv@page{%
         \protected@edef\hi@kv@page{\@format@page@macro\hi@kv@page}%
@@ -257,9 +261,8 @@ because the page number does not start with a digit (see \sec{pages}).
 
 %</doc>
 %
-\hi@alias@cite\defnewsart\defmagart
-\hi@newcite\defwebsite{A web site or generic citation}{%
-    \hi@citetype{#1}\hi@type@other
+\hi@alias@cite{newsart}{magart}
+\hi@newcite{website}{A web site or generic citation}{other}{%
     \hi@book@pubparen
     \hi@ifset\hi@kv@year{}{%
         \PackageError\hi@pkgname{Year is required for #1}{%
@@ -320,8 +323,7 @@ Spread}, \textsc{BBC News} (May 18, 2014), http://\ldots
 
 %</doc>
 %
-\hi@newcite\defmanuscript{An unpublished manuscript}{%
-    \hi@citetype{#1}\hi@type@other
+\hi@newcite{manuscript}{An unpublished manuscript}{other}{%
     \hi@book@pubparen % Why not
     \hi@ifset\hi@kv@type{}{\def\hi@kv@type{manuscript}}
     \hi@newcite@form{fc}{#1}{%
@@ -369,8 +371,7 @@ draft screenplay).
 \end{demo}
 
 %</doc>
-\hi@newcite\defworkingpaper{A working paper}{%
-    \hi@citetype{#1}\hi@type@other
+\hi@newcite{workingpaper}{A working paper}{other}{%
     \hi@newcite@form{fc}{#1}{%
         \hi@citeguts{%
             \hi@ifset\hi@kv@author{\hi@kv@author@sortable, }{}%

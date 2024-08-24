@@ -11,8 +11,7 @@ data entry.
 
 \input docparams
 %</doc>
-\hi@newcite\defcjs{Corpus Juris Secondum}{%
-    \hi@citetype{#1}\hi@type@other
+\hi@newcite{cjs}{Corpus Juris Secondum}{other}{%
     \hi@newcite@form{fc}{#1}{%
         \hi@citeguts{%
             \hi@kv@vol\space
@@ -36,8 +35,7 @@ data entry.
 }
 %</doc>
 %
-\hi@newcite\defrfc{An IETF Request for Comments}{%
-    \hi@citetype{#1}\hi@type@other
+\hi@newcite{rfc}{An IETF Request for Comments}{other}{%
     \expandafter\hi@book@titlethe\expandafter{\hi@kv@name}%
     \hi@abbrev@name{Internet Engineering Task Force}{\def\hi@kv@publisher}%
     \protected@edef\reserved@a{%

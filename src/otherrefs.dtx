@@ -7,8 +7,7 @@
 
 \input docparams
 %</doc>
-\hi@newcite\defletter{A letter or memorandum}{%
-    \hi@citetype{#1}\hi@type@other
+\hi@newcite{letter}{A letter or memorandum}{other}{%
     \hi@ifset\hi@kv@type{}{\def\hi@kv@type{Letter}}
     \@expand{\find@in{, }}{\hi@kv@author}i{%
         \def\reserved@a{, }\@gobbletwo
@@ -80,8 +79,7 @@ v.\ Alice Corp.}}\ (May 13, 2013).
 
 %</doc>
 %
-\hi@newcite\defpressrelease{A press release}{%
-    \hi@citetype{#1}\hi@type@other
+\hi@newcite{pressrelease}{A press release}{other}{%
     \hi@ifset\hi@kv@type{}{\def\hi@kv@type{Press Release}}%
     \hi@newcite@form{fc}{#1}{%
         \hi@citeguts{%
@@ -129,8 +127,7 @@ Court'' Brief over Unocal Gasoline Patent} (Sept.\ 14, 2000).
 
 %</doc>
 %
-\hi@newcite\defspeech{A speech, address, or presentation}{%
-    \hi@citetype{#1}\hi@type@other
+\hi@newcite{speech}{A speech, address, or presentation}{other}{%
     \hi@ifset\hi@kv@type{}{\def\hi@kv@type{Address}}
     \hi@newcite@form{fc}{#1}{%
         \hi@citeguts{%
@@ -181,8 +178,7 @@ of the Patent Examiner (Apr.~8, 2013).
 
 %</doc>
 %
-\hi@newcite\deffilm{A film (movie/motion picture)}{%
-    \hi@citetype{#1}\hi@type@other
+\hi@newcite{film}{A film (movie/motion picture)}{other}{%
     \hi@newcite@form{fc}{#1}{%
         \hi@citeguts{%
             \noexpand\hi@fn@booktitle{\hi@kv@name}%
@@ -208,8 +204,7 @@ This format is somewhat deprecated as it can be implemented entirely with
 
 %</doc>
 %
-\hi@newcite\deftvshow{A television show}{%
-    \hi@citetype{#1}\hi@type@other
+\hi@newcite{tvshow}{A television show}{other}{%
     \hi@newcite@form{fc}{#1}{%
         \hi@citeguts{%
             \hi@fn@arttitle{\hi@kv@name}%
@@ -236,8 +231,7 @@ This format is somewhat deprecated as it can be implemented entirely with
 
 %</doc>
 %
-\hi@newcite\defopinion{An ethics or other opinion}{%
-    \hi@citetype{#1}\hi@type@other
+\hi@newcite{opinion}{An ethics or other opinion}{other}{%
     \hi@ifset\hi@kv@type{}{\def\hi@kv@type{Formal Opinion}}%
     \@expand\hi@abbrev@cdoc\hi@kv@type i{\def\hi@kv@type}%
     \hi@newcite@form{fc}{#1}{%

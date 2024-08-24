@@ -97,6 +97,10 @@ license. To view a copy of this license, visit
 \url{http://creativecommons.org/licenses/by-nc-sa/4.0/} or send a letter to
 Creative Commons, PO Box 1866, Mountain View, CA 94042, USA.}}
 
+\date{\today\\Version
+\input VERSION
+}
+
 \begin{document}
 \maketitle
 \tableofcontents
@@ -259,8 +263,8 @@ legal citation. The following would generate a two-element string-cite to
 \emph{Wheaton v.~Peters}, describing a (hypothetical) tension between two parts
 of the decision:
 \begin{demo}
-|\sentence{|see, e.g., wheaton at 598 note 3 (Story, J.) (describing holding);
-but see wheaton at 600-602 (noting alternative views)|}|.
+\inputtext{\sentence{see, e.g., wheaton at 598 note 3 (Story, J.)
+(describing holding); but see wheaton at 600-602 (noting alternative views)}.}
 \Produces
 \emph{See, e.g.}, \emph{Wheaton v.~Peters}, 33 U.S. 591, 598 n.3
 (1834) (Story, J.) (describing holding); \emph{but see} \emph{id.}~at 600--02
@@ -293,8 +297,7 @@ The relevant commands are |\inline|, |\Inline|, |\adjective|, and |\Adjective|
 depending on whether the reference is being cited at the beginning of a sentence
 and the part of speech the reference is taking on:
 \begin{demo}
-|In \inline{wheaton}, the Court....| \\
-|\sentence{wheaton at 603}.| \\
+\inputtext{In \inline{wheaton}, the Court.... \sentence{wheaton at 603}.}
 \Produces In \emph{Wheaton v.~Peters}, the Court\ldots. \emph{See} 33 U.S. 591,
 603 (1834).
 \end{demo}
@@ -610,44 +613,9 @@ is documented in Part~\ref{p:alltypes}.
 There are also parameters of general applicability to all reference types,
 described in \sec{genparams}. The complete list of parameters
 is given in Part~\ref{p:allparams}.
+
+\item A Table of Authorities category, described below.
 \end{itemize}
-
-Each reference type is further associated with a category, used to organize a
-Table of Authorities as described in \sec{toa}.
-The category can be altered using the reference
-definition parameter \param{citetype}.
-The categories are associated with a textual
-description that is used to assemble the headings for the table of authorities,
-as described in \sec{toa}.
-
-
-The following are the reference categories. The group associated with each
-category is a label for the group in the table of authorities that the reference
-will be placed together with (so, for example, statutes and regulations are
-placed in the same category). The text associated with each category will be
-used for the heading in the table of authorities.
-
-\begin{demo}
-\def\hi@newcitetype#1#2{\expandafter\hi@newcitetype@\string#1\@mark#2\@stop}
-\expandafter\def\expandafter\hi@newcitetype@
-    \string\hi@type@#1\@mark#2:#3\@stop{%
-    #1&#2&#3\\%
-}
-\begin{tabular}{lll}
-\textbf{Category} & \textbf{Group} & \textbf{Text} \\
-\hline
-\hi@newcitetype\hi@type@other{other:Other Source/s}
-\hi@newcitetype\hi@type@const{const:Constitutional Provision/s}
-\hi@newcitetype\hi@type@found{const:Foundational Document/s}
-\hi@newcitetype\hi@type@statute{statute:Statute/s}
-\hi@newcitetype\hi@type@regulation{statute:Regulation/s}
-\hi@newcitetype\hi@type@rule{statute:Rule/s}
-\hi@newcitetype\hi@type@case{case:Case/s}
-\hi@newcitetype\hi@type@admin{case:Administrative Decision/s}
-\hi@newcitetype\hi@type@treaty{statute:Treat/y/ies}
-\end{tabular}
-\end{demo}
-
 
 \subsection{Input Syntax}
 \label{s:refs-syntax}
@@ -718,6 +686,66 @@ With the optional argument, the reference names can be given a prefix:
 |\defcitegroup[17usc]\defstatcode{17 U.S.C. S }{101, 102, 103}|
 \end{demo}
 would define |17usc101| as the statute ``17 U.S.C. \textsection~101'' and so on.
+
+
+\subsection{Table of Authorities Categories}
+
+\label{s:refs-categories}
+
+Each reference type is associated with a category, used to organize a
+Table of Authorities as described in \sec{toa}.
+The category can be altered using the reference
+definition parameter \param{toacat} or by the |\SetTOACategory| macro.
+The categories are used to assemble the headings for the table of authorities,
+as described in \sec{toa}.
+
+Specifically, every category has three properties:
+\begin{enumerate}
+\item A name for internal use.
+
+\item A ``supercategory'' that associates the category with others that this
+category should be joined with in the Table of Authorities. For example, the
+categories for statutes and regulations should have the same supercategory, so
+that they are placed in a single section with the Table of Authorities.
+Supercategories are presented in alphabetical order.
+
+\item A textual description of the category, for use in constructing the Table
+of Authorities heading. Because both the singular and plural forms are needed,
+the textual description consists of two to three parts, separated by slashes:
+\begin{enumerate}
+\item The base text common to both forms.
+\item \relax[\emph{Optional}] Text to append to the singular form only.
+\item Text to append to the plural form only.
+\end{enumerate}
+\end{enumerate}
+
+\DescribeMacro\NewTOACategory
+A new TOA category may be defined with |\NewTOACategory|. The macro takes
+three parameters, corresponding to the three properties of categories above.
+
+
+The following are the TOA categories, with their supercategories and display
+texts as described above. Note the choice of supercategory names, which
+coincidentally sort alphabetically in the correct order. Because the actual
+supercategory names are never displayed, any new supercategories can be named to
+fit into the existing ordering.
+
+\begin{demo}
+\def\NewTOACategory#1#2#3{#1&#2&#3\\}
+\begin{tabular}{lll}
+\textbf{Category} & \textbf{Supercategory} & \textbf{Text} \\
+\hline
+\NewTOACategory{other}{other}{Other Source/s}
+\NewTOACategory{const}{const}{Constitutional Provision/s}
+\NewTOACategory{found}{const}{Foundational Document/s}
+\NewTOACategory{statute}{edict}{Statute/s}
+\NewTOACategory{regulation}{edict}{Regulation/s}
+\NewTOACategory{rule}{edict}{Rule/s}
+\NewTOACategory{case}{case}{Case/s}
+\NewTOACategory{admin}{case}{Administrative Decision/s}
+\NewTOACategory{treaty}{edict}{Treat/y/ies}
+\end{tabular}
+\end{demo}
 
 %%
 %% \iffalse filename: cparse.dtx \fi
@@ -3607,8 +3635,7 @@ nom.''\ must be added to explanatory phrases that end with a comma.
 
 \input docparams
 
-\hi@newcite\defcase{A case citation}{%
-    \hi@citetype{#1}\hi@type@case
+\hi@newcite{case}{A case citation}{case}{%
     \hi@case@def{#1}%
 }
 \keyparameters{%
@@ -3665,18 +3692,17 @@ those are never used unabbreviated, and the abbreviations are too inconsistent).
     docket=2023-103,
 }
 \end{verbatim}
-\Produces \emph{In re Nimitz Techs.\ LLC, No.\ 2023-103 (Fed.\ Cir.\ Dec.\ 8,
-2022)}.
+\Produces \emph{In re Nimitz Techs.\ LLC}, No.\ 2023-103 (Fed.\ Cir.\ Dec.\ 8,
+2022).
 \end{demo}
 This demonstrates a case with a single name rather than adversarial parties, and
 with a docket number rather than a reporter citation.
 
-\hi@newcite\defadmincase{An administrative decision}{%
-    \hi@citetype{#1}\hi@type@admin
+\hi@newcite{admincase}{An administrative decision}{admin}{%
     \hi@case@def{#1}%
 }
-This is the same as a case with \param{citetype} set to |admin|. Parameters are
-identical to \rtype{case} with the following addition:
+This is the same as a case with the default category set to |admin|. Parameters
+are identical to \rtype{case} with the following addition:
 
 \keyparameters{{agency}{Same as \param{court} but abbreviates the name.}}
 
@@ -3702,8 +3728,7 @@ identical to \rtype{case} with the following addition:
 This shows an administrative decision citation with subsequent history. The
 reference |biodelivery-cafc| would be defined elsewhere.
 
-\hi@newcite\defcasedoc{Document used in a case}{%
-    \hi@citetype{#1}\hi@type@other
+\hi@newcite{casedoc}{Document used in a case}{other}{%
     \hi@ifset\hi@kv@citation{}{%
         \PackageError\hi@pkgname{%
             Missing citation for casedoc #1
@@ -3775,7 +3800,7 @@ Rockrobo Tech.\ Co.}, No.\ 2:21-cv-941 (W.D. Wash.\ July 15, 2021).
 Here, the underlying case is defined using an anonymous reference definition
 (see \sec{anonymous}).
 
-\hi@newcite\defcourtdoc{A document in the docket of current litigation}{
+\hi@newcite{courtdoc}{A document in the docket of current litigation}{}{
     \@expand\hi@abbrev@cdoc\hi@kv@name i{\def\hi@kv@name}%
     \hi@ifset\hi@kv@inline{%
         \@expand\hi@abbrev@cdoc\hi@kv@inline i{\def\hi@kv@inline}%
@@ -3849,8 +3874,7 @@ Independence.
 
 \input docparams
 
-\hi@newcite\defconst{Citation to a constitution}{%
-    \hi@citetype{#1}\hi@type@const
+\hi@newcite{const}{Citation to a constitution}{const}{%
     \hi@ifset\hi@kv@name\relax{%
         \PackageWarning\hi@pkgname{%
             Constitution citation requires "name" argument
@@ -3892,8 +3916,7 @@ defined as a separate reference.
 \end{verbatim}
 \end{demo}
 
-\hi@newcite\defconstamend{A Constitutional amendment}{%
-    \hi@citetype{#1}\hi@type@const
+\hi@newcite{constamend}{A Constitutional amendment}{const}{%
     \edef\hi@kv@page{amendment \expandafter\@Roman\hi@kv@number}%
     \hi@const@part{#1}{%
         \hi@inline@the
@@ -3921,8 +3944,7 @@ Amendment\\ and ``amendment \meta{number}'' respectively.
 \end{verbatim}
 \end{demo}
 
-\hi@newcite\deffounding{A national founding document}{%
-    \hi@citetype{#1}\hi@type@found
+\hi@newcite{founding}{A national founding document}{found}{%
     \hi@statcode@setup@idpc{#1}% Set up id. and page numbering
     \hi@include@page@in@toa{#1}
     \hi@newcite@form{fc}{#1}{%
@@ -3990,8 +4012,7 @@ title in the same font as that for constitutions.
 
 \pagejoining
 
-\hi@newcite\deffederalist{A Federalist paper}{%
-    \hi@citetype{#1}\hi@type@other
+\hi@newcite{federalist}{A Federalist paper}{other}{%
     % TODO: add editor info
     \hi@newcite@form{fc}{#1}{%
         \hi@citeguts{%
@@ -4048,8 +4069,7 @@ as well.
 
 \input docparams
 
-\hi@newcite\defstatcode{A statute in a code}{%
-    \hi@citetype{#1}\hi@type@statute
+\hi@newcite{statcode}{A statute in a code}{statute}{%
     \hi@statcode@setup{#1}%
 }
 \keyparameters{
@@ -4097,15 +4117,13 @@ This demonstrates a statute that has been codified with a section number
 different from its session law section, where the session law section number is
 still commonly used.
 
-\hi@newcite\defregcode{A regulation in a code}{%
-    \hi@citetype{#1}\hi@type@regulation
+\hi@newcite{regcode}{A regulation in a code}{regulation}{%
     \hi@statcode@setup{#1}%
 }
-This only differs from \rtype{statcode} in the \param{citetype} being
+This only differs from \rtype{statcode} in the \param{toacat} being
 |regulation| rather than |statute|. The parameters and features are the same as
 those for \rtype{statcode}.
-\hi@newcite\defstatsess{A statute in session laws}{%
-    \hi@citetype{#1}\hi@type@statute
+\hi@newcite{statsess}{A statute in session laws}{statute}{%
     \hi@statsess@name
     \hi@inlinestatname{#1}%
     \hi@ifset\hi@kv@type{}{\def\hi@kv@type{Pub. L. No.}}%
@@ -4169,8 +4187,7 @@ Note how a pin cite to a session law must include not only the section number,
 but also the Statutes at Large page number following a |::stat:| segment marker.
 See \sec{pages-segments} for more on segments in pin cites.
 
-\hi@newcite\defstattitle{A titled statutory citation}{%
-    \hi@citetype{#1}\hi@type@statute
+\hi@newcite{stattitle}{A titled statutory citation}{statute}{%
     \hi@include@page@in@toa{#1}%
     \hi@inlinestatname{#1}% Set up \hi@kv@inline based on \hi@kv@name
     \@expand\hi@abbrev@name{\hi@kv@rep}i{\def\hi@kv@rep}%
@@ -4277,8 +4294,7 @@ statutes if a particular section number is repeatedly used.
 
 \bookparenparameters
 
-\hi@newcite\defrule{A rule of evidence or procedure}{%
-    \hi@citetype{#1}\hi@type@rule
+\hi@newcite{rule}{A rule of evidence or procedure}{rule}{%
     \hi@statcode@setup@idpc{#1}% Set up id. and page numbering
     \hi@include@page@in@toa{#1}%
     \hi@newcite@form{fc}{#1}{%
@@ -4342,8 +4358,7 @@ into the above categories.
 
 \input docparams
 
-\hi@newcite\defbill{An bill or resolution of Congress}{%
-    \hi@citetype{#1}\hi@type@other
+\hi@newcite{bill}{An bill or resolution of Congress}{other}{%
     \hi@inlinestatname{#1}%
     \hi@ifset\hi@kv@congress{}{%
         \PackageError\hi@pkgname{%
@@ -4423,8 +4438,7 @@ into the above categories.
 \Produces You Own Devices Act, H.R. 862, 114th Cong.\ (Feb. 11, 2015).
 \end{demo}
 
-\hi@newcite\defcongdoc{A Congressional numbered document}{%
-    \hi@citetype{#1}\hi@type@other
+\hi@newcite{congdoc}{A Congressional numbered document}{other}{%
     \hi@newcite@form{fc}{#1}{%
         \hi@ifset\hi@kv@author{%
             \noexpand\@gobble{\hi@kv@authln}%
@@ -4500,8 +4514,7 @@ This is for reports, and documents. Unnumbered documents should use
 \Produces \textsc{America Invents Act}, \textsc{H.R. Rep.\ No.}\ 112-98 (2011).
 \end{demo}
 
-\hi@newcite\defcongprint{A Congressional unnumbered document}{%
-    \hi@citetype{#1}\hi@type@other
+\hi@newcite{congprint}{A Congressional unnumbered document}{other}{%
     \hi@newcite@form{fc}{#1}{%
         \hi@ifset\hi@kv@author{%
             \noexpand\@gobble{\hi@kv@authln}%
@@ -4543,11 +4556,10 @@ This is essentially a more structured citation to a book.
     automatically.}
     {year}{The year of publication.}
 }
-\hi@newcite\defcongrec{A Congressional Record debate}{%
+\hi@newcite{congrec}{A Congressional Record debate}{other}{%
     \expandafter\hi@congrec@testpg\hi@kv@page\@stop
     \hi@book@pubparen
     \hi@ifset\hi@kv@year{}{\PackageError\hi@pkgname{Year is required for #1}}%
-    \hi@citetype{#1}\hi@type@other
     \hi@newcite@form{fc}{#1}{%
         \hi@citeguts{%
             \hi@usevol{\hi@ifset\hi@kv@vol{\hi@kv@vol\space}{}}%
@@ -4606,8 +4618,7 @@ edition. The date should be given as the optional argument:
 \Produces \emph{See} 123 \textsc{Cong.\ Rec.}\ 17147 (1977).
 \end{demo}
 
-\hi@newcite\defhearing{A hearing in Congress}{%
-    \hi@citetype{#1}\hi@type@other
+\hi@newcite{hearing}{A hearing in Congress}{other}{%
     \hi@ifset\hi@kv@type{}{\def\hi@kv@type{Hearing}}%
     \hi@newcite@form{fc}{#1}{%
         \hi@citeguts{%
@@ -4672,8 +4683,7 @@ published testimony in a hearing.
 \end{verbatim}
 \end{demo}
 
-\hi@newcite\defprespaper{A Presidential Paper}{%
-    \hi@citetype{#1}\hi@type@other
+\hi@newcite{prespaper}{A Presidential Paper}{other}{%
     \hi@newcite@form{fc}{#1}{%
         \hi@citeguts{%
             \hi@kv@name, % Title
@@ -4693,8 +4703,7 @@ published testimony in a hearing.
     \param{rep} is ``Pub. Papers'' or ``Weekly Comp.~Pres.~Doc.''}
     {year}{The date of the document.}
 }
-\hi@newcite\defdcpd{Daily Compilation of Presidential Documents}{
-    \hi@citetype{#1}\hi@type@other
+\hi@newcite{dcpd}{Daily Compilation of Presidential Documents}{other}{
     \hi@newcite@form{fc}{#1}{%
         \hi@citeguts{%
             \hi@kv@name,
@@ -4720,8 +4729,7 @@ a different reference type is required.
     {number}{The number of the document.}
     {year}{The date of the document.}
 }
-\hi@newcite\defpatent{A U.S. patent}{%
-    \hi@citetype{#1}\hi@type@other
+\hi@newcite{patent}{A U.S. patent}{other}{%
     \let\reserved@a\@empty
     \@expand{\find@start{D}}\hi@kv@number i{%
         \def\reserved@a{D}\def\hi@kv@number
@@ -4782,12 +4790,11 @@ a different reference type is required.
 \optparameters{
     {name}{The title of the patent, if relevant.}
 }
-\hi@newcite\defgovdoc{A government document}{%
+\hi@newcite{govdoc}{A government document}{other}{%
     \hi@ifset\hi@kv@court{}{%
         \hi@ifset\hi@kv@author{\let\hi@kv@court\hi@kv@author}{}%
     }%
     \hi@cite@history
-    \hi@citetype{#1}\hi@type@other
     \hi@newcite@form{fc}{#1}{%
         \hi@citeguts{%
             \hi@ifset\hi@kv@number{%
@@ -4879,9 +4886,8 @@ origin of the document.
 12134 (Mar.\ 17, 1975).
 \end{demo}
 
-\hi@alias@cite\deffedreg\defgovdoc
-\hi@newcite\deftestimony{Testimony in a congressional hearing}{%
-    \hi@citetype{#1}\hi@type@other
+\hi@alias@cite{fedreg}{govdoc}
+\hi@newcite{testimony}{Testimony in a congressional hearing}{other}{%
     \hi@ifset\hi@kv@type{}{\def\hi@kv@type{Testimony}}%
     \hi@ifset\hi@kv@citation{}{%
         \hi@ifset\hi@kv@in{\let\hi@kv@citation\hi@kv@in}{%
@@ -4928,8 +4934,7 @@ is cited with the short form for the second witness cited.
 \optparameters{
     {type}{The nature of the testimony, by default ``Testimony.''}
 }
-\hi@newcite\defcomments{Comments on an agency proceeding}{%
-    \hi@citetype{#1}\hi@type@other
+\hi@newcite{comments}{Comments on an agency proceeding}{other}{%
     \hi@ifset\hi@kv@type{}{\def\hi@kv@type{Comments}}%
     \hi@newcite@form{fc}{#1}{%
         \hi@citeguts{%
@@ -4973,8 +4978,7 @@ title of the document would be given as ``Comments of \meta{party}.''
     probably should not be included in most cases, in the same way that the
     signing attorney is not identified for legal briefs in \rtype{casedoc}.}
 }
-\hi@newcite\defsecfiling{An SEC filing}{%
-    \hi@citetype{#1}\hi@type@other
+\hi@newcite{secfiling}{An SEC filing}{other}{%
     \hi@newcite@form{fc}{#1}{%
         \hi@citeguts{%
             \hi@ifset\hi@kv@author{\hi@kv@author@sortable, }{}%
@@ -5029,8 +5033,7 @@ which are optional (although some reference types will require \param{year}):
 
 \input docparams
 
-\hi@newcite\defbook{A book or non-periodic material}{%
-    \hi@citetype{#1}\hi@type@other
+\hi@newcite{book}{A book or non-periodic material}{other}{%
     \hi@book@pubparen
     \expandafter\hi@book@titlethe\expandafter{\hi@kv@name}%
     \hi@newcite@form{fc}{#1}{%
@@ -5152,25 +5155,18 @@ which are optional (although some reference types will require \param{year}):
 Copyright} (2014) [hereinafter \textsc{Nimmer}].
 \end{demo}
 
-\hi@newcite\defcitecontainer{A citation in another citation}{%
+\hi@newcite{citecontainer}{A citation in another citation}{other}{%
     %
     % Set the joining phrase.
     %
     \hi@citecontainer@settype
     %
-    % Perform initial matters to set up the citecontainer; see the comment
-    % before \hi@citecontainer@init.
-    \edef\reserved@a{%
-        {#1}%
-        \expandafter\noexpand\csname tc@#1\endcsname
-        \hi@ifset\hi@kv@citation{%
-            \expandafter\noexpand\csname tc@\hi@kv@citation\endcsname
-            \expandafter\noexpand\csname fc@\hi@kv@citation\endcsname
-        }{\relax\relax}%
-    }%
-    \expandafter\hi@citecontainer@init\reserved@a
+    % Initialize the TOA category and token list.
+    %
+    \hi@citecontainer@init{#1}%
     %
     % Prepare the full citation form.
+    %
     \edef\reserved@a{%
         {#1}%
         \expandafter\noexpand\csname fc@#1\endcsname
@@ -5350,8 +5346,7 @@ complex reference definition that I have constructed.
 \thisis{artrefs}{Articles and Manuscripts}
 
 \input docparams
-\hi@newcite\defjrnart{A consecutively paginated journal article}{%
-    \hi@citetype{#1}\hi@type@other
+\hi@newcite{jrnart}{A consecutively paginated journal article}{other}{%
     \hi@abbrev@journal@check
     \hi@ifset\hi@kv@page{}{\def\hi@kv@page{?}}%
     \@expand{\find@eq{forthcoming}}{\hi@kv@page}{i}{%
@@ -5463,8 +5458,9 @@ journals.
 \end{demo}
 Note the unabbreviated journal name in the input.
 
-\hi@newcite\defprocart{A non-consecutively paginated proceedings article}{%
-    \hi@citetype{#1}\hi@type@other
+\hi@newcite{procart}{%
+    A non-consecutively paginated proceedings article%
+}{other}{%
     \hi@abbrev@journal@check
     \hi@ifset\hi@kv@forthcoming{}{%
         \hi@ifset\hi@kv@vol{}{\let\hi@kv@vol\hi@kv@year}%
@@ -5475,24 +5471,29 @@ Note the unabbreviated journal name in the input.
         }{}%
     }%
     \hi@newcite@form{fc}{#1}{%
-        \hi@citeguts{%
-            \hi@ifset\hi@kv@author{%
-                \hi@toa@dupauthor{\noexpand\@iden}{\hi@kv@author@sortable}%
+        \hi@inline@never{%
+            \hi@citeguts{%
+                \hi@ifset\hi@kv@author{%
+                    \hi@toa@dupauthor{\noexpand\@iden}{\hi@kv@author@sortable}%
+                }{}%
+                \hi@ifset\hi@kv@type{\@capnext\hi@kv@type, }{}%
+                \noexpand\hi@fn@arttitle{\hi@kv@name}%
+                \hi@maybepage{ }\hi@font@comma
+                \noexpand\hi@fn@sig{in}\space
+                \hi@ifset\hi@kv@vol{\hi@kv@vol}{\hi@kv@year} % Volume
+                \noexpand\hi@fn@jrntitle{\hi@kv@rep}%
+                \hi@ifset\hi@kv@page{\space \@format@page@macro\hi@kv@page}{}%
+            }%
+            \hi@ifset\hi@kv@vol{%
+                \ifx\hi@kv@vol\hi@kv@year\else
+                    \hi@parens@add\hi@paren@date{\hi@kv@year}%
+                \fi
             }{}%
-            \hi@ifset\hi@kv@type{\@capnext\hi@kv@type, }{}%
-            \noexpand\hi@fn@arttitle{\hi@kv@name}%
-            \hi@maybepage{ }\hi@font@comma
-            \noexpand\hi@fn@sig{in}\space
-            \hi@ifset\hi@kv@vol{\hi@kv@vol}{\hi@kv@year} % Volume
-            \noexpand\hi@fn@jrntitle{\hi@kv@rep}%
-            \hi@ifset\hi@kv@page{\space \@format@page@macro\hi@kv@page}{}%
+            \the\hi@param@parens
         }%
-        \hi@ifset\hi@kv@vol{%
-            \ifx\hi@kv@vol\hi@kv@year\else
-                \hi@parens@add\hi@paren@date{\hi@kv@year}%
-            \fi
-        }{}%
-        \the\hi@param@parens
+        \hi@inline@only{%
+            \hi@citeguts{\hi@kv@author}%
+        }%
     }%
     \protected@edef\reserved@a{%
         \hi@ifset\hi@kv@authln{\@capnext\hi@kv@authln}{%
@@ -5521,8 +5522,7 @@ following exceptions.
     {issue}{If given, it is equivalent to setting \param{page} to
     \texttt{No.~}\meta{issue}.}
 }
-\hi@newcite\defmagart{A magazine article}{%
-    \hi@citetype{#1}\hi@type@other
+\hi@newcite{magart}{A magazine article}{other}{%
     \hi@abbrev@journal@check
     \hi@ifset\hi@kv@page{%
         \protected@edef\hi@kv@page{\@format@page@macro\hi@kv@page}%
@@ -5584,9 +5584,8 @@ Times Mag.}\ MM30 (Jan.~1, 2016).
 Note the exclamation mark in front of the page number, which must be included
 because the page number does not start with a digit (see \sec{pages}).
 
-\hi@alias@cite\defnewsart\defmagart
-\hi@newcite\defwebsite{A web site or generic citation}{%
-    \hi@citetype{#1}\hi@type@other
+\hi@alias@cite{newsart}{magart}
+\hi@newcite{website}{A web site or generic citation}{other}{%
     \hi@book@pubparen
     \hi@ifset\hi@kv@year{}{%
         \PackageError\hi@pkgname{Year is required for #1}{%
@@ -5643,8 +5642,7 @@ abbreviated according to the \abbscheme{journal} scheme.
 Spread}, \textsc{BBC News} (May 18, 2014), http://\ldots
 \end{demo}
 
-\hi@newcite\defmanuscript{An unpublished manuscript}{%
-    \hi@citetype{#1}\hi@type@other
+\hi@newcite{manuscript}{An unpublished manuscript}{other}{%
     \hi@book@pubparen % Why not
     \hi@ifset\hi@kv@type{}{\def\hi@kv@type{manuscript}}
     \hi@newcite@form{fc}{#1}{%
@@ -5690,8 +5688,7 @@ dissertations, manuscripts, and reports.
 draft screenplay).
 \end{demo}
 
-\hi@newcite\defworkingpaper{A working paper}{%
-    \hi@citetype{#1}\hi@type@other
+\hi@newcite{workingpaper}{A working paper}{other}{%
     \hi@newcite@form{fc}{#1}{%
         \hi@citeguts{%
             \hi@ifset\hi@kv@author{\hi@kv@author@sortable, }{}%
@@ -5755,8 +5752,7 @@ The selection of reference types defined here is very much incomplete. To the
 extent it is necessary, use \rtype{verbatim}.
 
 \input docparams
-\hi@newcite\defengdebate{An English parliamentary debate}{%
-    \hi@citetype{#1}\hi@type@other
+\hi@newcite{engdebate}{An English parliamentary debate}{other}{%
     \hi@newcite@form{sc}{#1}{%
         \hi@citeguts{%
             \hi@usevol{\hi@ifset\hi@kv@vol{\hi@kv@vol\space}{}}%
@@ -5793,60 +5789,61 @@ extent it is necessary, use \rtype{verbatim}.
     should include the House of Parliament abbreviated.}
 }
 
-\hi@newcite\defengstat{An English statute}{%
-    \hi@citetype{#1}\hi@type@statute
+\hi@newcite{engstat}{An English statute}{statute}{%
     \hi@statcode@setup@idpc{#1}% Set up id. and page numbering
     %\hi@include@page@in@toa{#1}
-    \hi@newcite@form{ic}{#1}{%
-        \hi@ifset\hi@kv@name{\hi@inline@the\@capnext\hi@kv@name}{}%
-    }%
-    \hi@newcite@form{fc}{#1}{%
-        \hi@inline@only{\hi@citeguts{\noexpand\@nameuse{ic@#1}}}%
-        \hi@inline@never{%
-            \hi@citeguts{%
-                \hi@name@only{%
-                    \hi@ifset\hi@kv@name{\@capnext\hi@kv@name, \hi@kv@year, }{}%
-                }%
-                \hi@ifset\hi@kv@regnal{\@capnext\hi@kv@regnal, }{}%
-                \@capnext c. \hi@kv@number
-                \hi@pageordefault{, }{%
-                    % Don't put the page here if \hi@kv@rep is set because the
-                    % page is assumed to refer to the code book, not a statutory
-                    % section.
-                    \hi@ifset\hi@kv@rep{}{%
-                        \hi@ifset\hi@kv@page{%
-                            , \@format@page@macro\hi@kv@page
-                        }{}%
-                    }%
-                }%
-                \hi@ifset\hi@kv@rep{%
-                    ,\space
-                    \hi@ifset\hi@kv@vol{\hi@kv@vol\space}{}%
-                    \noexpand\hi@fn@statute{\hi@kv@rep}\space
-                    \@format@page@macro\hi@kv@page
-                }{}%
+    \hi@newcite@form{ifc}{#1}{%
+        \hi@citeguts{%
+            \hi@ifset\hi@kv@name{\hi@inline@the\@capnext\hi@kv@name}{%
+                \textbf{???}%
             }%
-            \hi@ifset\hi@kv@name{%
-                \noexpand\if@hi@name\noexpand\else
-                    \hi@ifset\hi@kv@year{%
-                        \hi@parens@add\hi@paren@date{\hi@kv@year}%
-                    }{}%
-                \noexpand\fi
-            }{%
-                \hi@ifset\hi@kv@year{\hi@addparen\hi@paren@date{\hi@kv@year}}{}%
-            }%
-            \the\hi@param@parens
         }%
     }%
-    \hi@newcite@form{sc}{#1}{%
-        \hi@inline@only{\hi@citeguts{\noexpand\@nameuse{ic@#1}}}%
-        \hi@inline@never{%
-            \hi@citeguts{%
-                \hi@name@only{%
-                    \hi@ifset\hi@kv@name{\@capnext\hi@kv@name}{}%
-                }%
-                \hi@pageordefault{\hi@name@only{ \hi@page@atorsect}}{}%
+    \hi@newcite@form{fc}{#1}{%
+        \hi@citeguts{%
+            \hi@name@only{%
+                \hi@ifset\hi@kv@name{\@capnext\hi@kv@name, \hi@kv@year, }{}%
             }%
+            \hi@ifset\hi@kv@regnal{\@capnext\hi@kv@regnal, }{}%
+            \@capnext c. \hi@kv@number
+            \hi@pageordefault{, }{%
+                % Don't put the page here if \hi@kv@rep is set because the
+                % page is assumed to refer to the code book, not a statutory
+                % section.
+                \hi@ifset\hi@kv@rep{}{%
+                    \hi@ifset\hi@kv@page{%
+                        , \@format@page@macro\hi@kv@page
+                    }{}%
+                }%
+            }%
+            \hi@ifset\hi@kv@rep{%
+                ,\space
+                \hi@ifset\hi@kv@vol{\hi@kv@vol\space}{}%
+                \noexpand\hi@fn@statute{\hi@kv@rep}\space
+                \@format@page@macro\hi@kv@page
+            }{}%
+        }%
+        \hi@ifset\hi@kv@name{%
+            \noexpand\if@hi@name\noexpand\else
+                \hi@ifset\hi@kv@year{%
+                    \hi@parens@add\hi@paren@date{\hi@kv@year}%
+                }{}%
+            \noexpand\fi
+        }{%
+            \hi@ifset\hi@kv@year{\hi@addparen\hi@paren@date{\hi@kv@year}}{}%
+        }%
+        \the\hi@param@parens
+    }%
+    \hi@newcite@form{sc}{#1}{%
+        \hi@citeguts{%
+            \noexpand\if@hi@name
+                \hi@ifset\hi@kv@name{\@capnext\hi@kv@name}{}%
+                \hi@pageordefault{\hi@name@only{ \hi@page@atorsect}}{}%
+            \noexpand\else
+                \hi@pageordefault{%
+                    \hi@pageordefault{}{\@capnext\hi@kv@name}%
+                }%
+            \noexpand\fi
         }%
     }%
 }
@@ -5869,8 +5866,7 @@ difference in \param{page} for each.
 
 \pagejoining
 
-\hi@newcite\defengcommand{A command paper in England}{%
-    \hi@citetype{#1}\hi@type@other
+\hi@newcite{engcommand}{A command paper in England}{other}{%
     \hi@newcite@form{fc}{#1}{%
         \hi@ifset\hi@kv@author{%
             \noexpand\@gobble{\hi@kv@authln}%
@@ -5895,8 +5891,7 @@ difference in \param{page} for each.
     conventional in U.K. practice.}
 }
 
-\hi@newcite\defforeignconst{A foreign constitution}{%
-    \hi@citetype{#1}\hi@type@const
+\hi@newcite{foreignconst}{A foreign constitution}{const}{%
     \hi@newcite@form{fc}{#1}{%
         \hi@citeguts{%
             \noexpand\hi@fn@const{\hi@kv@name}%
@@ -5914,8 +5909,7 @@ difference in \param{page} for each.
     {page}{A pin cite for the part of the constitution being cited.}
 }
 
-\hi@newcite\deftreaty{A treaty or international agreement}{%
-    \hi@citetype{#1}\hi@type@treaty
+\hi@newcite{treaty}{A treaty or international agreement}{treaty}{%
     \hi@ifset\hi@kv@inline{%
         \hi@replacethe\hi@kv@inline{\def\hi@kv@inline}{}%
         \expandafter\KV@hi@hereinafter\expandafter{\hi@kv@inline}%
@@ -5961,8 +5955,7 @@ difference in \param{page} for each.
     {vol, rep, page, cite}{Locator information for the treaty, if available.}
 }
 
-\hi@newcite\defeucase{A European Union case}{%
-    \hi@citetype{#1}\hi@type@case
+\hi@newcite{eucase}{A European Union case}{case}{%
     \hi@case@setparties{#1}%
     \hi@ifset\hi@kv@inline{%
         \@expand{\hi@short@register{#1}}\hi@kv@inline i{y}%
@@ -6034,8 +6027,7 @@ difference in \param{page} for each.
     {year}{The year of decision.}
 }
 
-\hi@newcite\defunresolution{A U.N. resolution}{%
-    \hi@citetype{#1}\hi@type@other
+\hi@newcite{unresolution}{A U.N. resolution}{other}{%
     \hi@ifset\hi@kv@type{}{\def\hi@kv@type{U.N.}}%
     \hi@newcite@form{fc}{#1}{%
         \hi@citeguts{%
@@ -6063,8 +6055,7 @@ difference in \param{page} for each.
     {year}{The date of the document.}
 }
 
-\hi@newcite\defintdoc{A U.N. or international document}{%
-    \hi@citetype{#1}\hi@type@other
+\hi@newcite{intdoc}{A U.N. or international document}{other}{%
     \hi@ifset\hi@kv@type{}{\def\hi@kv@type{U.N.}}%
     \hi@newcite@form{fc}{#1}{%
         \hi@citeguts{%
@@ -6099,8 +6090,7 @@ Typically these are reports.
     {year}{The date of the document.}
 }
 
-\hi@newcite\deffrcase{A French case}{%
-    \hi@citetype{#1}\hi@type@case
+\hi@newcite{frcase}{A French case}{case}{%
     \hi@newcite@form{fc}{#1}{%
         \hi@citeguts{%
             \hi@kv@court\space
@@ -6122,8 +6112,7 @@ Typically these are reports.
     {rep, page}{The locator information for the decision.}
 }
 
-\hi@newcite\deffrstat{A French statute}{%
-    \hi@citetype{#1}\hi@type@statute
+\hi@newcite{frstat}{A French statute}{statute}{%
     \hi@newcite@form{fc}{#1}{%
         \hi@citeguts{%
             Law No. \hi@kv@number\space
@@ -6154,8 +6143,7 @@ but it is helpful to include them to provide unique formatting and/or to save on
 data entry.
 
 \input docparams
-\hi@newcite\defcjs{Corpus Juris Secondum}{%
-    \hi@citetype{#1}\hi@type@other
+\hi@newcite{cjs}{Corpus Juris Secondum}{other}{%
     \hi@newcite@form{fc}{#1}{%
         \hi@citeguts{%
             \hi@kv@vol\space
@@ -6176,8 +6164,7 @@ data entry.
     {name}{The entry name.}
     {year}{The year of publication.}
 }
-\hi@newcite\defrfc{An IETF Request for Comments}{%
-    \hi@citetype{#1}\hi@type@other
+\hi@newcite{rfc}{An IETF Request for Comments}{other}{%
     \expandafter\hi@book@titlethe\expandafter{\hi@kv@name}%
     \hi@abbrev@name{Internet Engineering Task Force}{\def\hi@kv@publisher}%
     \protected@edef\reserved@a{%
@@ -6225,8 +6212,7 @@ format, and URL based just on the RFC number.
 \thisis{otherrefs}{Other Reference Types}
 
 \input docparams
-\hi@newcite\defletter{A letter or memorandum}{%
-    \hi@citetype{#1}\hi@type@other
+\hi@newcite{letter}{A letter or memorandum}{other}{%
     \hi@ifset\hi@kv@type{}{\def\hi@kv@type{Letter}}
     \@expand{\find@in{, }}{\hi@kv@author}i{%
         \def\reserved@a{, }\@gobbletwo
@@ -6294,8 +6280,7 @@ Patent Examining Corps, \emph{Federal Circuit Decision in \emph{CLS Bank et al.\
 v.\ Alice Corp.}}\ (May 13, 2013).
 \end{demo}
 
-\hi@newcite\defpressrelease{A press release}{%
-    \hi@citetype{#1}\hi@type@other
+\hi@newcite{pressrelease}{A press release}{other}{%
     \hi@ifset\hi@kv@type{}{\def\hi@kv@type{Press Release}}%
     \hi@newcite@form{fc}{#1}{%
         \hi@citeguts{%
@@ -6340,8 +6325,7 @@ date=Sep 14 2000,
 Court'' Brief over Unocal Gasoline Patent} (Sept.\ 14, 2000).
 \end{demo}
 
-\hi@newcite\defspeech{A speech, address, or presentation}{%
-    \hi@citetype{#1}\hi@type@other
+\hi@newcite{speech}{A speech, address, or presentation}{other}{%
     \hi@ifset\hi@kv@type{}{\def\hi@kv@type{Address}}
     \hi@newcite@form{fc}{#1}{%
         \hi@citeguts{%
@@ -6389,8 +6373,7 @@ authoritative weight than is due most slide decks.
 of the Patent Examiner (Apr.~8, 2013).
 \end{demo}
 
-\hi@newcite\deffilm{A film (movie/motion picture)}{%
-    \hi@citetype{#1}\hi@type@other
+\hi@newcite{film}{A film (movie/motion picture)}{other}{%
     \hi@newcite@form{fc}{#1}{%
         \hi@citeguts{%
             \noexpand\hi@fn@booktitle{\hi@kv@name}%
@@ -6413,8 +6396,7 @@ This format is somewhat deprecated as it can be implemented entirely with
     {year}{The year the film was released.}
 }
 
-\hi@newcite\deftvshow{A television show}{%
-    \hi@citetype{#1}\hi@type@other
+\hi@newcite{tvshow}{A television show}{other}{%
     \hi@newcite@form{fc}{#1}{%
         \hi@citeguts{%
             \hi@fn@arttitle{\hi@kv@name}%
@@ -6438,8 +6420,7 @@ This format is somewhat deprecated as it can be implemented entirely with
     {year}{The year the show aired.}
 }
 
-\hi@newcite\defopinion{An ethics or other opinion}{%
-    \hi@citetype{#1}\hi@type@other
+\hi@newcite{opinion}{An ethics or other opinion}{other}{%
     \hi@ifset\hi@kv@type{}{\def\hi@kv@type{Formal Opinion}}%
     \@expand\hi@abbrev@cdoc\hi@kv@type i{\def\hi@kv@type}%
     \hi@newcite@form{fc}{#1}{%
@@ -6477,7 +6458,7 @@ authorities, but serve other purposes in this package's system.
 
 \input docparams
 
-\hi@newcite\defabbrev{An abbreviation for a name}{%
+\hi@newcite{abbrev}{An abbreviation for a name}{}{%
     \hi@ifset\hi@kv@name{%
         \hi@replacethe\hi@kv@name{\def\hi@kv@name}{}%
         \@expandarg\hi@abbrev@name{\hi@kv@name}{\def\hi@kv@aname}%
@@ -6558,7 +6539,7 @@ that it does not affect \emph{id.}\ citations surrounding it.
     {inline}{The short or abbreviated name. Include ``The'' at the beginning if
     that is how the abbreviation is used in ordinary speech.}
 }
-\hi@newcite\defalias{An alias for a citation reference}{%
+\hi@newcite{alias}{An alias for a citation reference}{}{%
     \hi@ifset\hi@kv@citation{}{%
         \hi@ifset\hi@kv@rep{%
             \let\hi@kv@citation\hi@kv@rep
@@ -6635,7 +6616,7 @@ will cite \textsection~5(a) of the statute.
 }
 
 \newcount\hi@anonselfcitecount
-\hi@newcite\defselfcite{A self-citation}{%
+\hi@newcite{selfcite}{A self-citation}{}{%
     \global\advance\hi@anonselfcitecount\@ne
     \hi@newcite@form{fc}{#1}{%
         \hi@citeguts{%
@@ -6714,16 +6695,10 @@ given.
 This adds a parenthetical. If no value is given, then the parenthetical reads
 just ``book review.'' Otherwise, the value should be a reference name for the
 book being reviewed, which will be cited in the parenthetical.
-\hi@defparam{citetype}{Table of Authorities category for this citation}{%
-    \@ifundefined{hi@type@#1}{%
-        \PackageError\hi@pkgname{Invalid Table of Authorities section #1}{%
-            Please enter a valid section identifier.
-        }%
-    }{%
-        \@expand{\hi@citetype{\@this@case}}{\csname hi@type@#1\endcsname}{i}%
-    }%
+\hi@defparam{toacat}{Table of Authorities category for this citation}{%
+    \@expandarg\SetTOACategory\@this@case{#1}%
 }
-The valid category types are listed in \sec{refs}.
+The valid category types are listed in \sec{refs-categories}.
 \hi@param@alias{comment}{paren}
 This parameter was originally used for commentary, but now the \param{paren}
 parameter handles those as well.
@@ -6760,7 +6735,7 @@ a reference, and it should not be changed.
 This parameter has no display effect, but advises the package not to issue a
 warning if it detects an name list of three or more entities.
 \hi@defparam@noval{notoa}{Do not include in the table of authorities}{%
-    \hi@citetype\@this@case\@empty
+    \SetTOACategory{\@this@case}{}%
 }
 \hi@newparam{opturl}{Optional URL}
 Generally this parameter is ignored. However, if the package option
@@ -7578,7 +7553,7 @@ which could help with automatic conversion of Pandoc markdown documents.
 %% \iffalse filename: conclusion.dtx \fi
 %%
 
-\PrintIndex
+\ifdefined\PrintIndex \PrintIndex \fi
 
 \end{document}
 \endinput
