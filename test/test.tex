@@ -1147,6 +1147,55 @@ Rev.}
 %%
 %% \iffalse filename: format.dtx \fi
 %%
+\section{format.dtx}
+
+\subsection{Ordinal Numbers}
+
+\AssertExpand{\hi@numtotxt{1}}{First}
+\AssertExpand{\hi@numtotxt{2}}{Second}
+\AssertExpand{\hi@numtotxt{10}}{Tenth}
+\AssertExpand{\hi@numtotxt{12}}{Twelfth}
+\AssertExpand{\hi@numtotxt{45}}{Forty-Fifth}
+\AssertExpand{\hi@numtotxt{82}}{Eighty-Second}
+\AssertExpand{\hi@numtotxt{90}}{Ninetieth}
+\AssertExpand{\hi@numtotxt{123}}{123d}
+\AssertExpand{\hi@numtotxt{20000}}{Twenty Thousandth}
+\AssertExpand{\hi@numtotxt{23456}}{23,456th}
+
+\subsection{Capitalization}
+
+\AssertBox{\@capnext hello}{hello}
+\@hi@captrue
+\AssertBox{\@capnext hello}{Hello}
+\@hi@captrue
+\AssertBox{\@capnext Hello}{Hello}
+\@hi@captrue
+\AssertBox{\@capnext \emph{hello}}{\emph{Hello}}
+\@hi@captrue
+\AssertBox{\@capnext eBay}{eBay}
+\@hi@captrue
+\AssertBox{\@capnext emBay}{EmBay}
+
+\begingroup
+    \@hi@inlinetrue
+    \@hi@captrue
+    \AssertBox{\@capnext\emph{\textsection\textsection~123--124}}{\emph{Sections
+    123--124}}
+    \@hi@captrue
+    \AssertBox{\@capnext \emph{\textparagraph~15}}{\emph{Paragraph 15}}
+    \@hi@captrue
+    \AssertBox{\@capnext \hi@inline@the Great Escape}{The Great Escape}
+
+    \@hi@capfalse
+    \AssertBox{\@capnext \hi@inline@the Great Escape}{the Great Escape}
+\endgroup
+
+\subsection{Commas}
+
+\AssertBox{\hi@font@with@comma\textbf{Hello World}}{\textbf{Hello World}, }
+\AssertBox{\hi@font@with@comma\textbf{Hello ``World''}}{\textbf{Hello
+``World},\textbf{''} }
+
 %%
 %% \iffalse filename: caseref.dtx \fi
 %%
@@ -2468,7 +2517,7 @@ cite=131 Stat. 1005,
             }{}%
             \hi@ifset\hi@kv@type{\@capnext\hi@kv@type, }{}%
             \hi@ifset\hi@kv@name{% Title
-                \noexpand\hi@fn@arttitle{\hi@kv@name}\hi@font@comma
+                \@expand{\hi@font@with@comma{\noexpand\hi@fn@arttitle}}{\hi@kv@name}{i}%
             }{%
                 % If no title set, if there's a citation, use that as the
                 % title
@@ -2672,6 +2721,16 @@ cite=131 Stat. 1005,
 }
 
 \section{artrefs.dtx}
+
+\defjrnart{tu-kesselheim}{
+S. Sean Tu & Aaron S. Kesselheim, Preserving Timely Generic Drug Competition
+with Legislation on ``Skinny Labeling'', 115 Clinical Pharmacology and
+Therapeutics 22 (2024)
+}
+
+\AssertBox{\note{tu-kesselheim}}{\InFootnote{S. Sean Tu \& Aaron S. Kesselheim,
+\emph{Preserving Timely Generic Drug Competition with Legislation on ``Skinny
+Labeling},\emph{''} 115 Clinical Pharmacology \& Therapeutics 22 (2024).}}
 
 \subsection{Article Dates}
 

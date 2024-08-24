@@ -5368,7 +5368,7 @@ complex reference definition that I have constructed.
             }{}%
             \hi@ifset\hi@kv@type{\@capnext\hi@kv@type, }{}%
             \hi@ifset\hi@kv@name{% Title
-                \noexpand\hi@fn@arttitle{\hi@kv@name}\hi@font@comma
+                \@expand{\hi@font@with@comma{\noexpand\hi@fn@arttitle}}{\hi@kv@name}{i}%
             }{%
                 % If no title set, if there's a citation, use that as the
                 % title

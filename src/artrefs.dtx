@@ -25,7 +25,7 @@
             }{}%
             \hi@ifset\hi@kv@type{\@capnext\hi@kv@type, }{}%
             \hi@ifset\hi@kv@name{% Title
-                \noexpand\hi@fn@arttitle{\hi@kv@name}\hi@font@comma
+                \@expand{\hi@font@with@comma{\noexpand\hi@fn@arttitle}}{\hi@kv@name}{i}%
             }{%
                 % If no title set, if there's a citation, use that as the
                 % title
@@ -431,6 +431,16 @@ Econ.\ Res., Working Paper No. 13644, 2007).
 \section{artrefs.dtx}
 
 
+\defjrnart{tu-kesselheim}{
+S. Sean Tu & Aaron S. Kesselheim, Preserving Timely Generic Drug Competition
+with Legislation on ``Skinny Labeling'', 115 Clinical Pharmacology and
+Therapeutics 22 (2024)
+}                                                    
+
+
+\AssertBox{\note{tu-kesselheim}}{\InFootnote{S. Sean Tu \& Aaron S. Kesselheim,
+\emph{Preserving Timely Generic Drug Competition with Legislation on ``Skinny
+Labeling},\emph{''} 115 Clinical Pharmacology \& Therapeutics 22 (2024).}}
 
 \subsection{Article Dates}
 

@@ -4263,9 +4263,21 @@
 }
 \def\hi@replaceinlinethe@#1#2#3{#2{#1#3}}
 \make@find@start@cs{/hi@inline@the}{\hi@inline@the}
+\def\hi@font@with@comma#1#2{%
+    \find@end{''}{#2}{%
+        \hi@font@with@comma@quote{#1}{''}%
+    }{#1{#2}\hi@font@comma}%
+}
+\def\hi@font@with@comma@quote#1#2#3{%
+    #1{#3}\hi@font@comma@arg{#1{#2}}%
+}
+\make@find@end{''}
 \def\hi@name@comma{\if@hi@name\hi@font@comma\fi}
 \DeclareRobustCommand\hi@font@comma{%
     \ifdim\lastkern>\z@\unkern\fi, \@hi@dotfalse
+}
+\DeclareRobustCommand\hi@font@comma@arg[1]{%
+    \ifdim\lastkern>\z@\unkern\fi,#1 \@hi@dotfalse
 }
 \def\hi@param@optspc#1#2{%
     \hi@ifset#1{%
@@ -6673,7 +6685,7 @@
             }{}%
             \hi@ifset\hi@kv@type{\@capnext\hi@kv@type, }{}%
             \hi@ifset\hi@kv@name{% Title
-                \noexpand\hi@fn@arttitle{\hi@kv@name}\hi@font@comma
+                \@expand{\hi@font@with@comma{\noexpand\hi@fn@arttitle}}{\hi@kv@name}{i}%
             }{%
                 % If no title set, if there's a citation, use that as the
                 % title
