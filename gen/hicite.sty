@@ -5549,7 +5549,12 @@
                 \hi@pageordefault{}{%
                     \@capnext\reserved@a
                 }%
-                \hi@nocap\space of \hi@statcode@nameorinline{#1}%
+                \hi@nocap\space of
+                \hi@ifset\hi@kv@name{%
+                    \hi@statcode@nameorinline{#1}%
+                }{%
+                    \@capnext title \hi@kv@vol \space of the #2%
+                }%
             \fi
             % We will count this as the sufficient full citation if there appear
             % to be no parentheticals to be added to this citation (including no

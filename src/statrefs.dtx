@@ -614,7 +614,12 @@ those for \rtype{statcode}.
                 \hi@pageordefault{}{%
                     \@capnext\reserved@a
                 }%
-                \hi@nocap\space of \hi@statcode@nameorinline{#1}%
+                \hi@nocap\space of
+                \hi@ifset\hi@kv@name{%
+                    \hi@statcode@nameorinline{#1}%
+                }{%
+                    \@capnext title \hi@kv@vol \space of the #2%
+                }%
             \fi
             % We will count this as the sufficient full citation if there appear
             % to be no parentheticals to be added to this citation (including no
@@ -1085,6 +1090,8 @@ name.
 \section{statrefs.dtx}
 
 \defstatcode{271}{35 U.S.C. S 271}
+
+\AssertBox{\inline{271}}{\S~271 of title 35 of the U.S. Code}
 
 \AssertBox{\note{271 at /b}}{%
     \InFootnote{35 \textsc{U.S.C.} \textsection~271(b).}%
