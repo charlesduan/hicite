@@ -4327,9 +4327,21 @@
 }
 \def\hi@replaceinlinethe@#1#2#3{#2{#1#3}}
 \make@find@start@cs{/hi@inline@the}{\hi@inline@the}
+\def\hi@font@with@comma#1#2{%
+    \find@end{''}{#2}{%
+        \hi@font@with@comma@quote{#1}{''}%
+    }{#1{#2}\hi@font@comma}%
+}
+\def\hi@font@with@comma@quote#1#2#3{%
+    #1{#3}\hi@font@comma@arg{#1{#2}}%
+}
+\make@find@end{''}
 \def\hi@name@comma{\if@hi@name\hi@font@comma\fi}
 \DeclareRobustCommand\hi@font@comma{%
     \ifdim\lastkern>\z@\unkern\fi, \@hi@dotfalse
+}
+\DeclareRobustCommand\hi@font@comma@arg[1]{%
+    \ifdim\lastkern>\z@\unkern\fi,#1 \@hi@dotfalse
 }
 \def\hi@param@optspc#1#2{%
     \hi@ifset#1{%
@@ -6378,7 +6390,11 @@
                 \noexpand\hi@fn@bookauthor{\relax\hi@kv@author@sortable},\space
                 \noexpand\hi@usevol{\hi@ifset\hi@kv@vol{\hi@kv@vol\space}{}}%
                 \hi@ifset\hi@kv@number{%
-                    \noexpand\hi@fn@booktitle{\hi@kv@number}, % space
+                    \hi@ifset\hi@kv@publisher{}{%
+                        \noexpand\hi@fn@booktitle{%
+                            \hi@abbrev@pub{\hi@kv@number}{\@iden}%
+                        }, % space
+                    }%
                 }{}%
                 \hi@fn@booktitle{\hi@kv@name}%
             }{%
@@ -6405,7 +6421,11 @@
                 }{\hi@toa@dupnone}%
                 \noexpand\hi@usevol{\hi@ifset\hi@kv@vol{\hi@kv@vol\space}{}}%
                 \hi@ifset\hi@kv@number{%
-                    \noexpand\hi@fn@booktitle{\hi@kv@number}, % space
+                    \hi@ifset\hi@kv@publisher{}{%
+                        \noexpand\hi@fn@booktitle{%
+                            \hi@abbrev@pub{\hi@kv@number}{\@iden}%
+                        }, % space
+                    }%
                 }{}%
                 \hi@fn@booktitle{\hi@kv@name}%
             }%
@@ -6734,7 +6754,7 @@
             }{}%
             \hi@ifset\hi@kv@type{\@capnext\hi@kv@type, }{}%
             \hi@ifset\hi@kv@name{% Title
-                \noexpand\hi@fn@arttitle{\hi@kv@name}\hi@font@comma
+                \@expand{\hi@font@with@comma\hi@fn@arttitle}{\hi@kv@name}{i}%
             }{%
                 % If no title set, if there's a citation, use that as the
                 % title
@@ -6841,7 +6861,7 @@
     \hi@newcite@form{fc}{#1}{%
         \hi@citeguts{%
             \hi@ifset\hi@kv@author{\hi@kv@author@sortable, }{}%
-            \noexpand\hi@fn@arttitle{\hi@kv@name}\hi@font@comma % Title
+            \@expand{\hi@font@with@comma\hi@fn@arttitle}{\hi@kv@name}{i}%
             \noexpand\hi@fn@jrntitle{\hi@kv@rep}% Magazine title
             \hi@ifset\hi@kv@publisher{ (\hi@kv@publisher)}{}%
             \hi@font@comma
@@ -6878,11 +6898,17 @@
             \hi@ifset\hi@kv@author{%
                 \hi@toa@dupauthor{\noexpand\@iden}{\hi@kv@author@sortable}%
             }{}%
-            \hi@ifset\hi@kv@name{\noexpand\hi@fn@webtitle{\hi@kv@name}}{}%
-            \hi@ifset\hi@kv@rep{%
-                \hi@ifset\hi@kv@name{\hi@font@comma}{}%
-                \noexpand\hi@fn@jrntitle{\hi@kv@rep}%
-            }{}%
+            \hi@ifset\hi@kv@name{%
+                \hi@ifset\hi@kv@rep{%
+                    \@expand{\hi@font@with@comma\hi@fn@webtitle}{\hi@kv@name}i%
+                    \hi@fn@jrntitle{\hi@kv@rep}%
+                }{%
+                    \hi@fn@webtitle{\hi@kv@name}{}%
+                }%
+            }{%
+                % \hi@kv@rep assumed to be set here
+                \hi@fn@jrntitle{\hi@kv@rep}%
+            }%
             \hi@maybepage{ }%
         }%
         \hi@book@paren
