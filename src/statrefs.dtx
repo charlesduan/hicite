@@ -523,8 +523,10 @@ those for \rtype{statcode}.
     % retains the \textsection symbols.
     \hi@ifset\hi@kv@origsect{}{%
         \@expand{\find@try\find@eq{%
-            {U.S.C.}{\hi@statcode@special{#1}{U.S. Code}}%
-            {C.F.R.}{\hi@statcode@special{#1}{Code of Federal Regulations}}%
+            {U.S.C.}{\hi@statcode@special{#1}{U.S.C.}{U.S. Code}}%
+            {C.F.R.}{%
+                \hi@statcode@special{#1}{C.F.R.}{Code of Federal Regulations}%
+            }%
         }}\hi@kv@rep i{}%
     }%
     %
@@ -570,10 +572,13 @@ those for \rtype{statcode}.
 %    \end{macrocode}
 %
 % Creates the inline citation form where the reporter is U.S.C. or C.F.R. \#1 is
-% the reference name, \#2 the textual form of the reporter.
+% the reference name, \#2 the abbreviated reporter, and \#3 the textual form of
+% the reporter. Note that
+% |\reserved@a| stores the formatted subdivision number (typically the section
+% number).
 %
 %    \begin{macrocode}
-\def\hi@statcode@special#1#2{%
+\def\hi@statcode@special#1#2#3{%
     \hi@newcite@form{isc}{#1}{%
         \hi@citeguts{%
             \ifx\reserved@a\@empty
@@ -584,7 +589,11 @@ those for \rtype{statcode}.
                     \hi@ifset\hi@kv@name{%
                         \hi@statcode@nameorinline{#1}%
                     }{%
-                        \noexpand\@capnext title \hi@kv@vol % \space of the #2%
+                        \noexpand\if@hi@cap
+                            \hi@nocap Title \hi@kv@vol\space of the #3%
+                        \noexpand\else
+                            \hi@kv@vol\space #2%
+                        \noexpand\fi
                     }%
                 }%
             \else
@@ -606,20 +615,28 @@ those for \rtype{statcode}.
                     \hi@ifset\hi@kv@name{%
                         \hi@statcode@nameorinline{#1}%
                     }{%
-                        \@capnext title \hi@kv@vol \space of the #2%
+                        \noexpand\if@hi@cap
+                            \hi@nocap Title \hi@kv@vol\space of the #3%
+                        \noexpand\else
+                            \hi@kv@vol\space #2%
+                        \noexpand\fi
                     }%
                 }%
             \else
                 % A section number was given.
-                \hi@pageordefault{}{%
-                    \@capnext\reserved@a
-                }%
-                \hi@nocap\space of
-                \hi@ifset\hi@kv@name{%
-                    \hi@statcode@nameorinline{#1}%
-                }{%
-                    \@capnext title \hi@kv@vol \space of the #2%
-                }%
+                \noexpand\if@hi@cap
+                    \hi@pageordefault{}{%
+                        \@capnext\reserved@a
+                    }%
+                    \hi@nocap\space of
+                    \hi@ifset\hi@kv@name{%
+                        \hi@statcode@nameorinline{#1}%
+                    }{%
+                        title \hi@kv@vol \space of the #3%
+                    }%
+                \noexpand\else
+                    \hi@kv@vol\space #2 \hi@pageordefault{}{\reserved@a}%
+                \noexpand\fi
             \fi
             % We will count this as the sufficient full citation if there appear
             % to be no parentheticals to be added to this citation (including no
@@ -1091,11 +1108,15 @@ name.
 
 \defstatcode{271}{35 U.S.C. S 271}
 
-\AssertBox{\inline{271}}{\S~271 of title 35 of the U.S. Code}
+\AssertBox{\inline{271}}{35 U.S.C. \S~271}
 
 \AssertBox{\note{271 at /b}}{%
     \InFootnote{35 \textsc{U.S.C.} \textsection~271(b).}%
 }
+
+\defstatcode{273}{35 U.S.C. S 273}
+
+\AssertBox{\Inline{273}}{Section 273 of title 35 of the U.S. Code}
 
 \defstatcode{dmca}{
     cite=17 U.S.C. S 1201-1204,

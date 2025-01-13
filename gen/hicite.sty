@@ -5495,8 +5495,10 @@
     % retains the \textsection symbols.
     \hi@ifset\hi@kv@origsect{}{%
         \@expand{\find@try\find@eq{%
-            {U.S.C.}{\hi@statcode@special{#1}{U.S. Code}}%
-            {C.F.R.}{\hi@statcode@special{#1}{Code of Federal Regulations}}%
+            {U.S.C.}{\hi@statcode@special{#1}{U.S.C.}{U.S. Code}}%
+            {C.F.R.}{%
+                \hi@statcode@special{#1}{C.F.R.}{Code of Federal Regulations}%
+            }%
         }}\hi@kv@rep i{}%
     }%
     %
@@ -5539,7 +5541,7 @@
 \make@find@eq{C.F.R.}
 \make@find@in{s}
 \make@find@in{t}
-\def\hi@statcode@special#1#2{%
+\def\hi@statcode@special#1#2#3{%
     \hi@newcite@form{isc}{#1}{%
         \hi@citeguts{%
             \ifx\reserved@a\@empty
@@ -5550,7 +5552,11 @@
                     \hi@ifset\hi@kv@name{%
                         \hi@statcode@nameorinline{#1}%
                     }{%
-                        \noexpand\@capnext title \hi@kv@vol % \space of the #2%
+                        \noexpand\if@hi@cap
+                            \hi@nocap Title \hi@kv@vol\space of the #3%
+                        \noexpand\else
+                            \hi@kv@vol\space #2%
+                        \noexpand\fi
                     }%
                 }%
             \else
@@ -5572,20 +5578,28 @@
                     \hi@ifset\hi@kv@name{%
                         \hi@statcode@nameorinline{#1}%
                     }{%
-                        \@capnext title \hi@kv@vol \space of the #2%
+                        \noexpand\if@hi@cap
+                            \hi@nocap Title \hi@kv@vol\space of the #3%
+                        \noexpand\else
+                            \hi@kv@vol\space #2%
+                        \noexpand\fi
                     }%
                 }%
             \else
                 % A section number was given.
-                \hi@pageordefault{}{%
-                    \@capnext\reserved@a
-                }%
-                \hi@nocap\space of
-                \hi@ifset\hi@kv@name{%
-                    \hi@statcode@nameorinline{#1}%
-                }{%
-                    \@capnext title \hi@kv@vol \space of the #2%
-                }%
+                \noexpand\if@hi@cap
+                    \hi@pageordefault{}{%
+                        \@capnext\reserved@a
+                    }%
+                    \hi@nocap\space of
+                    \hi@ifset\hi@kv@name{%
+                        \hi@statcode@nameorinline{#1}%
+                    }{%
+                        title \hi@kv@vol \space of the #3%
+                    }%
+                \noexpand\else
+                    \hi@kv@vol\space #2 \hi@pageordefault{}{\reserved@a}%
+                \noexpand\fi
             \fi
             % We will count this as the sufficient full citation if there appear
             % to be no parentheticals to be added to this citation (including no
