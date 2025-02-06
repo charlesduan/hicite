@@ -45,79 +45,122 @@ The command |\url|\marg{url} can be used to format a URL in text.
 % protected.
 %    \begin{macrocode}
 \def\hi@parseurl#1#2{%
-    \hi@parseurl@forlink{#1}%
-    \def#2{\leavevmode\hi@parseurl@use}%
-    \expandafter\addto@macro\expandafter#2\expandafter{\expandafter{%
-        \the\hi@url@count
-    }}%
-    \hi@parseurl@{#1}{#2}%
-    \if@endswithdot{#1}{\addto@macro#2{\protect\@hi@dottrue}}%
-    \addto@macro#2{\hi@parseurl@enduse}%
+    \global\advance\hi@url@count\@ne
+    \let\hi@url@cur\hi@url@count
+    \hi@url@link{#1}%
+    \hi@url@text{#1}%
+    \hi@url@assign{#2}%
 }
-\DeclareRobustCommand\hi@parseurl@use[1]{%
-    \@ifundefined{hi@pdfurl@#1}{%
+\def\hi@url@assign@default#1{%
+    \letcs#1{hi@u\the\hi@url@cur @text}%
+    \@expand\if@endswithdot{\csname hi@u\the\hi@url@cur @text\endcsname}{ii}%
+        {\addto@macro#1{\protect\@hi@dottrue}}%
+}
+\let\hi@url@assign\hi@url@assign@default
+%    \end{macrocode}
+%
+%
+% \subsection{Data Structures}
+%
+% Every URL encountered will be assigned a number, which will be associated with
+% data relating to the URL:
+% \begin{itemize}
+% \item |\hi@u#@link|: Text insertable as a PDF hyperlink declaration.
+%
+% \item |\hi@u#@text|: Text insertable into the body of a document, providing
+% line breaking and spacing.
+%
+% \item |\hi@u#@declared|: Indicates that the URL has been declared for a PDF
+% document.
+% \end{itemize}
+%
+% |\hi@url@declare|\marg{num}
+% inserts code declaring the URL that has been assigned number \meta{num}. A
+% macro |\hi@u|\meta{num}|@link| should be defined as the properly escaped URL.
+% This should be called once within the document.
+%
+%    \begin{macrocode}
+\DeclareRobustCommand\hi@url@declare[1]{%
+    \@ifundefined{hi@u#1@declared}{%
         \edef\reserved@a{%
             \noexpand\special{%
                 pdf:object @HIURL#1 <<
                     /S /URI
-                    /URI (\csname hi@linkurl@#1\endcsname)
+                    /URI (\csname hi@u#1@link\endcsname)
                 >>
             }%
         }\reserved@a
+        \global\cslet{hi@u#1@declared}\@empty
     }{}%
-    \edef\hi@parseurl@insert##1{%
-        \noexpand\special{pdf:bann <<
-            /Type /Annot
-            /Subtype /Link
-            /Border [0 0 0]
-            /A @HIURL#1
-        >>}##1\noexpand\special{pdf:eann}%
-    }%
 }
-\DeclareRobustCommand\hi@parseurl@insertbox[1]{%
-    \hbox{\hi@parseurl@insert{#1}}%
+%    \end{macrocode}
+%
+% |\hi@url@insert|\marg{num}\marg{text}
+% inserts \meta{text} with a PDF hyperlink to the url identified by \meta{num}.
+%
+%    \begin{macrocode}
+\DeclareRobustCommand\hi@url@insert[2]{%
+    \@ifundefined{hi@u#1@declared}{\hi@url@declare{#1}}{}%
+    \noexpand\special{pdf:bann <<
+        /Type /Annot
+        /Subtype /Link
+        /Border [0 0 0]
+        /A @HIURL#1
+    >>}#2\noexpand\special{pdf:eann}%
+}%
+%    \end{macrocode}
+%
+% |\hi@url@insertbox|\marg{text}
+% inserts \meta{text} within an |\hbox|, with a PDF hyperlink to the url
+% identified by the current URL count number.
+%
+%    \begin{macrocode}
+\DeclareRobustCommand\hi@url@insertbox[1]{%
+    \hbox{\@expandarg\hi@url@insert{\the\hi@url@cur}{#1}}%
 }
-\let\hi@parseurl@insert\@firstofone
-\DeclareRobustCommand\hi@parseurl@enduse{}
 \newcount\hi@url@count
+\newcount\hi@url@cur
 \make@find@start{http://}
 \make@find@start{https://}
 \make@find@start{ftp://}
 \make@find@start{mailto:}
 %    \end{macrocode}
 %
+%
+% \subsection{Converting to PDF-Compatible Link}
+%
 % Parses a URL for purposes of forming it into a link URL. This primarily strips
-% the URL of backslash escape characters.
+% the URL of backslash escape characters. The result is placed in |\hi@u#@link|,
+% where the number is |\hi@url@cur|.
 %
 %    \begin{macrocode}
-\def\hi@parseurl@forlink#1{%
+\def\hi@url@link#1{%
     \let\reserved@a\@empty
     % Force the link to start with https:// unless it has a protocol already
     \find@try\find@start{%
         {http://}\@gobble{https://}\@gobble{ftp://}\@gobble{mailto:}\@gobble
     }{#1}{\def\reserved@a{https://}}%
-    \hi@parseurl@forlink@{#1}%
-    \global\advance\hi@url@count\@ne
-    \global\expandafter\let\csname hi@linkurl@\the\hi@url@count\endcsname \reserved@a
+    \hi@url@link@{#1}%
+    \global\cslet{hi@u\the\hi@url@cur @link}\reserved@a
 }
-\def\hi@parseurl@forlink@#1{%
+\def\hi@url@link@#1{%
     \find@word{#1}%
-        \hi@parseurl@forlink@chars
-        \hi@parseurl@forlink@groups
-        \hi@parseurl@forlink@words
+        \hi@url@link@chars
+        \hi@url@link@groups
+        \hi@url@link@words
         \relax
 }
-\def\hi@parseurl@forlink@words#1#2{%
+\def\hi@url@link@words#1#2{%
     \addto@macro\reserved@a{#1}%
-    \hi@parseurl@forlink@{#2}%
+    \hi@url@link@{#2}%
 }
-\def\hi@parseurl@forlink@groups#1#2{%
-    \hi@parseurl@forlink@{\{#1\}#2}%
+\def\hi@url@link@groups#1#2{%
+    \hi@url@link@{\{#1\}#2}%
 }
-\def\hi@parseurl@forlink@chars#1#2{%
+\def\hi@url@link@chars#1#2{%
     \@test \ifcat\relax\noexpand#1\fi{%
         % If the char is a macro
-        \@ifundefined{hi@url@\string#1}{%
+        \@ifundefined{hi@uchar@\string#1}{%
             \expandafter\addto@macro\expandafter\reserved@a\expandafter{%
                 \string#1%
             }%
@@ -132,31 +175,46 @@ The command |\url|\marg{url} can be used to format a URL in text.
             \addto@macro\reserved@a{#1}%
         }%
     }%
-    \hi@parseurl@forlink@{#2}%
+    \hi@url@link@{#2}%
 }
 %    \end{macrocode}
-% \#1 is the remaining part of the URL to parse; \#2 is the macro to put the
-% formatted URL into.
+%
+%
+%
+% \subsection{Converting to Text}
+%
+%
+% Formats a URL as text intended for insertion into a paragraph. The resulting
+% content is stored in the macro |\hi@u#@text|, where the number is
+% |\hi@url@cur|.
 %    \begin{macrocode}
-\def\hi@parseurl@#1#2{%
+\def\hi@url@text#1{%
+    \edef\reserved@a{\noexpand\hi@url@cur=\the\hi@url@cur \relax}%
+    \hi@url@text@next{#1}\reserved@a
+    \global\cslet{hi@u\the\hi@url@cur @text}\reserved@a
+}
+
+\def\hi@url@text@next#1#2{%
     \find@word{#1}{%
-        \hi@parseurl@chars{#2}%
+        \hi@url@text@chars{#2}%
     }{%
-        \hi@parseurl@groups{#2}%
+        \hi@url@text@groups{#2}%
     }{%
-        \hi@parseurl@words{#2}%
+        \hi@url@text@words{#2}%
     }{}%
 }
 %    \end{macrocode}
+%
+% 
 % \#1 is the macro for the formatted URL; \#2 is the text to process; \#3 is the
 % rest of the URL.
 %    \begin{macrocode}
-\def\hi@parseurl@words#1#2#3{%
-    \addto@macro#1{\hi@parseurl@insertbox{#2}}%
-    \hi@parseurl@{#3}{#1}%
+\def\hi@url@text@words#1#2#3{%
+    \addto@macro#1{\hi@url@insertbox{#2}}%
+    \hi@url@text@next{#3}{#1}%
 }
-\def\hi@parseurl@groups#1#2#3{%
-    \hi@parseurl@{\{#2\}#3}{#1}%
+\def\hi@url@text@groups#1#2#3{%
+    \hi@url@text@next{\{#2\}#3}{#1}%
 }
 %    \end{macrocode}
 %
@@ -165,20 +223,20 @@ The command |\url|\marg{url} can be used to format a URL in text.
 % processed.
 %
 %    \begin{macrocode}
-\def\hi@parseurl@chars#1#2#3{%
+\def\hi@url@text@chars#1#2#3{%
     \@test \ifcat\relax\noexpand#2\fi{%
 %    \end{macrocode}
 %
 % If the character (\#2) is a command (e.g., |\%|), see if a definition is
 % given for this command. If so, then execute the definition for the
-% command (e.g., |\hi@url@\%|). Otherwise, treat the command like text in
+% command (e.g., |\hi@uchar@\%|). Otherwise, treat the command like text in
 % the URL and parse it along with the remainder of the URL.
 %    \begin{macrocode}
-        \@ifundefined{hi@url@\string#2}{%
-            \expandafter\hi@parseurl@\expandafter{\string#2#3}{#1}%
+        \@ifundefined{hi@uchar@\string#2}{%
+            \expandafter\hi@url@text\expandafter{\string#2#3}{#1}%
         }{%
-            \csname hi@url@\string#2\endcsname{#1}{#3}%
-            \hi@parseurl@{#3}{#1}%
+            \csname hi@uchar@\string#2\endcsname{#1}{#3}%
+            \hi@url@text@next{#3}{#1}%
         }%
     }{%
 %    \end{macrocode}
@@ -187,19 +245,19 @@ The command |\url|\marg{url} can be used to format a URL in text.
 % character to the URL. In all cases, continue with parsing the
 % remainder of the string.
 %    \begin{macrocode}
-        \@ifundefined{hi@url@\@backslashchar\string#2}{%
-            \addto@macro#1{\hi@parseurl@insertbox #2}%
+        \@ifundefined{hi@uchar@\@backslashchar\string#2}{%
+            \addto@macro#1{\hi@url@insertbox #2}%
         }{%
-            \csname hi@url@\@backslashchar\string#2\endcsname{#1}{#3}%
+            \csname hi@uchar@\@backslashchar\string#2\endcsname{#1}{#3}%
         }%
-        \hi@parseurl@{#3}{#1}%
+        \hi@url@text@next{#3}{#1}%
     }%
 }
 %    \end{macrocode}
 %
-% We now define macros of the form |\hi@url@|\meta{char} for each character that
-% will receive special processing. Each macro will take two arguments: \#1 is
-% the URL macro for adding content, and \#2 is the trailing text of the URL.
+% We now define macros of the form |\hi@uchar@|\meta{char} for each character
+% that will receive special processing. Each macro will take two arguments: \#1
+% is the URL macro for adding content, and \#2 is the trailing text of the URL.
 %
 % The original lists of characters were borrowed from url.sty, by Donald
 % Arsenau. At this point the code no longer resembles the original beyond
@@ -209,11 +267,11 @@ The command |\url|\marg{url} can be used to format a URL in text.
 % These characters accept a breakpoint after them.
 %    \begin{macrocode}
 \def\do#1{%
-    \@namedef{hi@url@\string #1}##1##2{%
-        \addto@macro##1{\hi@parseurl@insertbox}%
+    \@namedef{hi@uchar@\string #1}##1##2{%
+        \addto@macro##1{\hi@url@insertbox}%
         \@expand{\addto@macro##1}{\expandafter\@gobble\string #1}{ii}%
         \find@word{##2}\@gobbletwo\@gobbletwo{%
-            \addto@macro##1{\hi@url@break}\@gobbletwo
+            \addto@macro##1{\hi@uchar@break}\@gobbletwo
         }{}%
     }%
 }
@@ -223,15 +281,15 @@ The command |\url|\marg{url} can be used to format a URL in text.
 % These characters accept a breakpoint \emph{and} add a little extra space.
 %    \begin{macrocode}
 \def\do#1{%
-    \@namedef{hi@url@\string #1}##1##2{%
-        \addto@macro##1{\hi@url@spacenobreak\hi@parseurl@insertbox}%
+    \@namedef{hi@uchar@\string #1}##1##2{%
+        \addto@macro##1{\hi@uchar@spacenobreak\hi@url@insertbox}%
         \@expand{\addto@macro##1}{\expandafter\@gobble\string #1}{ii}%
         \find@word{##2}{%
-            \addto@macro##1{\hi@url@spacenobreak}\@gobbletwo
+            \addto@macro##1{\hi@uchar@spacenobreak}\@gobbletwo
         }{%
-            \addto@macro##1{\hi@url@spacenobreak}\@gobbletwo
+            \addto@macro##1{\hi@uchar@spacenobreak}\@gobbletwo
         }{%
-            \addto@macro##1{\hi@url@spacebreak}\@gobbletwo
+            \addto@macro##1{\hi@uchar@spacebreak}\@gobbletwo
         }{}%
     }%
 }
@@ -242,8 +300,8 @@ The command |\url|\marg{url} can be used to format a URL in text.
 % them forces the removal of the backslash.
 %    \begin{macrocode}
 \def\do#1{%
-    \@namedef{hi@url@\string #1}##1##2{%
-        \addto@macro##1{\hi@parseurl@insertbox}%
+    \@namedef{hi@uchar@\string #1}##1##2{%
+        \addto@macro##1{\hi@url@insertbox}%
         \@expand{\addto@macro##1}{\expandafter\@gobble\string #1}{ii}%
     }%
 }
@@ -254,10 +312,10 @@ The command |\url|\marg{url} can be used to format a URL in text.
 % breakpoint is inserted if the next character is a word character.
 %    \begin{macrocode}
 \def\do#1#2{%
-    \@namedef{hi@url@\string #1}##1##2{%
-        \addto@macro##1{\hi@parseurl@insertbox{#2}}%
+    \@namedef{hi@uchar@\string #1}##1##2{%
+        \addto@macro##1{\hi@url@insertbox{#2}}%
         \find@word{##2}\@gobbletwo\@gobbletwo{%
-            \addto@macro##1{\hi@url@break}\@gobbletwo
+            \addto@macro##1{\hi@uchar@break}\@gobbletwo
         }{}%
     }%
 }
@@ -278,41 +336,41 @@ The command |\url|\marg{url} can be used to format a URL in text.
 %
 %    \begin{macrocode}
 \def\do#1#2{%
-    \@namedef{hi@url@\string #1}##1##2{%
-        \addto@macro##1{\hi@parseurl@insertbox{#2}}%
+    \@namedef{hi@uchar@\string #1}##1##2{%
+        \addto@macro##1{\hi@url@insertbox{#2}}%
     }%
 }
 \do\>{$\protect\rangle$}
 \do\}{$\protect\rbrace$}
 \do\~{\char`\~}%
-\@namedef{hi@url@\string\%}#1#2{%
-    \ifstrempty{#2}{}{\addto@macro#1{\hi@url@spacebreak}}%
-    \addto@macro#1{\hi@parseurl@insertbox{\%}}%
+\@namedef{hi@uchar@\string\%}#1#2{%
+    \ifstrempty{#2}{}{\addto@macro#1{\hi@uchar@spacebreak}}%
+    \addto@macro#1{\hi@url@insertbox{\%}}%
 }%
 %    \end{macrocode}
 %
 % Macros for types of breakpoints and spaces.
 %    \begin{macrocode}
 \newskip\urlbreakskip \urlbreakskip=0pt plus .4pt
-\DeclareRobustCommand\hi@url@break{%
+\DeclareRobustCommand\hi@uchar@break{%
     \penalty\exhyphenpenalty
 }
-\DeclareRobustCommand\hi@url@spacenobreak{%
+\DeclareRobustCommand\hi@uchar@spacenobreak{%
     \unskip\unpenalty\nobreak
     \hskip\urlbreakskip
 }
-\DeclareRobustCommand\hi@url@spacebreak{%
+\DeclareRobustCommand\hi@uchar@spacebreak{%
     \penalty\exhyphenpenalty\hskip\urlbreakskip
 }
 %    \end{macrocode}
 %
 % Now actually apply commands to the character classes.
 %    \begin{macrocode}
-\@namedef{hi@url@\string\ }#1#2{%
-    \ifstrempty{#2}{}{\addto@macro#1{\hi@url@break}}%
+\@namedef{hi@uchar@\string\ }#1#2{%
+    \ifstrempty{#2}{}{\addto@macro#1{\hi@uchar@break}}%
 }
-\@namedef{hi@url@\string\^^M}#1#2{%
-    \ifstrempty{#2}{}{\addto@macro#1{\hi@url@break}}%
+\@namedef{hi@uchar@\string\^^M}#1#2{%
+    \ifstrempty{#2}{}{\addto@macro#1{\hi@uchar@break}}%
 }
 %    \end{macrocode}
 %</package>
@@ -402,26 +460,43 @@ unbreakable word or the macro should be defined to include an unbreakable
 %</doc>
 %<*package>
 %    \begin{macrocode}
+\def\hi@url@assign@link#1{%
+    \edef#1{%
+        \noexpand\leavevmode
+        \noexpand\hi@url@insert{\the\hi@url@cur}{\noexpand\LinkText}%
+        \noexpand\hi@linkurl@auxwrite{\the\hi@url@cur}%
+    }%
+}
 \def\hi@urlstyle@link{%
-    \def\hi@parseurl##1##2{%
-        \hi@parseurl@forlink{##1}%
-        \edef##2{%
-            \noexpand\leavevmode
-            \noexpand\special{%
-                pdf:object @HIURL\the\hi@url@count <<
-                    /S /URI
-                    /URI (\csname hi@linkurl@\the\hi@url@count\endcsname)
-                >>
-            }%
-            \noexpand\special{pdf:bann <<
-                /Type /Annot
-                /Subtype /Link
-                /Border [0 0 0]
-                /A @HIURL\the\hi@url@count
-            >>}\noexpand\LinkText\noexpand\special{pdf:eann}%
-        }%
-    }
-    \def\LinkText{\emph{link}}
+    \let\hi@url@assign\hi@url@assign@link
+}
+\def\hi@linkurl@auxwrite#1{%
+    \addtocontents{tou}{\protect\l@hi@tou{#1}{\thepage}}%
+}
+\def\LinkText{\emph{link}}
+%    \end{macrocode}
+%</package>
+%<*doc>
+%
+% If the URL link style is selected, then a table of URLs may be generated with
+% the command |\TableOfUrls|. This ensures that print copies of a document
+% contain any URLs that were otherwise omitted by replacement with the
+% |\LinkText| word.
+%
+%</doc>
+%<*package>
+%    \begin{macrocode}
+\def\TableOfUrls{%
+    \makeatletter
+    \@input{\jobname.tou}%
+    \makeatother
+    \if@filesw
+        \newwrite\tf@tou
+        \immediate\openout\tf@tou \jobname.tou\relax
+    \fi
+}
+\def\l@hi@tou#1#2{%
+    \@dottedtocline{1}{0em}{1.5em}{\csname hi@u#1@text\endcsname}{#2}%
 }
 %    \end{macrocode}
 %</package>

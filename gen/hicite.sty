@@ -1077,73 +1077,76 @@
     \hi@parseurl{#1}\reserved@a\reserved@a
 }%
 \def\hi@parseurl#1#2{%
-    \hi@parseurl@forlink{#1}%
-    \def#2{\leavevmode\hi@parseurl@use}%
-    \expandafter\addto@macro\expandafter#2\expandafter{\expandafter{%
-        \the\hi@url@count
-    }}%
-    \hi@parseurl@{#1}{#2}%
-    \if@endswithdot{#1}{\addto@macro#2{\protect\@hi@dottrue}}%
-    \addto@macro#2{\hi@parseurl@enduse}%
+    \global\advance\hi@url@count\@ne
+    \let\hi@url@cur\hi@url@count
+    \hi@url@link{#1}%
+    \hi@url@text{#1}%
+    \hi@url@assign{#2}%
 }
-\DeclareRobustCommand\hi@parseurl@use[1]{%
-    \@ifundefined{hi@pdfurl@#1}{%
+\def\hi@url@assign@default#1{%
+    \letcs#1{hi@u\the\hi@url@cur @text}%
+    \@expand\if@endswithdot{\csname hi@u\the\hi@url@cur @text\endcsname}{ii}%
+        {\addto@macro#1{\protect\@hi@dottrue}}%
+}
+\let\hi@url@assign\hi@url@assign@default
+\DeclareRobustCommand\hi@url@declare[1]{%
+    \@ifundefined{hi@u#1@declared}{%
         \edef\reserved@a{%
             \noexpand\special{%
                 pdf:object @HIURL#1 <<
                     /S /URI
-                    /URI (\csname hi@linkurl@#1\endcsname)
+                    /URI (\csname hi@u#1@link\endcsname)
                 >>
             }%
         }\reserved@a
+        \global\cslet{hi@u#1@declared}\@empty
     }{}%
-    \edef\hi@parseurl@insert##1{%
-        \noexpand\special{pdf:bann <<
-            /Type /Annot
-            /Subtype /Link
-            /Border [0 0 0]
-            /A @HIURL#1
-        >>}##1\noexpand\special{pdf:eann}%
-    }%
 }
-\DeclareRobustCommand\hi@parseurl@insertbox[1]{%
-    \hbox{\hi@parseurl@insert{#1}}%
+\DeclareRobustCommand\hi@url@insert[2]{%
+    \@ifundefined{hi@u#1@declared}{\hi@url@declare{#1}}{}%
+    \noexpand\special{pdf:bann <<
+        /Type /Annot
+        /Subtype /Link
+        /Border [0 0 0]
+        /A @HIURL#1
+    >>}#2\noexpand\special{pdf:eann}%
+}%
+\DeclareRobustCommand\hi@url@insertbox[1]{%
+    \hbox{\@expandarg\hi@url@insert{\the\hi@url@cur}{#1}}%
 }
-\let\hi@parseurl@insert\@firstofone
-\DeclareRobustCommand\hi@parseurl@enduse{}
 \newcount\hi@url@count
+\newcount\hi@url@cur
 \make@find@start{http://}
 \make@find@start{https://}
 \make@find@start{ftp://}
 \make@find@start{mailto:}
-\def\hi@parseurl@forlink#1{%
+\def\hi@url@link#1{%
     \let\reserved@a\@empty
     % Force the link to start with https:// unless it has a protocol already
     \find@try\find@start{%
         {http://}\@gobble{https://}\@gobble{ftp://}\@gobble{mailto:}\@gobble
     }{#1}{\def\reserved@a{https://}}%
-    \hi@parseurl@forlink@{#1}%
-    \global\advance\hi@url@count\@ne
-    \global\expandafter\let\csname hi@linkurl@\the\hi@url@count\endcsname \reserved@a
+    \hi@url@link@{#1}%
+    \global\cslet{hi@u\the\hi@url@cur @link}\reserved@a
 }
-\def\hi@parseurl@forlink@#1{%
+\def\hi@url@link@#1{%
     \find@word{#1}%
-        \hi@parseurl@forlink@chars
-        \hi@parseurl@forlink@groups
-        \hi@parseurl@forlink@words
+        \hi@url@link@chars
+        \hi@url@link@groups
+        \hi@url@link@words
         \relax
 }
-\def\hi@parseurl@forlink@words#1#2{%
+\def\hi@url@link@words#1#2{%
     \addto@macro\reserved@a{#1}%
-    \hi@parseurl@forlink@{#2}%
+    \hi@url@link@{#2}%
 }
-\def\hi@parseurl@forlink@groups#1#2{%
-    \hi@parseurl@forlink@{\{#1\}#2}%
+\def\hi@url@link@groups#1#2{%
+    \hi@url@link@{\{#1\}#2}%
 }
-\def\hi@parseurl@forlink@chars#1#2{%
+\def\hi@url@link@chars#1#2{%
     \@test \ifcat\relax\noexpand#1\fi{%
         % If the char is a macro
-        \@ifundefined{hi@url@\string#1}{%
+        \@ifundefined{hi@uchar@\string#1}{%
             \expandafter\addto@macro\expandafter\reserved@a\expandafter{%
                 \string#1%
             }%
@@ -1158,77 +1161,83 @@
             \addto@macro\reserved@a{#1}%
         }%
     }%
-    \hi@parseurl@forlink@{#2}%
+    \hi@url@link@{#2}%
 }
-\def\hi@parseurl@#1#2{%
+\def\hi@url@text#1{%
+    \edef\reserved@a{\noexpand\hi@url@cur=\the\hi@url@cur \relax}%
+    \hi@url@text@next{#1}\reserved@a
+    \global\cslet{hi@u\the\hi@url@cur @text}\reserved@a
+}
+
+\def\hi@url@text@next#1#2{%
     \find@word{#1}{%
-        \hi@parseurl@chars{#2}%
+        \hi@url@text@chars{#2}%
     }{%
-        \hi@parseurl@groups{#2}%
+        \hi@url@text@groups{#2}%
     }{%
-        \hi@parseurl@words{#2}%
+        \hi@url@text@words{#2}%
     }{}%
 }
-\def\hi@parseurl@words#1#2#3{%
-    \addto@macro#1{\hi@parseurl@insertbox{#2}}%
-    \hi@parseurl@{#3}{#1}%
+\def\hi@url@text@words#1#2#3{%
+    \addto@macro#1{\hi@url@insertbox{#2}}%
+    \hi@url@text@next{#3}{#1}%
 }
-\def\hi@parseurl@groups#1#2#3{%
-    \hi@parseurl@{\{#2\}#3}{#1}%
+\def\hi@url@text@groups#1#2#3{%
+    \hi@url@text@next{\{#2\}#3}{#1}%
 }
-\def\hi@parseurl@chars#1#2#3{%
+\def\hi@url@text@chars#1#2#3{%
     \@test \ifcat\relax\noexpand#2\fi{%
-        \@ifundefined{hi@url@\string#2}{%
-            \expandafter\hi@parseurl@\expandafter{\string#2#3}{#1}%
+        \@ifundefined{hi@uchar@\string#2}{%
+            \expandafter\hi@url@text\expandafter{\string#2#3}{#1}%
         }{%
-            \csname hi@url@\string#2\endcsname{#1}{#3}%
-            \hi@parseurl@{#3}{#1}%
+            \csname hi@uchar@\string#2\endcsname{#1}{#3}%
+            \hi@url@text@next{#3}{#1}%
         }%
     }{%
-        \@ifundefined{hi@url@\@backslashchar\string#2}{%
-            \addto@macro#1{\hi@parseurl@insertbox #2}%
+        \@ifundefined{hi@uchar@\@backslashchar\string#2}{%
+            \addto@macro#1{\hi@url@insertbox #2}%
         }{%
-            \csname hi@url@\@backslashchar\string#2\endcsname{#1}{#3}%
+            \csname hi@uchar@\@backslashchar\string#2\endcsname{#1}{#3}%
         }%
-        \hi@parseurl@{#3}{#1}%
+        \hi@url@text@next{#3}{#1}%
     }%
 }
 \def\do#1{%
-    \@namedef{hi@url@\string #1}##1##2{%
-        \addto@macro##1{\hi@parseurl@insertbox}%
+    \@namedef{hi@uchar@\string #1}##1##2{%
+        \addto@macro##1{\hi@url@insertbox}%
         \@expand{\addto@macro##1}{\expandafter\@gobble\string #1}{ii}%
         \find@word{##2}\@gobbletwo\@gobbletwo{%
-            \addto@macro##1{\hi@url@break}\@gobbletwo
+            \addto@macro##1{\hi@uchar@break}\@gobbletwo
         }{}%
     }%
 }
 \do\.\do\@\do\!\do\;\do\]\do\)\do\,\do\+\do\=\do\#\do\:
 \def\do#1{%
-    \@namedef{hi@url@\string #1}##1##2{%
-        \addto@macro##1{\hi@url@spacenobreak\hi@parseurl@insertbox}%
+    \@namedef{hi@uchar@\string #1}##1##2{%
+        \addto@macro##1{\hi@uchar@spacenobreak\hi@url@insertbox}%
         \@expand{\addto@macro##1}{\expandafter\@gobble\string #1}{ii}%
         \find@word{##2}{%
-            \addto@macro##1{\hi@url@spacenobreak}\@gobbletwo
+            \addto@macro##1{\hi@uchar@spacenobreak}\@gobbletwo
         }{%
-            \addto@macro##1{\hi@url@spacenobreak}\@gobbletwo
+            \addto@macro##1{\hi@uchar@spacenobreak}\@gobbletwo
         }{%
-            \addto@macro##1{\hi@url@spacebreak}\@gobbletwo
+            \addto@macro##1{\hi@uchar@spacebreak}\@gobbletwo
         }{}%
     }%
 }
 \do\/\do\?\do\&\do\-
 \def\do#1{%
-    \@namedef{hi@url@\string #1}##1##2{%
-        \addto@macro##1{\hi@parseurl@insertbox}%
+    \@namedef{hi@uchar@\string #1}##1##2{%
+        \addto@macro##1{\hi@url@insertbox}%
         \@expand{\addto@macro##1}{\expandafter\@gobble\string #1}{ii}%
     }%
 }
 \do\^\do\$
 \def\do#1#2{%
-    \@namedef{hi@url@\string #1}##1##2{%
-        \addto@macro##1{\hi@parseurl@insertbox{#2}}%
+    \@namedef{hi@uchar@\string #1}##1##2{%
+        \addto@macro##1{\hi@url@insertbox{#2}}%
         \find@word{##2}\@gobbletwo\@gobbletwo{%
-            \addto@macro##1{\hi@url@break}\@gobbletwo
+            \addto@macro##1{\hi@uchar@break}\@gobbletwo
         }{}%
     }%
 }
@@ -1239,33 +1248,33 @@
 \do\ {}%
 \do\_{\_}%
 \def\do#1#2{%
-    \@namedef{hi@url@\string #1}##1##2{%
-        \addto@macro##1{\hi@parseurl@insertbox{#2}}%
+    \@namedef{hi@uchar@\string #1}##1##2{%
+        \addto@macro##1{\hi@url@insertbox{#2}}%
     }%
 }
 \do\>{$\protect\rangle$}
 \do\}{$\protect\rbrace$}
 \do\~{\char`\~}%
-\@namedef{hi@url@\string\%}#1#2{%
-    \ifstrempty{#2}{}{\addto@macro#1{\hi@url@spacebreak}}%
-    \addto@macro#1{\hi@parseurl@insertbox{\%}}%
+\@namedef{hi@uchar@\string\%}#1#2{%
+    \ifstrempty{#2}{}{\addto@macro#1{\hi@uchar@spacebreak}}%
+    \addto@macro#1{\hi@url@insertbox{\%}}%
 }%
 \newskip\urlbreakskip \urlbreakskip=0pt plus .4pt
-\DeclareRobustCommand\hi@url@break{%
+\DeclareRobustCommand\hi@uchar@break{%
     \penalty\exhyphenpenalty
 }
-\DeclareRobustCommand\hi@url@spacenobreak{%
+\DeclareRobustCommand\hi@uchar@spacenobreak{%
     \unskip\unpenalty\nobreak
     \hskip\urlbreakskip
 }
-\DeclareRobustCommand\hi@url@spacebreak{%
+\DeclareRobustCommand\hi@uchar@spacebreak{%
     \penalty\exhyphenpenalty\hskip\urlbreakskip
 }
-\@namedef{hi@url@\string\ }#1#2{%
-    \ifstrempty{#2}{}{\addto@macro#1{\hi@url@break}}%
+\@namedef{hi@uchar@\string\ }#1#2{%
+    \ifstrempty{#2}{}{\addto@macro#1{\hi@uchar@break}}%
 }
-\@namedef{hi@url@\string\^^M}#1#2{%
-    \ifstrempty{#2}{}{\addto@macro#1{\hi@url@break}}%
+\@namedef{hi@uchar@\string\^^M}#1#2{%
+    \ifstrempty{#2}{}{\addto@macro#1{\hi@uchar@break}}%
 }
 \def\hi@urlstyle@full{%
     \def\hi@showurl##1{##1}%
@@ -1289,26 +1298,31 @@
     }
     \def\ToaUrlMark{\emph{available online}}
 }
+\def\hi@url@assign@link#1{%
+    \edef#1{%
+        \noexpand\leavevmode
+        \noexpand\hi@url@insert{\the\hi@url@cur}{\noexpand\LinkText}%
+        \noexpand\hi@linkurl@auxwrite{\the\hi@url@cur}%
+    }%
+}
 \def\hi@urlstyle@link{%
-    \def\hi@parseurl##1##2{%
-        \hi@parseurl@forlink{##1}%
-        \edef##2{%
-            \noexpand\leavevmode
-            \noexpand\special{%
-                pdf:object @HIURL\the\hi@url@count <<
-                    /S /URI
-                    /URI (\csname hi@linkurl@\the\hi@url@count\endcsname)
-                >>
-            }%
-            \noexpand\special{pdf:bann <<
-                /Type /Annot
-                /Subtype /Link
-                /Border [0 0 0]
-                /A @HIURL\the\hi@url@count
-            >>}\noexpand\LinkText\noexpand\special{pdf:eann}%
-        }%
-    }
-    \def\LinkText{\emph{link}}
+    \let\hi@url@assign\hi@url@assign@link
+}
+\def\hi@linkurl@auxwrite#1{%
+    \addtocontents{tou}{\protect\l@hi@tou{#1}{\thepage}}%
+}
+\def\LinkText{\emph{link}}
+\def\l@hi@tou#1#2{%
+    \@dottedtocline{1}{0em}{1.5em}{\csname hi@u#1@text\endcsname}{#2}%
+}
+\def\TableOfUrls{%
+    \makeatletter
+    \@input{\jobname.tou}%
+    \makeatother
+    \if@filesw
+        \newwrite\tf@tou
+        \immediate\openout\tf@tou \jobname.tou\relax
+    \fi
 }
 %%
 %% \iffalse filename: struct.dtx \fi
