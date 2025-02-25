@@ -1312,9 +1312,6 @@
     \addtocontents{tou}{\protect\l@hi@tou{#1}{\thepage}}%
 }
 \def\LinkText{\emph{link}}
-\def\l@hi@tou#1#2{%
-    \@dottedtocline{1}{0em}{1.5em}{\csname hi@u#1@text\endcsname}{#2}%
-}
 \def\TableOfUrls{%
     \makeatletter
     \@input{\jobname.tou}%
@@ -1323,6 +1320,9 @@
         \newwrite\tf@tou
         \immediate\openout\tf@tou \jobname.tou\relax
     \fi
+}
+\def\l@hi@tou#1#2{%
+    \@dottedtocline{1}{0em}{1.5em}{\csname hi@u#1@text\endcsname}{#2}%
 }
 %%
 %% \iffalse filename: struct.dtx \fi
@@ -5923,12 +5923,51 @@
             }%
         }%
         \hi@ifeitherset\hi@kv@year\hi@kv@court{%
-            \hi@addparen{\hi@paren@date}{%
+            \hi@parens@add\hi@paren@date{%
                 \hi@param@optspc\hi@kv@court\hi@kv@year
             }%
         }{}%
         \the\hi@param@parens
     }%
+}
+\hi@newcite{modelcode}{A model code, restatement, or other standard}{other}{%
+    \hi@statcode@setup@idpc{#1}% Set up id. and page numbering
+    \hi@include@page@in@toa{#1}%
+    \@expandarg\hi@abbrev@name\hi@kv@name{\def\hi@kv@name}%
+    \hi@modelcode@makedateparen
+    \hi@newcite@form{fc}{#1}{%
+        \hi@citeguts{%
+            \noexpand\hi@fn@statute{\hi@kv@name}%
+            \noexpand\hi@maybepage{ }%
+        }%
+        \hi@parens@add{\hi@paren@date}{%
+            \hi@modelcode@dateparen
+        }%
+        \the\hi@param@parens
+    }%
+}
+\def\hi@modelcode@makedateparen{%
+    \hi@ifset\hi@kv@author{%
+        \protected@edef\hi@modelcode@dateparen{%
+            \noexpand\hi@fn@bookauthor{\hi@kv@author}%
+        }%
+    }{%
+        \let\hi@modelcode@dateparen\@empty
+    }%
+    \hi@ifset\hi@kv@edition{%
+        \ifx\hi@modelcode@dateparen\@empty\else
+            \addto@macro\hi@modelcode@dateparen{, }%
+        \fi
+        \add@macro@to@macro\hi@modelcode@dateparen\hi@kv@edition
+    }{}%
+    \ifx\hi@modelcode@dateparen\@empty\else
+        \@expandarg\@ifendswithdigit\hi@modelcode@dateparen{%
+            \addto@macro\hi@modelcode@dateparen{, }%
+        }{%
+            \addto@macro\hi@modelcode@dateparen{ }%
+        }%
+    \fi
+    \add@macro@to@macro\hi@modelcode@dateparen{\hi@kv@year}%
 }
 %%
 %% \iffalse filename: specrefs.dtx \fi

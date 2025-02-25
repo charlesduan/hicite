@@ -1584,10 +1584,26 @@ year=1997,
             }%
         }%
         \hi@ifeitherset\hi@kv@year\hi@kv@court{%
-            \hi@addparen{\hi@paren@date}{%
+            \hi@parens@add\hi@paren@date{%
                 \hi@param@optspc\hi@kv@court\hi@kv@year
             }%
         }{}%
+        \the\hi@param@parens
+    }%
+}
+\hi@newcite{modelcode}{A model code, restatement, or other standard}{other}{%
+    \hi@statcode@setup@idpc{#1}% Set up id. and page numbering
+    \hi@include@page@in@toa{#1}%
+    \@expandarg\hi@abbrev@name\hi@kv@name{\def\hi@kv@name}%
+    \hi@modelcode@makedateparen
+    \hi@newcite@form{fc}{#1}{%
+        \hi@citeguts{%
+            \noexpand\hi@fn@statute{\hi@kv@name}%
+            \noexpand\hi@maybepage{ }%
+        }%
+        \hi@parens@add{\hi@paren@date}{%
+            \hi@modelcode@dateparen
+        }%
         \the\hi@param@parens
     }%
 }
@@ -1670,6 +1686,67 @@ cite=131 Stat. 1005,
 \AssertBox{\Inline{fdara}}{FDARA}
 
 \AssertBox{\inline{fdara at S 1}}{\S\ 1 of FDARA}
+
+\subsection{Model Code Parenthetical}
+
+\begingroup
+
+    \def\@this@case{temp}%
+    \hi@param@set{other}{%
+        year=2000
+    }
+    \hi@modelcode@makedateparen
+    \AssertMacro{\hi@modelcode@dateparen}{2000}
+
+\endgroup
+
+\begingroup
+
+    \def\@this@case{temp}%
+    \hi@param@set{other}{%
+        year=2000,
+        instauth=American Law Institute,
+    }
+    \hi@modelcode@makedateparen
+    \AssertMacro\hi@modelcode@dateparen{\hi@fn@bookauthor{Am. L. Inst.} 2000}
+\endgroup
+
+\begingroup
+
+    \def\@this@case{temp}%
+    \hi@param@set{other}{%
+        year=2000,
+        instauth=American Law Institute,
+        edition=Proposed Official Draft,
+    }
+    \hi@modelcode@makedateparen
+    \AssertMacro\hi@modelcode@dateparen{\hi@fn@bookauthor{Am. L. Inst.},
+    Proposed Official Draft 2000}
+\endgroup
+
+\begingroup
+
+    \def\@this@case{temp}%
+    \hi@param@set{other}{%
+        year=2000,
+        instauth=American Law Institute,
+        edition=Tentative Draft No. 17,
+    }
+    \hi@modelcode@makedateparen
+    \AssertMacro\hi@modelcode@dateparen{\hi@fn@bookauthor{Am. L. Inst.},
+    Tentative Draft No. 17, 2000}
+
+\endgroup
+
+\defmodelcode{ali}{
+year=2000,
+instauth=American Law Institute,
+edition=Tentative Draft No. 17,
+name=Restatement (Second) of Torts,
+}
+
+\AssertBox{\note{ali at S 847A}}{\InFootnote{\textsc{Restatement (Second) of
+Torts} \S~847A (\textsc{Am.~L.~Inst.}, Tentative Draft No.~17, 2000).}}
 
 %%
 %% \iffalse filename: specrefs.dtx \fi

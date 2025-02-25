@@ -1058,7 +1058,7 @@ statutes if a particular section number is repeatedly used.
             }%
         }%
         \hi@ifeitherset\hi@kv@year\hi@kv@court{%
-            \hi@addparen{\hi@paren@date}{%
+            \hi@parens@add\hi@paren@date{%
                 \hi@param@optspc\hi@kv@court\hi@kv@year
             }%
         }{}%
@@ -1066,9 +1066,8 @@ statutes if a particular section number is repeatedly used.
     }%
 }
 %<*doc>
-Citations to judicial rules are not especially well-defined, and there are at
-least two possible approaches for identifying rules (both of which this package
-supports). First, one could characterize the name of the rule set as a book
+Citations to judicial rules are not especially well-defined.
+Probably the better option is to characterize the name of the rule set as a book
 title and each rule as a named division therein. That would produce output along
 the following lines:
 \begin{demo}
@@ -1089,6 +1088,10 @@ solution is to use the dash character before the pin cite as described in
 The dash forces the pin cite to be interpreted as a ``named'' division with no
 name.
 
+The other option is to define a specific rule as a reference. With this
+approach, \emph{id.}~citations would not be used when two different rules are
+cited, even if they are from the same rule book.
+
 \keyparameters{
     {rep}{The abbreviated name of the rule set being cited.}
     {page}{The rule number, see above.}
@@ -1102,6 +1105,67 @@ name.
 \pagejoining
 
 %</doc>
+\hi@newcite{modelcode}{A model code, restatement, or other standard}{other}{%
+    \hi@statcode@setup@idpc{#1}% Set up id. and page numbering
+    \hi@include@page@in@toa{#1}%
+    \@expandarg\hi@abbrev@name\hi@kv@name{\def\hi@kv@name}%
+    \hi@modelcode@makedateparen
+    \hi@newcite@form{fc}{#1}{%
+        \hi@citeguts{%
+            \noexpand\hi@fn@statute{\hi@kv@name}%
+            \noexpand\hi@maybepage{ }%
+        }%
+        \hi@parens@add{\hi@paren@date}{%
+            \hi@modelcode@dateparen
+        }%
+        \the\hi@param@parens
+    }%
+}
+%<*doc>
+A model code is cited as something of a hybrid between a statute and a book, the
+main feature of note being that the ``author'' of the model code (typically the
+sponsoring institution) is styled like an author of a book, but is placed in the
+date parenthetical like a court.
+\keyparameters{
+    {name}{The name of the model code, to be abbreviated like a case name.}
+    {instauth}{The sponsoring organization of the model code.}
+}
+\optparameters{
+    {edition}{If the document being cited is a named draft (``Tentative Draft''
+    or such), give the draft name here.}
+}
+%</doc>
+%<*package>
+%
+% Constructs the date parenthetical for a model code based on the author,
+% edition, and year parameters.
+% 
+%    \begin{macrocode}
+\def\hi@modelcode@makedateparen{%
+    \hi@ifset\hi@kv@author{%
+        \protected@edef\hi@modelcode@dateparen{%
+            \noexpand\hi@fn@bookauthor{\hi@kv@author}%
+        }%
+    }{%
+        \let\hi@modelcode@dateparen\@empty
+    }%
+    \hi@ifset\hi@kv@edition{%
+        \ifx\hi@modelcode@dateparen\@empty\else
+            \addto@macro\hi@modelcode@dateparen{, }%
+        \fi
+        \add@macro@to@macro\hi@modelcode@dateparen\hi@kv@edition
+    }{}%
+    \ifx\hi@modelcode@dateparen\@empty\else
+        \@expandarg\@ifendswithdigit\hi@modelcode@dateparen{%
+            \addto@macro\hi@modelcode@dateparen{, }%
+        }{%
+            \addto@macro\hi@modelcode@dateparen{ }%
+        }%
+    \fi
+    \add@macro@to@macro\hi@modelcode@dateparen{\hi@kv@year}%
+}
+%    \end{macrocode}
+%</package>
 %<*test>
 
 \section{statrefs.dtx}
@@ -1183,5 +1247,66 @@ cite=131 Stat. 1005,
 \AssertBox{\Inline{fdara}}{FDARA}
 
 \AssertBox{\inline{fdara at S 1}}{\S\ 1 of FDARA}
+
+\subsection{Model Code Parenthetical}
+
+\begingroup
+
+    \def\@this@case{temp}%
+    \hi@param@set{other}{%
+        year=2000
+    }
+    \hi@modelcode@makedateparen
+    \AssertMacro{\hi@modelcode@dateparen}{2000}
+
+\endgroup
+
+\begingroup
+
+    \def\@this@case{temp}%
+    \hi@param@set{other}{%
+        year=2000,
+        instauth=American Law Institute,
+    }
+    \hi@modelcode@makedateparen
+    \AssertMacro\hi@modelcode@dateparen{\hi@fn@bookauthor{Am. L. Inst.} 2000}
+\endgroup
+
+\begingroup
+
+    \def\@this@case{temp}%
+    \hi@param@set{other}{%
+        year=2000,
+        instauth=American Law Institute,
+        edition=Proposed Official Draft,
+    }
+    \hi@modelcode@makedateparen
+    \AssertMacro\hi@modelcode@dateparen{\hi@fn@bookauthor{Am. L. Inst.},
+    Proposed Official Draft 2000}
+\endgroup
+
+\begingroup
+
+    \def\@this@case{temp}%
+    \hi@param@set{other}{%
+        year=2000,
+        instauth=American Law Institute,
+        edition=Tentative Draft No. 17,
+    }
+    \hi@modelcode@makedateparen
+    \AssertMacro\hi@modelcode@dateparen{\hi@fn@bookauthor{Am. L. Inst.},
+    Tentative Draft No. 17, 2000}
+
+\endgroup
+
+\defmodelcode{ali}{
+year=2000,
+instauth=American Law Institute,
+edition=Tentative Draft No. 17,
+name=Restatement (Second) of Torts,
+}
+
+\AssertBox{\note{ali at S 847A}}{\InFootnote{\textsc{Restatement (Second) of
+Torts} \S~847A (\textsc{Am.~L.~Inst.}, Tentative Draft No.~17, 2000).}}
 
 %</test>
