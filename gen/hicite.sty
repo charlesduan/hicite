@@ -2740,9 +2740,11 @@
 \newif\if@hi@toa@disabled
 \let\disabletoa\@hi@toa@disabledtrue
 \let\enabletoa\@hi@toa@disabledfalse
-\def\NewTOACategory#1#2#3{%
+\def\NewTOACategory#1#2#3#4{%
     \@namedef{hi@cats@#1}{#2:#3}%
-    \AddToList{hi@toacat@supercats}{#2}%
+    \ifx#4Y%
+        \AddToList{hi@toacat@supercats}{#2}%
+    \fi
 }
 \def\DefaultTOACategory#1#2{%
     \ifstrempty{#2}{%
@@ -2792,16 +2794,16 @@
 }
 \NewSortedList{hi@toacat@supercats}{\SortEasyAlpha}{\StripForAlpha{#1}{\def#2}}
 \ListElementsMustBeUnique{hi@toacat@supercats}
-\NewTOACategory{other}{other}{Other Source/s}
-\NewTOACategory{const}{const}{Constitutional Provision/s}
-\NewTOACategory{found}{const}{Foundational Document/s}
-\NewTOACategory{statute}{edict}{Statute/s}
-\NewTOACategory{regulation}{edict}{Regulation/s}
-\NewTOACategory{rule}{edict}{Rule/s}
-\NewTOACategory{case}{case}{Case/s}
-\NewTOACategory{admin}{case}{Administrative Decision/s}
-\NewTOACategory{treaty}{edict}{Treat/y/ies}
-\NewTOACategory{abbrev}{abbrev}{Abbreviation/s}
+\NewTOACategory{other}{other}{Other Source/s}{Y}
+\NewTOACategory{const}{const}{Constitutional Provision/s}{Y}
+\NewTOACategory{found}{const}{Foundational Document/s}{Y}
+\NewTOACategory{statute}{edict}{Statute/s}{Y}
+\NewTOACategory{regulation}{edict}{Regulation/s}{Y}
+\NewTOACategory{rule}{edict}{Rule/s}{Y}
+\NewTOACategory{case}{case}{Case/s}{Y}
+\NewTOACategory{admin}{case}{Administrative Decision/s}{Y}
+\NewTOACategory{treaty}{edict}{Treat/y/ies}{Y}
+\NewTOACategory{abbrev}{abbrev}{Abbreviation/s}{N}
 \long\def\hi@toacat@each#1{%
     %
     % Unfortunately, this macro is used to iterate over items in the TOA, which
@@ -3197,7 +3199,6 @@
     }}{}%
     \@hi@in@toafalse
 }
-
 %%
 %% \iffalse filename: endnotes.dtx \fi
 %%

@@ -782,6 +782,332 @@ themselves work as expected.
 %%
 %% \iffalse filename: toa.dtx \fi
 %%
+\section{toa.dtx}
+
+\subsection{Aux File Writing}
+
+\let\WrittenText\@empty
+\let\OrigProtectedWrite\protected@write
+\def\protected@write#1#2#3{%
+    \begingroup
+        \let\thepage\relax
+        #2%
+        \let\protect\@unexpandable@protect
+        \xdef\WrittenText{#3}%
+    \endgroup
+    \begingroup
+        \let\protect\noexpand
+        \xdef\WrittenText{\WrittenText}%
+    \endgroup
+}
+
+\begingroup
+
+    \SetTOACategory{ref}{other}
+    \let\tcpg@ref\relax
+    \@hi@in@toafalse
+    \@hi@toa@disabledfalse
+    \def\thepage{\csname @roman\endcsname \c@page}
+
+    \begingroup
+        \let\WrittenText\@empty
+        \AssertBox{%
+            \c@page=5
+            \hi@addtotoa{ref}{15}%
+        }{}
+        \AssertMacro[\AssertExpandedEqual]{\WrittenText}{%
+            \string\@writefile{toa}{%
+                \noexpand\contentsline {hi@toa}{ref}{%
+                    {\detokenize{v}}%
+                    {5}%
+                    {%
+                        \noexpand\csname @roman\noexpand\endcsname
+                        \noexpand\c@page
+                    }%
+                    {other:Other Source/s}%
+                }{}%
+            }%
+        }%
+    \endgroup
+
+    \begingroup
+        \let\WrittenText\@empty
+        \let\tcpg@ref\@empty
+        \AssertBox{%
+            \c@page=5
+            \hi@addtotoa{ref}{15}%
+        }{}
+        \AssertMacro[\AssertExpandedEqual]{\WrittenText}{%
+            \string\@writefile{toa}{%
+                \noexpand\contentsline {hi@toa}{ref at 15}{%
+                    {\detokenize{v}}%
+                    {5}%
+                    {%
+                        \noexpand\csname @roman\noexpand\endcsname
+                        \noexpand\c@page
+                    }%
+                    {other:Other Source/s}%
+                }{}%
+            }%
+        }%
+    \endgroup
+
+    \begingroup
+        \let\WrittenText\@empty
+        \@hi@in@toatrue
+        \AssertBox{%
+            \hi@addtotoa{ref}{15}%
+        }{}
+        \AssertMacro[\AssertEqual]{\WrittenText}{}
+    \endgroup
+
+    \begingroup
+        \let\WrittenText\@empty
+        \@hi@toa@disabledtrue
+        \AssertBox{%
+            \hi@addtotoa{ref}{15}%
+        }{}
+        \AssertMacro[\AssertEqual]{\WrittenText}{}
+    \endgroup
+
+\endgroup
+
+\let\protected@write\OrigProtectedWrite
+
+\subsection{Aux File Reading}
+
+\begingroup
+    \def\hi@toa@addtolist#1#2#3{%
+        \edef\ListTestResult{{\unexpanded{#1}}{#2}{#3}}%
+    }
+    \def\hi@toa@addpg#1#2#3#4{%
+        \def\PageTestResult{{#1}{#2}{#3}{#4}}%
+    }
+
+    \let\ListTestResult\relax
+    \let\PageTestResult\relax
+
+    \contentsline {hi@toa}{ref}{%
+        {v}%
+        {5}%
+        {\csname @roman\endcsname \c@page}%
+        {other:Other Source/s}%
+    }{}%
+    \AssertMacro\PageTestResult{%
+        {\hi@pg@ref}{v}{5}{\csname @roman\endcsname\c@page}%
+    }
+    \AssertMacro\ListTestResult{{ref}{other}{Other Source/s}}
+
+\endgroup
+
+\subsection{Canonicalization}
+
+\begingroup
+
+    \def\fc@ref{\emph{a b} Cde 12 Fg. ({hij})}
+
+    \AssertCallback[\AssertCharEqual]{\hi@toa@makesortable{ref}}{%
+        ABCDE...12FGHIJ%
+    }
+
+    \AssertCallback[\AssertCharEqual]{\hi@toa@makesortable{ref at 15/a2b}}{%
+        ABCDE...12FGHIJ...15A....2B%
+    }
+
+    \def\lc@ref{\emph{k l} Mno 25 Pq. ({rst})}
+
+    \AssertCallback[\AssertCharEqual]{\hi@toa@makesortable{ref}}{%
+        KLMNO...25PQRST%
+    }
+
+\endgroup
+
+\subsection{Heading Lists}
+
+\begingroup
+
+    \hi@toa@headlist@add{stat}{Regulation/s}
+    \AssertBox{\hi@toa@headlist@show{stat}}{Regulation}
+
+    \hi@toa@headlist@add{stat}{Regulation/s}
+    \AssertBox{\hi@toa@headlist@show{stat}}{Regulations}
+
+    \hi@toa@headlist@add{stat}{Treat/y/ies}
+    \AssertBox{\hi@toa@headlist@show{stat}}{Regulations and Treaty}
+
+    \hi@toa@headlist@add{stat}{Statute/s}
+    \AssertBox{\hi@toa@headlist@show{stat}}{Regulations, Treaty and Statute}
+
+    \hi@toa@headlist@add{stat}{Treat/y/ies}
+    \AssertBox{\hi@toa@headlist@show{stat}}{Regulations, Treaties and Statute}
+
+\endgroup
+
+\subsection{List Addition}
+
+\begingroup
+
+    \def\fc@refA{A}
+    \def\fc@refI{I}
+    \def\fc@refM{M}
+    \AssertFalse{\IfKnownList{hi@toa@list}}
+
+    \hi@toa@addtolist{refM}{list}{item/s}
+    \AssertTrue{\IfKnownList{hi@toa@list}}
+
+    \AssertBox{\ShowList{hi@toa@list}{#1, }}{refM, }
+    \AssertBox{\hi@toa@headlist@show{list}}{item}
+
+    \AssertTrue{\IfListContains{hi@toa@list}{refM}}
+
+    \hi@toa@addtolist{refM}{list}{item/s}
+    \AssertBox{\ShowList{hi@toa@list}{#1, }}{refM, }
+    \AssertBox{\hi@toa@headlist@show{list}}{item}
+
+    \hi@toa@addtolist{refA}{list}{item/s}
+    \AssertBox{\ShowList{hi@toa@list}{#1, }}{refA, refM, }
+    \AssertBox{\hi@toa@headlist@show{list}}{items}
+
+    \hi@toa@addtolist{refI}{list}{element/s}
+    \AssertBox{\ShowList{hi@toa@list}{#1, }}{refA, refI, refM, }
+    \AssertBox{\hi@toa@headlist@show{list}}{items and element}
+
+    \hi@toa@addtolist{refA}{list}{item/s}
+    \AssertBox{\ShowList{hi@toa@list}{#1, }}{refA, refI, refM, }
+    \AssertBox{\hi@toa@headlist@show{list}}{items and element}
+
+\endgroup
+
+\subsection{Page Numbers and Star Counting}
+
+\begingroup
+    \StarCount{4}
+    \everypar{}
+    \let\hi@pg@ref\relax
+    \hi@toa@addpg\hi@pg@ref{ii}{2}{roman}
+    \AssertCallback{\hi@toa@usepg{ref}}{ii}
+    \AssertCallback{\hi@toa@refcount{ref}}{1}
+
+    \hi@toa@star{ref}
+    \AssertExpand{\the\everypar}{}
+
+    \hi@toa@addpg\hi@pg@ref{iii}{3}{roman}
+    \AssertCallback{\hi@toa@usepg{ref}}{ii--iii}
+    \AssertCallback{\hi@toa@refcount{ref}}{2}
+
+    \hi@toa@star{ref}
+    \AssertExpand{\the\everypar}{}
+
+    \hi@toa@addpg\hi@pg@ref{iii}{3}{roman}
+    \AssertCallback{\hi@toa@usepg{ref}}{ii--iii}
+    \AssertCallback{\hi@toa@refcount{ref}}{3}
+
+    \hi@toa@star{ref}
+    \AssertExpand{\the\everypar}{}
+
+    \hi@toa@addpg\hi@pg@ref{iv}{4}{roman}
+    \AssertCallback{\hi@toa@usepg{ref}}{ii--iv}
+    \AssertCallback{\hi@toa@refcount{ref}}{4}
+
+    Stars should now show up at the start of every first test paragraph.
+
+    \hi@toa@star{ref}
+    \AssertExpand{\the\everypar}{\noexpand\StarMark\noexpand\everypar{}}
+
+    \hi@toa@addpg\hi@pg@ref{4}{4}{arabic}
+    \AssertCallback{\hi@toa@usepg{ref}}{ii--iv, 4}
+    \AssertCallback{\hi@toa@refcount{ref}}{5}
+
+    \hi@toa@star{ref}
+    \AssertExpand{\the\everypar}{\noexpand\StarMark\noexpand\everypar{}}
+
+    \hi@toa@addpg\hi@pg@ref{5}{5}{arabic}
+    \AssertCallback{\hi@toa@usepg{ref}}{ii--iv, 4--5}
+    \AssertCallback{\hi@toa@refcount{ref}}{6}
+
+    \hi@toa@star{ref}
+    \AssertExpand{\the\everypar}{\noexpand\StarMark\noexpand\everypar{}}
+
+    \hi@toa@addpg\hi@pg@ref{7}{7}{arabic}
+    \AssertCallback{\hi@toa@usepg{ref}}{ii--iv, 4--5, 7}
+    \AssertCallback{\hi@toa@refcount{ref}}{7}
+
+    \hi@toa@star{ref}
+    \AssertExpand{\the\everypar}{\noexpand\StarMark\noexpand\everypar{}}
+
+    \c@passimnum=2
+    \AssertCallback{\hi@toa@usepg{ref}}{\PassimText}
+
+    \c@passimnum=3
+    \AssertCallback{\hi@toa@usepg{ref}}{\PassimText}
+
+    \c@passimnum=4
+    \AssertCallback{\hi@toa@usepg{ref}}{ii--iv, 4--5, 7}
+\endgroup
+
+\subsection{Formatting}
+
+\AssertBox{\hbox{\hi@toa@brkpg{1--2, 3--4, 5}}}{\hbox{1--2, 3--4, 5}}
+
+The following can only be tested visually. Make sure that these look acceptable.
+\def\testbox#1#2{\vrule\vtop{%
+    \hsize=1.25in\relax \hi@toa@par@settings
+    #1\nobreak\TOALeader\nobreak\hi@toa@brkpg{#2}\par
+}\vrule\allowbreak\space}
+
+\leavevmode
+\testbox{A}{1--2, 3, 4, 5}
+\testbox{AB}{1--2, 3, 4, 5}
+\testbox{ABC}{1--2, 3, 4, 5}
+\testbox{ABCD}{1--2, 3, 4, 5}
+\testbox{ABCDE}{1--2, 3, 4, 5}
+\testbox{A B C D E F}{1--2, 3, 4, 5}
+\testbox{A B C D E F G}{1--2, 3, 4, 5}
+\testbox{A B C D E F G H}{1--2, 3, 4, 5}
+
+\subsection{TOA Categories}
+
+\defcase{garcia}{
+parties={Garcia v. Google, Inc.},
+cite=786 F.3d 733,
+court=9th Cir.,
+year=2015,
+enbanc,
+}
+
+\AssertCallback{\hi@toacat@get{garcia}}{case:Case/s}
+
+\defcase{dc-comics}{
+parties=DC Comics v. Towle,
+cite=802 F.3d 1012,
+court=9th Cir.,
+year=2015,
+toacat=other,
+}
+
+\AssertCallback{\hi@toacat@get{dc-comics}}{other:Other Source/s}
+
+\NewTOACategory{movie}{m}{Motion Picture/s}{Y}
+\DefaultTOACategory{film}{movie}
+
+\deffilm{faceoff}{
+name=Face/Off,
+year=1997,
+publisher=Paramount Pictures,
+}
+\AssertCallback{\hi@toacat@get{faceoff}}{m:Motion Picture/s}
+
+\begingroup
+
+    \def\catlist{}
+    \hi@toacat@each{%
+        \ifx\catlist\@empty\else \addto@macro\catlist{, }\fi
+        \addto@macro\catlist{#1}%
+    }%
+    \AssertMacro\catlist{case, const, edict, m, other}
+
+\endgroup
+
 %%
 %% \iffalse filename: endnotes.dtx \fi
 %%

@@ -2381,12 +2381,11 @@ the tables are displayed, and finally how the table is formatted.
 
 \label{s:toa-categories}
 
-Each reference type is associated with a category, used to organize a
-Table of Authorities as described in \sec{toa}.
+Each reference type is associated with a category, used to organize the
+Table of Authorities.
 The category can be altered using the reference
 definition parameter \param{toacat} or by the |\SetTOACategory| macro.
-The categories are used to assemble the headings for the table of authorities,
-as described in \sec{toa}.
+The categories are used to assemble the headings for the table.
 
 Specifically, every category has three properties:
 \begin{enumerate}
@@ -2410,7 +2409,27 @@ the textual description consists of two to three parts, separated by slashes:
 
 \DescribeMacro\NewTOACategory
 A new TOA category may be defined with |\NewTOACategory|. The macro takes
-three parameters, corresponding to the three properties of categories above.
+four parameters, the first three corresponding to the three properties of
+categories above, and the last (being ``Y'' or ``N'') indicating whether to
+include the supercategory in the default table of authorities.
+
+
+\DescribeMacro\DefaultTOACategory
+Each reference type may have a default category, set with the
+|\DefaultTOACategory| macro. The parameters are \#1 the reference type, and
+\#2 the category name. If the category name is blank, then there will be no
+default category. This default category will be used unless another category
+is specified for a particular reference, overriding the default category.
+
+
+\DescribeMacro\SetTOACategory
+The |\SetTOACategory|\marg{reference}\marg{category} macro sets the TOA
+category for \meta{reference}. This macro should be called within the
+reference definer macros to set the category, or it is invoked by the
+\param{toacat} parameter. If it is called multiple times, then the last
+category will prevail. If it is not called, then the reference will not appear
+in the table. If \meta{category} is empty, then any previously set category
+will be removed.
 
 
 The following are the TOA categories, with their supercategories and display
@@ -2420,23 +2439,68 @@ supercategory names are never displayed, any new supercategories can be named to
 fit into the existing ordering.
 
 \begin{demo}
-\def\NewTOACategory#1#2#3{#1&#2&#3\\}
-\begin{tabular}{lll}
-\textbf{Category} & \textbf{Supercategory} & \textbf{Text} \\
+\def\NewTOACategory#1#2#3#4{#1&#2&#3&#4\\}
+\begin{tabular}{llll}
+\textbf{Category} & \textbf{Supercat.} & \textbf{Text} & \textbf{In TOA?} \\
 \hline
-\NewTOACategory{other}{other}{Other Source/s}
-\NewTOACategory{const}{const}{Constitutional Provision/s}
-\NewTOACategory{found}{const}{Foundational Document/s}
-\NewTOACategory{statute}{edict}{Statute/s}
-\NewTOACategory{regulation}{edict}{Regulation/s}
-\NewTOACategory{rule}{edict}{Rule/s}
-\NewTOACategory{case}{case}{Case/s}
-\NewTOACategory{admin}{case}{Administrative Decision/s}
-\NewTOACategory{treaty}{edict}{Treat/y/ies}
-\NewTOACategory{abbrev}{abbrev}{Abbreviation/s}
+\NewTOACategory{other}{other}{Other Source/s}{Y}
+\NewTOACategory{const}{const}{Constitutional Provision/s}{Y}
+\NewTOACategory{found}{const}{Foundational Document/s}{Y}
+\NewTOACategory{statute}{edict}{Statute/s}{Y}
+\NewTOACategory{regulation}{edict}{Regulation/s}{Y}
+\NewTOACategory{rule}{edict}{Rule/s}{Y}
+\NewTOACategory{case}{case}{Case/s}{Y}
+\NewTOACategory{admin}{case}{Administrative Decision/s}{Y}
+\NewTOACategory{treaty}{edict}{Treat/y/ies}{Y}
+\NewTOACategory{abbrev}{abbrev}{Abbreviation/s}{N}
 \end{tabular}
 \end{demo}
 
+
+\subsection{Altering Categories in a Document}
+
+It may be useful to alter the TOA categories in a document, to create new
+categories or recategorize certain references or reference types. The macros
+described above allow for that. The following is a how-to guide on achieving a
+few such effects.
+
+\textbf{Place one reference in a different part of the TOA}: use the
+\param{toacat} parameter when defining that reference.
+
+\textbf{Remove a reference from the TOA}: use the \param{notoa}
+parameter, or set the \param{toacat} parameter to blank.
+
+\textbf{Place all references of a given type in a different part of the
+TOA} (e.g., treat \rtype{modelcode} references like statutes): Use
+\begin{grammar}
+|\DefaultTOACategory|\marg{type}\marg{category}
+\Example
+|\DefaultTOACategory{modelcode}{statute}|
+\end{grammar}
+where \meta{category} is chosen from the table above.
+
+\textbf{Add a new TOA section} (e.g., put \rtype{film} references in their
+own section): Use
+\begin{grammar}
+|\NewTOACategory|\marg{category}\marg{super}\marg{text}|{Y}|
+|\DefaultTOACategory|\marg{type}\marg{category}
+\Example
+|\NewTOACategory{m}{movies}{Motion Picture/s}{Y}| \\
+|\DefaultTOACategory{film}{m}|
+\end{grammar}
+where \meta{category} and \meta{super} are new names (not in the above table), and \meta{text} is the text of the heading.
+
+\textbf{Add a new type to an existing TOA section} (e.g., add ``Model
+Code'' to Statutes and Regulations): Use
+\begin{grammar}
+|\NewTOACategory|\marg{category}\marg{super}\marg{text}|{Y}| \\
+|\DefaultTOACategory|\marg{type}\marg{category}
+\Example |\NewTOACategory{mc}{edict}{Model Code/s}{Y}| \\
+|\DefaultTOACategory{modelcode}{mc}|
+\end{grammar}
+where \meta{category} is a new name (not in the above table), \marg{super} is
+the supercategory name corresponding to the existing TOA section,
+and \meta{text} is the text of the heading.
 
 \subsection{Indexing References}
 
@@ -2568,10 +2632,10 @@ text.)
 \end{itemize}
 
 
-\section{Table of Abbreviations}
+\subsection{Table of Abbreviations}
 
 A table of abbreviations is like a simplified table of authorities, and because
-of \hia*'s support for abbreviations as the reference type \ref{abbrev},
+of \hia*'s support for abbreviations as the reference type \rtype{abbrev},
 such tables can be made automatically. The macro |\tableofabbreviations| takes
 as an argument a two-element callback, which it executes for every abbreviation
 definition and full text. Entries are sorted by abbreviations, ignoring any
