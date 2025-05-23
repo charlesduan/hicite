@@ -594,15 +594,21 @@ type. The following macros help to do that.
 \DescribeMacro\find@next
 The |\find@next| macro 
 finds the next single token by type and runs a command on it. This macro can
-detect three types of things at the beginning of a string:
-\begin{itemize}
-\item A space
-\item A group
-\item A character
-\end{itemize}
-For each detected item, a callback macro is run with two arguments, the found
-item and the remainder of the string (except for the callback when nothing is
-left; this receives no arguments).
+detect spaces, groups, and characters at the beginning of a string. Its usage is
+as follows:
+\begin{grammar}
+|\find@next|\marg{str}\marg{space}\marg{group}\marg{char}\marg{end} \\
+\begin{tabular}{ll}
+\meta{str}: & the string to read \\
+\meta{space}: & callback for a space \\
+\meta{group}: & callback for a group \\
+\meta{char}: & callback for a character \\
+\meta{end}: & callback if the string is empty \\
+\end{tabular}
+\end{grammar}
+The \meta{space}, \meta{group}, and \meta{char} callbacks each take two
+arguments, the found item and the remainder of the string. The \meta{end}
+callback receives no arguments.
 
 %</doc>
 %<*package>
@@ -636,7 +642,17 @@ left; this receives no arguments).
 \DescribeMacro\find@word
 Finds the next word in the given string and runs a callback on it. This is
 like |\find@next| except (1) it aggregates letters into a single word, and (2)
-it differentiates letters from other characters.
+it differentiates letters from other characters. Its usage is as follows:
+\begin{grammar}
+|\find@word|\marg{str}\marg{sym}\marg{group}\marg{word}\marg{end} \\
+\begin{tabular}{ll}
+\meta{str}: & the string to read \\
+\meta{sym}: & callback for a symbol (space or non-letter character) \\
+\meta{group}: & callback for a group \\
+\meta{word}: & callback for a word \\
+\meta{end}: & callback if the string is empty \\
+\end{tabular}
+\end{grammar}
 
 %</doc>
 %<*package>
