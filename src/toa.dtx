@@ -33,41 +33,330 @@ the tables are displayed, and finally how the table is formatted.
 %</package>
 %<*doc>
 
+\subsection{Table of Authorities Categories}
+
+\label{s:toa-categories}
+
+Each reference type is associated with a category, used to organize the
+Table of Authorities.
+The category can be altered using the reference
+definition parameter \param{toacat} or by the |\SetTOACategory| macro.
+The categories are used to assemble the headings for the table.
+
+Specifically, every category has three properties:
+\begin{enumerate}
+\item A name for internal use.
+
+\item A ``supercategory'' that associates the category with others that this
+category should be joined with in the Table of Authorities. For example, the
+categories for statutes and regulations should have the same supercategory, so
+that they are placed in a single section with the Table of Authorities.
+Supercategories are presented in alphabetical order.
+
+\item A textual description of the category, for use in constructing the Table
+of Authorities heading. Because both the singular and plural forms are needed,
+the textual description consists of two to three parts, separated by slashes:
+\begin{enumerate}
+\item The base text common to both forms.
+\item \relax[\emph{Optional}] Text to append to the singular form only.
+\item Text to append to the plural form only.
+\end{enumerate}
+\end{enumerate}
+
+\DescribeMacro\NewTOACategory
+A new TOA category may be defined with |\NewTOACategory|. The macro takes
+four parameters, the first three corresponding to the three properties of
+categories above, and the last (being ``Y'' or ``N'') indicating whether to
+include the supercategory in the default table of authorities.
+
+%</doc>
+%<*package>
+%
+% TODO: The underlying implementation here could be improved to rely less on
+% marker symbols. Also, categories should have a precedence number indicating
+% the order in which they should appear in the TOA heading.
+%
+%    \begin{macrocode}
+\def\NewTOACategory#1#2#3#4{%
+    \@namedef{hi@cats@#1}{#2:#3}%
+    \ifx#4Y%
+        \AddToList{hi@toacat@supercats}{#2}%
+    \fi
+}
+%    \end{macrocode}
+%
+%
+% \subsubsection{Setting and Getting Categories}
+%
+%</package>
+%<*doc>
+
+\DescribeMacro\DefaultTOACategory
+Each reference type may have a default category, set with the
+|\DefaultTOACategory| macro. The parameters are \#1 the reference type, and
+\#2 the category name. If the category name is blank, then there will be no
+default category. This default category will be used unless another category
+is specified for a particular reference, overriding the default category.
+
+%</doc>
+%<*package>
+%    \begin{macrocode}
+\def\DefaultTOACategory#1#2{%
+    \ifstrempty{#2}{%
+        \cslet{hi@catd@#1}\relax
+    }{%
+        \@ifundefined{hi@cats@#2}{%
+            \PackageError\hi@pkgname{%
+                TOA category #2 does not exist, in setting the\MessageBreak
+                default for reference type #1%
+            }{Define TOA category #2 first with \string\NewTOACategory}%
+        }{%
+            \@namedef{hi@catd@#1}{#2}%
+        }%
+    }%
+}
+%    \end{macrocode}
+%</package>
+%<*doc>
+
+\DescribeMacro\SetTOACategory
+The |\SetTOACategory|\marg{reference}\marg{category} macro sets the TOA
+category for \meta{reference}. This macro should be called within the
+reference definer macros to set the category, or it is invoked by the
+\param{toacat} parameter. If it is called multiple times, then the last
+category will prevail. If it is not called, then the reference will not appear
+in the table. If \meta{category} is empty, then any previously set category
+will be removed.
+
+%</doc>
+%<*package>
+%
+%    \begin{macrocode}
+\def\SetTOACategory#1#2{%
+    \ifstrempty{#2}{%
+        \global\cslet{hi@cat@#1}\relax
+    }{%
+        \@ifundefined{hi@cats@#2}{%
+            \PackageError\hi@pkgname{%
+                Invalid Table of Authorities category #1,\MessageBreak
+                given for reference #2%
+            }{%
+                Please enter a valid Table of Authorities category.
+            }%
+        }{%
+            \global\csletcs{hi@cat@#1}{hi@cats@#2}%
+        }%
+    }
+}
+%    \end{macrocode}
+%
+% Retrieves the TOA category for a reference |#1|, and executes a callback |#2|
+% with the category text as an argument. If the reference has no category, then
+% the callback will not be executed.
+%
+%    \begin{macrocode}
+\def\hi@toacat@get#1#2{%
+    \@ifundefined{hi@cat@#1}{}{%
+        \@expand{#2}{\csname hi@cat@#1\endcsname}{ii}%
+    }%
+}
+%    \end{macrocode}
+%
+% Transfers a reference's category to another reference. \#1 is the reference
+% with the already-defined category; \#2 is the reference to receive the
+% category. The category for \#1 is deleted.
+%
+%    \begin{macrocode}
+\def\hi@toacat@transfer#1#2{%
+    \global\csletcs{hi@cat@#2}{hi@cat@#1}%
+    \global\cslet{hi@cat@#1}\relax
+}
+%    \end{macrocode}
+%
+% Sets a reference's TOA category to the reference type's default category. \#1
+% is the reference name, and \#2 the reference type. The category will not be
+% changed if it is already set, or if the reference type has no default
+% category.
+%
+%    \begin{macrocode}
+\def\hi@toacat@setdefault#1#2{%
+    \@ifundefined{hi@cat@#1}{%
+        \@ifundefined{hi@catd@#2}{}{%
+            \SetTOACategory{#1}{\csname hi@catd@#2\endcsname}%
+        }%
+    }{}%
+}
+%    \end{macrocode}
+%
+%
+% \subsubsection{Supercategories}
+%
+% Supercategories are stored in a sorted list (see \sec{sortlist}), which is
+% sorted alphabetically.
+%
+%    \begin{macrocode}
+\NewSortedList{hi@toacat@supercats}{\SortEasyAlpha}{\StripForAlpha{#1}{\def#2}}
+\ListElementsMustBeUnique{hi@toacat@supercats}
+%    \end{macrocode}
+%
+%
+%
+%
+% \subsubsection{Predefined Categories}
+%
+% Definitions of the categories follow in the source code, but they are used to
+% produce a table in the documentation, so please consult the package file for
+% the code.
+%
+%</package>
+%<*doc>
+
+The following are the TOA categories, with their supercategories and display
+texts as described above. Note the choice of supercategory names, which
+coincidentally sort alphabetically in the correct order. Because the actual
+supercategory names are never displayed, any new supercategories can be named to
+fit into the existing ordering.
+
+\begin{demo}
+\def\NewTOACategory#1#2#3#4{#1&#2&#3&#4\\}
+\begin{tabular}{llll}
+\textbf{Category} & \textbf{Supercat.} & \textbf{Text} & \textbf{In TOA?} \\
+\hline
+%</doc>
+%<*doc|package>
+\NewTOACategory{other}{other}{Other Source/s}{Y}
+\NewTOACategory{const}{const}{Constitutional Provision/s}{Y}
+\NewTOACategory{found}{const}{Foundational Document/s}{Y}
+\NewTOACategory{statute}{edict}{Statute/s}{Y}
+\NewTOACategory{regulation}{edict}{Regulation/s}{Y}
+\NewTOACategory{rule}{edict}{Rule/s}{Y}
+\NewTOACategory{case}{case}{Case/s}{Y}
+\NewTOACategory{admin}{case}{Administrative Decision/s}{Y}
+\NewTOACategory{treaty}{edict}{Treat/y/ies}{Y}
+\NewTOACategory{abbrev}{abbrev}{Abbreviation/s}{N}
+%</doc|package>
+%<*doc>
+\end{tabular}
+\end{demo}
 
 
+%</doc>
+%<*package>
+%
+% \DescribeMacro\hi@toacat@each
+% This macro will perform a function for each of the Table of Authorities
+% groups, in the proper order. The function should be given as a macro
+% definition in \#1, the macro definition accepting one argument which will be
+% the supercategory name.
+%
+%    \begin{macrocode}
+\long\def\hi@toacat@each#1{%
+    %
+    % Unfortunately, this macro is used to iterate over items in the TOA, which
+    % also stores items in SortedLists. So we can't just use \ShowList directly
+    % since \ShowList can't be used in a nested fashion. So instead, we iterate
+    % over the supercategory list to construct a series of macro expansions of
+    % the given parameter, and then execute that series.
+    %
+    \begingroup % Will be ended when \reserved@a runs
+    \def\hi@toacat@temp{\endgroup}%
+    \def\hi@toacat@do##1{#1}%
+    \ShowList{hi@toacat@supercats}{%
+        \@expand{\appto\hi@toacat@temp}{\hi@toacat@do{##1}}{i}%
+    }%
+    \hi@toacat@temp
+}
+%    \end{macrocode}
+%
+%</package>
+%<*doc>
+
+\subsection{Altering Categories in a Document}
+
+It may be useful to alter the TOA categories in a document, to create new
+categories or recategorize certain references or reference types. The macros
+described above allow for that. The following is a how-to guide on achieving a
+few such effects.
+
+\textbf{Place one reference in a different part of the TOA}: use the
+\param{toacat} parameter when defining that reference.
+
+\textbf{Remove a reference from the TOA}: use the \param{notoa}
+parameter, or set the \param{toacat} parameter to blank.
+
+\textbf{Place all references of a given type in a different part of the
+TOA} (e.g., treat \rtype{modelcode} references like statutes): Use
+\begin{grammar}
+|\DefaultTOACategory|\marg{type}\marg{category}
+\Example
+|\DefaultTOACategory{modelcode}{statute}|
+\end{grammar}
+where \meta{category} is chosen from the table above.
+
+\textbf{Add a new TOA section} (e.g., put \rtype{film} references in their
+own section): Use 
+\begin{grammar}
+|\NewTOACategory|\marg{category}\marg{super}\marg{text}|{Y}|
+|\DefaultTOACategory|\marg{type}\marg{category}
+\Example
+|\NewTOACategory{m}{movies}{Motion Picture/s}{Y}| \\
+|\DefaultTOACategory{film}{m}|
+\end{grammar}
+where \meta{category} and \meta{super} are new names (not in the above table), and \meta{text} is the text of the heading.
+
+\textbf{Add a new type to an existing TOA section} (e.g., add ``Model
+Code'' to Statutes and Regulations): Use
+\begin{grammar}
+|\NewTOACategory|\marg{category}\marg{super}\marg{text}|{Y}| \\
+|\DefaultTOACategory|\marg{type}\marg{category}
+\Example |\NewTOACategory{mc}{edict}{Model Code/s}{Y}| \\
+|\DefaultTOACategory{modelcode}{mc}|
+\end{grammar}
+where \meta{category} is a new name (not in the above table), \marg{super} is
+the supercategory name corresponding to the existing TOA section,
+and \meta{text} is the text of the heading.
 
 \subsection{Indexing References}
 
-References are indexed for the Table of Authorities upon every citation. The
-command |\addtotoa| described in \sec{iface} can also add an entry manually.
+References are indexed for the Table of Authorities upon every citation, by
+having entries added to the |\jobname.toa| file automatically for each citation
+command. The command |\addtotoa| described in \sec{iface} can also add an entry
+manually.
 
 An interesting challenge for indexing is that, especially for briefs, references
 may be cited in parts of a document that use different pagination systems. As a
 result, it is necessary to store detailed information about where a reference is
 cited in a document in order to produce a correct listing of pages in the table.
 
+Five pieces of information are written out to the file for each use of a
+reference:
+\begin{enumerate}
+\item The reference name, and possibly the page for references where the page
+number is included in table of authorities entries.
+\item The page number as formatted.
+\item The page number as an arabic number.
+\item The prevailing definition of |\thepage|, so that different page counting
+schemes can be identified.
+\item A comma-separated list of ``tags'' under which the index entry should be
+categorized. Typically this will be up to two tags, one based on the reference's
+category and one based on the reference's location. A tag is a colon-separated
+structure comprising a supercategory name and a textual heading name
+(corresponding to the TOA Categories elements described in
+\sec{toa-categories}).
+\end{enumerate}
+
 %</doc>
 %<*package>
 %
-% Each entry in the TOA file has the following data elements as grouped tokens:
-% (other than the leading hi@toa):
-% \begin{enumerate}
-% \item \#1: the reference name, with ``at'' and a page number if
-% |\tcpg@|\meta{ref} is defined
-% \item \#2: the display-form page number
-% \item \#3: the numeric page number
-% \item \#4: the relevant definition of |\thepage| (to identify different page
-% counting schemes)
-% \item \#5: list of tags under which this TOA entry is to be categorized
-% \end{enumerate}
 %
 % Proposes adding a reference for indexing in the table of authorities. \#1 is
 % the reference, and \#2 is the page number if any. Even if a reference is
 % proposed for adding, the following conditions must be true:
 % \begin{itemize}
 % \item The TOA is not disabled
-% \item The reference to be added to the TOA is not itself in the TOA
-% \item The reference has an associated category (see \sec{refs-categories}).
+% \item The citation containing the reference to be added to the TOA is not
+% itself in the TOA
+% \item The reference has an associated category (see \sec{toa-categories}).
 % \end{itemize}
 %
 %    \begin{macrocode}
@@ -114,15 +403,23 @@ cited in a document in order to produce a correct listing of pages in the table.
 }
 %    \end{macrocode}
 %
-%
-% \subsection{Reading the Index}
-%
-% The goal is to generate two types of items:
-% \begin{itemize}
-% \item Lists, called |hi@toa@|\meta{tag}, of reference names falling within
-% that \meta{tag}
-% \item Macros of the form |\hi@pg@|\meta{ref}, identifying the page numbers.
-% \end{itemize}
+%</package>
+%<*doc>
+
+\subsection{Reading the Index}
+
+Prior to generating a table of authorities, the index file is read and its
+entries are sorted to produce three sets of data structures:
+\begin{itemize}
+\item For each supercategory, a list of references falling within that
+supercategory.
+\item For each supercategory, a list of textual headings for that supercategory.
+\item For each reference, a macro identifying the page numbers associated with
+that reference.
+\end{itemize}
+
+%</doc>
+%<*package>
 %
 % Sets up the Table of Authorities. This reads the |toa| file, performs all the
 % reference use counting, and opens the |toa| file for writing. It then
@@ -144,13 +441,13 @@ cited in a document in order to produce a correct listing of pages in the table.
 }
 %    \end{macrocode}
 %
-% This is run for each entry in the |toa| file, as produced above. It sets up
-% the following:
-% \begin{itemize}
-% \item Adds the indexed page numbers to a macro |\hi@pg@|\meta{ref-with-page}
-% \item Adds the reference to |\hi@toa@all|, used for processing page numbers
-% \item Adds the reference to every list in \#5
-% \end{itemize}
+% This is run for each entry in the |toa| file, as produced above. The arguments
+% (after expansion of the groups in the second argument) match the five elements
+% given above with respect to |\hi@addtotoa@|.
+%
+% The macro invokes |\hi@toa@addpg| to update the page number listing for the
+% reference, and invokes |\hi@toa@addtolist| to add the reference's information
+% to the supercategory lists.
 %
 %    \begin{macrocode}
 \def\l@hi@toa#1#2{\l@hi@toa@{#1}#2}
@@ -173,27 +470,20 @@ cited in a document in order to produce a correct listing of pages in the table.
 \newcount\hi@toa@counter
 %    \end{macrocode}
 %
-%</package>
-%<*doc>
-
-\subsection{Lists}
-
-A Table of Authorities is made up of one or more reference lists, which are
-alphabetized. References can be added to multiple lists but can only be added to
-any list once. By default, reference types choose a list based on the type.
-
-%</doc>
-%<*package>
 %
-% Adds a given reference to a named list of references. If the list does not
-% already exist, then create it. Adding a reference to a list also involves
-% maintaining a ``sublist'' that determines the heading for the list, as
-% described below.
+% \paragraph{Adding to Lists}
+%
+% Adds a given reference to a supercategory list, called
+% |hi@toa@|\meta{supercat}. If the list does not already exist, then create it.
+% The list is alphabetically sorted and its items are unique.
+%
+% Also updates the heading lists for the supercategory by invoking
+% |\hi@toa@headlist@add|.
 %
 % The message counters are updated and displayed here because we want to track
 % unique additions of references to TOA lists.
 %
-% \#1 is the item to be added, \#2 the list name, \#3 the sublist name.
+% \#1 is the reference, \#2 the supercategory, \#3 the textual description.
 %
 %    \begin{macrocode}
 \def\hi@toa@addtolist#1#2#3{%
@@ -205,7 +495,7 @@ any list once. By default, reference types choose a list based on the type.
     }%
     \IfListContains{hi@toa@#2}{#1}{}{%
         \AddToList{hi@toa@#2}{#1}%
-        \hi@toa@sublist@add{#2}{#3}%
+        \hi@toa@headlist@add{#2}{#3}%
         \advance\hi@toa@counter\@ne
         \message{(\the\hi@toa@counter)}%
     }%
@@ -243,112 +533,118 @@ any list once. By default, reference types choose a list based on the type.
 %</package>
 %<*doc>
 
-\paragraph{Sublists}
-Each item is associated with a Table of Authorities list and optionally a
-sublist. The sublist is used to construct a heading for the relevant list, such
-that if items in one table list are associated with several sublists, then the
-heading will name all the sublists. This is useful, for example, if a Table of
-Authorities section ought to contain both statutes and regulations: The table
-can automatically compute whether the heading of that section should read
-``Statutes,'' ``Statutes and Regulations,'' ``Statute and Regulations,'' or the
-like, depending on how many statutes and regulations are in the section.
+\subsubsection{Heading Lists}
+
+For each supercategory, the textual description heading may comprise one or
+more types of references. For example, the ``edict'' supercategory may have
+statutes and/or regulations, and the heading should reflect the particular
+items to be listed. So if one regulation and several statutes have been cited,
+then the heading should read ``Statutes and Regulation,'' for example.
+
+To implement this, for every supercategory there is a ``heading list''
+associated with the supercategory. The heading list contains every textual
+description associated with the supercategory, plus a flag for each textual
+description for whether it should be singular or plural. The first time a
+textual description is encountered for a heading list, the singular form is
+used. If the same description is encountered again, then it is updated to be
+marked as plural.
 
 %</doc>
 %<*package>
 %
-% Adds a sublist name \#2 to a TOA list \#1. The sublist information is stored
-% in a macro |\hi@sublist@|\meta{list}. That macro contains a list of paired
-% items, one for each sublist name encountered:
+% |\hi@headlist@|\meta{supercat} is the macro for the heading list. That macro
+% contains a list of paired items, one for each textual description encountered:
 % \begin{itemize}
-% \item A macro |\hi@toa@sublist@singular| or |\hi@toa@sublist@plural|
-% \item The sublist name
+% \item A macro |\hi@toa@headlist@singular| or |\hi@toa@headlist@plural|
+% \item The given textual description
 % \end{itemize}
 %
+% Determines if the heading list exists for the given supercategory. If not,
+% creates it. Otherwise, searches for the textual description in the list and
+% updates it. \#1 is the supercategory name, \#2 is the textual description.
+%
 %    \begin{macrocode}
-\def\hi@toa@sublist@add#1#2{%
-    \expandafter\hi@toa@sublist@add@\csname hi@sublist@#1\endcsname{#2}%
+\def\hi@toa@headlist@add#1#2{%
+    \expandafter\hi@toa@headlist@add@\csname hi@headlist@#1\endcsname{#2}%
 }
 %    \end{macrocode}
 %
-% |\reserved@a| will be the sublist name to be searched for, |\@reserved@b| the
-% sublist name being tested as the list is iterated through.
+% \#1 is the |\hi@headlist@|\meta{supercat} macro, \#2 is the textual
+% description. |\reserved@a| will be the textual description to search for.
 %
 %    \begin{macrocode}
-\def\hi@toa@sublist@add@#1#2{%
+\def\hi@toa@headlist@add@#1#2{%
     \ifx#1\relax
-        \def#1{\hi@toa@sublist@singular{#2}}%
+        \def#1{\hi@toa@headlist@singular{#2}}%
     \else
         \def\reserved@a{#2}
-        \expandafter\hi@toa@sublist@update#1\@stop{}#1%
+        \expandafter\hi@toa@headlist@update#1\@stop{}#1%
     \fi
 }
 %    \end{macrocode}
 %
-% \#1 and \#2 are items in the sublist, \#3 is the remaining list, \#4 the part
-% of the list already searched, \#5 the sublist macro.
+% Iterates through the heading list, searching for textual description saved in
+% |\reserved@a|. \#1 is the singular/plural marker, \#2 the textual description
+% in the list being considered, \#3 is the remaining list, \#4 the part of the
+% list already searched, \#5 the heading list macro.
 %
 %    \begin{macrocode}
-\def\hi@toa@sublist@update#1#2#3\@stop#4#5{%
+\def\hi@toa@headlist@update#1#2#3\@stop#4#5{%
     \def\reserved@b{#2}%
     \@test \ifx\reserved@a\reserved@b\fi {%
-        \def#5{#4\hi@toa@sublist@plural{#2}#3}%
+        \def#5{#4\hi@toa@headlist@plural{#2}#3}%
     }{%
         \ifblank{#3}{%
             \edef#5{%
-                \unexpanded{#4#1{#2}\hi@toa@sublist@singular}%
+                \unexpanded{#4#1{#2}\hi@toa@headlist@singular}%
                 {\expandonce\reserved@a}%
             }%
         }{%
-            \hi@toa@sublist@update#3\@stop{#4#1{#2}}{#5}%
+            \hi@toa@headlist@update#3\@stop{#4#1{#2}}{#5}%
         }%
     }
 }
 %    \end{macrocode}
 %
-%</package>
-%<*doc>
-
-Sublist names must be given in both singular and plural forms, the right one of
-which will be selected. The names should be delimited with two to three slashes,
-such that the first part is the common prefix, the last part is the plural
-suffix, and the middle part if any is the singular suffix. For example,
-``Regulation/s'' and ``Treat/y/ies.''
-
-%</doc>
-%<*package>
+%
+% As noted above in \sec{toa-categories}, textual descriptions use a convention
+% of slashes to differentiate between the singular and plural forms. The
+% |\hi@toa@headlist@singular| and |\hi@toa@headlist@plural| macros parse the
+% slashes to construct the desired form, and also insert the relevant
+% punctuation for the subsequent element in the heading list.
 %
 %    \begin{macrocode}
-\def\hi@toa@sublist@singular#1{%
-    \find@in{/}{#1}{\hi@toa@sublist@choose\@firstoftwo}{#1}%
-    \hi@toa@sublist@lookahead
+\def\hi@toa@headlist@singular#1{%
+    \find@in{/}{#1}{\hi@toa@headlist@choose\@firstoftwo}{#1}%
+    \hi@toa@headlist@lookahead
 }
-\def\hi@toa@sublist@plural#1{%
-    \find@in{/}{#1}{\hi@toa@sublist@choose\@secondoftwo}{#1}%
-    \hi@toa@sublist@lookahead
+\def\hi@toa@headlist@plural#1{%
+    \find@in{/}{#1}{\hi@toa@headlist@choose\@secondoftwo}{#1}%
+    \hi@toa@headlist@lookahead
 }
 \make@find@in{/}
-\def\hi@toa@sublist@lookahead#1{%
+\def\hi@toa@headlist@lookahead#1{%
     \ifx#1\@empty\else
-        \expandafter\hi@toa@sublist@lookahead@\expandafter#1%
+        \expandafter\hi@toa@headlist@lookahead@\expandafter#1%
     \fi
 }
-\def\hi@toa@sublist@lookahead@#1#2#3{%
+\def\hi@toa@headlist@lookahead@#1#2#3{%
     \@test \ifx#3\@empty \fi{%
         \space and\space #1{#2}#3%
     }{%
         ,\space#1{#2}#3%
     }%
 }
-\def\hi@toa@sublist@choose#1#2#3{%
+\def\hi@toa@headlist@choose#1#2#3{%
     #2\find@in{/}{#3}{#1}{#1{}{#3}}%
 }
 %    \end{macrocode}
 %
-% Shows a sublist, for example in a heading.
+% Shows a heading list, for example in a heading.
 %
 %    \begin{macrocode}
-\DeclareRobustCommand\hi@toa@sublist@show[1]{%
-    \csname hi@sublist@#1\endcsname\@empty
+\DeclareRobustCommand\hi@toa@headlist@show[1]{%
+    \csname hi@headlist@#1\endcsname\@empty
 }
 %    \end{macrocode}
 %
@@ -604,7 +900,7 @@ heading will be created using whatever
     \begingroup
         \hi@toacat@each{%
             \AuthorityTable[%
-                \toaheading{\hi@toa@sublist@show{##1}}\par
+                \toaheading{\hi@toa@headlist@show{##1}}\par
                 \ifdim\lastskip<\toaskip
                     \vskip-\lastskip
                 \else
@@ -857,8 +1153,35 @@ text.)
 \def\toahangindentlen{1.5em}
 %    \end{macrocode}
 %</package>
-%<*test>
+%<*doc>
 
+\subsection{Table of Abbreviations}
+
+A table of abbreviations is like a simplified table of authorities, and because
+of \hia*'s support for abbreviations as the reference type \rtype{abbrev},
+such tables can be made automatically. The macro |\tableofabbreviations| takes
+as an argument a two-element callback, which it executes for every abbreviation
+definition and full text. Entries are sorted by abbreviations, ignoring any
+``The''.
+
+%</doc>
+%<*package>
+%
+%    \begin{macrocode}
+\def\tableofabbreviations#1{%
+    \hi@setuptoa
+    \@hi@in@toatrue
+    \noid
+    \IfKnownList{hi@toa@abbrev}{\IfEmptyList{hi@toa@abbrev}{}{%
+        \ShowList{hi@toa@abbrev}{%
+            \@expand{\@unbrace#1}{\csname lc@##1\endcsname}{iii}%
+        }%
+    }}{}%
+    \@hi@in@toafalse
+}
+%    \end{macrocode}
+%</package>
+%<*test>
 \section{toa.dtx}
 
 \subsection{Aux File Writing}
@@ -1002,24 +1325,24 @@ text.)
 \endgroup
 
 
-\subsection{Sublists}
+\subsection{Heading Lists}
 
 \begingroup
 
-    \hi@toa@sublist@add{stat}{Regulation/s}
-    \AssertBox{\hi@toa@sublist@show{stat}}{Regulation}
+    \hi@toa@headlist@add{stat}{Regulation/s}
+    \AssertBox{\hi@toa@headlist@show{stat}}{Regulation}
 
-    \hi@toa@sublist@add{stat}{Regulation/s}
-    \AssertBox{\hi@toa@sublist@show{stat}}{Regulations}
+    \hi@toa@headlist@add{stat}{Regulation/s}
+    \AssertBox{\hi@toa@headlist@show{stat}}{Regulations}
 
-    \hi@toa@sublist@add{stat}{Treat/y/ies}
-    \AssertBox{\hi@toa@sublist@show{stat}}{Regulations and Treaty}
+    \hi@toa@headlist@add{stat}{Treat/y/ies}
+    \AssertBox{\hi@toa@headlist@show{stat}}{Regulations and Treaty}
 
-    \hi@toa@sublist@add{stat}{Statute/s}
-    \AssertBox{\hi@toa@sublist@show{stat}}{Regulations, Treaty and Statute}
+    \hi@toa@headlist@add{stat}{Statute/s}
+    \AssertBox{\hi@toa@headlist@show{stat}}{Regulations, Treaty and Statute}
 
-    \hi@toa@sublist@add{stat}{Treat/y/ies}
-    \AssertBox{\hi@toa@sublist@show{stat}}{Regulations, Treaties and Statute}
+    \hi@toa@headlist@add{stat}{Treat/y/ies}
+    \AssertBox{\hi@toa@headlist@show{stat}}{Regulations, Treaties and Statute}
 
 \endgroup
 
@@ -1038,25 +1361,25 @@ text.)
     \AssertTrue{\IfKnownList{hi@toa@list}}
 
     \AssertBox{\ShowList{hi@toa@list}{#1, }}{refM, }
-    \AssertBox{\hi@toa@sublist@show{list}}{item}
+    \AssertBox{\hi@toa@headlist@show{list}}{item}
 
     \AssertTrue{\IfListContains{hi@toa@list}{refM}}
 
     \hi@toa@addtolist{refM}{list}{item/s}
     \AssertBox{\ShowList{hi@toa@list}{#1, }}{refM, }
-    \AssertBox{\hi@toa@sublist@show{list}}{item}
+    \AssertBox{\hi@toa@headlist@show{list}}{item}
 
     \hi@toa@addtolist{refA}{list}{item/s}
     \AssertBox{\ShowList{hi@toa@list}{#1, }}{refA, refM, }
-    \AssertBox{\hi@toa@sublist@show{list}}{items}
+    \AssertBox{\hi@toa@headlist@show{list}}{items}
 
     \hi@toa@addtolist{refI}{list}{element/s}
     \AssertBox{\ShowList{hi@toa@list}{#1, }}{refA, refI, refM, }
-    \AssertBox{\hi@toa@sublist@show{list}}{items and element}
+    \AssertBox{\hi@toa@headlist@show{list}}{items and element}
 
     \hi@toa@addtolist{refA}{list}{item/s}
     \AssertBox{\ShowList{hi@toa@list}{#1, }}{refA, refI, refM, }
-    \AssertBox{\hi@toa@sublist@show{list}}{items and element}
+    \AssertBox{\hi@toa@headlist@show{list}}{items and element}
 
 \endgroup
 
@@ -1148,5 +1471,48 @@ The following can only be tested visually. Make sure that these look acceptable.
 \testbox{A B C D E F}{1--2, 3, 4, 5}
 \testbox{A B C D E F G}{1--2, 3, 4, 5}
 \testbox{A B C D E F G H}{1--2, 3, 4, 5}
+
+\subsection{TOA Categories}
+
+\defcase{garcia}{
+parties={Garcia v. Google, Inc.},
+cite=786 F.3d 733,
+court=9th Cir.,
+year=2015,
+enbanc,
+}
+
+\AssertCallback{\hi@toacat@get{garcia}}{case:Case/s}
+
+\defcase{dc-comics}{
+parties=DC Comics v. Towle,
+cite=802 F.3d 1012,
+court=9th Cir.,
+year=2015,
+toacat=other,
+}
+
+\AssertCallback{\hi@toacat@get{dc-comics}}{other:Other Source/s}
+
+\NewTOACategory{movie}{m}{Motion Picture/s}{Y}
+\DefaultTOACategory{film}{movie}
+
+\deffilm{faceoff}{
+name=Face/Off,
+year=1997,
+publisher=Paramount Pictures,
+}
+\AssertCallback{\hi@toacat@get{faceoff}}{m:Motion Picture/s}
+
+\begingroup
+
+    \def\catlist{}
+    \hi@toacat@each{%
+        \ifx\catlist\@empty\else \addto@macro\catlist{, }\fi
+        \addto@macro\catlist{#1}%
+    }%
+    \AssertMacro\catlist{case, const, edict, m, other}
+
+\endgroup
 
 %</test>

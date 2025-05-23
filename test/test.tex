@@ -119,49 +119,6 @@
     }
 \endgroup
 
-\subsection{TOA Categories}
-
-\defcase{garcia}{
-parties={Garcia v. Google, Inc.},
-cite=786 F.3d 733,
-court=9th Cir.,
-year=2015,
-enbanc,
-}
-
-\AssertCallback{\hi@toacat@get{garcia}}{case:Case/s}
-
-\defcase{dc-comics}{
-parties=DC Comics v. Towle,
-cite=802 F.3d 1012,
-court=9th Cir.,
-year=2015,
-toacat=other,
-}
-
-\AssertCallback{\hi@toacat@get{dc-comics}}{other:Other Source/s}
-
-\NewTOACategory{movie}{m}{Motion Picture/s}
-\DefaultTOACategory{film}{movie}
-
-\deffilm{faceoff}{
-name=Face/Off,
-year=1997,
-publisher=Paramount Pictures,
-}
-\AssertCallback{\hi@toacat@get{faceoff}}{m:Motion Picture/s}
-
-\begingroup
-
-    \def\catlist{}
-    \hi@toacat@each{%
-        \ifx\catlist\@empty\else \addto@macro\catlist{, }\fi
-        \addto@macro\catlist{#1}%
-    }%
-    \AssertMacro\catlist{case, const, edict, m, other}
-
-\endgroup
-
 %%
 %% \iffalse filename: cparse.dtx \fi
 %%
@@ -825,7 +782,6 @@ themselves work as expected.
 %%
 %% \iffalse filename: toa.dtx \fi
 %%
-
 \section{toa.dtx}
 
 \subsection{Aux File Writing}
@@ -966,24 +922,24 @@ themselves work as expected.
 
 \endgroup
 
-\subsection{Sublists}
+\subsection{Heading Lists}
 
 \begingroup
 
-    \hi@toa@sublist@add{stat}{Regulation/s}
-    \AssertBox{\hi@toa@sublist@show{stat}}{Regulation}
+    \hi@toa@headlist@add{stat}{Regulation/s}
+    \AssertBox{\hi@toa@headlist@show{stat}}{Regulation}
 
-    \hi@toa@sublist@add{stat}{Regulation/s}
-    \AssertBox{\hi@toa@sublist@show{stat}}{Regulations}
+    \hi@toa@headlist@add{stat}{Regulation/s}
+    \AssertBox{\hi@toa@headlist@show{stat}}{Regulations}
 
-    \hi@toa@sublist@add{stat}{Treat/y/ies}
-    \AssertBox{\hi@toa@sublist@show{stat}}{Regulations and Treaty}
+    \hi@toa@headlist@add{stat}{Treat/y/ies}
+    \AssertBox{\hi@toa@headlist@show{stat}}{Regulations and Treaty}
 
-    \hi@toa@sublist@add{stat}{Statute/s}
-    \AssertBox{\hi@toa@sublist@show{stat}}{Regulations, Treaty and Statute}
+    \hi@toa@headlist@add{stat}{Statute/s}
+    \AssertBox{\hi@toa@headlist@show{stat}}{Regulations, Treaty and Statute}
 
-    \hi@toa@sublist@add{stat}{Treat/y/ies}
-    \AssertBox{\hi@toa@sublist@show{stat}}{Regulations, Treaties and Statute}
+    \hi@toa@headlist@add{stat}{Treat/y/ies}
+    \AssertBox{\hi@toa@headlist@show{stat}}{Regulations, Treaties and Statute}
 
 \endgroup
 
@@ -1000,25 +956,25 @@ themselves work as expected.
     \AssertTrue{\IfKnownList{hi@toa@list}}
 
     \AssertBox{\ShowList{hi@toa@list}{#1, }}{refM, }
-    \AssertBox{\hi@toa@sublist@show{list}}{item}
+    \AssertBox{\hi@toa@headlist@show{list}}{item}
 
     \AssertTrue{\IfListContains{hi@toa@list}{refM}}
 
     \hi@toa@addtolist{refM}{list}{item/s}
     \AssertBox{\ShowList{hi@toa@list}{#1, }}{refM, }
-    \AssertBox{\hi@toa@sublist@show{list}}{item}
+    \AssertBox{\hi@toa@headlist@show{list}}{item}
 
     \hi@toa@addtolist{refA}{list}{item/s}
     \AssertBox{\ShowList{hi@toa@list}{#1, }}{refA, refM, }
-    \AssertBox{\hi@toa@sublist@show{list}}{items}
+    \AssertBox{\hi@toa@headlist@show{list}}{items}
 
     \hi@toa@addtolist{refI}{list}{element/s}
     \AssertBox{\ShowList{hi@toa@list}{#1, }}{refA, refI, refM, }
-    \AssertBox{\hi@toa@sublist@show{list}}{items and element}
+    \AssertBox{\hi@toa@headlist@show{list}}{items and element}
 
     \hi@toa@addtolist{refA}{list}{item/s}
     \AssertBox{\ShowList{hi@toa@list}{#1, }}{refA, refI, refM, }
-    \AssertBox{\hi@toa@sublist@show{list}}{items and element}
+    \AssertBox{\hi@toa@headlist@show{list}}{items and element}
 
 \endgroup
 
@@ -1108,6 +1064,49 @@ The following can only be tested visually. Make sure that these look acceptable.
 \testbox{A B C D E F}{1--2, 3, 4, 5}
 \testbox{A B C D E F G}{1--2, 3, 4, 5}
 \testbox{A B C D E F G H}{1--2, 3, 4, 5}
+
+\subsection{TOA Categories}
+
+\defcase{garcia}{
+parties={Garcia v. Google, Inc.},
+cite=786 F.3d 733,
+court=9th Cir.,
+year=2015,
+enbanc,
+}
+
+\AssertCallback{\hi@toacat@get{garcia}}{case:Case/s}
+
+\defcase{dc-comics}{
+parties=DC Comics v. Towle,
+cite=802 F.3d 1012,
+court=9th Cir.,
+year=2015,
+toacat=other,
+}
+
+\AssertCallback{\hi@toacat@get{dc-comics}}{other:Other Source/s}
+
+\NewTOACategory{movie}{m}{Motion Picture/s}{Y}
+\DefaultTOACategory{film}{movie}
+
+\deffilm{faceoff}{
+name=Face/Off,
+year=1997,
+publisher=Paramount Pictures,
+}
+\AssertCallback{\hi@toacat@get{faceoff}}{m:Motion Picture/s}
+
+\begingroup
+
+    \def\catlist{}
+    \hi@toacat@each{%
+        \ifx\catlist\@empty\else \addto@macro\catlist{, }\fi
+        \addto@macro\catlist{#1}%
+    }%
+    \AssertMacro\catlist{case, const, edict, m, other}
+
+\endgroup
 
 %%
 %% \iffalse filename: endnotes.dtx \fi
@@ -1911,10 +1910,26 @@ year=1997,
             }%
         }%
         \hi@ifeitherset\hi@kv@year\hi@kv@court{%
-            \hi@addparen{\hi@paren@date}{%
+            \hi@parens@add\hi@paren@date{%
                 \hi@param@optspc\hi@kv@court\hi@kv@year
             }%
         }{}%
+        \the\hi@param@parens
+    }%
+}
+\hi@newcite{modelcode}{A model code, restatement, or other standard}{other}{%
+    \hi@statcode@setup@idpc{#1}% Set up id. and page numbering
+    \hi@include@page@in@toa{#1}%
+    \@expandarg\hi@abbrev@name\hi@kv@name{\def\hi@kv@name}%
+    \hi@modelcode@makedateparen
+    \hi@newcite@form{fc}{#1}{%
+        \hi@citeguts{%
+            \noexpand\hi@fn@statute{\hi@kv@name}%
+            \noexpand\hi@maybepage{ }%
+        }%
+        \hi@parens@add{\hi@paren@date}{%
+            \hi@modelcode@dateparen
+        }%
         \the\hi@param@parens
     }%
 }
@@ -1923,11 +1938,15 @@ year=1997,
 
 \defstatcode{271}{35 U.S.C. S 271}
 
-\AssertBox{\inline{271}}{\S~271 of title 35 of the U.S. Code}
+\AssertBox{\inline{271}}{35 U.S.C. \S~271}
 
 \AssertBox{\note{271 at /b}}{%
     \InFootnote{35 \textsc{U.S.C.} \textsection~271(b).}%
 }
+
+\defstatcode{273}{35 U.S.C. S 273}
+
+\AssertBox{\Inline{273}}{Section 273 of title 35 of the U.S. Code}
 
 \defstatcode{dmca}{
     cite=17 U.S.C. S 1201-1204,
@@ -1993,6 +2012,67 @@ cite=131 Stat. 1005,
 \AssertBox{\Inline{fdara}}{FDARA}
 
 \AssertBox{\inline{fdara at S 1}}{\S\ 1 of FDARA}
+
+\subsection{Model Code Parenthetical}
+
+\begingroup
+
+    \def\@this@case{temp}%
+    \hi@param@set{other}{%
+        year=2000
+    }
+    \hi@modelcode@makedateparen
+    \AssertMacro{\hi@modelcode@dateparen}{2000}
+
+\endgroup
+
+\begingroup
+
+    \def\@this@case{temp}%
+    \hi@param@set{other}{%
+        year=2000,
+        instauth=American Law Institute,
+    }
+    \hi@modelcode@makedateparen
+    \AssertMacro\hi@modelcode@dateparen{\hi@fn@bookauthor{Am. L. Inst.} 2000}
+\endgroup
+
+\begingroup
+
+    \def\@this@case{temp}%
+    \hi@param@set{other}{%
+        year=2000,
+        instauth=American Law Institute,
+        edition=Proposed Official Draft,
+    }
+    \hi@modelcode@makedateparen
+    \AssertMacro\hi@modelcode@dateparen{\hi@fn@bookauthor{Am. L. Inst.},
+    Proposed Official Draft 2000}
+\endgroup
+
+\begingroup
+
+    \def\@this@case{temp}%
+    \hi@param@set{other}{%
+        year=2000,
+        instauth=American Law Institute,
+        edition=Tentative Draft No. 17,
+    }
+    \hi@modelcode@makedateparen
+    \AssertMacro\hi@modelcode@dateparen{\hi@fn@bookauthor{Am. L. Inst.},
+    Tentative Draft No. 17, 2000}
+
+\endgroup
+
+\defmodelcode{ali}{
+year=2000,
+instauth=American Law Institute,
+edition=Tentative Draft No. 17,
+name=Restatement (Second) of Torts,
+}
+
+\AssertBox{\note{ali at S 847A}}{\InFootnote{\textsc{Restatement (Second) of
+Torts} \S~847A (\textsc{Am.~L.~Inst.}, Tentative Draft No.~17, 2000).}}
 
 %%
 %% \iffalse filename: specrefs.dtx \fi
@@ -3390,7 +3470,7 @@ Wiping out While Filming ``The Sound of Music},\emph{''} \textsc{Ent.\ Wkly.}\
 %%
 %% \iffalse filename: nondocrefs.dtx \fi
 %%
-\hi@newcite{abbrev}{An abbreviation for a name}{}{%
+\hi@newcite{abbrev}{An abbreviation for a name}{abbrev}{%
     \hi@ifset\hi@kv@name{%
         \hi@replacethe\hi@kv@name{\def\hi@kv@name}{}%
         \@expandarg\hi@abbrev@name{\hi@kv@name}{\def\hi@kv@aname}%
@@ -3432,6 +3512,10 @@ Wiping out While Filming ``The Sound of Music},\emph{''} \textsc{Ent.\ Wkly.}\
         \noexpand\@%
         \hi@short@use{#1}%
         \hi@invis@inline
+    }%
+    % For forming tables of abbreviations
+    \hi@newcite@form{lc}{#1}{%
+        {\hi@kv@inline}{\hi@kv@name}%
     }%
 }
 \hi@newcite{alias}{An alias for a citation reference}{}{%

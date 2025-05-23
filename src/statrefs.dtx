@@ -523,8 +523,10 @@ those for \rtype{statcode}.
     % retains the \textsection symbols.
     \hi@ifset\hi@kv@origsect{}{%
         \@expand{\find@try\find@eq{%
-            {U.S.C.}{\hi@statcode@special{#1}{U.S. Code}}%
-            {C.F.R.}{\hi@statcode@special{#1}{Code of Federal Regulations}}%
+            {U.S.C.}{\hi@statcode@special{#1}{U.S.C.}{U.S. Code}}%
+            {C.F.R.}{%
+                \hi@statcode@special{#1}{C.F.R.}{Code of Federal Regulations}%
+            }%
         }}\hi@kv@rep i{}%
     }%
     %
@@ -570,10 +572,13 @@ those for \rtype{statcode}.
 %    \end{macrocode}
 %
 % Creates the inline citation form where the reporter is U.S.C. or C.F.R. \#1 is
-% the reference name, \#2 the textual form of the reporter.
+% the reference name, \#2 the abbreviated reporter, and \#3 the textual form of
+% the reporter. Note that
+% |\reserved@a| stores the formatted subdivision number (typically the section
+% number).
 %
 %    \begin{macrocode}
-\def\hi@statcode@special#1#2{%
+\def\hi@statcode@special#1#2#3{%
     \hi@newcite@form{isc}{#1}{%
         \hi@citeguts{%
             \ifx\reserved@a\@empty
@@ -584,7 +589,11 @@ those for \rtype{statcode}.
                     \hi@ifset\hi@kv@name{%
                         \hi@statcode@nameorinline{#1}%
                     }{%
-                        \noexpand\@capnext title \hi@kv@vol % \space of the #2%
+                        \noexpand\if@hi@cap
+                            \hi@nocap Title \hi@kv@vol\space of the #3%
+                        \noexpand\else
+                            \hi@kv@vol\space #2%
+                        \noexpand\fi
                     }%
                 }%
             \else
@@ -606,20 +615,28 @@ those for \rtype{statcode}.
                     \hi@ifset\hi@kv@name{%
                         \hi@statcode@nameorinline{#1}%
                     }{%
-                        \@capnext title \hi@kv@vol \space of the #2%
+                        \noexpand\if@hi@cap
+                            \hi@nocap Title \hi@kv@vol\space of the #3%
+                        \noexpand\else
+                            \hi@kv@vol\space #2%
+                        \noexpand\fi
                     }%
                 }%
             \else
                 % A section number was given.
-                \hi@pageordefault{}{%
-                    \@capnext\reserved@a
-                }%
-                \hi@nocap\space of
-                \hi@ifset\hi@kv@name{%
-                    \hi@statcode@nameorinline{#1}%
-                }{%
-                    \@capnext title \hi@kv@vol \space of the #2%
-                }%
+                \noexpand\if@hi@cap
+                    \hi@pageordefault{}{%
+                        \@capnext\reserved@a
+                    }%
+                    \hi@nocap\space of
+                    \hi@ifset\hi@kv@name{%
+                        \hi@statcode@nameorinline{#1}%
+                    }{%
+                        title \hi@kv@vol \space of the #3%
+                    }%
+                \noexpand\else
+                    \hi@kv@vol\space #2 \hi@pageordefault{}{\reserved@a}%
+                \noexpand\fi
             \fi
             % We will count this as the sufficient full citation if there appear
             % to be no parentheticals to be added to this citation (including no
@@ -1041,7 +1058,7 @@ statutes if a particular section number is repeatedly used.
             }%
         }%
         \hi@ifeitherset\hi@kv@year\hi@kv@court{%
-            \hi@addparen{\hi@paren@date}{%
+            \hi@parens@add\hi@paren@date{%
                 \hi@param@optspc\hi@kv@court\hi@kv@year
             }%
         }{}%
@@ -1049,9 +1066,8 @@ statutes if a particular section number is repeatedly used.
     }%
 }
 %<*doc>
-Citations to judicial rules are not especially well-defined, and there are at
-least two possible approaches for identifying rules (both of which this package
-supports). First, one could characterize the name of the rule set as a book
+Citations to judicial rules are not especially well-defined.
+Probably the better option is to characterize the name of the rule set as a book
 title and each rule as a named division therein. That would produce output along
 the following lines:
 \begin{demo}
@@ -1072,6 +1088,10 @@ solution is to use the dash character before the pin cite as described in
 The dash forces the pin cite to be interpreted as a ``named'' division with no
 name.
 
+The other option is to define a specific rule as a reference. With this
+approach, \emph{id.}~citations would not be used when two different rules are
+cited, even if they are from the same rule book.
+
 \keyparameters{
     {rep}{The abbreviated name of the rule set being cited.}
     {page}{The rule number, see above.}
@@ -1085,17 +1105,82 @@ name.
 \pagejoining
 
 %</doc>
+\hi@newcite{modelcode}{A model code, restatement, or other standard}{other}{%
+    \hi@statcode@setup@idpc{#1}% Set up id. and page numbering
+    \hi@include@page@in@toa{#1}%
+    \@expandarg\hi@abbrev@name\hi@kv@name{\def\hi@kv@name}%
+    \hi@modelcode@makedateparen
+    \hi@newcite@form{fc}{#1}{%
+        \hi@citeguts{%
+            \noexpand\hi@fn@statute{\hi@kv@name}%
+            \noexpand\hi@maybepage{ }%
+        }%
+        \hi@parens@add{\hi@paren@date}{%
+            \hi@modelcode@dateparen
+        }%
+        \the\hi@param@parens
+    }%
+}
+%<*doc>
+A model code is cited as something of a hybrid between a statute and a book, the
+main feature of note being that the ``author'' of the model code (typically the
+sponsoring institution) is styled like an author of a book, but is placed in the
+date parenthetical like a court.
+\keyparameters{
+    {name}{The name of the model code, to be abbreviated like a case name.}
+    {instauth}{The sponsoring organization of the model code.}
+}
+\optparameters{
+    {edition}{If the document being cited is a named draft (``Tentative Draft''
+    or such), give the draft name here.}
+}
+%</doc>
+%<*package>
+%
+% Constructs the date parenthetical for a model code based on the author,
+% edition, and year parameters.
+% 
+%    \begin{macrocode}
+\def\hi@modelcode@makedateparen{%
+    \hi@ifset\hi@kv@author{%
+        \protected@edef\hi@modelcode@dateparen{%
+            \noexpand\hi@fn@bookauthor{\hi@kv@author}%
+        }%
+    }{%
+        \let\hi@modelcode@dateparen\@empty
+    }%
+    \hi@ifset\hi@kv@edition{%
+        \ifx\hi@modelcode@dateparen\@empty\else
+            \addto@macro\hi@modelcode@dateparen{, }%
+        \fi
+        \add@macro@to@macro\hi@modelcode@dateparen\hi@kv@edition
+    }{}%
+    \ifx\hi@modelcode@dateparen\@empty\else
+        \@expandarg\@ifendswithdigit\hi@modelcode@dateparen{%
+            \addto@macro\hi@modelcode@dateparen{, }%
+        }{%
+            \addto@macro\hi@modelcode@dateparen{ }%
+        }%
+    \fi
+    \add@macro@to@macro\hi@modelcode@dateparen{\hi@kv@year}%
+}
+%    \end{macrocode}
+%</package>
 %<*test>
 
 \section{statrefs.dtx}
 
 \defstatcode{271}{35 U.S.C. S 271}
 
-\AssertBox{\inline{271}}{\S~271 of title 35 of the U.S. Code}
+\AssertBox{\inline{271}}{35 U.S.C. \S~271}
 
 \AssertBox{\note{271 at /b}}{%
     \InFootnote{35 \textsc{U.S.C.} \textsection~271(b).}%
 }
+
+\defstatcode{273}{35 U.S.C. S 273}
+
+\AssertBox{\Inline{273}}{Section 273 of title 35 of the U.S. Code}
 
 \defstatcode{dmca}{
     cite=17 U.S.C. S 1201-1204,
@@ -1162,5 +1247,66 @@ cite=131 Stat. 1005,
 \AssertBox{\Inline{fdara}}{FDARA}
 
 \AssertBox{\inline{fdara at S 1}}{\S\ 1 of FDARA}
+
+\subsection{Model Code Parenthetical}
+
+\begingroup
+
+    \def\@this@case{temp}%
+    \hi@param@set{other}{%
+        year=2000
+    }
+    \hi@modelcode@makedateparen
+    \AssertMacro{\hi@modelcode@dateparen}{2000}
+
+\endgroup
+
+\begingroup
+
+    \def\@this@case{temp}%
+    \hi@param@set{other}{%
+        year=2000,
+        instauth=American Law Institute,
+    }
+    \hi@modelcode@makedateparen
+    \AssertMacro\hi@modelcode@dateparen{\hi@fn@bookauthor{Am. L. Inst.} 2000}
+\endgroup
+
+\begingroup
+
+    \def\@this@case{temp}%
+    \hi@param@set{other}{%
+        year=2000,
+        instauth=American Law Institute,
+        edition=Proposed Official Draft,
+    }
+    \hi@modelcode@makedateparen
+    \AssertMacro\hi@modelcode@dateparen{\hi@fn@bookauthor{Am. L. Inst.},
+    Proposed Official Draft 2000}
+\endgroup
+
+\begingroup
+
+    \def\@this@case{temp}%
+    \hi@param@set{other}{%
+        year=2000,
+        instauth=American Law Institute,
+        edition=Tentative Draft No. 17,
+    }
+    \hi@modelcode@makedateparen
+    \AssertMacro\hi@modelcode@dateparen{\hi@fn@bookauthor{Am. L. Inst.},
+    Tentative Draft No. 17, 2000}
+
+\endgroup
+
+\defmodelcode{ali}{
+year=2000,
+instauth=American Law Institute,
+edition=Tentative Draft No. 17,
+name=Restatement (Second) of Torts,
+}
+
+\AssertBox{\note{ali at S 847A}}{\InFootnote{\textsc{Restatement (Second) of
+Torts} \S~847A (\textsc{Am.~L.~Inst.}, Tentative Draft No.~17, 2000).}}
 
 %</test>

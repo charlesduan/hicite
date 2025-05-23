@@ -399,6 +399,7 @@ open('hi-names.tex', 'w') do |io|
           io.puts(command)
         end
       end
+      io.puts("\\hi@abbrev{Saint}{St.}")
       io.puts("\\hi@abbrev{{}Law}{Law} % When first word in abbreviation")
       io.puts("\\hi@abbrev{{}Laws}{Laws} % When first word in abbreviation")
 

@@ -13,7 +13,7 @@ authorities, but serve other purposes in this package's system.
 
 
 %</doc>
-\hi@newcite{abbrev}{An abbreviation for a name}{}{%
+\hi@newcite{abbrev}{An abbreviation for a name}{abbrev}{%
     \hi@ifset\hi@kv@name{%
         \hi@replacethe\hi@kv@name{\def\hi@kv@name}{}%
         \@expandarg\hi@abbrev@name{\hi@kv@name}{\def\hi@kv@aname}%
@@ -55,6 +55,10 @@ authorities, but serve other purposes in this package's system.
         \noexpand\@%
         \hi@short@use{#1}%
         \hi@invis@inline
+    }%
+    % For forming tables of abbreviations
+    \hi@newcite@form{lc}{#1}{%
+        {\hi@kv@inline}{\hi@kv@name}%
     }%
 }
 %<*doc>

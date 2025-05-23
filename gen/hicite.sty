@@ -214,83 +214,6 @@
     \forcsvlist{\hi@citegroup@{#1}{#2}{#3}}{#4}%
 }
 \def\hi@citegroup@#1#2#3#4{#2{#1#4}{#3#4}}
-\def\NewTOACategory#1#2#3{%
-    \@namedef{hi@cats@#1}{#2:#3}%
-    \AddToList{hi@toacat@supercats}{#2}%
-}
-\def\DefaultTOACategory#1#2{%
-    \ifstrempty{#2}{%
-        \cslet{hi@catd@#1}\relax
-    }{%
-        \@ifundefined{hi@cats@#2}{%
-            \PackageError\hi@pkgname{%
-                TOA category #2 does not exist, in setting the\MessageBreak
-                default for reference type #1%
-            }{Define TOA category #2 first with \string\NewTOACategory}%
-        }{%
-            \@namedef{hi@catd@#1}{#2}%
-        }%
-    }%
-}
-\def\SetTOACategory#1#2{%
-    \ifstrempty{#2}{%
-        \global\cslet{hi@cat@#1}\relax
-    }{%
-        \@ifundefined{hi@cats@#2}{%
-            \PackageError\hi@pkgname{%
-                Invalid Table of Authorities category #1,\MessageBreak
-                given for reference #2%
-            }{%
-                Please enter a valid Table of Authorities category.
-            }%
-        }{%
-            \global\csletcs{hi@cat@#1}{hi@cats@#2}%
-        }%
-    }
-}
-\def\hi@toacat@get#1#2{%
-    \@ifundefined{hi@cat@#1}{}{%
-        \@expand{#2}{\csname hi@cat@#1\endcsname}{ii}%
-    }%
-}
-\def\hi@toacat@transfer#1#2{%
-    \global\csletcs{hi@cat@#2}{hi@cat@#1}%
-    \global\cslet{hi@cat@#1}\relax
-}
-\def\hi@toacat@setdefault#1#2{%
-    \@ifundefined{hi@cat@#1}{%
-        \@ifundefined{hi@catd@#2}{}{%
-            \SetTOACategory{#1}{\csname hi@catd@#2\endcsname}%
-        }%
-    }{}%
-}
-\NewSortedList{hi@toacat@supercats}{\SortEasyAlpha}{\StripForAlpha{#1}{\def#2}}
-\ListElementsMustBeUnique{hi@toacat@supercats}
-\NewTOACategory{other}{other}{Other Source/s}
-\NewTOACategory{const}{const}{Constitutional Provision/s}
-\NewTOACategory{found}{const}{Foundational Document/s}
-\NewTOACategory{statute}{edict}{Statute/s}
-\NewTOACategory{regulation}{edict}{Regulation/s}
-\NewTOACategory{rule}{edict}{Rule/s}
-\NewTOACategory{case}{case}{Case/s}
-\NewTOACategory{admin}{case}{Administrative Decision/s}
-\NewTOACategory{treaty}{edict}{Treat/y/ies}
-\long\def\hi@toacat@each#1{%
-    %
-    % Unfortunately, this macro is used to iterate over items in the TOA, which
-    % also stores items in SortedLists. So we can't just use \ShowList directly
-    % since \ShowList can't be used in a nested fashion. So instead, we iterate
-    % over the supercategory list to construct a series of macro expansions of
-    % the given parameter, and then execute that series.
-    %
-    \begingroup % Will be ended when \reserved@a runs
-    \def\hi@toacat@temp{\endgroup}%
-    \def\hi@toacat@do##1{#1}%
-    \ShowList{hi@toacat@supercats}{%
-        \@expand{\appto\hi@toacat@temp}{\hi@toacat@do{##1}}{i}%
-    }%
-    \hi@toacat@temp
-}
 %%
 %% \iffalse filename: cparse.dtx \fi
 %%
@@ -1154,73 +1077,76 @@
     \hi@parseurl{#1}\reserved@a\reserved@a
 }%
 \def\hi@parseurl#1#2{%
-    \hi@parseurl@forlink{#1}%
-    \def#2{\leavevmode\hi@parseurl@use}%
-    \expandafter\addto@macro\expandafter#2\expandafter{\expandafter{%
-        \the\hi@url@count
-    }}%
-    \hi@parseurl@{#1}{#2}%
-    \if@endswithdot{#1}{\addto@macro#2{\protect\@hi@dottrue}}%
-    \addto@macro#2{\hi@parseurl@enduse}%
+    \global\advance\hi@url@count\@ne
+    \let\hi@url@cur\hi@url@count
+    \hi@url@link{#1}%
+    \hi@url@text{#1}%
+    \hi@url@assign{#2}%
 }
-\DeclareRobustCommand\hi@parseurl@use[1]{%
-    \@ifundefined{hi@pdfurl@#1}{%
+\def\hi@url@assign@default#1{%
+    \letcs#1{hi@u\the\hi@url@cur @text}%
+    \@expand\if@endswithdot{\csname hi@u\the\hi@url@cur @text\endcsname}{ii}%
+        {\addto@macro#1{\protect\@hi@dottrue}}%
+}
+\let\hi@url@assign\hi@url@assign@default
+\DeclareRobustCommand\hi@url@declare[1]{%
+    \@ifundefined{hi@u#1@declared}{%
         \edef\reserved@a{%
             \noexpand\special{%
                 pdf:object @HIURL#1 <<
                     /S /URI
-                    /URI (\csname hi@linkurl@#1\endcsname)
+                    /URI (\csname hi@u#1@link\endcsname)
                 >>
             }%
         }\reserved@a
+        \global\cslet{hi@u#1@declared}\@empty
     }{}%
-    \edef\hi@parseurl@insert##1{%
-        \noexpand\special{pdf:bann <<
-            /Type /Annot
-            /Subtype /Link
-            /Border [0 0 0]
-            /A @HIURL#1
-        >>}##1\noexpand\special{pdf:eann}%
-    }%
 }
-\DeclareRobustCommand\hi@parseurl@insertbox[1]{%
-    \hbox{\hi@parseurl@insert{#1}}%
+\DeclareRobustCommand\hi@url@insert[2]{%
+    \@ifundefined{hi@u#1@declared}{\hi@url@declare{#1}}{}%
+    \noexpand\special{pdf:bann <<
+        /Type /Annot
+        /Subtype /Link
+        /Border [0 0 0]
+        /A @HIURL#1
+    >>}#2\noexpand\special{pdf:eann}%
+}%
+\DeclareRobustCommand\hi@url@insertbox[1]{%
+    \hbox{\@expandarg\hi@url@insert{\the\hi@url@cur}{#1}}%
 }
-\let\hi@parseurl@insert\@firstofone
-\DeclareRobustCommand\hi@parseurl@enduse{}
 \newcount\hi@url@count
+\newcount\hi@url@cur
 \make@find@start{http://}
 \make@find@start{https://}
 \make@find@start{ftp://}
 \make@find@start{mailto:}
-\def\hi@parseurl@forlink#1{%
+\def\hi@url@link#1{%
     \let\reserved@a\@empty
     % Force the link to start with https:// unless it has a protocol already
     \find@try\find@start{%
         {http://}\@gobble{https://}\@gobble{ftp://}\@gobble{mailto:}\@gobble
     }{#1}{\def\reserved@a{https://}}%
-    \hi@parseurl@forlink@{#1}%
-    \global\advance\hi@url@count\@ne
-    \global\expandafter\let\csname hi@linkurl@\the\hi@url@count\endcsname \reserved@a
+    \hi@url@link@{#1}%
+    \global\cslet{hi@u\the\hi@url@cur @link}\reserved@a
 }
-\def\hi@parseurl@forlink@#1{%
+\def\hi@url@link@#1{%
     \find@word{#1}%
-        \hi@parseurl@forlink@chars
-        \hi@parseurl@forlink@groups
-        \hi@parseurl@forlink@words
+        \hi@url@link@chars
+        \hi@url@link@groups
+        \hi@url@link@words
         \relax
 }
-\def\hi@parseurl@forlink@words#1#2{%
+\def\hi@url@link@words#1#2{%
     \addto@macro\reserved@a{#1}%
-    \hi@parseurl@forlink@{#2}%
+    \hi@url@link@{#2}%
 }
-\def\hi@parseurl@forlink@groups#1#2{%
-    \hi@parseurl@forlink@{\{#1\}#2}%
+\def\hi@url@link@groups#1#2{%
+    \hi@url@link@{\{#1\}#2}%
 }
-\def\hi@parseurl@forlink@chars#1#2{%
+\def\hi@url@link@chars#1#2{%
     \@test \ifcat\relax\noexpand#1\fi{%
         % If the char is a macro
-        \@ifundefined{hi@url@\string#1}{%
+        \@ifundefined{hi@uchar@\string#1}{%
             \expandafter\addto@macro\expandafter\reserved@a\expandafter{%
                 \string#1%
             }%
@@ -1235,77 +1161,83 @@
             \addto@macro\reserved@a{#1}%
         }%
     }%
-    \hi@parseurl@forlink@{#2}%
+    \hi@url@link@{#2}%
 }
-\def\hi@parseurl@#1#2{%
+\def\hi@url@text#1{%
+    \edef\reserved@a{\noexpand\hi@url@cur=\the\hi@url@cur \relax}%
+    \hi@url@text@next{#1}\reserved@a
+    \global\cslet{hi@u\the\hi@url@cur @text}\reserved@a
+}
+
+\def\hi@url@text@next#1#2{%
     \find@word{#1}{%
-        \hi@parseurl@chars{#2}%
+        \hi@url@text@chars{#2}%
     }{%
-        \hi@parseurl@groups{#2}%
+        \hi@url@text@groups{#2}%
     }{%
-        \hi@parseurl@words{#2}%
+        \hi@url@text@words{#2}%
     }{}%
 }
-\def\hi@parseurl@words#1#2#3{%
-    \addto@macro#1{\hi@parseurl@insertbox{#2}}%
-    \hi@parseurl@{#3}{#1}%
+\def\hi@url@text@words#1#2#3{%
+    \addto@macro#1{\hi@url@insertbox{#2}}%
+    \hi@url@text@next{#3}{#1}%
 }
-\def\hi@parseurl@groups#1#2#3{%
-    \hi@parseurl@{\{#2\}#3}{#1}%
+\def\hi@url@text@groups#1#2#3{%
+    \hi@url@text@next{\{#2\}#3}{#1}%
 }
-\def\hi@parseurl@chars#1#2#3{%
+\def\hi@url@text@chars#1#2#3{%
     \@test \ifcat\relax\noexpand#2\fi{%
-        \@ifundefined{hi@url@\string#2}{%
-            \expandafter\hi@parseurl@\expandafter{\string#2#3}{#1}%
+        \@ifundefined{hi@uchar@\string#2}{%
+            \expandafter\hi@url@text\expandafter{\string#2#3}{#1}%
         }{%
-            \csname hi@url@\string#2\endcsname{#1}{#3}%
-            \hi@parseurl@{#3}{#1}%
+            \csname hi@uchar@\string#2\endcsname{#1}{#3}%
+            \hi@url@text@next{#3}{#1}%
         }%
     }{%
-        \@ifundefined{hi@url@\@backslashchar\string#2}{%
-            \addto@macro#1{\hi@parseurl@insertbox #2}%
+        \@ifundefined{hi@uchar@\@backslashchar\string#2}{%
+            \addto@macro#1{\hi@url@insertbox #2}%
         }{%
-            \csname hi@url@\@backslashchar\string#2\endcsname{#1}{#3}%
+            \csname hi@uchar@\@backslashchar\string#2\endcsname{#1}{#3}%
         }%
-        \hi@parseurl@{#3}{#1}%
+        \hi@url@text@next{#3}{#1}%
     }%
 }
 \def\do#1{%
-    \@namedef{hi@url@\string #1}##1##2{%
-        \addto@macro##1{\hi@parseurl@insertbox}%
+    \@namedef{hi@uchar@\string #1}##1##2{%
+        \addto@macro##1{\hi@url@insertbox}%
         \@expand{\addto@macro##1}{\expandafter\@gobble\string #1}{ii}%
         \find@word{##2}\@gobbletwo\@gobbletwo{%
-            \addto@macro##1{\hi@url@break}\@gobbletwo
+            \addto@macro##1{\hi@uchar@break}\@gobbletwo
         }{}%
     }%
 }
 \do\.\do\@\do\!\do\;\do\]\do\)\do\,\do\+\do\=\do\#\do\:
 \def\do#1{%
-    \@namedef{hi@url@\string #1}##1##2{%
-        \addto@macro##1{\hi@url@spacenobreak\hi@parseurl@insertbox}%
+    \@namedef{hi@uchar@\string #1}##1##2{%
+        \addto@macro##1{\hi@uchar@spacenobreak\hi@url@insertbox}%
         \@expand{\addto@macro##1}{\expandafter\@gobble\string #1}{ii}%
         \find@word{##2}{%
-            \addto@macro##1{\hi@url@spacenobreak}\@gobbletwo
+            \addto@macro##1{\hi@uchar@spacenobreak}\@gobbletwo
         }{%
-            \addto@macro##1{\hi@url@spacenobreak}\@gobbletwo
+            \addto@macro##1{\hi@uchar@spacenobreak}\@gobbletwo
         }{%
-            \addto@macro##1{\hi@url@spacebreak}\@gobbletwo
+            \addto@macro##1{\hi@uchar@spacebreak}\@gobbletwo
         }{}%
     }%
 }
 \do\/\do\?\do\&\do\-
 \def\do#1{%
-    \@namedef{hi@url@\string #1}##1##2{%
-        \addto@macro##1{\hi@parseurl@insertbox}%
+    \@namedef{hi@uchar@\string #1}##1##2{%
+        \addto@macro##1{\hi@url@insertbox}%
         \@expand{\addto@macro##1}{\expandafter\@gobble\string #1}{ii}%
     }%
 }
 \do\^\do\$
 \def\do#1#2{%
-    \@namedef{hi@url@\string #1}##1##2{%
-        \addto@macro##1{\hi@parseurl@insertbox{#2}}%
+    \@namedef{hi@uchar@\string #1}##1##2{%
+        \addto@macro##1{\hi@url@insertbox{#2}}%
         \find@word{##2}\@gobbletwo\@gobbletwo{%
-            \addto@macro##1{\hi@url@break}\@gobbletwo
+            \addto@macro##1{\hi@uchar@break}\@gobbletwo
         }{}%
     }%
 }
@@ -1316,33 +1248,33 @@
 \do\ {}%
 \do\_{\_}%
 \def\do#1#2{%
-    \@namedef{hi@url@\string #1}##1##2{%
-        \addto@macro##1{\hi@parseurl@insertbox{#2}}%
+    \@namedef{hi@uchar@\string #1}##1##2{%
+        \addto@macro##1{\hi@url@insertbox{#2}}%
     }%
 }
 \do\>{$\protect\rangle$}
 \do\}{$\protect\rbrace$}
 \do\~{\char`\~}%
-\@namedef{hi@url@\string\%}#1#2{%
-    \ifstrempty{#2}{}{\addto@macro#1{\hi@url@spacebreak}}%
-    \addto@macro#1{\hi@parseurl@insertbox{\%}}%
+\@namedef{hi@uchar@\string\%}#1#2{%
+    \ifstrempty{#2}{}{\addto@macro#1{\hi@uchar@spacebreak}}%
+    \addto@macro#1{\hi@url@insertbox{\%}}%
 }%
 \newskip\urlbreakskip \urlbreakskip=0pt plus .4pt
-\DeclareRobustCommand\hi@url@break{%
+\DeclareRobustCommand\hi@uchar@break{%
     \penalty\exhyphenpenalty
 }
-\DeclareRobustCommand\hi@url@spacenobreak{%
+\DeclareRobustCommand\hi@uchar@spacenobreak{%
     \unskip\unpenalty\nobreak
     \hskip\urlbreakskip
 }
-\DeclareRobustCommand\hi@url@spacebreak{%
+\DeclareRobustCommand\hi@uchar@spacebreak{%
     \penalty\exhyphenpenalty\hskip\urlbreakskip
 }
-\@namedef{hi@url@\string\ }#1#2{%
-    \ifstrempty{#2}{}{\addto@macro#1{\hi@url@break}}%
+\@namedef{hi@uchar@\string\ }#1#2{%
+    \ifstrempty{#2}{}{\addto@macro#1{\hi@uchar@break}}%
 }
-\@namedef{hi@url@\string\^^M}#1#2{%
-    \ifstrempty{#2}{}{\addto@macro#1{\hi@url@break}}%
+\@namedef{hi@uchar@\string\^^M}#1#2{%
+    \ifstrempty{#2}{}{\addto@macro#1{\hi@uchar@break}}%
 }
 \def\hi@urlstyle@full{%
     \def\hi@showurl##1{##1}%
@@ -1366,26 +1298,31 @@
     }
     \def\ToaUrlMark{\emph{available online}}
 }
+\def\hi@url@assign@link#1{%
+    \edef#1{%
+        \noexpand\leavevmode
+        \noexpand\hi@url@insert{\the\hi@url@cur}{\noexpand\LinkText}%
+        \noexpand\hi@linkurl@auxwrite{\the\hi@url@cur}%
+    }%
+}
 \def\hi@urlstyle@link{%
-    \def\hi@parseurl##1##2{%
-        \hi@parseurl@forlink{##1}%
-        \edef##2{%
-            \noexpand\leavevmode
-            \noexpand\special{%
-                pdf:object @HIURL\the\hi@url@count <<
-                    /S /URI
-                    /URI (\csname hi@linkurl@\the\hi@url@count\endcsname)
-                >>
-            }%
-            \noexpand\special{pdf:bann <<
-                /Type /Annot
-                /Subtype /Link
-                /Border [0 0 0]
-                /A @HIURL\the\hi@url@count
-            >>}\noexpand\LinkText\noexpand\special{pdf:eann}%
-        }%
-    }
-    \def\LinkText{\emph{link}}
+    \let\hi@url@assign\hi@url@assign@link
+}
+\def\hi@linkurl@auxwrite#1{%
+    \addtocontents{tou}{\protect\l@hi@tou{#1}{\thepage}}%
+}
+\def\LinkText{\emph{link}}
+\def\TableOfUrls{%
+    \makeatletter
+    \@input{\jobname.tou}%
+    \makeatother
+    \if@filesw
+        \newwrite\tf@tou
+        \immediate\openout\tf@tou \jobname.tou\relax
+    \fi
+}
+\def\l@hi@tou#1#2{%
+    \@dottedtocline{1}{0em}{1.5em}{\csname hi@u#1@text\endcsname}{#2}%
 }
 %%
 %% \iffalse filename: struct.dtx \fi
@@ -2803,6 +2740,86 @@
 \newif\if@hi@toa@disabled
 \let\disabletoa\@hi@toa@disabledtrue
 \let\enabletoa\@hi@toa@disabledfalse
+\def\NewTOACategory#1#2#3#4{%
+    \@namedef{hi@cats@#1}{#2:#3}%
+    \ifx#4Y%
+        \AddToList{hi@toacat@supercats}{#2}%
+    \fi
+}
+\def\DefaultTOACategory#1#2{%
+    \ifstrempty{#2}{%
+        \cslet{hi@catd@#1}\relax
+    }{%
+        \@ifundefined{hi@cats@#2}{%
+            \PackageError\hi@pkgname{%
+                TOA category #2 does not exist, in setting the\MessageBreak
+                default for reference type #1%
+            }{Define TOA category #2 first with \string\NewTOACategory}%
+        }{%
+            \@namedef{hi@catd@#1}{#2}%
+        }%
+    }%
+}
+\def\SetTOACategory#1#2{%
+    \ifstrempty{#2}{%
+        \global\cslet{hi@cat@#1}\relax
+    }{%
+        \@ifundefined{hi@cats@#2}{%
+            \PackageError\hi@pkgname{%
+                Invalid Table of Authorities category #1,\MessageBreak
+                given for reference #2%
+            }{%
+                Please enter a valid Table of Authorities category.
+            }%
+        }{%
+            \global\csletcs{hi@cat@#1}{hi@cats@#2}%
+        }%
+    }
+}
+\def\hi@toacat@get#1#2{%
+    \@ifundefined{hi@cat@#1}{}{%
+        \@expand{#2}{\csname hi@cat@#1\endcsname}{ii}%
+    }%
+}
+\def\hi@toacat@transfer#1#2{%
+    \global\csletcs{hi@cat@#2}{hi@cat@#1}%
+    \global\cslet{hi@cat@#1}\relax
+}
+\def\hi@toacat@setdefault#1#2{%
+    \@ifundefined{hi@cat@#1}{%
+        \@ifundefined{hi@catd@#2}{}{%
+            \SetTOACategory{#1}{\csname hi@catd@#2\endcsname}%
+        }%
+    }{}%
+}
+\NewSortedList{hi@toacat@supercats}{\SortEasyAlpha}{\StripForAlpha{#1}{\def#2}}
+\ListElementsMustBeUnique{hi@toacat@supercats}
+\NewTOACategory{other}{other}{Other Source/s}{Y}
+\NewTOACategory{const}{const}{Constitutional Provision/s}{Y}
+\NewTOACategory{found}{const}{Foundational Document/s}{Y}
+\NewTOACategory{statute}{edict}{Statute/s}{Y}
+\NewTOACategory{regulation}{edict}{Regulation/s}{Y}
+\NewTOACategory{rule}{edict}{Rule/s}{Y}
+\NewTOACategory{case}{case}{Case/s}{Y}
+\NewTOACategory{admin}{case}{Administrative Decision/s}{Y}
+\NewTOACategory{treaty}{edict}{Treat/y/ies}{Y}
+\NewTOACategory{abbrev}{abbrev}{Abbreviation/s}{N}
+\long\def\hi@toacat@each#1{%
+    %
+    % Unfortunately, this macro is used to iterate over items in the TOA, which
+    % also stores items in SortedLists. So we can't just use \ShowList directly
+    % since \ShowList can't be used in a nested fashion. So instead, we iterate
+    % over the supercategory list to construct a series of macro expansions of
+    % the given parameter, and then execute that series.
+    %
+    \begingroup % Will be ended when \reserved@a runs
+    \def\hi@toacat@temp{\endgroup}%
+    \def\hi@toacat@do##1{#1}%
+    \ShowList{hi@toacat@supercats}{%
+        \@expand{\appto\hi@toacat@temp}{\hi@toacat@do{##1}}{i}%
+    }%
+    \hi@toacat@temp
+}
 \def\hi@addtotoa#1#2{%
     \hi@toacat@get{#1}{\hi@addtotoa@{#1}{#2}}%
 }
@@ -2867,7 +2884,7 @@
     }%
     \IfListContains{hi@toa@#2}{#1}{}{%
         \AddToList{hi@toa@#2}{#1}%
-        \hi@toa@sublist@add{#2}{#3}%
+        \hi@toa@headlist@add{#2}{#3}%
         \advance\hi@toa@counter\@ne
         \message{(\the\hi@toa@counter)}%
     }%
@@ -2884,58 +2901,58 @@
     \uppercase{\StripForAlpha{#1#2}}{#3}%
 }
 \make@find@in{ at }
-\def\hi@toa@sublist@add#1#2{%
-    \expandafter\hi@toa@sublist@add@\csname hi@sublist@#1\endcsname{#2}%
+\def\hi@toa@headlist@add#1#2{%
+    \expandafter\hi@toa@headlist@add@\csname hi@headlist@#1\endcsname{#2}%
 }
-\def\hi@toa@sublist@add@#1#2{%
+\def\hi@toa@headlist@add@#1#2{%
     \ifx#1\relax
-        \def#1{\hi@toa@sublist@singular{#2}}%
+        \def#1{\hi@toa@headlist@singular{#2}}%
     \else
         \def\reserved@a{#2}
-        \expandafter\hi@toa@sublist@update#1\@stop{}#1%
+        \expandafter\hi@toa@headlist@update#1\@stop{}#1%
     \fi
 }
-\def\hi@toa@sublist@update#1#2#3\@stop#4#5{%
+\def\hi@toa@headlist@update#1#2#3\@stop#4#5{%
     \def\reserved@b{#2}%
     \@test \ifx\reserved@a\reserved@b\fi {%
-        \def#5{#4\hi@toa@sublist@plural{#2}#3}%
+        \def#5{#4\hi@toa@headlist@plural{#2}#3}%
     }{%
         \ifblank{#3}{%
             \edef#5{%
-                \unexpanded{#4#1{#2}\hi@toa@sublist@singular}%
+                \unexpanded{#4#1{#2}\hi@toa@headlist@singular}%
                 {\expandonce\reserved@a}%
             }%
         }{%
-            \hi@toa@sublist@update#3\@stop{#4#1{#2}}{#5}%
+            \hi@toa@headlist@update#3\@stop{#4#1{#2}}{#5}%
         }%
     }
 }
-\def\hi@toa@sublist@singular#1{%
-    \find@in{/}{#1}{\hi@toa@sublist@choose\@firstoftwo}{#1}%
-    \hi@toa@sublist@lookahead
+\def\hi@toa@headlist@singular#1{%
+    \find@in{/}{#1}{\hi@toa@headlist@choose\@firstoftwo}{#1}%
+    \hi@toa@headlist@lookahead
 }
-\def\hi@toa@sublist@plural#1{%
-    \find@in{/}{#1}{\hi@toa@sublist@choose\@secondoftwo}{#1}%
-    \hi@toa@sublist@lookahead
+\def\hi@toa@headlist@plural#1{%
+    \find@in{/}{#1}{\hi@toa@headlist@choose\@secondoftwo}{#1}%
+    \hi@toa@headlist@lookahead
 }
 \make@find@in{/}
-\def\hi@toa@sublist@lookahead#1{%
+\def\hi@toa@headlist@lookahead#1{%
     \ifx#1\@empty\else
-        \expandafter\hi@toa@sublist@lookahead@\expandafter#1%
+        \expandafter\hi@toa@headlist@lookahead@\expandafter#1%
     \fi
 }
-\def\hi@toa@sublist@lookahead@#1#2#3{%
+\def\hi@toa@headlist@lookahead@#1#2#3{%
     \@test \ifx#3\@empty \fi{%
         \space and\space #1{#2}#3%
     }{%
         ,\space#1{#2}#3%
     }%
 }
-\def\hi@toa@sublist@choose#1#2#3{%
+\def\hi@toa@headlist@choose#1#2#3{%
     #2\find@in{/}{#3}{#1}{#1{}{#3}}%
 }
-\DeclareRobustCommand\hi@toa@sublist@show[1]{%
-    \csname hi@sublist@#1\endcsname\@empty
+\DeclareRobustCommand\hi@toa@headlist@show[1]{%
+    \csname hi@headlist@#1\endcsname\@empty
 }
 \def\AuthorityTag#1{%
     \def\hi@toa@locationtag{#1}%
@@ -3042,7 +3059,7 @@
     \begingroup
         \hi@toacat@each{%
             \AuthorityTable[%
-                \toaheading{\hi@toa@sublist@show{##1}}\par
+                \toaheading{\hi@toa@headlist@show{##1}}\par
                 \ifdim\lastskip<\toaskip
                     \vskip-\lastskip
                 \else
@@ -3171,6 +3188,17 @@
 \def\PassimText{\emph{passim}}
 \def\toaditto{---\kern-.1em---\kern-.1em---}
 \def\toahangindentlen{1.5em}
+\def\tableofabbreviations#1{%
+    \hi@setuptoa
+    \@hi@in@toatrue
+    \noid
+    \IfKnownList{hi@toa@abbrev}{\IfEmptyList{hi@toa@abbrev}{}{%
+        \ShowList{hi@toa@abbrev}{%
+            \@expand{\@unbrace#1}{\csname lc@##1\endcsname}{iii}%
+        }%
+    }}{}%
+    \@hi@in@toafalse
+}
 %%
 %% \iffalse filename: endnotes.dtx \fi
 %%
@@ -5482,8 +5510,10 @@
     % retains the \textsection symbols.
     \hi@ifset\hi@kv@origsect{}{%
         \@expand{\find@try\find@eq{%
-            {U.S.C.}{\hi@statcode@special{#1}{U.S. Code}}%
-            {C.F.R.}{\hi@statcode@special{#1}{Code of Federal Regulations}}%
+            {U.S.C.}{\hi@statcode@special{#1}{U.S.C.}{U.S. Code}}%
+            {C.F.R.}{%
+                \hi@statcode@special{#1}{C.F.R.}{Code of Federal Regulations}%
+            }%
         }}\hi@kv@rep i{}%
     }%
     %
@@ -5526,7 +5556,7 @@
 \make@find@eq{C.F.R.}
 \make@find@in{s}
 \make@find@in{t}
-\def\hi@statcode@special#1#2{%
+\def\hi@statcode@special#1#2#3{%
     \hi@newcite@form{isc}{#1}{%
         \hi@citeguts{%
             \ifx\reserved@a\@empty
@@ -5537,7 +5567,11 @@
                     \hi@ifset\hi@kv@name{%
                         \hi@statcode@nameorinline{#1}%
                     }{%
-                        \noexpand\@capnext title \hi@kv@vol % \space of the #2%
+                        \noexpand\if@hi@cap
+                            \hi@nocap Title \hi@kv@vol\space of the #3%
+                        \noexpand\else
+                            \hi@kv@vol\space #2%
+                        \noexpand\fi
                     }%
                 }%
             \else
@@ -5559,20 +5593,28 @@
                     \hi@ifset\hi@kv@name{%
                         \hi@statcode@nameorinline{#1}%
                     }{%
-                        \@capnext title \hi@kv@vol \space of the #2%
+                        \noexpand\if@hi@cap
+                            \hi@nocap Title \hi@kv@vol\space of the #3%
+                        \noexpand\else
+                            \hi@kv@vol\space #2%
+                        \noexpand\fi
                     }%
                 }%
             \else
                 % A section number was given.
-                \hi@pageordefault{}{%
-                    \@capnext\reserved@a
-                }%
-                \hi@nocap\space of
-                \hi@ifset\hi@kv@name{%
-                    \hi@statcode@nameorinline{#1}%
-                }{%
-                    \@capnext title \hi@kv@vol \space of the #2%
-                }%
+                \noexpand\if@hi@cap
+                    \hi@pageordefault{}{%
+                        \@capnext\reserved@a
+                    }%
+                    \hi@nocap\space of
+                    \hi@ifset\hi@kv@name{%
+                        \hi@statcode@nameorinline{#1}%
+                    }{%
+                        title \hi@kv@vol \space of the #3%
+                    }%
+                \noexpand\else
+                    \hi@kv@vol\space #2 \hi@pageordefault{}{\reserved@a}%
+                \noexpand\fi
             \fi
             % We will count this as the sufficient full citation if there appear
             % to be no parentheticals to be added to this citation (including no
@@ -5882,12 +5924,51 @@
             }%
         }%
         \hi@ifeitherset\hi@kv@year\hi@kv@court{%
-            \hi@addparen{\hi@paren@date}{%
+            \hi@parens@add\hi@paren@date{%
                 \hi@param@optspc\hi@kv@court\hi@kv@year
             }%
         }{}%
         \the\hi@param@parens
     }%
+}
+\hi@newcite{modelcode}{A model code, restatement, or other standard}{other}{%
+    \hi@statcode@setup@idpc{#1}% Set up id. and page numbering
+    \hi@include@page@in@toa{#1}%
+    \@expandarg\hi@abbrev@name\hi@kv@name{\def\hi@kv@name}%
+    \hi@modelcode@makedateparen
+    \hi@newcite@form{fc}{#1}{%
+        \hi@citeguts{%
+            \noexpand\hi@fn@statute{\hi@kv@name}%
+            \noexpand\hi@maybepage{ }%
+        }%
+        \hi@parens@add{\hi@paren@date}{%
+            \hi@modelcode@dateparen
+        }%
+        \the\hi@param@parens
+    }%
+}
+\def\hi@modelcode@makedateparen{%
+    \hi@ifset\hi@kv@author{%
+        \protected@edef\hi@modelcode@dateparen{%
+            \noexpand\hi@fn@bookauthor{\hi@kv@author}%
+        }%
+    }{%
+        \let\hi@modelcode@dateparen\@empty
+    }%
+    \hi@ifset\hi@kv@edition{%
+        \ifx\hi@modelcode@dateparen\@empty\else
+            \addto@macro\hi@modelcode@dateparen{, }%
+        \fi
+        \add@macro@to@macro\hi@modelcode@dateparen\hi@kv@edition
+    }{}%
+    \ifx\hi@modelcode@dateparen\@empty\else
+        \@expandarg\@ifendswithdigit\hi@modelcode@dateparen{%
+            \addto@macro\hi@modelcode@dateparen{, }%
+        }{%
+            \addto@macro\hi@modelcode@dateparen{ }%
+        }%
+    \fi
+    \add@macro@to@macro\hi@modelcode@dateparen{\hi@kv@year}%
 }
 %%
 %% \iffalse filename: specrefs.dtx \fi
@@ -7422,7 +7503,7 @@
 %%
 %% \iffalse filename: nondocrefs.dtx \fi
 %%
-\hi@newcite{abbrev}{An abbreviation for a name}{}{%
+\hi@newcite{abbrev}{An abbreviation for a name}{abbrev}{%
     \hi@ifset\hi@kv@name{%
         \hi@replacethe\hi@kv@name{\def\hi@kv@name}{}%
         \@expandarg\hi@abbrev@name{\hi@kv@name}{\def\hi@kv@aname}%
@@ -7464,6 +7545,10 @@
         \noexpand\@%
         \hi@short@use{#1}%
         \hi@invis@inline
+    }%
+    % For forming tables of abbreviations
+    \hi@newcite@form{lc}{#1}{%
+        {\hi@kv@inline}{\hi@kv@name}%
     }%
 }
 \hi@newcite{alias}{An alias for a citation reference}{}{%
