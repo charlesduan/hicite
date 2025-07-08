@@ -1932,6 +1932,12 @@ year=1997,
         }%
         \the\hi@param@parens
     }%
+    \hi@newcite@form{sc}{#1}{%
+        \hi@citeguts{%
+            \noexpand\hi@fn@statute{\hi@kv@name}%
+            \noexpand\hi@maybepage{ }%
+        }%
+    }%
 }
 
 \section{statrefs.dtx}
@@ -2073,6 +2079,13 @@ name=Restatement (Second) of Torts,
 
 \AssertBox{\note{ali at S 847A}}{\InFootnote{\textsc{Restatement (Second) of
 Torts} \S~847A (\textsc{Am.~L.~Inst.}, Tentative Draft No.~17, 2000).}}
+
+\AssertBox{\note{ali at S 847A}}{\InFootnote{\emph{Id.}}}
+
+\immediate\write16{\expandafter\meaning\csname idc@ali\endcsname}
+
+\AssertBox{\note{ali at S 848}}{\InFootnote{\textsc{Restatement (Second) of
+Torts} \S~848.}}
 
 %%
 %% \iffalse filename: specrefs.dtx \fi

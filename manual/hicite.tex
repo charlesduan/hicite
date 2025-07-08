@@ -4471,6 +4471,12 @@ cited, even if they are from the same rule book.
         }%
         \the\hi@param@parens
     }%
+    \hi@newcite@form{sc}{#1}{%
+        \hi@citeguts{%
+            \noexpand\hi@fn@statute{\hi@kv@name}%
+            \noexpand\hi@maybepage{ }%
+        }%
+    }%
 }
 A model code is cited as something of a hybrid between a statute and a book, the
 main feature of note being that the ``author'' of the model code (typically the

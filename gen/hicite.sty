@@ -5946,6 +5946,12 @@
         }%
         \the\hi@param@parens
     }%
+    \hi@newcite@form{sc}{#1}{%
+        \hi@citeguts{%
+            \noexpand\hi@fn@statute{\hi@kv@name}%
+            \noexpand\hi@maybepage{ }%
+        }%
+    }%
 }
 \def\hi@modelcode@makedateparen{%
     \hi@ifset\hi@kv@author{%
