@@ -773,7 +773,7 @@ See \sec{pages-segments} for more on segments in pin cites.
             }%
             \hi@inline@never{%
                 \hi@name@only{, }%
-                \hi@kv@type~\hi@kv@number
+                \@capnext\hi@kv@type~\hi@kv@number
                 \hi@maybepage{, }%
                 \hi@ifset\hi@kv@rep{%
                     ,
@@ -1253,6 +1253,15 @@ cite=131 Stat. 1005,
 \AssertBox{\Inline{fdara}}{FDARA}
 
 \AssertBox{\inline{fdara at S 1}}{\S\ 1 of FDARA}
+
+\defstatsess{caa}{
+name=Clayton Antitrust Act of 1914,
+chapter=323,
+cite=38 Stat. 730,
+year=1914,
+}
+\AssertBox{\footnote{\inline{caa}. \sentence{caa}.}}{\InFootnote{the Clayton
+Antitrust Act of 1914. Ch.\ 323, 38 \textsc{Stat.}\ 730.}}
 
 \subsection{Model Code Parenthetical}
 
