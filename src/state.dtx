@@ -17,6 +17,9 @@ Two types of state information are discussed here: information about where
 references were first or previously cited, and information about the last
 citation shown.
 
+If you are looking for commands that change the citation state, for example to
+suppress \emph{id.}\ or short citation forms, those commands are in
+\sec{iface-misc}.
 
 
 \subsection{Short Forms}
@@ -687,6 +690,12 @@ the last footnote or the last in-text citation.
 %</doc>
 %<*package>
 %
+% TODO: A problem arises when the somenotename option is used in combination
+% with the memo style. Because |\hi@note@cites| is never advanced, it remains at
+% zero, making it seem as if all footnote citations require a name. The
+% workaround used below is to set nonotename, which probably should be the only
+% option for memo format.
+%
 %    \begin{macrocode}
 \AtBeginDocument{%
     \let\hi@footnotetext\@footnotetext
@@ -718,6 +727,7 @@ the last footnote or the last in-text citation.
     \def\hi@footnote@post{%
         \hi@deferred@note@endnote
     }%
+    \hi@noname@always
 }
 %    \end{macrocode}
 %
