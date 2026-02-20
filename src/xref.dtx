@@ -237,28 +237,28 @@ determined by whether the section number contains a dot.) For legal memoranda,
         }{\thefootnote}{}{\advance\c@footnote\@ne}%
     }
     \def\hi@xref@writetan##1##2{%
-        \hi@xref@writetoaux{##1}{##2}{note }{notes }{\thefootnote}{ % space
+        \hi@xref@writetoaux{##1}{##2}{note~}{notes~}{\thefootnote}{ % space
             and accompanying text%
         }{\advance\c@footnote\@ne}%
     }
 }
 \def\hi@xref@opt@pagerefs{%
     \def\hi@xref@writetext##1##2{%
-        \hi@xref@writetoaux{##1}{##2}{p. }{pp. }{\thepage}{}{}%
+        \hi@xref@writetoaux{##1}{##2}{p.~}{pp.~}{\thepage}{}{}%
     }
     \def\hi@xref@writetan##1##2{%
-        \hi@xref@writetoaux{##1}{##2}{p. }{pp. }{\thepage}{ and notes}{}%
+        \hi@xref@writetoaux{##1}{##2}{p.~}{pp.~}{\thepage}{ and notes}{}%
     }
 }
 \appto\hi@hooks@review{\hi@xref@opt@noterefs}
 \appto\hi@hooks@memo{\hi@xref@opt@pagerefs}
 \def\hi@xref@writenote#1#2{%
-    \hi@xref@writetoaux{#1}{#2}{note }{notes }{\thefootnote}{}{}%
+    \hi@xref@writetoaux{#1}{#2}{note~}{notes~}{\thefootnote}{}{}%
 }
 \def\hi@xref@writefloat#1#2{%
     \hi@xref@writetoaux{#1}{#2}%
-        {\csname \@captype name\endcsname\space}% Both Table and Figure can
-        {\csname \@captype name\endcsname s }%    be pluralized with just `s'
+        {\csname \@captype name\endcsname~}% Both Table and Figure can
+        {\csname \@captype name\endcsname s~}%    be pluralized with just `s'
         {\@currentlabel}{}{}%
 }
 %    \end{macrocode}
