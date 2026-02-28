@@ -154,7 +154,7 @@ determined by whether the section number contains a dot.) For legal memoranda,
 %
 %    \begin{macrocode}
 \def\hi@xref@sect@add#1#2#3#4#5{%
-    \hi@xref@writetoaux{#4}{#3}{#1 }{#2 }{#5}{}{}%
+    \hi@xref@writetoaux{#4}{#3}{#1~}{#2~}{#5}{}{}%
 }
 %    \end{macrocode}
 %
@@ -231,9 +231,9 @@ determined by whether the section number contains a dot.) For legal memoranda,
 \def\hi@xref@opt@noterefs{%
     \def\hi@xref@writetext##1##2{%
         \hi@xref@writetoaux{##1}{##2}{%
-            text accompanying note
+            text accompanying note~%
         }{%
-            text accompanying notes
+            text accompanying notes~%
         }{\thefootnote}{}{\advance\c@footnote\@ne}%
     }
     \def\hi@xref@writetan##1##2{%
@@ -393,6 +393,11 @@ Data is shown in |\inline|\{this at section-i\}.
         \xdef\WrittenText{#3}%
     \endgroup
 }
+\def\expandedspace{%
+    \protect
+    \expandafter\noexpand\csname nobreakspace \endcsname
+    {}%
+}
 
 \begingroup
     \@hi@notetrue
@@ -401,9 +406,9 @@ Data is shown in |\inline|\{this at section-i\}.
         \footnote{a \hilabel{lbl} b}%
     }{\@footnotemark[a b]}%
     \AssertMacro[\AssertExpandedEqual]\WrittenText{%
-        \string\newlabel{lbl}{{}{note }{4}{}}%
+        \string\newlabel{lbl}{{}{note\expandedspace}{4}{}}%
     }
-    \AssertMacro{\hir@lbl}{{note }{}}
+    \AssertMacro[\AssertExpandedEqual]{\hir@lbl}{{note\expandedspace}{}}
 \endgroup
 
 
@@ -414,9 +419,9 @@ Data is shown in |\inline|\{this at section-i\}.
         \footnote{a \hilabel[discussion]{lbl} b}%
     }{\@footnotemark[a b]}%
     \AssertMacro[\AssertExpandedEqual]\WrittenText{%
-        \string\newlabel{lbl}{{discussion}{note }{4}{}}%
+        \string\newlabel{lbl}{{discussion}{note\expandedspace}{4}{}}%
     }
-    \AssertMacro{\hir@lbl}{{note }{}}
+    \AssertMacro[\AssertExpandedEqual]{\hir@lbl}{{note\expandedspace}{}}
 \endgroup
 
 
@@ -428,9 +433,9 @@ Data is shown in |\inline|\{this at section-i\}.
         \footnote{a \hiendlabel{lbl} b}%
     }{\@footnotemark[a b]}%
     \AssertMacro[\AssertExpandedEqual]\WrittenText{%
-        \string\newlabel{end:lbl}{{notes }{4}}%
+        \string\newlabel{end:lbl}{{notes\expandedspace}{4}}%
     }
-    \AssertMacro{\hir@lbl}{{note }{}}
+    \AssertMacro[\AssertExpandedEqual]{\hir@lbl}{{note\expandedspace}{}}
 \endgroup
 
 \subsection{In Text}
@@ -441,9 +446,11 @@ Data is shown in |\inline|\{this at section-i\}.
         a \hilabel{lbl} b%
     }{a b}%
     \AssertMacro[\AssertExpandedEqual]\WrittenText{%
-        \string\newlabel{lbl}{{}{text accompanying note }{4}{}}%
+        \string\newlabel{lbl}{{}{text accompanying note\expandedspace}{4}{}}%
     }
-    \AssertMacro{\hir@lbl}{{text accompanying note }{}}
+    \AssertMacro[\AssertExpandedEqual]{\hir@lbl}{{%
+        text accompanying note\expandedspace
+    }{}}
 \endgroup
 
 \begingroup
@@ -453,9 +460,11 @@ Data is shown in |\inline|\{this at section-i\}.
         a \hiendlabel{lbl} b%
     }{a b}%
     \AssertMacro[\AssertExpandedEqual]\WrittenText{%
-        \string\newlabel{end:lbl}{{text accompanying notes }{3}}%
+        \string\newlabel{end:lbl}{{text accompanying notes\expandedspace}{3}}%
     }
-    \AssertMacro{\hir@lbl}{{text accompanying note }{}}
+    \AssertMacro[\AssertExpandedEqual]{\hir@lbl}{{%
+        text accompanying note\expandedspace
+    }{}}
 \endgroup
 
 
@@ -465,9 +474,13 @@ Data is shown in |\inline|\{this at section-i\}.
         a \hitanlabel{lbl} b%
     }{a b}%
     \AssertMacro[\AssertExpandedEqual]\WrittenText{%
-        \string\newlabel{lbl}{{}{note }{4}{ and accompanying text}}%
+        \string\newlabel{lbl}{{}{note\expandedspace}{4}{ % space
+            and accompanying text%
+        }}%
     }
-    \AssertMacro{\hir@lbl}{{note }{ and accompanying text}}
+    \AssertMacro[\AssertExpandedEqual]{\hir@lbl}{{note\expandedspace}{ % space
+        and accompanying text%
+    }}
 \endgroup
 
 \begingroup
@@ -477,9 +490,11 @@ Data is shown in |\inline|\{this at section-i\}.
         a \hiendtanlabel{lbl} b%
     }{a b}%
     \AssertMacro[\AssertExpandedEqual]\WrittenText{%
-        \string\newlabel{end:lbl}{{notes }{3}}%
+        \string\newlabel{end:lbl}{{notes\expandedspace}{3}}%
     }
-    \AssertMacro{\hir@lbl}{{note }{ and accompanying text}}
+    \AssertMacro[\AssertExpandedEqual]{\hir@lbl}{{note\expandedspace}{ % spade
+        and accompanying text%
+    }}
 \endgroup
 
 
@@ -493,9 +508,9 @@ Data is shown in |\inline|\{this at section-i\}.
         a \hilabel{lbl} b%
     }{a b}%
     \AssertMacro[\AssertExpandedEqual]\WrittenText{%
-        \string\newlabel{lbl}{{}{Figure }{4}{}}%
+        \string\newlabel{lbl}{{}{Figure\expandedspace}{4}{}}%
     }
-    \AssertMacro{\hir@lbl}{{Figure }{}}
+    \AssertMacro[\AssertExpandedEqual]{\hir@lbl}{{Figure\expandedspace}{}}
 \endgroup
 
 \begingroup
@@ -507,9 +522,9 @@ Data is shown in |\inline|\{this at section-i\}.
         a \hiendlabel{lbl} b%
     }{a b}%
     \AssertMacro[\AssertExpandedEqual]\WrittenText{%
-        \string\newlabel{end:lbl}{{Figures }{4}}%
+        \string\newlabel{end:lbl}{{Figures\expandedspace}{4}}%
     }
-    \AssertMacro{\hir@lbl}{{Figure }{}}
+    \AssertMacro[\AssertExpandedEqual]{\hir@lbl}{{Figure\expandedspace}{}}
 \endgroup
 
 
@@ -522,9 +537,9 @@ Data is shown in |\inline|\{this at section-i\}.
         a \hisectlabel[background]{lbl} b%
     }{a b}%
     \AssertMacro[\AssertExpandedEqual]\WrittenText{%
-        \string\newlabel{lbl}{{background}{Section }{III.A}{}}%
+        \string\newlabel{lbl}{{background}{Section\expandedspace}{III.A}{}}%
     }
-    \AssertMacro{\hir@lbl}{{Section }{}}
+    \AssertMacro[\AssertExpandedEqual]{\hir@lbl}{{Section\expandedspace}{}}
 
 
     \def\@currentlabel{III}
@@ -532,9 +547,9 @@ Data is shown in |\inline|\{this at section-i\}.
         a \hisectlabel[background]{lbl} b%
     }{a b}%
     \AssertMacro[\AssertExpandedEqual]\WrittenText{%
-        \string\newlabel{lbl}{{background}{Part }{III}{}}%
+        \string\newlabel{lbl}{{background}{Part\expandedspace}{III}{}}%
     }
-    \AssertMacro{\hir@lbl}{{Part }{}}
+    \AssertMacro[\AssertExpandedEqual]{\hir@lbl}{{Part\expandedspace}{}}
 \endgroup
 
 \begingroup
@@ -545,9 +560,9 @@ Data is shown in |\inline|\{this at section-i\}.
         a \hiendsectlabel{lbl} b%
     }{a b}%
     \AssertMacro[\AssertExpandedEqual]\WrittenText{%
-        \string\newlabel{end:lbl}{{Sections }{III.B}}%
+        \string\newlabel{end:lbl}{{Sections\expandedspace}{III.B}}%
     }
-    \AssertMacro{\hir@lbl}{{Section }{}}
+    \AssertMacro[\AssertExpandedEqual]{\hir@lbl}{{Section\expandedspace}{}}
 \endgroup
 
 \let\protected@write\OrigProtectedWrite

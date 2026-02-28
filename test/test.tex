@@ -309,6 +309,11 @@ C, \hi@namelist@insts Z\hi@namelist@and Y}
         \xdef\WrittenText{#3}%
     \endgroup
 }
+\def\expandedspace{%
+    \protect
+    \expandafter\noexpand\csname nobreakspace \endcsname
+    {}%
+}
 
 \begingroup
     \@hi@notetrue
@@ -317,9 +322,9 @@ C, \hi@namelist@insts Z\hi@namelist@and Y}
         \footnote{a \hilabel{lbl} b}%
     }{\@footnotemark[a b]}%
     \AssertMacro[\AssertExpandedEqual]\WrittenText{%
-        \string\newlabel{lbl}{{}{note }{4}{}}%
+        \string\newlabel{lbl}{{}{note\expandedspace}{4}{}}%
     }
-    \AssertMacro{\hir@lbl}{{note }{}}
+    \AssertMacro[\AssertExpandedEqual]{\hir@lbl}{{note\expandedspace}{}}
 \endgroup
 
 \begingroup
@@ -329,9 +334,9 @@ C, \hi@namelist@insts Z\hi@namelist@and Y}
         \footnote{a \hilabel[discussion]{lbl} b}%
     }{\@footnotemark[a b]}%
     \AssertMacro[\AssertExpandedEqual]\WrittenText{%
-        \string\newlabel{lbl}{{discussion}{note }{4}{}}%
+        \string\newlabel{lbl}{{discussion}{note\expandedspace}{4}{}}%
     }
-    \AssertMacro{\hir@lbl}{{note }{}}
+    \AssertMacro[\AssertExpandedEqual]{\hir@lbl}{{note\expandedspace}{}}
 \endgroup
 
 \begingroup
@@ -342,9 +347,9 @@ C, \hi@namelist@insts Z\hi@namelist@and Y}
         \footnote{a \hiendlabel{lbl} b}%
     }{\@footnotemark[a b]}%
     \AssertMacro[\AssertExpandedEqual]\WrittenText{%
-        \string\newlabel{end:lbl}{{notes }{4}}%
+        \string\newlabel{end:lbl}{{notes\expandedspace}{4}}%
     }
-    \AssertMacro{\hir@lbl}{{note }{}}
+    \AssertMacro[\AssertExpandedEqual]{\hir@lbl}{{note\expandedspace}{}}
 \endgroup
 
 \subsection{In Text}
@@ -355,9 +360,11 @@ C, \hi@namelist@insts Z\hi@namelist@and Y}
         a \hilabel{lbl} b%
     }{a b}%
     \AssertMacro[\AssertExpandedEqual]\WrittenText{%
-        \string\newlabel{lbl}{{}{text accompanying note }{4}{}}%
+        \string\newlabel{lbl}{{}{text accompanying note\expandedspace}{4}{}}%
     }
-    \AssertMacro{\hir@lbl}{{text accompanying note }{}}
+    \AssertMacro[\AssertExpandedEqual]{\hir@lbl}{{%
+        text accompanying note\expandedspace
+    }{}}
 \endgroup
 
 \begingroup
@@ -367,9 +374,11 @@ C, \hi@namelist@insts Z\hi@namelist@and Y}
         a \hiendlabel{lbl} b%
     }{a b}%
     \AssertMacro[\AssertExpandedEqual]\WrittenText{%
-        \string\newlabel{end:lbl}{{text accompanying notes }{3}}%
+        \string\newlabel{end:lbl}{{text accompanying notes\expandedspace}{3}}%
     }
-    \AssertMacro{\hir@lbl}{{text accompanying note }{}}
+    \AssertMacro[\AssertExpandedEqual]{\hir@lbl}{{%
+        text accompanying note\expandedspace
+    }{}}
 \endgroup
 
 \begingroup
@@ -378,9 +387,13 @@ C, \hi@namelist@insts Z\hi@namelist@and Y}
         a \hitanlabel{lbl} b%
     }{a b}%
     \AssertMacro[\AssertExpandedEqual]\WrittenText{%
-        \string\newlabel{lbl}{{}{note }{4}{ and accompanying text}}%
+        \string\newlabel{lbl}{{}{note\expandedspace}{4}{ % space
+            and accompanying text%
+        }}%
     }
-    \AssertMacro{\hir@lbl}{{note }{ and accompanying text}}
+    \AssertMacro[\AssertExpandedEqual]{\hir@lbl}{{note\expandedspace}{ % space
+        and accompanying text%
+    }}
 \endgroup
 
 \begingroup
@@ -390,9 +403,11 @@ C, \hi@namelist@insts Z\hi@namelist@and Y}
         a \hiendtanlabel{lbl} b%
     }{a b}%
     \AssertMacro[\AssertExpandedEqual]\WrittenText{%
-        \string\newlabel{end:lbl}{{notes }{3}}%
+        \string\newlabel{end:lbl}{{notes\expandedspace}{3}}%
     }
-    \AssertMacro{\hir@lbl}{{note }{ and accompanying text}}
+    \AssertMacro[\AssertExpandedEqual]{\hir@lbl}{{note\expandedspace}{ % spade
+        and accompanying text%
+    }}
 \endgroup
 
 \subsection{Floats}
@@ -404,9 +419,9 @@ C, \hi@namelist@insts Z\hi@namelist@and Y}
         a \hilabel{lbl} b%
     }{a b}%
     \AssertMacro[\AssertExpandedEqual]\WrittenText{%
-        \string\newlabel{lbl}{{}{Figure }{4}{}}%
+        \string\newlabel{lbl}{{}{Figure\expandedspace}{4}{}}%
     }
-    \AssertMacro{\hir@lbl}{{Figure }{}}
+    \AssertMacro[\AssertExpandedEqual]{\hir@lbl}{{Figure\expandedspace}{}}
 \endgroup
 
 \begingroup
@@ -418,9 +433,9 @@ C, \hi@namelist@insts Z\hi@namelist@and Y}
         a \hiendlabel{lbl} b%
     }{a b}%
     \AssertMacro[\AssertExpandedEqual]\WrittenText{%
-        \string\newlabel{end:lbl}{{Figures }{4}}%
+        \string\newlabel{end:lbl}{{Figures\expandedspace}{4}}%
     }
-    \AssertMacro{\hir@lbl}{{Figure }{}}
+    \AssertMacro[\AssertExpandedEqual]{\hir@lbl}{{Figure\expandedspace}{}}
 \endgroup
 
 \subsection{Sections}
@@ -431,18 +446,18 @@ C, \hi@namelist@insts Z\hi@namelist@and Y}
         a \hisectlabel[background]{lbl} b%
     }{a b}%
     \AssertMacro[\AssertExpandedEqual]\WrittenText{%
-        \string\newlabel{lbl}{{background}{Section }{III.A}{}}%
+        \string\newlabel{lbl}{{background}{Section\expandedspace}{III.A}{}}%
     }
-    \AssertMacro{\hir@lbl}{{Section }{}}
+    \AssertMacro[\AssertExpandedEqual]{\hir@lbl}{{Section\expandedspace}{}}
 
     \def\@currentlabel{III}
     \AssertBox{%
         a \hisectlabel[background]{lbl} b%
     }{a b}%
     \AssertMacro[\AssertExpandedEqual]\WrittenText{%
-        \string\newlabel{lbl}{{background}{Part }{III}{}}%
+        \string\newlabel{lbl}{{background}{Part\expandedspace}{III}{}}%
     }
-    \AssertMacro{\hir@lbl}{{Part }{}}
+    \AssertMacro[\AssertExpandedEqual]{\hir@lbl}{{Part\expandedspace}{}}
 \endgroup
 
 \begingroup
@@ -453,9 +468,9 @@ C, \hi@namelist@insts Z\hi@namelist@and Y}
         a \hiendsectlabel{lbl} b%
     }{a b}%
     \AssertMacro[\AssertExpandedEqual]\WrittenText{%
-        \string\newlabel{end:lbl}{{Sections }{III.B}}%
+        \string\newlabel{end:lbl}{{Sections\expandedspace}{III.B}}%
     }
-    \AssertMacro{\hir@lbl}{{Section }{}}
+    \AssertMacro[\AssertExpandedEqual]{\hir@lbl}{{Section\expandedspace}{}}
 \endgroup
 
 \let\protected@write\OrigProtectedWrite
@@ -2091,8 +2106,6 @@ Torts} \S~847A (\textsc{Am.~L.~Inst.}, Tentative Draft No.~17, 2000).}}
 
 \AssertBox{\note{ali at S 847A}}{\InFootnote{\emph{Id.}}}
 
-\immediate\write16{\expandafter\meaning\csname idc@ali\endcsname}
-
 \AssertBox{\note{ali at S 848}}{\InFootnote{\textsc{Restatement (Second) of
 Torts} \S~848.}}
 
@@ -2726,6 +2739,25 @@ Torts} \S~848.}}
     Letter from Samuel Adams to Arthur Lee (July 31, 1771), \emph{in}
     2 \textsc{Richard Henry Lee}, \textsc{Life of Arthur Lee, LL. D.} 173, 174
     (Bos., Wells \& Lilly 1829).%
+}}
+
+\defbook{johnston}{
+title=Naming the World,
+editor=Bret Anthony Johnston,
+year=2007,
+}
+
+\defcitecontainer{smith-object}{
+author=R.T. Smith,
+title=Object of Affection,
+page=75,
+in=johnston,
+}
+
+\AssertBox{\note{johnston at 12; see smith-object at 76}}{\InFootnote{%
+    \textsc{Naming the World} 12 (Bret Anthony Johnston ed.,\ 2007);
+    \emph{see} R.T. Smith, \emph{Object of Affection}{},
+    \emph{in} \textsc{Naming the World}{}, \emph{supra}{}, at 75, 76.%
 }}
 
 %%

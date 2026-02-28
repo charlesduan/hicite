@@ -596,6 +596,10 @@ complex reference definition that I have constructed.
                 \let\noexpand\hi@citecontainer@suppress\noexpand\@gobble
             }{}}%
             %
+            % Disable any id. citation. This handles the situation where the
+            % book is cited, and then a chapter inside the book is cited.
+            \noexpand\hi@noid
+            %
             % Insert the contents of the container citation. This is delegated
             % to the macro \hi@citecontainer@addpg.
             \let\noexpand#3\relax % Turn off page numbers for TOA references
@@ -848,5 +852,29 @@ complex reference definition that I have constructed.
     2 \textsc{Richard Henry Lee}, \textsc{Life of Arthur Lee, LL. D.} 173, 174
     (Bos., Wells \& Lilly 1829).%
 }}
+
+\defbook{johnston}{
+title=Naming the World, 
+editor=Bret Anthony Johnston,
+year=2007,
+}
+
+\defcitecontainer{smith-object}{
+author=R.T. Smith,
+title=Object of Affection,
+page=75,
+in=johnston,
+}
+
+%
+% There seem to be a number of issues here with regard to post-font kerning,
+% which I don't think need to be perfected.
+%
+\AssertBox{\note{johnston at 12; see smith-object at 76}}{\InFootnote{%
+    \textsc{Naming the World} 12 (Bret Anthony Johnston ed.,\ 2007);
+    \emph{see} R.T. Smith, \emph{Object of Affection}{},
+    \emph{in} \textsc{Naming the World}{}, \emph{supra}{}, at 75, 76.%
+}}
+
 
 %</test>

@@ -943,7 +943,7 @@
 }
 \make@find@in{.}
 \def\hi@xref@sect@add#1#2#3#4#5{%
-    \hi@xref@writetoaux{#4}{#3}{#1 }{#2 }{#5}{}{}%
+    \hi@xref@writetoaux{#4}{#3}{#1~}{#2~}{#5}{}{}%
 }
 \def\hi@xref@writetoaux#1#2#3#4#5#6#7{%
     \begingroup
@@ -976,9 +976,9 @@
 \def\hi@xref@opt@noterefs{%
     \def\hi@xref@writetext##1##2{%
         \hi@xref@writetoaux{##1}{##2}{%
-            text accompanying note
+            text accompanying note~%
         }{%
-            text accompanying notes
+            text accompanying notes~%
         }{\thefootnote}{}{\advance\c@footnote\@ne}%
     }
     \def\hi@xref@writetan##1##2{%
@@ -6734,6 +6734,10 @@
             \hi@ifset\hi@kv@citation{}{\hi@ifset\hi@kv@singleauthor{%
                 \let\noexpand\hi@citecontainer@suppress\noexpand\@gobble
             }{}}%
+            %
+            % Disable any id. citation. This handles the situation where the
+            % book is cited, and then a chapter inside the book is cited.
+            \noexpand\hi@noid
             %
             % Insert the contents of the container citation. This is delegated
             % to the macro \hi@citecontainer@addpg.

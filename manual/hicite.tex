@@ -386,7 +386,9 @@ These, of course, are in addition to the many features of \hia* that you
 selection, \emph{supra} note numbers, and more.
 
 
-\section{Structure of This Manual}
+\section{Preliminary Matters}
+
+\subsection{Structure of the Manual}
 
 Besides simply describing how \hia* works, this manual is intended to explain my
 conceptual framework for legal citation that is embedded in the system.
@@ -493,7 +495,7 @@ understand how to use \hia*. The module file documentation is intended to help
 package authors who wish to correct, modify, or extend the citation program
 itself, perhaps to adapt it to other citation formatting regimes.
 
-\section{Installation and Usage}
+\subsection{Installation and Usage}
 
 \hia* comprises a suite of files:
 \begin{itemize}
@@ -514,10 +516,10 @@ necessary in order to get cross-references and short citations to be correct.
 If you have an existing Biblatex file, see \sec{hibib} for possible
 compatibility options.
 
-\section{Intellectual Property Concerns}
+\subsection{Intellectual Property Concerns}
 
 Over the years, there have been multiple disputes over intellectual property in
-legal citation systems and manuals. It is both necessary to address both what
+legal citation systems and manuals. It is necessary to address both what
 rights I claim as the author of \hia*, and what rights of others it implicates.
 
 The source code of \hia* is released under the GNU General Public License (GPL)
@@ -2786,13 +2788,20 @@ revised. For a computer, though, this task takes a matter of seconds.
 
 \part{Formatting Algorithms}
 \label{p:formatting}
+
+This chapter is generally not essential reading for \hia* users, as it describes
+algorithms and processes that are automatically applied when formatting
+citations. For advanced readers interested in changing some of the default
+formatting behaviors, however, this Part provides some commands and features for
+doing so.
+
 %%
 %% \iffalse filename: draw.dtx \fi
 %%
 \input driver
 \thisis{draw}{General Formatting}
 
-After parsing a citation string, the package must produce formatted text for
+After parsing a citation string, \hia* must produce formatted text for
 each of the citation items in the string. This section describes the overall
 process of joining together citations, choosing among several possible citation
 forms for a given reference, and setting up any other requisite information for
@@ -2808,7 +2817,9 @@ legal citation is discussed in \sec{state}.
 
 \subsection{Drawing a Citation Item}
 
-The following tasks must be performed when drawing each citation item within a
+The following tasks must be performed when drawing\footnote{The term ``drawing''
+in this manual refers to generation of formatting codes and outputs at the time
+of typesetting a citation.} each citation item within a
 citation string. While this list of tasks is largely of importance only to
 software implementers, it may be of interest to some cite-checkers to see the
 full list of considerations that go into formatting a single citation item.
@@ -2839,8 +2850,14 @@ capitalized. That could be the signal or a part of the citation text itself.
 \label{s:draw-form}
 
 When formatting a citation item, each reference can generate a variety of
-citation texts. The types are given and explained here, along with their
-internal macro prefixes:
+citation forms---full citations, short citations, inline texts, and so on.
+For each reference \meta{ref-name}, each of its citation forms is stored in a
+macro |\|\meta{prefix}|@|\meta{ref-name}, with \meta{prefix} being an identifier
+of the citation form. For example, |\fc@brown| would be the definition of the
+full citation for a reference named |brown|.
+
+Each citation form is given and explained below, along with its
+\meta{prefix}.
 \begin{description}
 \item[Full] (|fc|) The full citation form.
 \item[Short] (|sc|) The non-\emph{id.}\ short form. Defaults to the full form.
@@ -2857,19 +2874,17 @@ inline usage.
 inline usages.
 \end{description}
 
-For each reference \meta{ref-name}, a macro of the form
-|\|\meta{prefix}|@|\meta{ref-name} may be defined containing the relevant text
-for the citation form. For example, |\fc@brown| would be the definition of the
-full citation for a reference named |brown|. It may be helpful for debugging to
-see these macros. To do so, include the following in your document:
+It may be helpful for debugging to see these macros. To do so, include the
+following in your document:
 \begin{demo}
 |\expandafter\show\csname |\meta{prefix}|@|\meta{ref-name}|\endcsname|
 \end{demo}
 
 \subsection{Choosing the Citation Form}
 
-Upon each citation to the reference, it is necessary to
-choose among these forms. The following rules inform that choice.
+When a reference is cited, \hia* must determine which citation form to use. The
+choice depends on the citation command issued (see \sec{iface}) and the context
+within the document (primarily, what citations have come before). The following rules inform that choice.
 
 \begin{itemize}
 \item An \emph{id.}\ citation is appropriate only when the reference being cited
