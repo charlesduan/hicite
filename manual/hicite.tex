@@ -91,7 +91,8 @@
 \def\partname{Part}
 
 \title{\emph{Hereinafter}: A Legal Citation Program}
-\author{Charles Duan\thanks{\textcopyright 2013-2023 Charles Duan. This manual
+\author{Charles Duan\thanks{\textcopyright 2013--\the\year\ Charles Duan. This
+manual
 is made available under a Attribution-NonCommercial-ShareAlike 4.0 International
 license. To view a copy of this license, visit
 \url{http://creativecommons.org/licenses/by-nc-sa/4.0/} or send a letter to
@@ -219,9 +220,11 @@ For example:
 \end{demo}
 defines a reference named |wheaton| for the famous lawsuit between two Supreme
 Court reporters.
+For a more detailed overview of how to define references, see \sec{refs-syntax}
+and the sections that follow.
 
-\hia* permits for various shortcuts to simplify the entry of references. The
-following are equivalent to the above definition:
+\hia* permits for various shortcuts to simplify the definition of references.
+The following are equivalent to the above definition:
 \begin{demo}
 |\defcase{wheaton}{| \\
 |    parties=Wheaton v. Peters,| \\
@@ -232,10 +235,26 @@ following are equivalent to the above definition:
 |    Wheaton v. Peters, 33 U.S. 591 (1834)| \\
 |}|
 \end{demo}
+Shortcuts for reference definition are described in \sec{cparse}.
 
-There is also rich support for author names and dates. The following definition
-shows how to enter a report with an individual author and an institutional
-author:
+A wide range of types of references can be defined in \hia*. The full list, with
+many example definitions, is given in Part~\ref{p:alltypes}. For example, here
+is how one would define a reference for this manual:
+\begin{demo}
+|\defbook{hereinafter}{| \\
+|    author=Charles Duan,| \\
+|    title=Hereinafter: A Legal Citation Program,| \\
+|    year=|\texttt{\the\year}|,| \\
+|}|
+\end{demo}
+
+A key difficulty with legal citation is the wide range of possible parameters to
+a reference definition---different types of authors, date formats, optional
+parentheticals, and more. \hia* provides structure to that range of
+possibilities, thereby offering as much flexibility as possible while retaining
+consistency. Consider, for example, the problem of a work written by a person
+employed by an institution. You may consider both the person and the institution
+to be the ``author.'' \hia* allows for this:
 \begin{demo}
 |\defbook{ftc-pharma}{| \\
 |    author=Markus H. Meier et al.,| \\
@@ -244,11 +263,9 @@ author:
 |    date=june 2019,| \\
 |}|
 \end{demo}
-
-For a more detailed overview of how to define references, see \sec{refs-syntax}
-and the sections that follow. Shortcuts for reference entry are described in
-\sec{cparse}, and authors and dates in \sec{names} and \sec{dates} respectively.
-Example reference definitions are given in Part~\ref{p:alltypes}.
+All parameters are described in Part~\ref{p:allparams}. Authors and dates are
+the most complex parameters; they are described in \sec{names} and \sec{dates},
+respectively.
 
 \subsection{Entering Citations}
 
@@ -307,26 +324,37 @@ was displayed in with the previous |\inline| command.
 For more on the parts and syntax of sentence, clause, and inline citations, see
 Part~\ref{p:citations}.
 
-\subsection{Additional Features}
+\subsection{Cross-References}
 
-Most of \hia* involves transforming reference definitions and citation commands
-into formatted text. However, the package provides a few additional features of
-interest: It can produce tables of authorities (see \sec{toa}), switch from
-footnotes to endnotes (see \sec{endnotes}), and manage abbreviations in text
-(see reference type \rtype{abbrev}).
+\hia* also provides extensive support for cross-references. This requires not
+only commands for inserting cross-reference citations, but also commands for
+marking portions of the document to be referenced.
 
-Perhaps the most important additional feature is cross-references, described in
-\sec{xref}. To mark a part of a document for cross-referencing:
+The |\hilabel| command marks a part of a document for cross-referencing.
+Optionally, a range of a document can be marked using |\hiendlabel| as follows:
 \begin{demo}
 |\hilabel{keypart}| \\
 |This is the key part!| \\
 |\hiendlabel{keypart}|
 \end{demo}
-The |\hilabel| command automatically chooses the best way to refer to the marked
-section depending on where it is used (in a footnote, in a figure, or in plain
-text). The |\hisectlabel| command can label sections by number.
+The command automatically chooses the best way to refer to the marked
+section depending on where it is used:
+\begin{itemize}
+\item When called in a footnote, the cross-reference is to the footnote number.
+\item When used in a figure, the cross-reference is to the figure number.
+\item When used in main body text, \hia* chooses a cross-reference form
+depending on the document type: page numbers for a \opt{memo}-style document,
+and nearest footnotes for a \opt{review}-style document (``text accompanying
+notes \emph{x}--\emph{y}'').
+\end{itemize}
 
-To insert a cross-reference, simply use a citation to the predefined reference
+Additional commands give further options for cross-references.
+The |\hisectlabel| command can label sections by number, and |\hitanlabel|
+(terminated with |\hiendtanlabel|) produces a cross-reference citation to
+both text and footnotes (written as ``notes \emph{x}--\emph{y} and accompanying
+text'').
+
+To insert a cross-reference, simply use a citation to the reference
 \rtype{this} with the cross-reference label as the pincite:
 \begin{demo}
 |\sentence{see this at keypart}.|
@@ -334,6 +362,28 @@ To insert a cross-reference, simply use a citation to the predefined reference
 Again, the value of this cross-referencing system is that the cited numbers
 automatically update as the document is edited, minimizing the amount of manual
 updating.
+
+The full cross-referencing system is
+described in
+\sec{xref}.
+
+\subsection{Additional Features}
+
+In addition to the above, \hia* provides additional features of
+interest to many authors of legal documents:
+\begin{itemize}
+\item It can produce tables of authorities, as described in \sec{toa}.
+\item It can switch footnotes into endnotes, as described in \sec{endnotes}.
+\item It can manage abbreviations in text, as described in for reference type
+\rtype{abbrev}, properly inserting the full version and an explanatory
+parenthetical the first time the term is used.
+\item It properly line-breaks URLs, as described in \sec{urls}, avoiding
+unsightly gaps; it also provides several alternate means of presenting URLs in
+documments.
+\end{itemize}
+These, of course, are in addition to the many features of \hia* that you
+\emph{don't have to think about anymore}: abbreviations, short citations, font
+selection, \emph{supra} note numbers, and more.
 
 
 \section{Structure of This Manual}
