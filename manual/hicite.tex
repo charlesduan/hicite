@@ -7483,6 +7483,9 @@ to initialize the finder, and then:
 to execute the finder. \meta{type} is |in|, |start|, |end|, or |eq| depending on
 the type of matching desired.
 
+The \meta{needle} may contain control sequences, as it is passed through
+|\detokenize| appropriately in constructing and using finders.
+
 The callbacks for finders are given consistent arguments. The
 \meta{false-callback} always receives no arguments. The \meta{true-callback},
 however, receives arguments indicating the remaining unmatched text. Thus, for
@@ -7572,10 +7575,11 @@ that class are a further set of macros of the form
 |\abb@class@|\meta{name}|@|\meta{word}, where \meta{word} is the first word of
 the text to be abbreviated. The value of the macro is a list of two-item pairs
 of the form:
-
 \begin{demo}
   \marg{remaining text}\marg{abbrev.}
 \end{demo}
+The list is organized with the longest abbreviations first, ensuring that longer
+abbreviations take precedence over shorter ones.
 
 \DescribeMacro\abb@new
 |\abb@new|\marg{class} creates a new abbreviation class.
@@ -7607,21 +7611,36 @@ Building and Loan Office $\rightarrow$ Bldg. and Loan Office
 abbreviating a text. \meta{class} is the class, \meta{text} is the
 text to abbreviate, and \meta{callback} is a callback function for the result.
 
-Text is abbreviated by reading each word in the text, using |\find@word| from
+Text is abbreviated by reading each token in the text, using |\find@word| from
 \sec{strings}.
 
 \begin{enumerate}
-\item If it is not a word or punctuation, do not process the item and
-  continue.
+\item If the token is neither a word nor punctuation, do not process the item
+and continue. In particular, text in groups is ignored for abbreviation
+purposes.
 
-\item Otherwise, retrieve the list of abbreviations starting with this
-word. If there are none, then continue.
+\item For words and regular punctuation, retrieve the list of abbreviations
+starting with this word. If there are none, then continue.
 
 \item Iterate through each of the abbreviations associated with the word,
 and see if the remainder of the text to be abbreviated starts with any of
-  the abbreviation texts. If so, then insert the relevant abbreviation
-  text, correcting for dots as appropriate.
+the abbreviation texts. If so, then insert the relevant abbreviation
+text.
+\begin{itemize}
+\item If the abbreviation fully deletes text, then check that the abbreviated
+word is surrounded by spaces (or is at the beginning or end of the text). If
+not, then the abbreviation is not performed since it would result in
+disconnected punctuation. If it is, then delete any excess space.
+
+\item If the abbreviation ends with a dot or space, then ensure that insertion
+of the abbreviation does not create a double dot or space.
+\end{itemize}
 \end{enumerate}
+Throughout the below description, the ``accumulated text'' is the text that has
+been abbreviated at the beginning of the string, and the ``remaining text'' is
+the text that has not been processed for abbreviation at the end of the string.
+In the midst of determining whether to abbreviate something, the accumulated
+text will not include the proposed abbreviation.
 
 
 \subsection{Removal of Spaces Between Dotted Initials}

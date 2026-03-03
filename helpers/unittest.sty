@@ -102,6 +102,10 @@
         \fi
     }%
 }
+%
+% Asserts that the macro name of the first argument has the expansion of the
+% second argument.
+%
 \newcommand\AssertMacro[3][\AssertEqual]{%
     \edef\reserved@a{%
         \noexpand#1[%
