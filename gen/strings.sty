@@ -94,17 +94,21 @@
     \fi
 }
 \def\find@use#1#2#3{%
-    \@ifundefined{finder@#1@#2}{%
-        \PackageError{strings}{Finder of type #1 for `#2' not defined; used}{%
-            You must run \@backslashchar make@find@#1{#2} first%
+    \@ifundefined{finder@#1@\detokenize{#2}}{%
+        \PackageError{strings}{%
+            Finder of type #1 for `\detokenize{#2}' not defined; used%
+        }{%
+            You must run \@backslashchar make@find@#1{\detokenize{#2}} first%
         }\@gobbletwo
     }{%
-        \@nameuse{finder@#1@#2}#3%
+        \@nameuse{finder@#1@\detokenize{#2}}#3%
     }%
 }
 \def\make@find@in#1{%
-    \@ifundefined{finder@in@#1}{%
-        \global\@namedef{finder@in@#1}##1#1##2\str@mark##3\str@stop##4##5{%
+    \@ifundefined{finder@in@\detokenize{#1}}{%
+        \global\@namedef{%
+            finder@in@\detokenize{#1}%
+        }##1#1##2\str@mark##3\str@stop##4##5{%
             \ifstrempty{##3}{##5}{##4{##1}{##2}}%
         }%
     }{}%
@@ -144,7 +148,7 @@
     \@nameuse{findcs@in@#1}{#2}%
 }
 \def\make@find@eq#1{%
-    \@ifundefined{finder@eq@#1}{%
+    \@ifundefined{finder@eq@\detokenize{#1}}{%
         %
         % This finder expects to be called as:
         % \finder@eq@[text]
@@ -152,7 +156,9 @@
         %     [text-of-finder]\str@mark\str@stop
         %     {macro-if-yes}{macro-if-no}
         % Both macros take no arguments.
-        \global\@namedef{finder@eq@#1}##1#1##2\str@mark##3\str@stop##4##5{%
+        \global\@namedef{%
+            finder@eq@\detokenize{#1}%
+        }##1#1##2\str@mark##3\str@stop##4##5{%
             \ifstrempty{##1##2}{##4}{##5}%
         }%
     }{}%
@@ -161,8 +167,10 @@
     \find@use{eq}{#1}{#2\str@mark#1\str@mark\str@stop}%
 }
 \def\make@find@end#1{%
-    \@ifundefined{finder@end@#1}{%
-        \global\@namedef{finder@end@#1}##1#1\str@mark##2\str@stop##3##4{%
+    \@ifundefined{finder@end@\detokenize{#1}}{%
+        \global\@namedef{%
+            finder@end@\detokenize{#1}%
+        }##1#1\str@mark##2\str@stop##3##4{%
             \ifstrempty{##2}{##4}{##3{##1}}%
         }%
     }{}%
@@ -171,9 +179,9 @@
     \find@use{end}{#1}{#2\str@mark#1\str@mark\str@stop}%
 }
 \def\make@find@start#1{%
-    \@ifundefined{finder@start@#1}{%
+    \@ifundefined{finder@start@\detokenize{#1}}{%
         \global\@namedef{%
-            finder@start@#1%
+            finder@start@\detokenize{#1}%
         }##1\str@mark#1##2\str@mark##3\str@stop##4##5{%
             \ifstrempty{##1}{##4{##2}}{##5}%
         }%

@@ -4005,6 +4005,38 @@ parallel=coke: 5 Coke 91a,
 %%
 %% \iffalse filename: strings.dtx \fi
 %%
+
+\section{strings.dtx}
+
+\begingroup
+
+    \make@find@in{hello \world}
+    \edef\test{%
+        \find@in{hello \world}{This is a hello \world test}%
+            {\noexpand\yes}{\noexpand\no}%
+    }
+    \AssertMacro\test{\yes{This is a }{test}}
+
+    \edef\test{%
+        \find@in{hello \world}{This is a \world test}%
+            {\noexpand\yes}{\noexpand\no}%
+    }
+    \AssertMacro\test{\no}
+
+    \make@find@start{\hello world}
+    \edef\test{%
+        \find@start{\hello world}{\hello world you are wonderful}%
+            {yes}{no}%
+    }
+    \AssertMacro\test{yes{ you are wonderful}}
+
+    \edef\test{%
+        \find@start{\hello world}{A\hello world}%
+            {yes}{no}%
+    }
+    \AssertMacro\test{no}
+\endgroup
+
 %%
 %% \iffalse filename: abbrev.dtx \fi
 %%
@@ -4019,6 +4051,7 @@ parallel=coke: 5 Coke 91a,
     \abb@add{test}{Big Company Machines}{B.C.M.}
     \abb@add{test}{Enormous Example}{Really Big Ex.}
     \abb@add{test}{{}First Company}{FiComp.}
+    \abb@add{test}{delete}{}
 
     \def\abbrevtest#1#2{\AssertCallback{\abb@abbrev{test}{#1}}{#2}}
 
@@ -4055,6 +4088,15 @@ parallel=coke: 5 Coke 91a,
     \abbrevtest{First Company Treasure}{FiComp. Treasure}
     \abbrevtest{The First Company}{The First Co.}
     \abbrevtest{The First Company Treasure}{The First Co. Treasure}
+
+    \abbrevtest{abc delete def}{abc def}
+    \abbrevtest{abc delete}{abc}
+    \abbrevtest{delete def}{def}
+    \abbrevtest{delete}{}
+    \abbrevtest{a delete-fail}{a delete-fail}
+    \abbrevtest{a-delete fail}{a-delete fail}
+    \abbrevtest{Really Big delete Company}{R.B. Co.}
+    \abbrevtest{Really Big delete-Company}{R.B. delete-Co.}
 \endgroup
 
 %%

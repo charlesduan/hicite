@@ -119,7 +119,7 @@
     }{%
         \@iden
     }%
-    {% This is left on the stack after whatever \find@start calls
+    {%
         \ifstrempty{#3}{%
             \abb@abbrev@acc{#5}{#6#4}%
         }{%
@@ -132,12 +132,42 @@
     \@ifstartswithwordchar{#3}{%
         #4%
     }{%
-        \find@try\find@start{%
-            { }{\abb@abbrev@maybechop{ }}%
-            {.}{\abb@abbrev@maybechop{.}}%
-        }{#3}{\abb@abbrev@acc}%
-        {#3}{#1#2}%
+        \ifstrempty{#2}{%
+            \abb@abbrev@delete{#1\abb@abbrev@delete!#3}{#4}%
+        }{%
+            \find@try\find@start{%
+                { }{\abb@abbrev@maybechop{ }}%
+                {.}{\abb@abbrev@maybechop{.}}%
+            }{#3}{\abb@abbrev@acc}%
+            {#3}{#1#2}%
+        }%
     }%
+}
+\def\abb@abbrev@delete#1#2{%
+    \find@in{ \abb@abbrev@delete! }{#1}{%
+        \abb@abbrev@delete@
+    }{%
+        \find@eq{\abb@abbrev@delete!}{#1}{%
+            \abb@abbrev@end{}%
+        }{%
+            \find@end{ \abb@abbrev@delete!}{#1}{%
+                \abb@abbrev@end
+            }{%
+                \find@start{\abb@abbrev@delete! }{#1}{%
+                    \abb@abbrev@acc
+                }{%
+                    \@firstoftwo{#2}%
+                }{}% Empty argument is the empty accumulated text
+            }%
+        }%
+    }%
+}
+\make@find@in{ \abb@abbrev@delete! }
+\make@find@start{\abb@abbrev@delete! }
+\make@find@end{ \abb@abbrev@delete!}
+\make@find@eq{\abb@abbrev@delete!}
+\def\abb@abbrev@delete@#1#2{%
+    \abb@abbrev@acc{ #2}{#1}%
 }
 \def\abb@abbrev@maybechop#1#2#3#4{%
     \find@end{#1}{#4}{%

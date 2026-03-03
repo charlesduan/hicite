@@ -29,10 +29,11 @@ that class are a further set of macros of the form
 |\abb@class@|\meta{name}|@|\meta{word}, where \meta{word} is the first word of
 the text to be abbreviated. The value of the macro is a list of two-item pairs
 of the form:
-
 \begin{demo}
   \marg{remaining text}\marg{abbrev.}
 \end{demo}
+The list is organized with the longest abbreviations first, ensuring that longer
+abbreviations take precedence over shorter ones.
 
 \DescribeMacro\abb@new
 |\abb@new|\marg{class} creates a new abbreviation class.
@@ -187,21 +188,36 @@ Building and Loan Office $\rightarrow$ Bldg. and Loan Office
 abbreviating a text. \meta{class} is the class, \meta{text} is the
 text to abbreviate, and \meta{callback} is a callback function for the result.
 
-Text is abbreviated by reading each word in the text, using |\find@word| from
+Text is abbreviated by reading each token in the text, using |\find@word| from
 \sec{strings}.
 
 \begin{enumerate}
-\item If it is not a word or punctuation, do not process the item and
-  continue.
+\item If the token is neither a word nor punctuation, do not process the item
+and continue. In particular, text in groups is ignored for abbreviation
+purposes.
 
-\item Otherwise, retrieve the list of abbreviations starting with this
-word. If there are none, then continue.
+\item For words and regular punctuation, retrieve the list of abbreviations
+starting with this word. If there are none, then continue.
 
 \item Iterate through each of the abbreviations associated with the word,
 and see if the remainder of the text to be abbreviated starts with any of
-  the abbreviation texts. If so, then insert the relevant abbreviation
-  text, correcting for dots as appropriate.
+the abbreviation texts. If so, then insert the relevant abbreviation
+text.
+\begin{itemize}
+\item If the abbreviation fully deletes text, then check that the abbreviated
+word is surrounded by spaces (or is at the beginning or end of the text). If
+not, then the abbreviation is not performed since it would result in
+disconnected punctuation. If it is, then delete any excess space.
+
+\item If the abbreviation ends with a dot or space, then ensure that insertion
+of the abbreviation does not create a double dot or space.
+\end{itemize}
 \end{enumerate}
+Throughout the below description, the ``accumulated text'' is the text that has
+been abbreviated at the beginning of the string, and the ``remaining text'' is
+the text that has not been processed for abbreviation at the end of the string.
+In the midst of determining whether to abbreviate something, the accumulated
+text will not include the proposed abbreviation.
 
 %</doc>
 %<*package>
@@ -217,22 +233,21 @@ and see if the remainder of the text to be abbreviated starts with any of
 }
 %    \end{macrocode}
 %
-% Initial state for abbreviation. This is called to process the next
-% abbreviation off of the list of words.
-%
-% \#1 is the text to abbreviate, \#2 is the accumulated abbreviated text, \#3 is
-% the class, \#4 is the callback. (\#2-\#4 are left on the stack.)
+% Read the next token off of the remaining text to determine how to abbreviate
+% it. \#1 is the remaining text to abbreviate, \#2 is the accumulated text, \#3
+% is the class, \#4 is the callback. (\#2-\#4 are left on the stack.)
 %    \begin{macrocode}
 \def\abb@abbrev@acc#1{%
     \find@word{#1}\abb@abbrev@punct\abb@abbrev@grp\abb@abbrev@wd\abb@abbrev@end
 }
 %    \end{macrocode}
 %
-% The token being abbreviated is punctuation. If it is a macro, nothing is done.
-% Otherwise, treat it like a word.
+% Given that the first token of the remaining text is punctuation, determine how
+% to abbreviate the symbol. If the first token is a macro, nothing is done.
+% Otherwise, it is abbreviated as if it were a word in itself.
 %
 % \#1 is the punctuation, \#2 the remaining text, \#3 the accumulated text, \#4
-% the class, \#5 the callback. (\#4-\#5 are left on the stack.)
+% the class, \#5 the callback. (\#4--\#5 are left on the stack.)
 %    \begin{macrocode}
 \def\abb@abbrev@punct#1#2#3{%
     \@test \ifcat \relax\noexpand#1\fi{%
@@ -243,10 +258,12 @@ and see if the remainder of the text to be abbreviated starts with any of
 }
 %    \end{macrocode}
 %
-% The token being abbreviated is a group. Nothing is done.
+% Given that the token being abbreviated is a group, nothing is done. The
+% content of the group is appended to the accumulated text, and the remaining
+% text is further processed.
 %
 % \#1 is the group, \#2 the remaining text, \#3 the accumulated text, \#4 the
-% class, \#5 the callback. (\#4-\#5 are left on the stack.)
+% class, \#5 the callback. (\#4--\#5 are left on the stack.)
 %
 %    \begin{macrocode}
 \def\abb@abbrev@grp#1#2#3{%
@@ -254,8 +271,8 @@ and see if the remainder of the text to be abbreviated starts with any of
 }
 %    \end{macrocode}
 %
-% There is no more text left to abbreviate. Invoke the callback with the
-% accumulated text.
+% Given that there is no more text left to abbreviate, invoke the callback with
+% the accumulated text.
 %
 % \#1 is the accumulated text, \#2 the class, \#3 the callback.
 %    \begin{macrocode}
@@ -264,13 +281,15 @@ and see if the remainder of the text to be abbreviated starts with any of
 }
 %    \end{macrocode}
 %
-% The token to be abbreviated is a word or abbreviatable punctuation. If there
-% is no defined abbreviation for the word, then continue to the next token.
-% Otherwise, call |\abb@abbrev@wd@|, placing on the stack the list of
+% Given that the token to be abbreviated is a word or abbreviatable punctuation,
+% then search for an abbreviation starting with this word.
+% If there is no defined abbreviation for the word, then continue to the next
+% token. Otherwise, call |\abb@abbrev@wd@|, placing on the stack the list of
 % abbreviations associated with the word.
 %
-% \#1 is the word, \#2 the remaining text, \#3 the accumulated text, \#4 the
-% class, \#5 the callback. (\#5 is left on the stack.)
+% \#1 is the word under consideration, \#2 the remaining text (not including the
+% word under consideration), \#3 the accumulated text, \#4 the class, \#5 the
+% callback. (\#5 is left on the stack.)
 %    \begin{macrocode}
 \def\abb@abbrev@wd#1#2#3#4{%
     \@ifundefined{abb@class@#4@#1}{%
@@ -283,9 +302,15 @@ and see if the remainder of the text to be abbreviated starts with any of
 }
 %    \end{macrocode}
 %
-% \#1 and \#2 are the first elements of the abbreviation word list; \#3 is the
-% remainder of that list. \#4-\#8 are the args to |\abb@abbrev@wd|. (\#7-\#8 are
-% left on the stack.)
+% Given that the word under consideration has abbreviations, consider
+% all possible abbreviations starting with this word to see if they match the
+% remaining text.
+%
+% \#1 is a candidate abbreviatable text; \#2 is the candidate abbreviation; \#3
+% is the remainder of that list. \#4--\#8 are the args to |\abb@abbrev@wd|,
+% namely \#4 the word under consideration, \#5 the remaining text not including
+% the word under consideration, \#6 the accumulated text, \#7 the class, and \#8
+% the callback. (\#7--\#8 are left on the stack.)
 %
 %    \begin{macrocode}
 \def\abb@abbrev@wd@#1#2#3\@stop#4#5#6{%
@@ -294,7 +319,20 @@ and see if the remainder of the text to be abbreviated starts with any of
     }{%
         \@iden
     }%
-    {% This is left on the stack after whatever \find@start calls
+%    \end{macrocode}
+% This is the ``bailout'' content, to be executed if \#1 does not match
+% the remaining text. It is executed if the |\find@start| above fails to
+% match, or it is presented as argument \#4 to |\abb@abbrev@found|. What it does
+% is:
+% \begin{itemize}
+% \item If there are no remaining abbreviation candidates, then attach the word
+% under consideration to the accumulated text and proceed to abbreviate the
+% remaining text.
+% \item If there are remaining abbreviation candidates, then proceed to the next
+% one.
+% \end{itemize}
+%    \begin{macrocode}
+    {%
         \ifstrempty{#3}{%
             \abb@abbrev@acc{#5}{#6#4}%
         }{%
@@ -304,10 +342,17 @@ and see if the remainder of the text to be abbreviated starts with any of
 }
 %    \end{macrocode}
 %
-% \#1 is the accumulated text if we abbreviate, \#2 is the abbreviation to add,
-% \#3 is the remaining text if we abbreviate, \#4 is the command to run if we
-% bail out, \#5 is the class, and \#6 is the callback. (\#5-\#6 are left on the
-% stack.)
+% Given that a candidate abbreviation has matched, determine whether the
+% abbreviation should actually be performed, and execute it if so. An
+% abbreviation should not be peformed if the immediately following text is a
+% word character, because that would result in breaking a word in the middle of
+% an abbreviation.
+%
+% \#1 is the accumulated text, \#2 is the abbreviation to add,
+% \#3 is the remaining text not including any of the text to be abbreviated, \#4
+% is the command to run if we bail out (that is, if no abbreviation is to be
+% made using this candidate), \#5 is the class, and \#6 is the callback.
+% (\#5--\#6 are left on the stack.)
 %
 %    \begin{macrocode}
 \def\abb@abbrev@found#1#2#3#4{%
@@ -315,12 +360,64 @@ and see if the remainder of the text to be abbreviated starts with any of
     \@ifstartswithwordchar{#3}{%
         #4%
     }{%
-        \find@try\find@start{%
-            { }{\abb@abbrev@maybechop{ }}%
-            {.}{\abb@abbrev@maybechop{.}}%
-        }{#3}{\abb@abbrev@acc}%
-        {#3}{#1#2}%
+        \ifstrempty{#2}{%
+            \abb@abbrev@delete{#1\abb@abbrev@delete!#3}{#4}%
+        }{%
+            \find@try\find@start{%
+                { }{\abb@abbrev@maybechop{ }}%
+                {.}{\abb@abbrev@maybechop{.}}%
+            }{#3}{\abb@abbrev@acc}%
+            {#3}{#1#2}%
+        }%
     }%
+}
+%    \end{macrocode}
+%
+% Given that an abbreviation can be executed and will only delete text,
+% determine whether the abbreviation is executable. A deletion can be executed
+% only if the remaining text is fully surrounded by spaces (or the beginning/end
+% of text); otherwise joining punctuation might be left stranded. If it is
+% executed, reconcile the remaining spaces.
+%
+% \#1 is the accumulated text plus the remaining text, separated by
+% |\abb@abbrev@delete!|. \#2 is the bailout macro sequence (to be executed if
+% this abbreviation fails), \#3 is the class, and \#4 is the callback. (\#3--\#4
+% are left on the stack.)
+%    \begin{macrocode}
+\def\abb@abbrev@delete#1#2{%
+    \find@in{ \abb@abbrev@delete! }{#1}{%
+        \abb@abbrev@delete@
+    }{%
+        \find@eq{\abb@abbrev@delete!}{#1}{%
+            \abb@abbrev@end{}%
+        }{%
+            \find@end{ \abb@abbrev@delete!}{#1}{%
+                \abb@abbrev@end
+            }{%
+                \find@start{\abb@abbrev@delete! }{#1}{%
+                    \abb@abbrev@acc
+                }{%
+                    \@firstoftwo{#2}%
+                }{}% Empty argument is the empty accumulated text
+            }%
+        }%
+    }%
+}
+\make@find@in{ \abb@abbrev@delete! }
+\make@find@start{\abb@abbrev@delete! }
+\make@find@end{ \abb@abbrev@delete!}
+\make@find@eq{\abb@abbrev@delete!}
+%    \end{macrocode}
+%
+% Given that an abbreviation led to a deletion and the abbreviation was
+% surrounded by two spaces, delete one space and continue the abbreviation
+% process. \#1 is the accumulated text with a trailing space deleted, \#2 the
+% remaining text with a leading space deleted, \#3 is the class, and \#4 is the
+% callback. (\#3--\#4 are left on the stack.)
+%
+%    \begin{macrocode}
+\def\abb@abbrev@delete@#1#2{%
+    \abb@abbrev@acc{ #2}{#1}%
 }
 %    \end{macrocode}
 %
@@ -593,6 +690,7 @@ and once with |\abb@dot|, thereby producing the desired text.
     \abb@add{test}{Big Company Machines}{B.C.M.}
     \abb@add{test}{Enormous Example}{Really Big Ex.}
     \abb@add{test}{{}First Company}{FiComp.}
+    \abb@add{test}{delete}{}
 
     \def\abbrevtest#1#2{\AssertCallback{\abb@abbrev{test}{#1}}{#2}}
 
@@ -629,6 +727,15 @@ and once with |\abb@dot|, thereby producing the desired text.
     \abbrevtest{First Company Treasure}{FiComp. Treasure}
     \abbrevtest{The First Company}{The First Co.}
     \abbrevtest{The First Company Treasure}{The First Co. Treasure}
+
+    \abbrevtest{abc delete def}{abc def}
+    \abbrevtest{abc delete}{abc}
+    \abbrevtest{delete def}{def}
+    \abbrevtest{delete}{}
+    \abbrevtest{a delete-fail}{a delete-fail}
+    \abbrevtest{a-delete fail}{a-delete fail}
+    \abbrevtest{Really Big delete Company}{R.B. Co.}
+    \abbrevtest{Really Big delete-Company}{R.B. delete-Co.}
 \endgroup
 
 %</test>
