@@ -393,10 +393,14 @@ Data is shown in |\inline|\{this at section-i\}.
         \xdef\WrittenText{#3}%
     \endgroup
 }
-\def\expandedspace{%
-    \protect
-    \expandafter\noexpand\csname nobreakspace \endcsname
-    {}%
+\IfFormatAtLeastTF{2024-11-01}{
+    \def\expandedspace{~}
+}{
+    \def\expandedspace{%
+        \protect
+        \expandafter\noexpand\csname nobreakspace \endcsname
+        {}%
+    }
 }
 
 \begingroup
