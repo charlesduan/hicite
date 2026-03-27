@@ -261,6 +261,9 @@ to initialize the finder, and then:
 to execute the finder. \meta{type} is |in|, |start|, |end|, or |eq| depending on
 the type of matching desired.
 
+The \meta{needle} may contain control sequences, as it is passed through
+|\detokenize| appropriately in constructing and using finders.
+
 The callbacks for finders are given consistent arguments. The
 \meta{false-callback} always receives no arguments. The \meta{true-callback},
 however, receives arguments indicating the remaining unmatched text. Thus, for
@@ -282,12 +285,14 @@ none.
 %
 %    \begin{macrocode}
 \def\find@use#1#2#3{%
-    \@ifundefined{finder@#1@#2}{%
-        \PackageError{strings}{Finder of type #1 for `#2' not defined; used}{%
-            You must run \@backslashchar make@find@#1{#2} first%
+    \@ifundefined{finder@#1@\detokenize{#2}}{%
+        \PackageError{strings}{%
+            Finder of type #1 for `\detokenize{#2}' not defined; used%
+        }{%
+            You must run \@backslashchar make@find@#1{\detokenize{#2}} first%
         }\@gobbletwo
     }{%
-        \@nameuse{finder@#1@#2}#3%
+        \@nameuse{finder@#1@\detokenize{#2}}#3%
     }%
 }
 %    \end{macrocode}
@@ -306,8 +311,10 @@ none.
 % \end{demo}
 %    \begin{macrocode}
 \def\make@find@in#1{%
-    \@ifundefined{finder@in@#1}{%
-        \global\@namedef{finder@in@#1}##1#1##2\str@mark##3\str@stop##4##5{%
+    \@ifundefined{finder@in@\detokenize{#1}}{%
+        \global\@namedef{%
+            finder@in@\detokenize{#1}%
+        }##1#1##2\str@mark##3\str@stop##4##5{%
             \ifstrempty{##3}{##5}{##4{##1}{##2}}%
         }%
     }{}%
@@ -380,7 +387,7 @@ none.
 %
 %    \begin{macrocode}
 \def\make@find@eq#1{%
-    \@ifundefined{finder@eq@#1}{%
+    \@ifundefined{finder@eq@\detokenize{#1}}{%
         %
         % This finder expects to be called as:
         % \finder@eq@[text]
@@ -388,7 +395,9 @@ none.
         %     [text-of-finder]\str@mark\str@stop
         %     {macro-if-yes}{macro-if-no}
         % Both macros take no arguments.
-        \global\@namedef{finder@eq@#1}##1#1##2\str@mark##3\str@stop##4##5{%
+        \global\@namedef{%
+            finder@eq@\detokenize{#1}%
+        }##1#1##2\str@mark##3\str@stop##4##5{%
             \ifstrempty{##1##2}{##4}{##5}%
         }%
     }{}%
@@ -409,8 +418,10 @@ none.
 %
 %    \begin{macrocode}
 \def\make@find@end#1{%
-    \@ifundefined{finder@end@#1}{%
-        \global\@namedef{finder@end@#1}##1#1\str@mark##2\str@stop##3##4{%
+    \@ifundefined{finder@end@\detokenize{#1}}{%
+        \global\@namedef{%
+            finder@end@\detokenize{#1}%
+        }##1#1\str@mark##2\str@stop##3##4{%
             \ifstrempty{##2}{##4}{##3{##1}}%
         }%
     }{}%
@@ -432,9 +443,9 @@ none.
 %
 %    \begin{macrocode}
 \def\make@find@start#1{%
-    \@ifundefined{finder@start@#1}{%
+    \@ifundefined{finder@start@\detokenize{#1}}{%
         \global\@namedef{%
-            finder@start@#1%
+            finder@start@\detokenize{#1}%
         }##1\str@mark#1##2\str@mark##3\str@stop##4##5{%
             \ifstrempty{##1}{##4{##2}}{##5}%
         }%
@@ -885,3 +896,38 @@ of a string. The callback receives only two arguments.
 %
 %
 %</package>
+%<*test>
+
+\section{strings.dtx}
+
+
+\begingroup
+
+    \make@find@in{hello \world}
+    \edef\test{%
+        \find@in{hello \world}{This is a hello \world test}%
+            {\noexpand\yes}{\noexpand\no}%
+    }
+    \AssertMacro\test{\yes{This is a }{test}}
+
+    \edef\test{%
+        \find@in{hello \world}{This is a \world test}%
+            {\noexpand\yes}{\noexpand\no}%
+    }
+    \AssertMacro\test{\no}
+
+    \make@find@start{\hello world}
+    \edef\test{%
+        \find@start{\hello world}{\hello world you are wonderful}%
+            {yes}{no}%
+    }
+    \AssertMacro\test{yes{ you are wonderful}}
+
+    \edef\test{%
+        \find@start{\hello world}{A\hello world}%
+            {yes}{no}%
+    }
+    \AssertMacro\test{no}
+\endgroup
+
+%</test>
