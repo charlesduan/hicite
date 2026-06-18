@@ -2884,7 +2884,8 @@ following in your document:
 
 When a reference is cited, \hia* must determine which citation form to use. The
 choice depends on the citation command issued (see \sec{iface}) and the context
-within the document (primarily, what citations have come before). The following rules inform that choice.
+within the document (primarily, what citations have come before). The following
+rules inform that choice.
 
 \begin{itemize}
 \item An \emph{id.}\ citation is appropriate only when the reference being cited
@@ -4618,6 +4619,7 @@ into the above categories.
         }%
     }%
 }
+\make@find@in{ by }
 
 \keyparameters{
     {number}{The serial number of the bill. This is used as-is, and must include
@@ -4648,7 +4650,7 @@ into the above categories.
     date=feb 11 2015
 }
 \end{verbatim}
-\Produces You Own Devices Act, H.R. 862, 114th Cong.\ (Feb. 11, 2015).
+\Produces You Own Devices Act, H.R. 862, 114th Cong.\ (Feb.\ 11, 2015).
 \end{demo}
 
 \hi@newcite{congdoc}{A Congressional numbered document}{other}{%
@@ -4894,6 +4896,10 @@ published testimony in a hearing.
     date=nov 29 2017,
 }
 \end{verbatim}
+\Produces
+\emph{Nomination of Alex Azar to Serve as Secretary of Health and Human
+Services:\ Hearing Before the S. Comm.\ Health, Education, Labor \& Pensions},
+115th Cong.\ (Nov.~29, 2017).%
 \end{demo}
 
 \hi@newcite{prespaper}{A Presidential Paper}{other}{%
@@ -7148,9 +7154,10 @@ to the reference type.
     \find@in{:}{#1}{\@twodef\hi@kv@vol\hi@kv@issue}{\def\hi@kv@vol{#1}}
 }
 \hi@param@alias{volume}{vol}
-\hi@defparam{year}{Year/date of the case, article, regulation}{%
+\hi@defparam{year}{Year/date of the reference}{%
     \hi@date@parse{#1}{\def\hi@kv@year}%
 }
+This should follow the format given in \sec{dates}.
 %%
 %% \iffalse filename: caseparams.dtx \fi
 %%

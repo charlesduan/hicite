@@ -2162,6 +2162,7 @@ Torts} \S~848.}}
         }%
     }%
 }
+\make@find@in{ by }
 \hi@newcite{congdoc}{A Congressional numbered document}{other}{%
     \hi@newcite@form{fc}{#1}{%
         \hi@ifset\hi@kv@author{%
@@ -2478,6 +2479,71 @@ Torts} \S~848.}}
         \the\hi@param@parens
     }%
 }
+
+\section{govrefs.dtx}
+
+\defbill{yoda-2015}{
+    bill=H.R. 862,
+    congress=114,
+    name=You Own Devices Act,
+    date=feb 11 2015
+}
+
+\AssertBox{\note{yoda-2015}}{\InFootnote{%
+    You Own Devices Act, H.R. 862, 114th Cong.\ (Feb.\ 11, 2015).%
+}}
+
+\defbill{mapia}{
+name=Medication Affordability and Patient Integrity Act,
+inline=MAPIA,
+number=S. 2658,
+date=june 17 2026,
+congress=119,
+status={reported by Senate Health, Education, Labor and Pensions Committee},
+}
+
+\AssertBox{\inline{mapia}}{%
+the Medication Affordability and Patient Integrity Act (``MAPIA'')%
+}
+
+\AssertBox{\note{mapia}}{\InFootnote{%
+Medication Affordability and Patient Integrity Act (MAPIA),
+S. 2658, 119th
+Cong.\ (as reported by S. Health, Education, Labor \& Pensions Comm., June 17,
+2026).%
+}}
+
+\AssertBox{\inline{mapia}}{MAPIA}
+
+\noid
+
+\AssertBox{\note{mapia at S 1}}{\InFootnote{%
+S. 2658, \textsection~1.%
+}}
+
+\defcongdoc{oda-report}{
+name=Orphan Drug Act,
+date=1982,
+number=H.R. Rep. No. 97-840,
+}
+
+\AssertBox{\note{oda-report at 5}}{\InFootnote{%
+\textsc{Orphan Drug Act}, \textsc{H.R. Rep.\ No.\ 97-840}, at 5 (1982).%
+}}
+
+\defhearing{azar-hearing}{
+name=Nomination of Alex Azar to Serve as Secretary of Health and Human Services,
+committee={Senate Committee on Health, Education, Labor and Pensions},
+congress=115,
+date=nov 29 2017,
+}
+
+\AssertBox{\note{azar-hearing}}{\InFootnote{%
+\emph{Nomination of Alex Azar to Serve as Secretary of Health and Human
+Services:\ Hearing Before the S. Comm.\ Health, Education, Labor \& Pensions},
+115th Cong.\ (Nov.~29, 2017).%
+}}
+
 %%
 %% \iffalse filename: bookrefs.dtx \fi
 %%
@@ -3802,7 +3868,7 @@ parallel=coke: 5 Coke 91a,
     \find@in{:}{#1}{\@twodef\hi@kv@vol\hi@kv@issue}{\def\hi@kv@vol{#1}}
 }
 \hi@param@alias{volume}{vol}
-\hi@defparam{year}{Year/date of the case, article, regulation}{%
+\hi@defparam{year}{Year/date of the reference}{%
     \hi@date@parse{#1}{\def\hi@kv@year}%
 }
 %%

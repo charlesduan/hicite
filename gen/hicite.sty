@@ -6026,6 +6026,7 @@
         }%
     }%
 }
+\make@find@in{ by }
 \def\hi@bill@abbrevstatus#1#2{%
     \def\hi@kv@status{#1 by }%
     \hi@abbrev@leg{#2}{\appto\hi@kv@status}%
@@ -7808,7 +7809,7 @@
 }
 \make@find@in{:}
 \hi@param@alias{volume}{vol}
-\hi@defparam{year}{Year/date of the case, article, regulation}{%
+\hi@defparam{year}{Year/date of the reference}{%
     \hi@date@parse{#1}{\def\hi@kv@year}%
 }
 %%
