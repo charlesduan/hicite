@@ -110,10 +110,14 @@ attached to a book (\param{editor}, \param{publisher}, etc.; see
 \sec{bookrefs-pubparen}). Works that are part of a published book or volume can
 generally be defined using the highly flexible \rtype{citecontainer} type.
 
-If truly nothing works, then the reference \rtype{verbatim} can be used to
-inject arbitrary text into a citation. Even when that is used, the writer still
-enjoys most of the structural capabilities of this package: signals management,
-string citations, and so on.
+
+
+If truly nothing works, then the reference type \rtype{custom} can be used to
+define a custom citation form. Alternatively, the singleton named reference
+\rtype{verbatim} can be used to
+inject arbitrary text into a citation. Even when these are used, the writer
+still enjoys most of the structural capabilities of this package: signals
+management, string citations, and so on.
 
 Finally, writers faced with a class of unexpected reference types are encouraged
 to develop new citation macros. The syntax and programming conventions for

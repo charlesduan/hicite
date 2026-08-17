@@ -7512,6 +7512,50 @@
     \protected@edef\reserved@a{\hi@kv@type\space \hi@kv@number}%
     \@expand{\hi@supra@form{#1}}\reserved@a i%
 }
+\hi@newcite{custom}{A custom, user-defined reference}{other}{%
+    \hi@newcite@form{fc}{#1}{%
+        \hi@citeguts{%
+            \noexpand\hi@custom@setuppin
+            \expandonce\hi@kv@customfull
+        }%
+        \hi@ifset\hi@kv@year{%
+            \hi@parens@add{\hi@paren@date}{\hi@kv@year}%
+        }{}%
+        \the\hi@param@parens
+    }%
+    \hi@ifset\hi@kv@custominline{%
+        \hi@newcite@form{ifc}{#1}{%
+            \hi@citeguts{%
+                \noexpand\hi@custom@setuppin
+                \expandonce\hi@kv@custominline
+            }%
+        }%
+    }{}%
+    \hi@ifset\hi@kv@customsupra{%
+        \@expand{\hi@supra@form{#1}}\hi@kv@customsupra{i}%
+    }{%
+        \hi@ifset\hi@kv@customshort{%
+            \hi@newcite@form{sc}{#1}{%
+                \hi@citeguts{%
+                    \noexpand\hi@custom@setuppin
+                    \expandonce\hi@kv@customshort
+                }%
+            }%
+        }{}%
+    }%
+    \hi@ifset\hi@kv@customshortinline{%
+        \hi@newcite@form{isc}{#1}{%
+            \hi@citeguts{%
+                \noexpand\hi@custom@setuppin
+                \expandonce\hi@kv@customshortinline
+            }%
+        }%
+    }{}%
+}
+\def\hi@custom@setuppin{%
+    \let\pin\@this@page
+    \let\ifpin\hi@ifpage
+}
 %%
 %% \iffalse filename: nondocrefs.dtx \fi
 %%
@@ -7963,6 +8007,12 @@
 \hi@defparam{countries}{Countries to a treaty}{%
     \hi@abbrev@name{#1}{\def\hi@kv@countries}%
 }
+\hi@newparam{customfull}{The full citation form of a custom reference}
+\hi@newparam{custominline}{The full inline form of a custom reference}
+\hi@newparam{customshort}{The short citation form of a custom reference}
+\hi@newparam{customshortinline}{The short inline form of a custom reference}
+\hi@newparam{customsupra}{The \emph{supra} short form text for a custom
+reference}
 \hi@newparam@noval{inlineparen}{Always include a parenthetical for inline form}
 \hi@defparam{instto}{Institutional recipient of letter, memorandum, etc.}{%
     \hi@nameproc@inst{#1}{\hi@namelist@addinst}{\hi@kv@to}%
