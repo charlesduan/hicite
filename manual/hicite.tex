@@ -6724,16 +6724,17 @@ the presence of a pin cite. For example:
 \Example
 \begin{verbatim}
 \defcustom{comedian}{
-    customfull={Maurizio Cattelan, \emph{Comedian}},
+    customfull={Maurizio Cattelan,
+        \emph{Comedian}\ifpin{, at \pin}{}},
     year=2019,
     customsupra=Cattelan,
     paren=banana taped to wall,
 }
 \end{verbatim}
 \Produces
-Maurizio Cattelan, \emph{Comedian} (2019) (banana taped to wall).\\
+Maurizio Cattelan, \emph{Comedian}, at \# (2019) (banana taped to wall).\\
 \ldots\\
-Cattelan, \emph{supra} note [].
+Cattelan, \emph{supra} note \#.
 \end{demo}
 
 \keyparameters{
