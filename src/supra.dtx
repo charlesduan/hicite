@@ -74,7 +74,8 @@ citation state described in \sec{state}.
 % the reference number is not the same as the current footnote number.
 %
 % This macro is not incorporated into |\hi@supra@word| because it is redefined
-% in the tex4ht conversion file.
+% in the tex4ht conversion file or by the cross-reference mechanism as described
+% below.
 %
 %    \begin{macrocode}
 \def\hi@notepos#1{%
@@ -88,4 +89,36 @@ citation state described in \sec{state}.
 %
 %</package>
 %<*doc>
+
+\paragraph{Cross-Reference \emph{Supra} Forms}
+\label{x:supra-xref}
+
+In legal memoranda, \emph{supra} short citations contain no information other
+than the word \emph{supra}. If the option \opt{xrefsupra} is given to \hia*,
+then the short citation further includes a cross-reference to the first full
+citation to the reference. The cross-reference is generated using |\hilabel| as
+described in \sec{xref}.
+
+%</doc>
+%<*package>
+%
+%    \begin{macrocode}
+\let\hi@supra@make@xref\@gobble
+\def\hi@supra@opt@xref{%
+    \def\hi@supra@make@xref##1{%
+        \hilabel{hi@supra@xref@##1}%
+    }%
+    \def\hi@notepos##1{%
+        \space
+        \@ifundefined{r@hi@supra@xref@##1}{%
+            \textbf{??}%
+        }{%
+            \@expand{\@unbrace\hi@supra@use@xref}{%
+                \csname r@hi@supra@xref@##1\endcsname
+            }{ii}%
+        }%
+    }%
+}
+\def\hi@supra@use@xref#1#2#3#4{#2#3#4}
+%</package>
 

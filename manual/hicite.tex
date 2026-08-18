@@ -625,6 +625,11 @@ and is the standard when the \opt{memo} option is selected.
 \ExplainOption{noauthwarn} No warning will be issued if three or more authors
 are given without the \param{noetal} parameter.
 
+
+\ExplainOption{xrefsupra} All \emph{supra}-style short citations will include a
+cross-reference to the full citation of the same reference. This is useful only
+for legal memoranda, and is described further in \sec{supra-xref}.
+
 \part{References}
 \label{p:references}
 %%
@@ -1317,7 +1322,8 @@ The following commands are used to mark parts of a document with labels.
 \DescribeMacro\hilabel
 \cmd\hilabel\oarg{text}\marg{label} labels the current point in text. It detects
 whether it is inside a footnote, table, figure, or body text, and adjusts the
-label accordingly.
+label accordingly. If the |sidenotes| package is loaded before \hia*, then side
+notes will be detected as well.
 
 \DescribeMacro\hiendlabel
 \cmd\hiendlabel\marg{label} closes a labeled range opened with |\hilabel|. Note
@@ -3485,6 +3491,16 @@ form displays the description text.
 follow the five-footnote rule, to conform with the expectations of short
 citation state described in \sec{state}.
 \end{itemize}
+
+
+\paragraph{Cross-Reference \emph{Supra} Forms}
+\label{x:supra-xref}
+
+In legal memoranda, \emph{supra} short citations contain no information other
+than the word \emph{supra}. If the option \opt{xrefsupra} is given to \hia*,
+then the short citation further includes a cross-reference to the first full
+citation to the reference. The cross-reference is generated using |\hilabel| as
+described in \sec{xref}.
 
 
 %%
@@ -6395,33 +6411,26 @@ data entry.
     \expandafter\hi@book@titlethe\expandafter{\hi@kv@name}%
     \hi@abbrev@name{Internet Engineering Task Force}{\def\hi@kv@publisher}%
     \protected@edef\reserved@a{%
-        https://www.rfc-editor.org/rfc\hi@kv@number.txt%
+        https://datatracker.ietf.org/doc/html/rfc\hi@kv@number
     }
+    \@expand{\KV@hi@url}\reserved@a i\@empty
     \protected@edef\hi@kv@number{RFC \hi@kv@number}%
-    \@expand{\hi@defkey@url{}}\reserved@a i\@empty
-    \hi@newcite@form{ic}{#1}{%
-        \hi@kv@number
-    }%
     \@expand{\hi@supra@form{#1}}\hi@kv@number i%
     \hi@book@pubparen
     \hi@ifset\hi@kv@year{}{\PackageError\hi@pkgname{Year is required for #1}}%
     \hi@newcite@form{fc}{#1}{%
-        \hi@ifset\hi@kv@author{%
-            \noexpand\@gobble{\hi@kv@authln}%
-        }{}% For sorting purposes
-        \noexpand\if@hi@inline
-            \expandafter\noexpand\csname ic@#1\endcsname
-        \noexpand\else
-            \hi@citeguts{%
-                \hi@ifset\hi@kv@author{%
-                    \hi@fn@bookauthor{\hi@kv@author}, % space
-                }{}%
-                \hi@fn@booktitle{\hi@kv@name}%
-                \hi@maybepage{\hi@page@space\hi@kv@name}%
-            }%
-            \hi@book@paren
-            \the\hi@param@parens
-        \noexpand\fi
+        \hi@citeguts{%
+            \hi@ifset\hi@kv@author{%
+                \hi@fn@bookauthor{\hi@kv@author@sortable}, % space
+            }{}%
+            \hi@fn@booktitle{\hi@kv@name}%
+            \hi@maybepage{\hi@page@space\hi@kv@name}%
+        }%
+        \hi@book@paren
+        \the\hi@param@parens
+    }%
+    \hi@newcite@form{ifc}{#1}{%
+        \hi@kv@number
     }%
 }
 This reference type automatically adds the serial number, inline citation

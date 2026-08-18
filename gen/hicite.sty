@@ -93,6 +93,7 @@
 \DeclareOption{noterefs}{\hi@xref@opt@noterefs}
 \DeclareOption{pagerefs}{\hi@xref@opt@pagerefs}
 \DeclareOption{noauthwarn}{\hi@namelist@noauthwarn}
+\DeclareOption{xrefsupra}{\hi@supra@opt@xref}
 \def\hi@hooks@review{}
 \def\hi@hooks@memo{}
 %%
@@ -895,11 +896,21 @@
     \@bsphack
     \@testcase
         \if@hi@note\fi{\hi@xref@writenote}%
+        \if@hi@sidenote\fi{\hi@xref@writesidenote}%
         \ifx\@captype\@undefined\fi{\hi@xref@writetext}%
         \default{\hi@xref@writefloat}%
     {#2}{#1}%
     \@esphack
 }
+\newif\if@hi@sidenote
+\@ifpackageloaded{sidenotes}{%
+    \NewCommandCopy{\hi@label@sidenotetext}{\sidenotetext}
+    \RenewDocumentCommand\sidenotetext{ o o +m }{%
+        \@hi@sidenotetrue
+        \hi@label@sidenotetext[#1][#2]{#3}%
+        \@hi@sidenotefalse
+    }%
+}{}
 \newcommand*\hiendlabel[1]{%
     \hilabel{end:#1}%
 }
@@ -999,6 +1010,9 @@
 \appto\hi@hooks@memo{\hi@xref@opt@pagerefs}
 \def\hi@xref@writenote#1#2{%
     \hi@xref@writetoaux{#1}{#2}{note~}{notes~}{\thefootnote}{}{}%
+}
+\def\hi@xref@writesidenote#1#2{%
+    \hi@xref@writetoaux{#1}{#2}{side note~}{side notes~}{\thesidenote}{}{}%
 }
 \def\hi@xref@writefloat#1#2{%
     \hi@xref@writetoaux{#1}{#2}%
@@ -3903,6 +3917,7 @@
 \def\hi@record@cite@#1#2{%
     \ifx#1\relax
         \xdef#1{\if@hi@note \the\c@footnote \else 0\fi}%
+        \hi@supra@make@xref{#2}%
     \else
         \if@hi@note
             \ifnum#1=\z@
@@ -4134,6 +4149,24 @@
         \fi
     \fi
 }%
+\let\hi@supra@make@xref\@gobble
+\def\hi@supra@opt@xref{%
+    \def\hi@supra@make@xref##1{%
+        \hilabel{hi@supra@xref@##1}%
+    }%
+    \def\hi@notepos##1{%
+        \space
+        \@ifundefined{r@hi@supra@xref@##1}{%
+            \textbf{??}%
+        }{%
+            \@expand{\@unbrace\hi@supra@use@xref}{%
+                \csname r@hi@supra@xref@##1\endcsname
+            }{ii}%
+        }%
+    }%
+}
+\def\hi@supra@use@xref#1#2#3#4{#2#3#4}
+
 %%
 %% \iffalse filename: format.dtx \fi
 %%
@@ -7369,33 +7402,26 @@
     \expandafter\hi@book@titlethe\expandafter{\hi@kv@name}%
     \hi@abbrev@name{Internet Engineering Task Force}{\def\hi@kv@publisher}%
     \protected@edef\reserved@a{%
-        https://www.rfc-editor.org/rfc\hi@kv@number.txt%
+        https://datatracker.ietf.org/doc/html/rfc\hi@kv@number
     }
+    \@expand{\KV@hi@url}\reserved@a i\@empty
     \protected@edef\hi@kv@number{RFC \hi@kv@number}%
-    \@expand{\hi@defkey@url{}}\reserved@a i\@empty
-    \hi@newcite@form{ic}{#1}{%
-        \hi@kv@number
-    }%
     \@expand{\hi@supra@form{#1}}\hi@kv@number i%
     \hi@book@pubparen
     \hi@ifset\hi@kv@year{}{\PackageError\hi@pkgname{Year is required for #1}}%
     \hi@newcite@form{fc}{#1}{%
-        \hi@ifset\hi@kv@author{%
-            \noexpand\@gobble{\hi@kv@authln}%
-        }{}% For sorting purposes
-        \noexpand\if@hi@inline
-            \expandafter\noexpand\csname ic@#1\endcsname
-        \noexpand\else
-            \hi@citeguts{%
-                \hi@ifset\hi@kv@author{%
-                    \hi@fn@bookauthor{\hi@kv@author}, % space
-                }{}%
-                \hi@fn@booktitle{\hi@kv@name}%
-                \hi@maybepage{\hi@page@space\hi@kv@name}%
-            }%
-            \hi@book@paren
-            \the\hi@param@parens
-        \noexpand\fi
+        \hi@citeguts{%
+            \hi@ifset\hi@kv@author{%
+                \hi@fn@bookauthor{\hi@kv@author@sortable}, % space
+            }{}%
+            \hi@fn@booktitle{\hi@kv@name}%
+            \hi@maybepage{\hi@page@space\hi@kv@name}%
+        }%
+        \hi@book@paren
+        \the\hi@param@parens
+    }%
+    \hi@newcite@form{ifc}{#1}{%
+        \hi@kv@number
     }%
 }
 %%
