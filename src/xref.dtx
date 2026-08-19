@@ -47,23 +47,6 @@ whether it is inside a footnote, table, figure, or body text, and adjusts the
 label accordingly. If the |sidenotes| package is loaded before \hia*, then side
 notes will be detected as well.
 
-\DescribeMacro\hiendlabel
-\cmd\hiendlabel\marg{label} closes a labeled range opened with |\hilabel|. Note
-that the type of text marked at the beginning and end must be the same (e.g.,
-|\hilabel| called in a footnote cannot be followed by |\hiendlabel| in body
-text). Currently, only contiguous ranges can be labeled, although a desirable
-additional feature for the package would be support for non-contiguous
-cross-reference ranges.
-
-\DescribeMacro\hitanlabel
-\DescribeMacro\hiendtanlabel
-\DescribeMacro\hiflabel
-\DescribeMacro\hinotelabel
-Particularly for law review articles, it is sometimes desirable to
-cross-reference ``notes $x$--$y$ and accompanying text.'' This is done with
-\cmd\hitanlabel\ and \cmd\hiendtanlabel. There are also provided commands
-|\hiflabel| and |\hinotelabel| for labeling floats and footnotes, respectively.
-
 %</doc>
 %<*package>
 %    \begin{macrocode}
@@ -92,9 +75,40 @@ cross-reference ``notes $x$--$y$ and accompanying text.'' This is done with
         \@hi@sidenotefalse
     }%
 }{}
+%    \end{macrocode}
+%</package>
+%<*doc>
+
+\DescribeMacro\hiendlabel
+\cmd\hiendlabel\marg{label} closes a labeled range opened with |\hilabel|. Note
+that the type of text marked at the beginning and end must be the same (e.g.,
+|\hilabel| called in a footnote cannot be followed by |\hiendlabel| in body
+text). Currently, only contiguous ranges can be labeled, although a desirable
+additional feature for the package would be support for non-contiguous
+cross-reference ranges.
+
+%</doc>
+%<*package>
+%    \begin{macrocode}
 \newcommand*\hiendlabel[1]{%
     \hilabel{end:#1}%
 }
+%    \end{macrocode}
+%</package>
+%<*doc>
+
+\DescribeMacro\hitanlabel
+\DescribeMacro\hiendtanlabel
+\DescribeMacro\hiflabel
+\DescribeMacro\hinotelabel
+Particularly for law review articles, it is sometimes desirable to
+cross-reference ``notes $x$--$y$ and accompanying text.'' This is done with
+\cmd\hitanlabel\ and \cmd\hiendtanlabel. There are also provided commands
+|\hiflabel| and |\hinotelabel| for labeling floats and footnotes, respectively.
+
+%</doc>
+%<*package>
+%    \begin{macrocode}
 \newcommand*\hitanlabel[2][]{%
     \@bsphack
     \hi@xref@writetan{#2}{#1}%
@@ -121,6 +135,7 @@ cross-reference ``notes $x$--$y$ and accompanying text.'' This is done with
 
 \DescribeMacro\hisectlabel
 \cmd\hisectlabel\marg{label} labels the current section.
+
 \DescribeMacro\hiendsectlabel
 \cmd\hiendsectlabel\marg{label} labels an end of a section range.
 
