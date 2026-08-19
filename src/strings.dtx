@@ -896,6 +896,54 @@ of a string. The callback receives only two arguments.
 %
 %
 %</package>
+%
+%
+% \section{Advanced List Processing}
+%
+% This extends the |etoolbox| macro for internal lists, enabling insertion of
+% separators depending on the length of the list.
+%
+% \DescribeMacro\sepforlistloop\marg{handler} \marg{2sep}\marg{3mid}\marg{3last}
+% \marg{list}
+%
+% Performs \meta{handler} for each element of \meta{list}. If there are two
+% elements in the list, then performs \meta{2sep} before the second element. If
+% there are three or more elements, then performs \meta{3mid} between all
+% elements except the last, and performs \meta{3last} before the last element.
+%
+%    \begin{macrocode}
+\edef\str@reset@catcodes{\catcode\number`\|=\the\catcode`\|\relax}
+\catcode`\|=3
+\def\sepforlistloop#1#2#3#4#5{%
+    \ifdef#5{%
+        \@test\ifx#5\@empty\fi{}{%
+            \expandafter\str@forlistloop#5\str@stop{#1}{#2}{#3}{#4}%
+        }%
+    }{}%
+}
+\long\def\str@forlistloop#1|#2\str@stop#3#4#5#6{%
+    #3{#1}%
+    \ifstrempty{#2}{}{%
+        \str@forlistloop@ii#2\str@stop{#3}{#4}{#5}{#6}%
+    }%
+}
+\long\def\str@forlistloop@ii#1|#2\str@stop#3#4#5#6{%
+    \ifstrempty{#2}{%
+        #4#3{#1}%
+    }{%
+        #5#3{#1}%
+        \str@forlistloop@iii#2\str@stop{#3}{#4}{#5}{#6}%
+    }%
+}
+\long\def\str@forlistloop@iii#1|#2\str@stop#3#4#5#6{%
+    \ifstrempty{#2}{%
+        #6#3{#1}%
+        #5#3{#1}%
+        \str@forlistloop@iii#2\str@stop{#3}{#4}{#5}{#6}%
+    }%
+}
+\str@reset@catcodes
+%    \end{macrocode}
 %<*test>
 
 \section{strings.dtx}
