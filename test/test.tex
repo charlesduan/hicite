@@ -4180,37 +4180,6 @@ reference}
 %%
 %% \iffalse filename: strings.dtx \fi
 %%
-\edef\str@reset@catcodes{\catcode\number`\|=\the\catcode`\|\relax}
-\catcode`\|=3
-\def\sepforlistloop#1#2#3#4#5{%
-    \ifdef#5{%
-        \@test\ifx#5\@empty\fi{}{%
-            \expandafter\str@forlistloop#5\str@stop{#1}{#2}{#3}{#4}%
-        }%
-    }{}%
-}
-\long\def\str@forlistloop#1|#2\str@stop#3#4#5#6{%
-    #3{#1}%
-    \ifstrempty{#2}{}{%
-        \str@forlistloop@ii#2\str@stop{#3}{#4}{#5}{#6}%
-    }%
-}
-\long\def\str@forlistloop@ii#1|#2\str@stop#3#4#5#6{%
-    \ifstrempty{#2}{%
-        #4#3{#1}%
-    }{%
-        #5#3{#1}%
-        \str@forlistloop@iii#2\str@stop{#3}{#4}{#5}{#6}%
-    }%
-}
-\long\def\str@forlistloop@iii#1|#2\str@stop#3#4#5#6{%
-    \ifstrempty{#2}{%
-        #6#3{#1}%
-        #5#3{#1}%
-        \str@forlistloop@iii#2\str@stop{#3}{#4}{#5}{#6}%
-    }%
-}
-\str@reset@catcodes
 
 \section{strings.dtx}
 
@@ -4241,6 +4210,35 @@ reference}
             {yes}{no}%
     }
     \AssertMacro\test{no}
+\endgroup
+
+\begingroup
+    \def\dotest#1{%
+
+        \AssertBox{#1}{\sepforlistloop{!}{ and }{, }{, and }\testlist}
+
+        \AssertBox{#1}{\sepforlistcsloop{!}{ and }{, }{, and }{testlist}}
+
+        \def\do##1{!##1}
+        \AssertBox{#1}{\sepdolistloop{ and }{, }{, and }\testlist}
+
+        \AssertBox{#1}{\sepdolistcsloop{ and }{, }{, and }{testlist}}
+    }%
+    \let\testlist\@empty
+    \dotest{}
+
+    \listadd\testlist{a}
+    \dotest{!{a}}
+
+    \listadd\testlist{b}
+    \dotest{!{a} and !{b}}
+
+    \listadd\testlist{c}
+    \dotest{!{a}, !{b}, and !{c}}
+
+    \listadd\testlist{d}
+    \dotest{!{a}, !{b}, !{c}, and !{d}}
+
 \endgroup
 
 %%

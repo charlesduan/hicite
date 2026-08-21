@@ -7657,37 +7657,40 @@ pre-group text, the group (without braces), and the post-group text.
 The |\find@group@end| macro similarly finds a braced group, but only at the end
 of a string. The callback receives only two arguments.
 
-\edef\str@reset@catcodes{\catcode\number`\|=\the\catcode`\|\relax}
-\catcode`\|=3
-\def\sepforlistloop#1#2#3#4#5{%
-    \ifdef#5{%
-        \@test\ifx#5\@empty\fi{}{%
-            \expandafter\str@forlistloop#5\str@stop{#1}{#2}{#3}{#4}%
-        }%
-    }{}%
-}
-\long\def\str@forlistloop#1|#2\str@stop#3#4#5#6{%
-    #3{#1}%
-    \ifstrempty{#2}{}{%
-        \str@forlistloop@ii#2\str@stop{#3}{#4}{#5}{#6}%
-    }%
-}
-\long\def\str@forlistloop@ii#1|#2\str@stop#3#4#5#6{%
-    \ifstrempty{#2}{%
-        #4#3{#1}%
-    }{%
-        #5#3{#1}%
-        \str@forlistloop@iii#2\str@stop{#3}{#4}{#5}{#6}%
-    }%
-}
-\long\def\str@forlistloop@iii#1|#2\str@stop#3#4#5#6{%
-    \ifstrempty{#2}{%
-        #6#3{#1}%
-        #5#3{#1}%
-        \str@forlistloop@iii#2\str@stop{#3}{#4}{#5}{#6}%
-    }%
-}
-\str@reset@catcodes
+
+\section{Advanced List Processing}
+
+This extends the |etoolbox| macro for internal lists, enabling insertion of
+separators depending on the length of the list.
+
+\DescribeMacro\sepforlistloop\marg{handler} \marg{2sep}\marg{3mid}\marg{3last}
+\marg{list}
+
+Performs \meta{handler} for each element of \meta{list}. If there are two
+elements in the list, then performs \meta{2sep} before the second element. If
+there are three or more elements, then performs \meta{3mid} between all
+elements except the last, and performs \meta{3last} before the last element.
+
+
+The remaining macros are analogous to those in |etoolbox|, but in each case, the
+\meta{2sep}, \meta{3mid}, and \meta{3last} arguments come immediately before the
+list name.
+
+\DescribeMacro\sepdolistloop \marg{2sep}\marg{3mid}\marg{3last} \marg{list}
+
+Executes the macro |\do| on each element of the list and adds separators.
+
+\DescribeMacro\sepforlistcsloop \meta{handler}
+\marg{2sep}\marg{3mid}\marg{3last} \marg{listcs}
+
+Executes the \meta{handler} on each element of the list in macro
+|\|\meta{listcs} and adds separators.
+
+\DescribeMacro\sepdolistcsloop \marg{2sep}\marg{3mid}\marg{3last} \marg{listcs}
+
+Executes the macro |\do| on each element of the list in macro |\|\meta{listcs}
+and adds separators.
+
 %%
 %% \iffalse filename: abbrev.dtx \fi
 %%
