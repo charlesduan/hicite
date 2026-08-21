@@ -2098,7 +2098,7 @@
     }%
 }
 \def\hi@signals@drawfirst#1#2{%
-    \ifstrempty{#1}{#2{}{}}{#2{}{\hi@fn@sig{#1}\ }}%
+    \ifstrempty{#1}{#2{}{}}{#2{}{\hi@signals@withfont{#1} }}%
 }
 \def\hi@signals@drawmid#1#2#3{%
     \@test\ifx\hi@signals@last\hi@signals@this\fi{%
@@ -2118,7 +2118,17 @@
     }{#1}{#2}{#3}% These args get tacked on no matter what
 }
 \make@find@start{but }
-\def\hi@signals@fmt#1{\hi@signals@punct{\hi@fn@sig{#1}\ }}
+\def\hi@signals@fmt#1{%
+    \hi@signals@punct{%
+        \hi@signals@withfont{#1}%
+        \space
+    }%
+}
+\def\hi@signals@withfont#1{%
+    \find@end{,}{#1}{\hi@signals@withfont@}{\hi@fn@sig{#1}}%
+}
+\def\hi@signals@withfont@#1{\hi@fn@sig{#1},}%
+\make@find@end{,}
 \def\hi@signals@punct#1#2#3#4{%
     \@test\ifx#2#3\fi{%
         %
