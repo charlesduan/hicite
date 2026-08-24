@@ -1815,18 +1815,18 @@ without producing any citation text.
 
 The following are synonyms to the citation commands thus described.
 
-\begin{demo}
-\begin{tabular}{ll}
-\textbf{Command} & \textbf{Synonym} \\
-\hline
-\cmd\sentence & \DescribeMacro\Ct \cmd\Ct \\
-\cmd\clause & \DescribeMacro\ct \cmd\ct \\
-\cmd\Inline & \DescribeMacro\Ci\cmd\Ci \\
-\cmd\inline & \DescribeMacro\ci\cmd\ci \\
-\cmd\note & \DescribeMacro\cn\cmd\cn \\
-\cmd\addtotoa & \DescribeMacro\cx\cmd\cx \\
-\end{tabular}
-\end{demo}
+\DescribeMacro\Ct Synonym for |\sentence|.
+
+\DescribeMacro\ct Synonym for |\clause|.
+
+\DescribeMacro\Ci Synonym for |\Inline|.
+
+\DescribeMacro\ci Synonym for |\inline|.
+
+\DescribeMacro\cn Synonym for |\note|.
+
+\DescribeMacro\cx Synonym for |\addtotoa|.
+
 %%
 %% \iffalse filename: parse.dtx \fi
 %%
@@ -2177,7 +2177,7 @@ automatically parenthesized. The following are examples:
 \end{demo}
 
 
-\section{Pin Cite Subdivision Joining}
+\subsection{Pin Cite Subdivision Joining}
 
 \label{s:pages-join}
 
@@ -7663,9 +7663,8 @@ of a string. The callback receives only two arguments.
 This extends the |etoolbox| macro for internal lists, enabling insertion of
 separators depending on the length of the list.
 
-\DescribeMacro\sepforlistloop\marg{handler} \marg{2sep}\marg{3mid}\marg{3last}
-\marg{list}
-
+\MacroSpec\sepforlistloop\marg{handler} \marg{2sep} \marg{3mid} \marg{3last}
+\marg{list} \\
 Performs \meta{handler} for each element of \meta{list}. If there are two
 elements in the list, then performs \meta{2sep} before the second element. If
 there are three or more elements, then performs \meta{3mid} between all
@@ -7676,18 +7675,15 @@ The remaining macros are analogous to those in |etoolbox|, but in each case, the
 \meta{2sep}, \meta{3mid}, and \meta{3last} arguments come immediately before the
 list name.
 
-\DescribeMacro\sepdolistloop \marg{2sep}\marg{3mid}\marg{3last} \marg{list}
-
+\MacroSpec\sepdolistloop \marg{2sep}\marg{3mid}\marg{3last} \marg{list} \\
 Executes the macro |\do| on each element of the list and adds separators.
 
-\DescribeMacro\sepforlistcsloop \meta{handler}
-\marg{2sep}\marg{3mid}\marg{3last} \marg{listcs}
-
+\MacroSpec\sepforlistcsloop \meta{handler}
+\marg{2sep}\marg{3mid}\marg{3last} \marg{listcs} \\
 Executes the \meta{handler} on each element of the list in macro
 |\|\meta{listcs} and adds separators.
 
-\DescribeMacro\sepdolistcsloop \marg{2sep}\marg{3mid}\marg{3last} \marg{listcs}
-
+\MacroSpec\sepdolistcsloop \marg{2sep}\marg{3mid}\marg{3last} \marg{listcs} \\
 Executes the macro |\do| on each element of the list in macro |\|\meta{listcs}
 and adds separators.
 
@@ -7718,12 +7714,10 @@ of the form:
 The list is organized with the longest abbreviations first, ensuring that longer
 abbreviations take precedence over shorter ones.
 
-\DescribeMacro\abb@new
-|\abb@new|\marg{class} creates a new abbreviation class.
+\MacroSpec\abb@new \marg{class} creates a new abbreviation class.
 
 
-\DescribeMacro\abb@add
-|\abb@add|\marg{class}\marg{word}\marg{abbrev}
+\MacroSpec\abb@add \marg{class}\marg{word}\marg{abbrev} \\
 Adds an item to the abbreviation class. \meta{class} is the class, \meta{word}
 the unabbreviated form, and \marg{abbrev} the abbreviated form.
 
@@ -7743,8 +7737,8 @@ Building and Loan Office $\rightarrow$ Bldg. and Loan Office
 
 \subsection{Algorithm for Abbreviation}
 
-\DescribeMacro\abb@abbrev
-|\abb@abbrev|\marg{class}\marg{text}\marg{callback} is the entrypoint for
+\MacroSpec\abb@abbrev
+\marg{class}\marg{text}\marg{callback} is the entrypoint for
 abbreviating a text. \meta{class} is the class, \meta{text} is the
 text to abbreviate, and \meta{callback} is a callback function for the result.
 
@@ -7782,8 +7776,8 @@ text will not include the proposed abbreviation.
 
 \subsection{Removal of Spaces Between Dotted Initials}
 
-\DescribeMacro\abb@initialdots
-|\abb@initialdots|\marg{text}\marg{dot}\marg{callback} processes a text to
+\MacroSpec\abb@initialdots
+\marg{text}\marg{dot}\marg{callback} processes a text to
 remove dots between single-letter initials. Given a text, it will convert
 sequences such as ``A. A. Milne'' to ``A.A. Milne'' and ``F. 4th'' to ``F.4th''.
 \meta{text} is the text to process and \meta{callback} is the callback to run on
@@ -7924,12 +7918,37 @@ first, producing warnings about unknown references for every citation. Then
 |biber| may be called and the document recompiled.
 
 
-\paragraph{Saving Biblatex Entries in \hia* Format}
+\subsection{Saving Biblatex Entries in \hia* Format}
 
 \DescribeMacro\hiBibConvert
-The |\hiBibConvert|\marg{file} macro constructs a \hia* format reference file
-based on any Biblatex entries read. This command should be called before any
-entries are read via |\addbibresource|.
+It may be desirable to convert an existing Biblatex file into reference
+definition commands compatible with \hia*, so that they can be further edited
+and refined for example. The process for doing this is unfortunately somewhat
+convoluted, and uses the command |\hiBibConvert| from this package.
+
+To use it, construct a document like this:
+\begin{demo}
+|\usepackage{hibib}|\\
+|\hiBibConvert|\marg{output-file}\\
+|\addbibresource|\marg{bib-file}\ldots\\
+|\begin{document}|\\
+|\sentence{reference-1}.|\\
+|\sentence{reference-2}.|\\
+|\sentence{reference-3}.|\\
+\ldots\\
+|\end{document}|\\
+\end{demo}
+It is necessary that the document cite every reference to be extracted from the
+|.bib| file. This is because |hibib| depends on the output of \emph{biber},
+which processes only references that were used in the document.
+
+Once this document is constructed, compile the document, then run \emph{biber}
+on it, and then compile it again. The \meta{output-file} should now contain
+\hia*-style reference definitions corresponding to the references in the |.bib|
+file.
+
+Note that this conversion process is incomplete and likely inaccurate, so you
+will probably have to fix many of the reference definitions manually.
 
 
 \subsection{Citation Command Compatibility}

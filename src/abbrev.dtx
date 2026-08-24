@@ -35,8 +35,7 @@ of the form:
 The list is organized with the longest abbreviations first, ensuring that longer
 abbreviations take precedence over shorter ones.
 
-\DescribeMacro\abb@new
-|\abb@new|\marg{class} creates a new abbreviation class.
+\MacroSpec\abb@new \marg{class} creates a new abbreviation class.
 
 %</doc>
 %<*package>
@@ -47,8 +46,7 @@ abbreviations take precedence over shorter ones.
 %</package>
 %<*doc>
 
-\DescribeMacro\abb@add
-|\abb@add|\marg{class}\marg{word}\marg{abbrev}
+\MacroSpec\abb@add \marg{class}\marg{word}\marg{abbrev} \\
 Adds an item to the abbreviation class. \meta{class} is the class, \meta{word}
 the unabbreviated form, and \marg{abbrev} the abbreviated form.
 
@@ -183,8 +181,8 @@ Building and Loan Office $\rightarrow$ Bldg. and Loan Office
 \subsection{Algorithm for Abbreviation}
 
 
-\DescribeMacro\abb@abbrev
-|\abb@abbrev|\marg{class}\marg{text}\marg{callback} is the entrypoint for
+\MacroSpec\abb@abbrev
+\marg{class}\marg{text}\marg{callback} is the entrypoint for
 abbreviating a text. \meta{class} is the class, \meta{text} is the
 text to abbreviate, and \meta{callback} is a callback function for the result.
 
@@ -443,8 +441,8 @@ text will not include the proposed abbreviation.
 
 \subsection{Removal of Spaces Between Dotted Initials}
 
-\DescribeMacro\abb@initialdots
-|\abb@initialdots|\marg{text}\marg{dot}\marg{callback} processes a text to
+\MacroSpec\abb@initialdots
+\marg{text}\marg{dot}\marg{callback} processes a text to
 remove dots between single-letter initials. Given a text, it will convert
 sequences such as ``A. A. Milne'' to ``A.A. Milne'' and ``F. 4th'' to ``F.4th''.
 \meta{text} is the text to process and \meta{callback} is the callback to run on

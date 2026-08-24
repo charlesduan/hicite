@@ -903,9 +903,8 @@ of a string. The callback receives only two arguments.
 This extends the |etoolbox| macro for internal lists, enabling insertion of
 separators depending on the length of the list.
 
-\DescribeMacro\sepforlistloop\marg{handler} \marg{2sep}\marg{3mid}\marg{3last}
-\marg{list}
-
+\MacroSpec\sepforlistloop\marg{handler} \marg{2sep} \marg{3mid} \marg{3last}
+\marg{list} \\
 Performs \meta{handler} for each element of \meta{list}. If there are two
 elements in the list, then performs \meta{2sep} before the second element. If
 there are three or more elements, then performs \meta{3mid} between all
@@ -931,18 +930,15 @@ The remaining macros are analogous to those in |etoolbox|, but in each case, the
 \meta{2sep}, \meta{3mid}, and \meta{3last} arguments come immediately before the
 list name.
 
-\DescribeMacro\sepdolistloop \marg{2sep}\marg{3mid}\marg{3last} \marg{list}
-
+\MacroSpec\sepdolistloop \marg{2sep}\marg{3mid}\marg{3last} \marg{list} \\
 Executes the macro |\do| on each element of the list and adds separators.
 
-\DescribeMacro\sepforlistcsloop \meta{handler}
-\marg{2sep}\marg{3mid}\marg{3last} \marg{listcs}
-
+\MacroSpec\sepforlistcsloop \meta{handler}
+\marg{2sep}\marg{3mid}\marg{3last} \marg{listcs} \\
 Executes the \meta{handler} on each element of the list in macro
 |\|\meta{listcs} and adds separators.
 
-\DescribeMacro\sepdolistcsloop \marg{2sep}\marg{3mid}\marg{3last} \marg{listcs}
-
+\MacroSpec\sepdolistcsloop \marg{2sep}\marg{3mid}\marg{3last} \marg{listcs} \\
 Executes the macro |\do| on each element of the list in macro |\|\meta{listcs}
 and adds separators.
 

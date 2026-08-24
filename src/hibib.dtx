@@ -609,12 +609,38 @@ first, producing warnings about unknown references for every citation. Then
 %</package>
 %<*doc>
 
-\paragraph{Saving Biblatex Entries in \hia* Format}
+\subsection{Saving Biblatex Entries in \hia* Format}
 
 \DescribeMacro\hiBibConvert
-The |\hiBibConvert|\marg{file} macro constructs a \hia* format reference file
-based on any Biblatex entries read. This command should be called before any
-entries are read via |\addbibresource|.
+It may be desirable to convert an existing Biblatex file into reference
+definition commands compatible with \hia*, so that they can be further edited
+and refined for example. The process for doing this is unfortunately somewhat
+convoluted, and uses the command |\hiBibConvert| from this package.
+
+To use it, construct a document like this:
+\begin{demo}
+|\usepackage{hibib}|\\
+|\hiBibConvert|\marg{output-file}\\
+|\addbibresource|\marg{bib-file}\ldots\\
+|\begin{document}|\\
+|\sentence{reference-1}.|\\
+|\sentence{reference-2}.|\\
+|\sentence{reference-3}.|\\
+\ldots\\
+|\end{document}|\\
+\end{demo}
+It is necessary that the document cite every reference to be extracted from the
+|.bib| file. This is because |hibib| depends on the output of \emph{biber},
+which processes only references that were used in the document.
+
+Once this document is constructed, compile the document, then run \emph{biber}
+on it, and then compile it again. The \meta{output-file} should now contain
+\hia*-style reference definitions corresponding to the references in the |.bib|
+file.
+
+Note that this conversion process is incomplete and likely inaccurate, so you
+will probably have to fix many of the reference definitions manually.
+
 
 %</doc>
 %<*package>

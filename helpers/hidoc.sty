@@ -18,11 +18,28 @@
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 \PageIndex
-\NewDocElement[printtype=,idxtype=,idxgroup=]{File}{fileenv}
-\NewDocElement[noprint=true,idxgroup=,noprint]{Param}{parameter}
-\NewDocElement[noprint=true,idxgroup=,noprint]{Opt}{option}
-\NewDocElement[noprint=true,idxgroup=,noprint]{RefType}{reference type}
-\NewDocElement[noprint=true,idxgroup=,noprint]{Abb}{abbreviation scheme}
+\NewDocElement{File}{fileenv}
+\NewDocElement{Param}{parameter}
+\def\PrintDescribeParam#1{}
+\NewDocElement{Opt}{option}
+\def\PrintDescribeOpt#1{{\sffamily\bfseries#1}}
+\NewDocElement{RefType}{reference type}
+\let\PrintDescribeRefType\@gobble
+\NewDocElement{Abb}{abbreviation scheme}
+\let\PrintDescribeAbb\@gobble
+%
+\def\PrintDescribeMacro#1{%
+    {\ttfamily\color{blue}\string#1}%
+}
+%
+% This macro enables a doctools-like form in which the marginal macro name is
+% used as part of a specification for the macro's usage.
+%
+\def\MacroSpec#1{%
+    \ifdim\lastskip>\z@\else \vskip 6pt \fi
+    \noindent\DescribeMacro#1\ignorespaces
+}
+%
 \def\main#1{#1}
 \def\usage#1{\textbf{\underline{#1}}}
 \def\IndexPrologue{Underlined page numbers describe where a command, parameter,
@@ -200,7 +217,8 @@ identify where the item is used.}
     \parameterlist#1\@stop
 }
 \def\ExplainOption#1{%
-    \paragraph*{\DescribeOpt{#1}\textsf{#1}}\label{opt:#1}
+    \ifdim\lastskip>\z@\else \vskip 6pt \fi
+    \noindent \DescribeOpt{#1}\label{opt:#1}\ignorespaces
 }
 %
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
