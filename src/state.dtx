@@ -192,10 +192,12 @@ a reference at the point that the macro is called.
 \def\hi@record@cite@#1#2{%
 %    \end{macrocode}
 % If this is the first citation, record the footnote number or zero if
-% in text.
+% in text. Also, make a cross-reference for the reference if supra
+% cross-references are on.
 %    \begin{macrocode}
     \ifx#1\relax
         \xdef#1{\if@hi@note \the\c@footnote \else 0\fi}%
+        \hi@supra@make@xref{#2}%
     \else
         \if@hi@note
 %    \end{macrocode}

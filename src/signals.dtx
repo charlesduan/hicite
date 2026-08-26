@@ -214,7 +214,7 @@ displayed on the first use.
 % the callback.
 %    \begin{macrocode}
 \def\hi@signals@drawfirst#1#2{%
-    \ifstrempty{#1}{#2{}{}}{#2{}{\hi@fn@sig{#1}\ }}%
+    \ifstrempty{#1}{#2{}{}}{#2{}{\hi@signals@withfont{#1} }}%
 }
 %    \end{macrocode}
 %
@@ -246,7 +246,23 @@ displayed on the first use.
 % the signal; the three arguments on the stack that remain are passed directly
 % to |\hi@signals@punct|.
 %    \begin{macrocode}
-\def\hi@signals@fmt#1{\hi@signals@punct{\hi@fn@sig{#1}\ }}
+\def\hi@signals@fmt#1{%
+    \hi@signals@punct{%
+        \hi@signals@withfont{#1}%
+        \space
+    }%
+}
+%    \end{macrocode}
+%
+% Set the font |\hi@fn@sig| for a signal. If the signal ends with a comma, then
+% the comma is placed outside the font macro.
+%
+%    \begin{macrocode}
+\def\hi@signals@withfont#1{%
+    \find@end{,}{#1}{\hi@signals@withfont@}{\hi@fn@sig{#1}}%
+}
+\def\hi@signals@withfont@#1{\hi@fn@sig{#1},}%
+\make@find@end{,}
 %    \end{macrocode}
 %
 % Computes the punctuation between signals and runs the callback.
@@ -274,3 +290,10 @@ displayed on the first use.
 %    \end{macrocode}
 %
 %</package>
+%<*test>
+\section{signals.dtx}
+
+\AssertBox{\hi@signals@withfont{see also}}{\emph{see also}}
+\AssertBox{\hi@signals@withfont{see, e.g.,}}{\emph{see, e.g.},}
+
+%</test>

@@ -4,12 +4,12 @@
     \subsection[\textsf{#1}]{\DescribeParam{#1}\textsf{#1}}
     \label{param:#1}%
     #2.%
-    \def\@@@foobar##1%
+    \@gobble
 }
 \def\hi@defparam@noval#1#2{\hi@defparam{#1}{\emph{[Value optional]} #2}}
 \def\hi@param@alias#1#2{%
     \subsection[\textsf{\emph{#1}}]{\DescribeParam{#1}\textsf{\emph{#1}}}
-    \label{param:#1}
+    \label{param:#1}%
     Alias for \param{#2}.
 }
 \long\def\hi@newcite#1#2#3#4{%

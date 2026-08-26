@@ -39,33 +39,26 @@ data entry.
     \expandafter\hi@book@titlethe\expandafter{\hi@kv@name}%
     \hi@abbrev@name{Internet Engineering Task Force}{\def\hi@kv@publisher}%
     \protected@edef\reserved@a{%
-        https://www.rfc-editor.org/rfc\hi@kv@number.txt%
+        https://datatracker.ietf.org/doc/html/rfc\hi@kv@number
     }
+    \@expand{\KV@hi@url}\reserved@a i\@empty
     \protected@edef\hi@kv@number{RFC \hi@kv@number}%
-    \@expand{\hi@defkey@url{}}\reserved@a i\@empty
-    \hi@newcite@form{ic}{#1}{%
-        \hi@kv@number
-    }%
     \@expand{\hi@supra@form{#1}}\hi@kv@number i%
     \hi@book@pubparen
     \hi@ifset\hi@kv@year{}{\PackageError\hi@pkgname{Year is required for #1}}%
     \hi@newcite@form{fc}{#1}{%
-        \hi@ifset\hi@kv@author{%
-            \noexpand\@gobble{\hi@kv@authln}%
-        }{}% For sorting purposes
-        \noexpand\if@hi@inline
-            \expandafter\noexpand\csname ic@#1\endcsname
-        \noexpand\else
-            \hi@citeguts{%
-                \hi@ifset\hi@kv@author{%
-                    \hi@fn@bookauthor{\hi@kv@author}, % space
-                }{}%
-                \hi@fn@booktitle{\hi@kv@name}%
-                \hi@maybepage{\hi@page@space\hi@kv@name}%
-            }%
-            \hi@book@paren
-            \the\hi@param@parens
-        \noexpand\fi
+        \hi@citeguts{%
+            \hi@ifset\hi@kv@author{%
+                \hi@fn@bookauthor{\hi@kv@author@sortable}, % space
+            }{}%
+            \hi@fn@booktitle{\hi@kv@name}%
+            \hi@maybepage{\hi@page@space\hi@kv@name}%
+        }%
+        \hi@book@paren
+        \the\hi@param@parens
+    }%
+    \hi@newcite@form{ifc}{#1}{%
+        \hi@kv@number
     }%
 }
 %<*doc>
@@ -77,3 +70,21 @@ format, and URL based just on the RFC number.
     {number}{The RFC number.}
 }
 \bookparenparameters
+%</doc>
+%<*test>
+
+\section{specrefs.dtx}
+
+
+\defrfc{rfc1945}{
+author=T. Berners-Lee et al.,
+number=1945,
+title=Hypertext Transfer Protocol---HTTP/1.0,
+date=may 1996,
+}
+
+\AssertBox{\note{rfc1945 at 10}}{\InFootnote{\textsc{T. Berners-Lee et al.},
+\textsc{Hypertext Transfer Protocol---HTTP/1.0}, at 10 (Internet Eng'g Task Force,
+RFC 1945, May 1996), \url{https://datatracker.ietf.org/doc/html/rfc1945}.}}
+
+%</test>

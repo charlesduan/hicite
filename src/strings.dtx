@@ -896,6 +896,111 @@ of a string. The callback receives only two arguments.
 %
 %
 %</package>
+%<*doc>
+
+\section{Advanced List Processing}
+
+This extends the |etoolbox| macro for internal lists, enabling insertion of
+separators depending on the length of the list.
+
+\MacroSpec\sepforlistloop\marg{handler} \marg{2sep} \marg{3mid} \marg{3last}
+\marg{list} \\
+Performs \meta{handler} for each element of \meta{list}. If there are two
+elements in the list, then performs \meta{2sep} before the second element. If
+there are three or more elements, then performs \meta{3mid} between all
+elements except the last, and performs \meta{3last} before the last element.
+
+%</doc>
+%<*package>
+%
+%    \begin{macrocode}
+\def\sepforlistloop#1#2#3#4#5{%
+    \@test\ifx#5\relax\fi{}{%
+        \@test\ifx#5\@empty\fi{}{%
+            \expandafter\str@forlistloop@i#5\str@stop{#1}{#2}{#3}{#4}%
+        }%
+    }%
+}
+%    \end{macrocode}
+%
+%</package>
+%<*doc>
+
+The remaining macros are analogous to those in |etoolbox|, but in each case, the
+\meta{2sep}, \meta{3mid}, and \meta{3last} arguments come immediately before the
+list name.
+
+\MacroSpec\sepdolistloop \marg{2sep}\marg{3mid}\marg{3last} \marg{list} \\
+Executes the macro |\do| on each element of the list and adds separators.
+
+\MacroSpec\sepforlistcsloop \meta{handler}
+\marg{2sep}\marg{3mid}\marg{3last} \marg{listcs} \\
+Executes the \meta{handler} on each element of the list in macro
+|\|\meta{listcs} and adds separators.
+
+\MacroSpec\sepdolistcsloop \marg{2sep}\marg{3mid}\marg{3last} \marg{listcs} \\
+Executes the macro |\do| on each element of the list in macro |\|\meta{listcs}
+and adds separators.
+
+%</doc>
+%<*package>
+%
+%    \begin{macrocode}
+\def\sepdolistloop{\sepforlistloop\do}
+\def\sepforlistcsloop#1#2#3#4#5{%
+    \@expand{\sepforlistloop{#1}{#2}{#3}{#4}}{\csname #5\endcsname}{i}%
+}
+\def\sepdolistcsloop#1#2#3#4{%
+    \@expand{\sepdolistloop{#1}{#2}{#3}}{\csname #4\endcsname}{i}%
+}
+%    \end{macrocode}
+%
+% |etoolbox| uses a specially-catcoded pipe symbol as its list delimiter. The
+% |\str@reset@catcodes| macro retains the original catcode for the pipe symbol,
+% so it is executed after all the list processing macros to restore the catcode.
+%
+%    \begin{macrocode}
+\edef\str@reset@catcodes{\catcode\number`\|=\the\catcode`\|\relax}
+\catcode`\|=3
+%    \end{macrocode}
+%
+%
+% Each of these macros separate off one list element and parse arguments as
+% follows: \#1 the next list element, \#2 the remainder of the list, \#3 the
+% per-item handler, \#4 the 2-element separator, \#5 the 3-element non-last
+% separator, \#6 the 3-element last separator. The macro ending in |@i| acts on
+% the first element of the list, |@ii| on the second element, and |@iii| on the
+% third and further elements. Thus, a list with only one element stops at |@i|,
+% a list with only two elements stops at |@ii|, and a list with three or more
+% elements will have \#2 empty on its last element.
+%
+%    \begin{macrocode}
+\long\def\str@forlistloop@i#1|#2\str@stop#3#4#5#6{%
+    #3{#1}%
+    \ifstrempty{#2}{}{%
+        \str@forlistloop@ii#2\str@stop{#3}{#4}{#5}{#6}%
+    }%
+}
+\long\def\str@forlistloop@ii#1|#2\str@stop#3#4#5#6{%
+    \ifstrempty{#2}{%
+        #4#3{#1}%
+    }{%
+        #5#3{#1}%
+        \str@forlistloop@iii#2\str@stop{#3}{#4}{#5}{#6}%
+    }%
+}
+\long\def\str@forlistloop@iii#1|#2\str@stop#3#4#5#6{%
+    \ifstrempty{#2}{%
+        #6#3{#1}%
+    }{%
+        #5#3{#1}%
+        \str@forlistloop@iii#2\str@stop{#3}{#4}{#5}{#6}%
+    }%
+}
+\str@reset@catcodes
+%    \end{macrocode}
+%
+%</package>
 %<*test>
 
 \section{strings.dtx}
@@ -928,6 +1033,35 @@ of a string. The callback receives only two arguments.
             {yes}{no}%
     }
     \AssertMacro\test{no}
+\endgroup
+
+\begingroup
+    \def\dotest#1{%
+
+        \AssertBox{#1}{\sepforlistloop{!}{ and }{, }{, and }\testlist}
+
+        \AssertBox{#1}{\sepforlistcsloop{!}{ and }{, }{, and }{testlist}}
+
+        \def\do##1{!##1}
+        \AssertBox{#1}{\sepdolistloop{ and }{, }{, and }\testlist}
+
+        \AssertBox{#1}{\sepdolistcsloop{ and }{, }{, and }{testlist}}
+    }%
+    \let\testlist\@empty
+    \dotest{}
+
+    \listadd\testlist{a}
+    \dotest{!{a}}
+
+    \listadd\testlist{b}
+    \dotest{!{a} and !{b}}
+
+    \listadd\testlist{c}
+    \dotest{!{a}, !{b}, and !{c}}
+
+    \listadd\testlist{d}
+    \dotest{!{a}, !{b}, !{c}, and !{d}}
+
 \endgroup
 
 %</test>

@@ -649,6 +649,11 @@ themselves work as expected.
 %%
 %% \iffalse filename: signals.dtx \fi
 %%
+\section{signals.dtx}
+
+\AssertBox{\hi@signals@withfont{see also}}{\emph{see also}}
+\AssertBox{\hi@signals@withfont{see, e.g.,}}{\emph{see, e.g.},}
+
 %%
 %% \iffalse filename: pages.dtx \fi
 %%
@@ -1205,6 +1210,7 @@ Rev.}
 %%
 %% \iffalse filename: supra.dtx \fi
 %%
+
 %%
 %% \iffalse filename: format.dtx \fi
 %%
@@ -2162,6 +2168,7 @@ Torts} \S~848.}}
         }%
     }%
 }
+\make@find@in{ by }
 \hi@newcite{congdoc}{A Congressional numbered document}{other}{%
     \hi@newcite@form{fc}{#1}{%
         \hi@ifset\hi@kv@author{%
@@ -2478,6 +2485,71 @@ Torts} \S~848.}}
         \the\hi@param@parens
     }%
 }
+
+\section{govrefs.dtx}
+
+\defbill{yoda-2015}{
+    bill=H.R. 862,
+    congress=114,
+    name=You Own Devices Act,
+    date=feb 11 2015
+}
+
+\AssertBox{\note{yoda-2015}}{\InFootnote{%
+    You Own Devices Act, H.R. 862, 114th Cong.\ (Feb.\ 11, 2015).%
+}}
+
+\defbill{mapia}{
+name=Medication Affordability and Patient Integrity Act,
+inline=MAPIA,
+number=S. 2658,
+date=june 17 2026,
+congress=119,
+status={reported by Senate Health, Education, Labor and Pensions Committee},
+}
+
+\AssertBox{\inline{mapia}}{%
+the Medication Affordability and Patient Integrity Act (``MAPIA'')%
+}
+
+\AssertBox{\note{mapia}}{\InFootnote{%
+Medication Affordability and Patient Integrity Act (MAPIA),
+S. 2658, 119th
+Cong.\ (as reported by S. Health, Education, Labor \& Pensions Comm., June 17,
+2026).%
+}}
+
+\AssertBox{\inline{mapia}}{MAPIA}
+
+\noid
+
+\AssertBox{\note{mapia at S 1}}{\InFootnote{%
+S. 2658, \textsection~1.%
+}}
+
+\defcongdoc{oda-report}{
+name=Orphan Drug Act,
+date=1982,
+number=H.R. Rep. No. 97-840,
+}
+
+\AssertBox{\note{oda-report at 5}}{\InFootnote{%
+\textsc{Orphan Drug Act}, \textsc{H.R. Rep.\ No.\ 97-840}, at 5 (1982).%
+}}
+
+\defhearing{azar-hearing}{
+name=Nomination of Alex Azar to Serve as Secretary of Health and Human Services,
+committee={Senate Committee on Health, Education, Labor and Pensions},
+congress=115,
+date=nov 29 2017,
+}
+
+\AssertBox{\note{azar-hearing}}{\InFootnote{%
+\emph{Nomination of Alex Azar to Serve as Secretary of Health and Human
+Services:\ Hearing Before the S. Comm.\ Health, Education, Labor \& Pensions},
+115th Cong.\ (Nov.~29, 2017).%
+}}
+
 %%
 %% \iffalse filename: bookrefs.dtx \fi
 %%
@@ -3382,35 +3454,42 @@ Wiping out While Filming ``The Sound of Music},\emph{''} \textsc{Ent.\ Wkly.}\
     \expandafter\hi@book@titlethe\expandafter{\hi@kv@name}%
     \hi@abbrev@name{Internet Engineering Task Force}{\def\hi@kv@publisher}%
     \protected@edef\reserved@a{%
-        https://www.rfc-editor.org/rfc\hi@kv@number.txt%
+        https://datatracker.ietf.org/doc/html/rfc\hi@kv@number
     }
+    \@expand{\KV@hi@url}\reserved@a i\@empty
     \protected@edef\hi@kv@number{RFC \hi@kv@number}%
-    \@expand{\hi@defkey@url{}}\reserved@a i\@empty
-    \hi@newcite@form{ic}{#1}{%
-        \hi@kv@number
-    }%
     \@expand{\hi@supra@form{#1}}\hi@kv@number i%
     \hi@book@pubparen
     \hi@ifset\hi@kv@year{}{\PackageError\hi@pkgname{Year is required for #1}}%
     \hi@newcite@form{fc}{#1}{%
-        \hi@ifset\hi@kv@author{%
-            \noexpand\@gobble{\hi@kv@authln}%
-        }{}% For sorting purposes
-        \noexpand\if@hi@inline
-            \expandafter\noexpand\csname ic@#1\endcsname
-        \noexpand\else
-            \hi@citeguts{%
-                \hi@ifset\hi@kv@author{%
-                    \hi@fn@bookauthor{\hi@kv@author}, % space
-                }{}%
-                \hi@fn@booktitle{\hi@kv@name}%
-                \hi@maybepage{\hi@page@space\hi@kv@name}%
-            }%
-            \hi@book@paren
-            \the\hi@param@parens
-        \noexpand\fi
+        \hi@citeguts{%
+            \hi@ifset\hi@kv@author{%
+                \hi@fn@bookauthor{\hi@kv@author@sortable}, % space
+            }{}%
+            \hi@fn@booktitle{\hi@kv@name}%
+            \hi@maybepage{\hi@page@space\hi@kv@name}%
+        }%
+        \hi@book@paren
+        \the\hi@param@parens
+    }%
+    \hi@newcite@form{ifc}{#1}{%
+        \hi@kv@number
     }%
 }
+
+\section{specrefs.dtx}
+
+\defrfc{rfc1945}{
+author=T. Berners-Lee et al.,
+number=1945,
+title=Hypertext Transfer Protocol---HTTP/1.0,
+date=may 1996,
+}
+
+\AssertBox{\note{rfc1945 at 10}}{\InFootnote{\textsc{T. Berners-Lee et al.},
+\textsc{Hypertext Transfer Protocol---HTTP/1.0}, at 10 (Internet Eng'g Task Force,
+RFC 1945, May 1996), \url{https://datatracker.ietf.org/doc/html/rfc1945}.}}
+
 %%
 %% \iffalse filename: otherrefs.dtx \fi
 %%
@@ -3525,6 +3604,92 @@ Wiping out While Filming ``The Sound of Music},\emph{''} \textsc{Ent.\ Wkly.}\
     \protected@edef\reserved@a{\hi@kv@type\space \hi@kv@number}%
     \@expand{\hi@supra@form{#1}}\reserved@a i%
 }
+\hi@newcite{custom}{A custom, user-defined reference}{other}{%
+    \hi@newcite@form{fc}{#1}{%
+        \hi@citeguts{%
+            \noexpand\hi@custom@setuppin
+            \expandonce\hi@kv@customfull
+        }%
+        \hi@ifset\hi@kv@year{%
+            \hi@parens@add{\hi@paren@date}{\hi@kv@year}%
+        }{}%
+        \the\hi@param@parens
+    }%
+    \hi@ifset\hi@kv@custominline{%
+        \hi@newcite@form{ifc}{#1}{%
+            \hi@citeguts{%
+                \noexpand\hi@custom@setuppin
+                \expandonce\hi@kv@custominline
+            }%
+        }%
+    }{}%
+    \hi@ifset\hi@kv@customsupra{%
+        \@expand{\hi@supra@form{#1}}\hi@kv@customsupra{i}%
+    }{%
+        \hi@ifset\hi@kv@customshort{%
+            \hi@newcite@form{sc}{#1}{%
+                \hi@citeguts{%
+                    \noexpand\hi@custom@setuppin
+                    \expandonce\hi@kv@customshort
+                }%
+            }%
+        }{}%
+    }%
+    \hi@ifset\hi@kv@customshortinline{%
+        \hi@newcite@form{isc}{#1}{%
+            \hi@citeguts{%
+                \noexpand\hi@custom@setuppin
+                \expandonce\hi@kv@customshortinline
+            }%
+        }%
+    }{}%
+}
+\section{otherrefs.dtx}
+
+\defcustom{freedom-statue}{
+customfull={Thomas Crawford, \emph{Statue of Freedom}, atop the U.S.
+Capitol\ifpin{, at \pin}{}},
+year=installed 1863,
+customshort=Crawford\ifpin{ at \pin}{},
+custominline=Crawford's \emph{Statue of Freedom},
+customshortinline=\emph{Statue of Freedom},
+}
+
+\AssertBox{\inline{freedom-statue}}{Crawford's \emph{Statue of Freedom}}
+
+\AssertBox{\note{see also freedom-statue at 10 (front
+view)}}{\InFootnote{\emph{See also} Thomas Crawford, \emph{Statue of Freedom},
+atop the U.S. Capitol, at 10 (installed 1963) (front view).}}
+
+\AssertBox{\inline{freedom-statue}}{\emph{Statue of Freedom}}
+
+\noid
+
+\AssertBox{\note{freedom-statue}}{\InFootnote{Crawford.}}
+
+\noid
+
+\AssertBox{\note{freedom-statue at 15}}{\InFootnote{Crawford at 15.}}
+
+\defcustom{comedian}{
+customfull={Maurizio Cattelan, \emph{Comedian}},
+year=2019,
+customsupra=Cattelan,
+paren=banana taped to wall,
+}
+
+\AssertBox{\note{see comedian}}{\InFootnote{\emph{See} Maurizio Cattelan,
+\emph{Comedian} (2019) (banana taped to wall).}}
+
+\edef\ComedianFootnote{\the\c@footnote}
+
+\AssertBox{\footnote{\inline{comedian}}}{\InFootnote{Cattelan}}
+
+\noid
+
+\AssertBox{\note{see also comedian at 15}}{\InFootnote{\emph{See also} Cattelan,
+\emph{supra} note \ComedianFootnote, at 15.}}
+
 %%
 %% \iffalse filename: nondocrefs.dtx \fi
 %%
@@ -3802,7 +3967,7 @@ parallel=coke: 5 Coke 91a,
     \find@in{:}{#1}{\@twodef\hi@kv@vol\hi@kv@issue}{\def\hi@kv@vol{#1}}
 }
 \hi@param@alias{volume}{vol}
-\hi@defparam{year}{Year/date of the case, article, regulation}{%
+\hi@defparam{year}{Year/date of the reference}{%
     \hi@date@parse{#1}{\def\hi@kv@year}%
 }
 %%
@@ -3977,6 +4142,12 @@ parallel=coke: 5 Coke 91a,
 \hi@defparam{countries}{Countries to a treaty}{%
     \hi@abbrev@name{#1}{\def\hi@kv@countries}%
 }
+\hi@newparam{customfull}{The full citation form of a custom reference}
+\hi@newparam{custominline}{The full inline form of a custom reference}
+\hi@newparam{customshort}{The short citation form of a custom reference}
+\hi@newparam{customshortinline}{The short inline form of a custom reference}
+\hi@newparam{customsupra}{The \emph{supra} short form text for a custom
+reference}
 \hi@newparam@noval{inlineparen}{Always include a parenthetical for inline form}
 \hi@defparam{instto}{Institutional recipient of letter, memorandum, etc.}{%
     \hi@nameproc@inst{#1}{\hi@namelist@addinst}{\hi@kv@to}%
@@ -4039,6 +4210,35 @@ parallel=coke: 5 Coke 91a,
             {yes}{no}%
     }
     \AssertMacro\test{no}
+\endgroup
+
+\begingroup
+    \def\dotest#1{%
+
+        \AssertBox{#1}{\sepforlistloop{!}{ and }{, }{, and }\testlist}
+
+        \AssertBox{#1}{\sepforlistcsloop{!}{ and }{, }{, and }{testlist}}
+
+        \def\do##1{!##1}
+        \AssertBox{#1}{\sepdolistloop{ and }{, }{, and }\testlist}
+
+        \AssertBox{#1}{\sepdolistcsloop{ and }{, }{, and }{testlist}}
+    }%
+    \let\testlist\@empty
+    \dotest{}
+
+    \listadd\testlist{a}
+    \dotest{!{a}}
+
+    \listadd\testlist{b}
+    \dotest{!{a} and !{b}}
+
+    \listadd\testlist{c}
+    \dotest{!{a}, !{b}, and !{c}}
+
+    \listadd\testlist{d}
+    \dotest{!{a}, !{b}, !{c}, and !{d}}
+
 \endgroup
 
 %%

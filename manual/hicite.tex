@@ -625,6 +625,11 @@ and is the standard when the \opt{memo} option is selected.
 \ExplainOption{noauthwarn} No warning will be issued if three or more authors
 are given without the \param{noetal} parameter.
 
+
+\ExplainOption{xrefsupra} All \emph{supra}-style short citations will include a
+cross-reference to the full citation of the same reference. This is useful only
+for legal memoranda, and is described further in \sec{supra-xref}.
+
 \part{References}
 \label{p:references}
 %%
@@ -1317,7 +1322,9 @@ The following commands are used to mark parts of a document with labels.
 \DescribeMacro\hilabel
 \cmd\hilabel\oarg{text}\marg{label} labels the current point in text. It detects
 whether it is inside a footnote, table, figure, or body text, and adjusts the
-label accordingly.
+label accordingly. If the |sidenotes| package is loaded before \hia*, then side
+notes will be detected as well.
+
 
 \DescribeMacro\hiendlabel
 \cmd\hiendlabel\marg{label} closes a labeled range opened with |\hilabel|. Note
@@ -1326,6 +1333,7 @@ that the type of text marked at the beginning and end must be the same (e.g.,
 text). Currently, only contiguous ranges can be labeled, although a desirable
 additional feature for the package would be support for non-contiguous
 cross-reference ranges.
+
 
 \DescribeMacro\hitanlabel
 \DescribeMacro\hiendtanlabel
@@ -1339,6 +1347,7 @@ cross-reference ``notes $x$--$y$ and accompanying text.'' This is done with
 
 \DescribeMacro\hisectlabel
 \cmd\hisectlabel\marg{label} labels the current section.
+
 \DescribeMacro\hiendsectlabel
 \cmd\hiendsectlabel\marg{label} labels an end of a section range.
 
@@ -1806,18 +1815,18 @@ without producing any citation text.
 
 The following are synonyms to the citation commands thus described.
 
-\begin{demo}
-\begin{tabular}{ll}
-\textbf{Command} & \textbf{Synonym} \\
-\hline
-\cmd\sentence & \DescribeMacro\Ct \cmd\Ct \\
-\cmd\clause & \DescribeMacro\ct \cmd\ct \\
-\cmd\Inline & \DescribeMacro\Ci\cmd\Ci \\
-\cmd\inline & \DescribeMacro\ci\cmd\ci \\
-\cmd\note & \DescribeMacro\cn\cmd\cn \\
-\cmd\addtotoa & \DescribeMacro\cx\cmd\cx \\
-\end{tabular}
-\end{demo}
+\DescribeMacro\Ct Synonym for |\sentence|.
+
+\DescribeMacro\ct Synonym for |\clause|.
+
+\DescribeMacro\Ci Synonym for |\Inline|.
+
+\DescribeMacro\ci Synonym for |\inline|.
+
+\DescribeMacro\cn Synonym for |\note|.
+
+\DescribeMacro\cx Synonym for |\addtotoa|.
+
 %%
 %% \iffalse filename: parse.dtx \fi
 %%
@@ -2168,7 +2177,7 @@ automatically parenthesized. The following are examples:
 \end{demo}
 
 
-\section{Pin Cite Subdivision Joining}
+\subsection{Pin Cite Subdivision Joining}
 
 \label{s:pages-join}
 
@@ -2884,7 +2893,8 @@ following in your document:
 
 When a reference is cited, \hia* must determine which citation form to use. The
 choice depends on the citation command issued (see \sec{iface}) and the context
-within the document (primarily, what citations have come before). The following rules inform that choice.
+within the document (primarily, what citations have come before). The following
+rules inform that choice.
 
 \begin{itemize}
 \item An \emph{id.}\ citation is appropriate only when the reference being cited
@@ -3474,7 +3484,7 @@ to precede the word ``\emph{supra}.'' The description is usually the reference
 author's last name, and it may use font shortcut commands as described in
 \sec{fonts}.
 
-Setting up a \emph{supra} form requires performing the following tasks:
+Setting up a \emph{supra} form involves performing the following tasks:
 \begin{itemize}
 \item Registering the description as a short citation name for duplicate
 checking, as described in \sec{short}.
@@ -3484,6 +3494,16 @@ form displays the description text.
 follow the five-footnote rule, to conform with the expectations of short
 citation state described in \sec{state}.
 \end{itemize}
+
+
+\paragraph{Cross-Reference \emph{Supra} Forms}
+\label{s:supra-xref}
+
+In legal memoranda, \emph{supra} short citations contain no information other
+than the word \emph{supra}. If the option \opt{xrefsupra} is given to \hia*,
+then the short citation further includes a cross-reference to the first full
+citation to the reference. The cross-reference is generated using |\hilabel| as
+described in \sec{xref}.
 
 
 %%
@@ -3578,10 +3598,12 @@ attached to a book (\param{editor}, \param{publisher}, etc.; see
 \sec{bookrefs-pubparen}). Works that are part of a published book or volume can
 generally be defined using the highly flexible \rtype{citecontainer} type.
 
-If truly nothing works, then the reference \rtype{verbatim} can be used to
-inject arbitrary text into a citation. Even when that is used, the writer still
-enjoys most of the structural capabilities of this package: signals management,
-string citations, and so on.
+If truly nothing works, then the reference type \rtype{custom} can be used to
+define a custom citation form. Alternatively, the singleton named reference
+\rtype{verbatim} can be used to
+inject arbitrary text into a citation. Even when these are used, the writer
+still enjoys most of the structural capabilities of this package: signals
+management, string citations, and so on.
 
 Finally, writers faced with a class of unexpected reference types are encouraged
 to develop new citation macros. The syntax and programming conventions for
@@ -4618,6 +4640,7 @@ into the above categories.
         }%
     }%
 }
+\make@find@in{ by }
 
 \keyparameters{
     {number}{The serial number of the bill. This is used as-is, and must include
@@ -4648,7 +4671,7 @@ into the above categories.
     date=feb 11 2015
 }
 \end{verbatim}
-\Produces You Own Devices Act, H.R. 862, 114th Cong.\ (Feb. 11, 2015).
+\Produces You Own Devices Act, H.R. 862, 114th Cong.\ (Feb.\ 11, 2015).
 \end{demo}
 
 \hi@newcite{congdoc}{A Congressional numbered document}{other}{%
@@ -4894,6 +4917,10 @@ published testimony in a hearing.
     date=nov 29 2017,
 }
 \end{verbatim}
+\Produces
+\emph{Nomination of Alex Azar to Serve as Secretary of Health and Human
+Services:\ Hearing Before the S. Comm.\ Health, Education, Labor \& Pensions},
+115th Cong.\ (Nov.~29, 2017).%
 \end{demo}
 
 \hi@newcite{prespaper}{A Presidential Paper}{other}{%
@@ -6387,33 +6414,26 @@ data entry.
     \expandafter\hi@book@titlethe\expandafter{\hi@kv@name}%
     \hi@abbrev@name{Internet Engineering Task Force}{\def\hi@kv@publisher}%
     \protected@edef\reserved@a{%
-        https://www.rfc-editor.org/rfc\hi@kv@number.txt%
+        https://datatracker.ietf.org/doc/html/rfc\hi@kv@number
     }
+    \@expand{\KV@hi@url}\reserved@a i\@empty
     \protected@edef\hi@kv@number{RFC \hi@kv@number}%
-    \@expand{\hi@defkey@url{}}\reserved@a i\@empty
-    \hi@newcite@form{ic}{#1}{%
-        \hi@kv@number
-    }%
     \@expand{\hi@supra@form{#1}}\hi@kv@number i%
     \hi@book@pubparen
     \hi@ifset\hi@kv@year{}{\PackageError\hi@pkgname{Year is required for #1}}%
     \hi@newcite@form{fc}{#1}{%
-        \hi@ifset\hi@kv@author{%
-            \noexpand\@gobble{\hi@kv@authln}%
-        }{}% For sorting purposes
-        \noexpand\if@hi@inline
-            \expandafter\noexpand\csname ic@#1\endcsname
-        \noexpand\else
-            \hi@citeguts{%
-                \hi@ifset\hi@kv@author{%
-                    \hi@fn@bookauthor{\hi@kv@author}, % space
-                }{}%
-                \hi@fn@booktitle{\hi@kv@name}%
-                \hi@maybepage{\hi@page@space\hi@kv@name}%
-            }%
-            \hi@book@paren
-            \the\hi@param@parens
-        \noexpand\fi
+        \hi@citeguts{%
+            \hi@ifset\hi@kv@author{%
+                \hi@fn@bookauthor{\hi@kv@author@sortable}, % space
+            }{}%
+            \hi@fn@booktitle{\hi@kv@name}%
+            \hi@maybepage{\hi@page@space\hi@kv@name}%
+        }%
+        \hi@book@paren
+        \the\hi@param@parens
+    }%
+    \hi@newcite@form{ifc}{#1}{%
+        \hi@kv@number
     }%
 }
 This reference type automatically adds the serial number, inline citation
@@ -6489,9 +6509,11 @@ communicants.
 \defletter{alice-memo}{
     date=may 13 2013,
     type=Memorandum,
-    author={Andrew H. Hirshfeld, United States Patent and Trademark Office},
+    author={Andrew H. Hirshfeld, United States Patent
+        and Trademark Office},
     instto=Patent Examining Corps,
-    title=Federal Circuit Decision in \emph{CLS Bank et al. v. Alice Corp.},
+    title=Federal Circuit Decision in \emph{CLS Bank
+        et al. v. Alice Corp.},
 }
 \end{verbatim}
 \Produces Memorandum from Andrew H. Hirshfeld, U.S. Patent \& Trademark Off., to
@@ -6535,9 +6557,9 @@ v.\ Alice Corp.}}\ (May 13, 2013).
 \Example
 \begin{verbatim}
 \defpressrelease{lockyer-pr}{
-title=Attorney General Bill Lockyer Files ``Friend of Court'' Brief over Unocal
-Gasoline Patent,
-date=Sep 14 2000,
+    title=Attorney General Bill Lockyer Files ``Friend
+        of Court'' Brief over Unocal Gasoline Patent,
+    date=Sep 14 2000,
 }
 \end{verbatim}
 \Produces Press Release, \emph{Attorney General Bill Lockyer Files ``Friend of
@@ -6665,7 +6687,80 @@ by the government should use a different reference type.
 \optparameters{
     {type}{The type of document, default ``Formal Opinion.''}
 }
+\hi@newcite{custom}{A custom, user-defined reference}{other}{%
+    \hi@newcite@form{fc}{#1}{%
+        \hi@citeguts{%
+            \noexpand\hi@custom@setuppin
+            \expandonce\hi@kv@customfull
+        }%
+        \hi@ifset\hi@kv@year{%
+            \hi@parens@add{\hi@paren@date}{\hi@kv@year}%
+        }{}%
+        \the\hi@param@parens
+    }%
+    \hi@ifset\hi@kv@custominline{%
+        \hi@newcite@form{ifc}{#1}{%
+            \hi@citeguts{%
+                \noexpand\hi@custom@setuppin
+                \expandonce\hi@kv@custominline
+            }%
+        }%
+    }{}%
+    \hi@ifset\hi@kv@customsupra{%
+        \@expand{\hi@supra@form{#1}}\hi@kv@customsupra{i}%
+    }{%
+        \hi@ifset\hi@kv@customshort{%
+            \hi@newcite@form{sc}{#1}{%
+                \hi@citeguts{%
+                    \noexpand\hi@custom@setuppin
+                    \expandonce\hi@kv@customshort
+                }%
+            }%
+        }{}%
+    }%
+    \hi@ifset\hi@kv@customshortinline{%
+        \hi@newcite@form{isc}{#1}{%
+            \hi@citeguts{%
+                \noexpand\hi@custom@setuppin
+                \expandonce\hi@kv@customshortinline
+            }%
+        }%
+    }{}%
+}
+The text of the citation is defined by the parameters given below. Within these
+parameters, the macro |\pin| may be used for any given pin cite, and
+|\ifpin|\marg{yes}\marg{no} may be used to produce different text depending on
+the presence of a pin cite. For example:
 
+\begin{demo}
+\Example
+\begin{verbatim}
+\defcustom{comedian}{
+    customfull={Maurizio Cattelan,
+        \emph{Comedian}\ifpin{, at \pin}{}},
+    year=2019,
+    customsupra=Cattelan,
+    paren=banana taped to wall,
+}
+\end{verbatim}
+\Produces
+Maurizio Cattelan, \emph{Comedian}, at \# (2019) (banana taped to wall).\\
+\ldots\\
+Cattelan, \emph{supra} note \#.
+\end{demo}
+
+\keyparameters{
+    {customfull}{The full citation form.}
+}
+\optparameters{
+    {custominline}{The inline form.}
+    {customshort}{The short form.}
+    {customshortinline}{The short inline form.}
+    {customsupra}{The \emph{supra} short form. This parameter implies that this
+    reference should be cited using \emph{supra} rather than the five-footnote
+    rule, as explained in \sec{supra}.}
+    {year}{A date, to be appended as a parenthetical if given.}
+}
 %%
 %% \iffalse filename: nondocrefs.dtx \fi
 %%
@@ -7148,9 +7243,10 @@ to the reference type.
     \find@in{:}{#1}{\@twodef\hi@kv@vol\hi@kv@issue}{\def\hi@kv@vol{#1}}
 }
 \hi@param@alias{volume}{vol}
-\hi@defparam{year}{Year/date of the case, article, regulation}{%
+\hi@defparam{year}{Year/date of the reference}{%
     \hi@date@parse{#1}{\def\hi@kv@year}%
 }
+This should follow the format given in \sec{dates}.
 %%
 %% \iffalse filename: caseparams.dtx \fi
 %%
@@ -7381,6 +7477,13 @@ contained work (the container work is given in the parameter \param{in}).
     \hi@abbrev@name{#1}{\def\hi@kv@countries}%
 }
 The country names will be abbreviated.
+\hi@newparam{customfull}{The full citation form of a custom reference}
+\hi@newparam{custominline}{The full inline form of a custom reference}
+\hi@newparam{customshort}{The short citation form of a custom reference}
+\hi@newparam{customshortinline}{The short inline form of a custom reference}
+\hi@newparam{customsupra}{The \emph{supra} short form text for a custom
+reference}
+See \rtype{custom} for use of the above custom parameters.
 \hi@newparam@noval{inlineparen}{Always include a parenthetical for inline form}
 \hi@defparam{instto}{Institutional recipient of letter, memorandum, etc.}{%
     \hi@nameproc@inst{#1}{\hi@namelist@addinst}{\hi@kv@to}%
@@ -7554,6 +7657,36 @@ pre-group text, the group (without braces), and the post-group text.
 The |\find@group@end| macro similarly finds a braced group, but only at the end
 of a string. The callback receives only two arguments.
 
+
+\section{Advanced List Processing}
+
+This extends the |etoolbox| macro for internal lists, enabling insertion of
+separators depending on the length of the list.
+
+\MacroSpec\sepforlistloop\marg{handler} \marg{2sep} \marg{3mid} \marg{3last}
+\marg{list} \\
+Performs \meta{handler} for each element of \meta{list}. If there are two
+elements in the list, then performs \meta{2sep} before the second element. If
+there are three or more elements, then performs \meta{3mid} between all
+elements except the last, and performs \meta{3last} before the last element.
+
+
+The remaining macros are analogous to those in |etoolbox|, but in each case, the
+\meta{2sep}, \meta{3mid}, and \meta{3last} arguments come immediately before the
+list name.
+
+\MacroSpec\sepdolistloop \marg{2sep}\marg{3mid}\marg{3last} \marg{list} \\
+Executes the macro |\do| on each element of the list and adds separators.
+
+\MacroSpec\sepforlistcsloop \meta{handler}
+\marg{2sep}\marg{3mid}\marg{3last} \marg{listcs} \\
+Executes the \meta{handler} on each element of the list in macro
+|\|\meta{listcs} and adds separators.
+
+\MacroSpec\sepdolistcsloop \marg{2sep}\marg{3mid}\marg{3last} \marg{listcs} \\
+Executes the macro |\do| on each element of the list in macro |\|\meta{listcs}
+and adds separators.
+
 %%
 %% \iffalse filename: abbrev.dtx \fi
 %%
@@ -7581,12 +7714,10 @@ of the form:
 The list is organized with the longest abbreviations first, ensuring that longer
 abbreviations take precedence over shorter ones.
 
-\DescribeMacro\abb@new
-|\abb@new|\marg{class} creates a new abbreviation class.
+\MacroSpec\abb@new \marg{class} creates a new abbreviation class.
 
 
-\DescribeMacro\abb@add
-|\abb@add|\marg{class}\marg{word}\marg{abbrev}
+\MacroSpec\abb@add \marg{class}\marg{word}\marg{abbrev} \\
 Adds an item to the abbreviation class. \meta{class} is the class, \meta{word}
 the unabbreviated form, and \marg{abbrev} the abbreviated form.
 
@@ -7606,8 +7737,8 @@ Building and Loan Office $\rightarrow$ Bldg. and Loan Office
 
 \subsection{Algorithm for Abbreviation}
 
-\DescribeMacro\abb@abbrev
-|\abb@abbrev|\marg{class}\marg{text}\marg{callback} is the entrypoint for
+\MacroSpec\abb@abbrev
+\marg{class}\marg{text}\marg{callback} is the entrypoint for
 abbreviating a text. \meta{class} is the class, \meta{text} is the
 text to abbreviate, and \meta{callback} is a callback function for the result.
 
@@ -7645,8 +7776,8 @@ text will not include the proposed abbreviation.
 
 \subsection{Removal of Spaces Between Dotted Initials}
 
-\DescribeMacro\abb@initialdots
-|\abb@initialdots|\marg{text}\marg{dot}\marg{callback} processes a text to
+\MacroSpec\abb@initialdots
+\marg{text}\marg{dot}\marg{callback} processes a text to
 remove dots between single-letter initials. Given a text, it will convert
 sequences such as ``A. A. Milne'' to ``A.A. Milne'' and ``F. 4th'' to ``F.4th''.
 \meta{text} is the text to process and \meta{callback} is the callback to run on
@@ -7787,12 +7918,37 @@ first, producing warnings about unknown references for every citation. Then
 |biber| may be called and the document recompiled.
 
 
-\paragraph{Saving Biblatex Entries in \hia* Format}
+\subsection{Saving Biblatex Entries in \hia* Format}
 
 \DescribeMacro\hiBibConvert
-The |\hiBibConvert|\marg{file} macro constructs a \hia* format reference file
-based on any Biblatex entries read. This command should be called before any
-entries are read via |\addbibresource|.
+It may be desirable to convert an existing Biblatex file into reference
+definition commands compatible with \hia*, so that they can be further edited
+and refined for example. The process for doing this is unfortunately somewhat
+convoluted, and uses the command |\hiBibConvert| from this package.
+
+To use it, construct a document like this:
+\begin{demo}
+|\usepackage{hibib}|\\
+|\hiBibConvert|\marg{output-file}\\
+|\addbibresource|\marg{bib-file}\ldots\\
+|\begin{document}|\\
+|\sentence{reference-1}.|\\
+|\sentence{reference-2}.|\\
+|\sentence{reference-3}.|\\
+\ldots\\
+|\end{document}|\\
+\end{demo}
+It is necessary that the document cite every reference to be extracted from the
+|.bib| file. This is because |hibib| depends on the output of \emph{biber},
+which processes only references that were used in the document.
+
+Once this document is constructed, compile the document, then run \emph{biber}
+on it, and then compile it again. The \meta{output-file} should now contain
+\hia*-style reference definitions corresponding to the references in the |.bib|
+file.
+
+Note that this conversion process is incomplete and likely inaccurate, so you
+will probably have to fix many of the reference definitions manually.
 
 
 \subsection{Citation Command Compatibility}

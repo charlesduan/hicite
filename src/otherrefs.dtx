@@ -66,9 +66,11 @@ communicants.
 \defletter{alice-memo}{
     date=may 13 2013,
     type=Memorandum,
-    author={Andrew H. Hirshfeld, United States Patent and Trademark Office},
+    author={Andrew H. Hirshfeld, United States Patent
+        and Trademark Office},
     instto=Patent Examining Corps,
-    title=Federal Circuit Decision in \emph{CLS Bank et al. v. Alice Corp.},
+    title=Federal Circuit Decision in \emph{CLS Bank
+        et al. v. Alice Corp.},
 }
 \end{verbatim}
 \Produces Memorandum from Andrew H. Hirshfeld, U.S. Patent \& Trademark Off., to
@@ -116,9 +118,9 @@ v.\ Alice Corp.}}\ (May 13, 2013).
 \Example
 \begin{verbatim}
 \defpressrelease{lockyer-pr}{
-title=Attorney General Bill Lockyer Files ``Friend of Court'' Brief over Unocal
-Gasoline Patent,
-date=Sep 14 2000,
+    title=Attorney General Bill Lockyer Files ``Friend
+        of Court'' Brief over Unocal Gasoline Patent,
+    date=Sep 14 2000,
 }
 \end{verbatim}
 \Produces Press Release, \emph{Attorney General Bill Lockyer Files ``Friend of
@@ -258,6 +260,144 @@ by the government should use a different reference type.
 \optparameters{
     {type}{The type of document, default ``Formal Opinion.''}
 }
-
 %</doc>
 %
+\hi@newcite{custom}{A custom, user-defined reference}{other}{%
+    \hi@newcite@form{fc}{#1}{%
+        \hi@citeguts{%
+            \noexpand\hi@custom@setuppin
+            \expandonce\hi@kv@customfull
+        }%
+        \hi@ifset\hi@kv@year{%
+            \hi@parens@add{\hi@paren@date}{\hi@kv@year}%
+        }{}%
+        \the\hi@param@parens
+    }%
+    \hi@ifset\hi@kv@custominline{%
+        \hi@newcite@form{ifc}{#1}{%
+            \hi@citeguts{%
+                \noexpand\hi@custom@setuppin
+                \expandonce\hi@kv@custominline
+            }%
+        }%
+    }{}%
+    \hi@ifset\hi@kv@customsupra{%
+        \@expand{\hi@supra@form{#1}}\hi@kv@customsupra{i}%
+    }{%
+        \hi@ifset\hi@kv@customshort{%
+            \hi@newcite@form{sc}{#1}{%
+                \hi@citeguts{%
+                    \noexpand\hi@custom@setuppin
+                    \expandonce\hi@kv@customshort
+                }%
+            }%
+        }{}%
+    }%
+    \hi@ifset\hi@kv@customshortinline{%
+        \hi@newcite@form{isc}{#1}{%
+            \hi@citeguts{%
+                \noexpand\hi@custom@setuppin
+                \expandonce\hi@kv@customshortinline
+            }%
+        }%
+    }{}%
+}
+%<*doc>
+The text of the citation is defined by the parameters given below. Within these
+parameters, the macro |\pin| may be used for any given pin cite, and
+|\ifpin|\marg{yes}\marg{no} may be used to produce different text depending on
+the presence of a pin cite. For example:
+
+\begin{demo}
+\Example
+\begin{verbatim}
+\defcustom{comedian}{
+    customfull={Maurizio Cattelan,
+        \emph{Comedian}\ifpin{, at \pin}{}},
+    year=2019,
+    customsupra=Cattelan,
+    paren=banana taped to wall,
+}
+\end{verbatim}
+\Produces
+Maurizio Cattelan, \emph{Comedian}, at \# (2019) (banana taped to wall).\\
+\ldots\\
+Cattelan, \emph{supra} note \#.
+\end{demo}
+
+\keyparameters{
+    {customfull}{The full citation form.}
+}
+\optparameters{
+    {custominline}{The inline form.}
+    {customshort}{The short form.}
+    {customshortinline}{The short inline form.}
+    {customsupra}{The \emph{supra} short form. This parameter implies that this
+    reference should be cited using \emph{supra} rather than the five-footnote
+    rule, as explained in \sec{supra}.}
+    {year}{A date, to be appended as a parenthetical if given.}
+}
+%</doc>
+%
+%<*package>
+%
+% Sets up the pin cite macros for the custom reference type.
+%
+%    \begin{macrocode}
+\def\hi@custom@setuppin{%
+    \let\pin\@this@page
+    \let\ifpin\hi@ifpage
+}
+%    \end{macrocode}
+%
+%</package>
+%<*test>
+\section{otherrefs.dtx}
+
+\defcustom{freedom-statue}{
+customfull={Thomas Crawford, \emph{Statue of Freedom}, atop the U.S.
+Capitol\ifpin{, at \pin}{}},
+year=installed 1863,
+customshort=Crawford\ifpin{ at \pin}{},
+custominline=Crawford's \emph{Statue of Freedom},
+customshortinline=\emph{Statue of Freedom},
+}
+
+\AssertBox{\inline{freedom-statue}}{Crawford's \emph{Statue of Freedom}}
+
+\AssertBox{\note{see also freedom-statue at 10 (front
+view)}}{\InFootnote{\emph{See also} Thomas Crawford, \emph{Statue of Freedom},
+atop the U.S. Capitol, at 10 (installed 1963) (front view).}}
+
+\AssertBox{\inline{freedom-statue}}{\emph{Statue of Freedom}}
+
+\noid
+
+\AssertBox{\note{freedom-statue}}{\InFootnote{Crawford.}}
+
+\noid
+
+\AssertBox{\note{freedom-statue at 15}}{\InFootnote{Crawford at 15.}}
+
+\defcustom{comedian}{
+customfull={Maurizio Cattelan, \emph{Comedian}},
+year=2019,
+customsupra=Cattelan,
+paren=banana taped to wall,
+}
+
+\AssertBox{\note{see comedian}}{\InFootnote{\emph{See} Maurizio Cattelan,
+\emph{Comedian} (2019) (banana taped to wall).}}
+
+\edef\ComedianFootnote{\the\c@footnote}
+
+\AssertBox{\footnote{\inline{comedian}}}{\InFootnote{Cattelan}}
+
+\noid
+
+\AssertBox{\note{see also comedian at 15}}{\InFootnote{\emph{See also} Cattelan,
+\emph{supra} note \ComedianFootnote, at 15.}}
+
+
+
+%</test>

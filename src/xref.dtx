@@ -44,7 +44,40 @@ The following commands are used to mark parts of a document with labels.
 \DescribeMacro\hilabel
 \cmd\hilabel\oarg{text}\marg{label} labels the current point in text. It detects
 whether it is inside a footnote, table, figure, or body text, and adjusts the
-label accordingly.
+label accordingly. If the |sidenotes| package is loaded before \hia*, then side
+notes will be detected as well.
+
+%</doc>
+%<*package>
+%    \begin{macrocode}
+\newcommand*\hilabel[2][]{%
+    \@bsphack
+    \@testcase
+        \if@hi@note\fi{\hi@xref@writenote}%
+        \if@hi@sidenote\fi{\hi@xref@writesidenote}%
+        \ifx\@captype\@undefined\fi{\hi@xref@writetext}%
+        \default{\hi@xref@writefloat}%
+    {#2}{#1}%
+    \@esphack
+}
+%    \end{macrocode}
+%
+% Detect the sidenotes package, and modify |\sidenotetext| to add a flag
+% indicating whether we are inside a sidenote.
+%
+%    \begin{macrocode}
+\newif\if@hi@sidenote
+\@ifpackageloaded{sidenotes}{%
+    \NewCommandCopy{\hi@label@sidenotetext}{\sidenotetext}
+    \RenewDocumentCommand\sidenotetext{ o o +m }{%
+        \@hi@sidenotetrue
+        \hi@label@sidenotetext[#1][#2]{#3}%
+        \@hi@sidenotefalse
+    }%
+}{}
+%    \end{macrocode}
+%</package>
+%<*doc>
 
 \DescribeMacro\hiendlabel
 \cmd\hiendlabel\marg{label} closes a labeled range opened with |\hilabel|. Note
@@ -53,6 +86,16 @@ that the type of text marked at the beginning and end must be the same (e.g.,
 text). Currently, only contiguous ranges can be labeled, although a desirable
 additional feature for the package would be support for non-contiguous
 cross-reference ranges.
+
+%</doc>
+%<*package>
+%    \begin{macrocode}
+\newcommand*\hiendlabel[1]{%
+    \hilabel{end:#1}%
+}
+%    \end{macrocode}
+%</package>
+%<*doc>
 
 \DescribeMacro\hitanlabel
 \DescribeMacro\hiendtanlabel
@@ -66,18 +109,6 @@ cross-reference ``notes $x$--$y$ and accompanying text.'' This is done with
 %</doc>
 %<*package>
 %    \begin{macrocode}
-\newcommand*\hilabel[2][]{%
-    \@bsphack
-    \@testcase
-        \if@hi@note\fi{\hi@xref@writenote}%
-        \ifx\@captype\@undefined\fi{\hi@xref@writetext}%
-        \default{\hi@xref@writefloat}%
-    {#2}{#1}%
-    \@esphack
-}
-\newcommand*\hiendlabel[1]{%
-    \hilabel{end:#1}%
-}
 \newcommand*\hitanlabel[2][]{%
     \@bsphack
     \hi@xref@writetan{#2}{#1}%
@@ -104,6 +135,7 @@ cross-reference ``notes $x$--$y$ and accompanying text.'' This is done with
 
 \DescribeMacro\hisectlabel
 \cmd\hisectlabel\marg{label} labels the current section.
+
 \DescribeMacro\hiendsectlabel
 \cmd\hiendsectlabel\marg{label} labels an end of a section range.
 
@@ -254,6 +286,9 @@ determined by whether the section number contains a dot.) For legal memoranda,
 \appto\hi@hooks@memo{\hi@xref@opt@pagerefs}
 \def\hi@xref@writenote#1#2{%
     \hi@xref@writetoaux{#1}{#2}{note~}{notes~}{\thefootnote}{}{}%
+}
+\def\hi@xref@writesidenote#1#2{%
+    \hi@xref@writetoaux{#1}{#2}{side note~}{side notes~}{\thesidenote}{}{}%
 }
 \def\hi@xref@writefloat#1#2{%
     \hi@xref@writetoaux{#1}{#2}%
