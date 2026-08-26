@@ -806,8 +806,8 @@ without producing any citation text.
 }
 \let\noid\hi@noid
 \def\fullcite#1{%
-    \expandafter\let\csname dfc@#1\endcsname\relax
-    \expandafter\let\csname dfi@#1\endcsname\relax
+    \global\expandafter\let\csname dfc@#1\endcsname\relax
+    \global\expandafter\let\csname dfi@#1\endcsname\relax
     \noid
 }
 \def\nofullcite#1{\hi@record@cite{#1}}
