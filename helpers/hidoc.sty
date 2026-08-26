@@ -19,6 +19,10 @@
 
 \PageIndex
 \NewDocElement{File}{fileenv}
+\def\PrintDescribeFile#1{%
+    {\footnotesize\sffamily\color{gray} For more information,\\see
+    \emph{doc/#1.pdf}.\par}%
+}
 \NewDocElement{Param}{parameter}
 \def\PrintDescribeParam#1{}
 \NewDocElement{Opt}{option}
