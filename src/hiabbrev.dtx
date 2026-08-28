@@ -1,9 +1,9 @@
 %%
-%% \iffalse filename: abbrev.dtx \fi
+%% \iffalse filename: hiabbrev.dtx \fi
 %%
 %<*doc>
 \input driver
-\thisis{abbrev}{Abbreviations}
+\thisis{hiabbrev}{Abbreviations}
 
 This package provides for abbreviating texts according to tables of
 abbreviations. It also provides functions for removing spaces between dotted
@@ -13,9 +13,9 @@ used within |\edef| definitions.
 %</doc>
 %<*package>
 %    \begin{macrocode}
-\ProvidesPackage{abbrev}[2017/08/14 Abbreviations]
+\ProvidesPackage{hiabbrev}[2017/08/14 Abbreviations]
 \RequirePackage{etoolbox}
-\RequirePackage{strings}
+\RequirePackage{histrings}
 %    \end{macrocode}
 %</package>
 %<*doc>
@@ -187,7 +187,7 @@ abbreviating a text. \meta{class} is the class, \meta{text} is the
 text to abbreviate, and \meta{callback} is a callback function for the result.
 
 Text is abbreviated by reading each token in the text, using |\find@word| from
-\sec{strings}.
+\sec{histrings}.
 
 \begin{enumerate}
 \item If the token is neither a word nor punctuation, do not process the item
@@ -678,7 +678,7 @@ and once with |\abb@dot|, thereby producing the desired text.
 %</package>
 %<*test>
 
-\section{abbrev.dtx}
+\section{hiabbrev.dtx}
 
 \begingroup
     \abb@new{test}

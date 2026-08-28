@@ -41,8 +41,8 @@ II.A.3'').
 
 The following commands are used to mark parts of a document with labels.
 
-\DescribeMacro\hilabel
-\cmd\hilabel\oarg{text}\marg{label} labels the current point in text. It detects
+\MacroSpec\hilabel \oarg{text}\marg{label}\\
+labels the current point in text. It detects
 whether it is inside a footnote, table, figure, or body text, and adjusts the
 label accordingly. If the |sidenotes| package is loaded before \hia*, then side
 notes will be detected as well.
@@ -79,8 +79,8 @@ notes will be detected as well.
 %</package>
 %<*doc>
 
-\DescribeMacro\hiendlabel
-\cmd\hiendlabel\marg{label} closes a labeled range opened with |\hilabel|. Note
+\MacroSpec\hiendlabel\marg{label}\\
+Closes a labeled range opened with |\hilabel|. Note
 that the type of text marked at the beginning and end must be the same (e.g.,
 |\hilabel| called in a footnote cannot be followed by |\hiendlabel| in body
 text). Currently, only contiguous ranges can be labeled, although a desirable
@@ -97,14 +97,21 @@ cross-reference ranges.
 %</package>
 %<*doc>
 
-\DescribeMacro\hitanlabel
-\DescribeMacro\hiendtanlabel
-\DescribeMacro\hiflabel
-\DescribeMacro\hinotelabel
-Particularly for law review articles, it is sometimes desirable to
-cross-reference ``notes $x$--$y$ and accompanying text.'' This is done with
-\cmd\hitanlabel\ and \cmd\hiendtanlabel. There are also provided commands
-|\hiflabel| and |\hinotelabel| for labeling floats and footnotes, respectively.
+
+\MacroSpec\hitanlabel\marg{label}
+Creates a cross-reference label of the form ``notes $x$--$y$ and accompanying
+text.'' It should be used before footnote $x$.
+
+\MacroSpec\hiendtanlabel\marg{label}
+Ends a cross-reference label of the above form.
+
+\MacroSpec\hiflabel\marg{label}
+Labels a figure or table. This should be used after the |\caption| is given.
+This and the next macro should not be needed since |\hilabel| will detect these
+contexts and adjust the label accordingly.
+
+\MacroSpec\hinotelabel\marg{label}
+Labels a footnote, while inside the footnote.
 
 %</doc>
 %<*package>
@@ -133,11 +140,11 @@ cross-reference ``notes $x$--$y$ and accompanying text.'' This is done with
 %</package>
 %<*doc>
 
-\DescribeMacro\hisectlabel
-\cmd\hisectlabel\marg{label} labels the current section.
+\MacroSpec\hisectlabel
+\marg{label} labels the current section.
 
-\DescribeMacro\hiendsectlabel
-\cmd\hiendsectlabel\marg{label} labels an end of a section range.
+\MacroSpec\hiendsectlabel
+\marg{label} labels an end of a section range.
 
 For law review articles, top-level cross-references will use the word ``Part''
 while other cross-references will use ``Section.'' (The distinction is

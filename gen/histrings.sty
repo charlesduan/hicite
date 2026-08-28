@@ -1,10 +1,10 @@
 %%
-%% This is file `gen/strings.sty',
+%% This is file `gen/histrings.sty',
 %% generated with the docstrip utility.
 %%
 %% The original source files were:
 %%
-%% src/strings.dtx  (with options: `package')
+%% src/histrings.dtx  (with options: `package')
 %% 
 %% This is a generated file.
 %% 
@@ -21,9 +21,9 @@
 %% this program.  If not, see <http://www.gnu.org/licenses/>.
 %% 
 %%
-%% \iffalse filename: strings.dtx \fi
+%% \iffalse filename: histrings.dtx \fi
 %%
-\ProvidesPackage{strings}[2004/10/09 String tests]
+\ProvidesPackage{histrings}[2004/10/09 String macros and other utilities]
 \RequirePackage{etoolbox}
 \def\@test#1\fi{#1\expandafter\@firstoftwo\else\expandafter\@secondoftwo\fi}
 \def\@testcase#1\fi#2#3\default#4{%
@@ -95,7 +95,7 @@
 }
 \def\find@use#1#2#3{%
     \@ifundefined{finder@#1@\detokenize{#2}}{%
-        \PackageError{strings}{%
+        \PackageError{histrings}{%
             Finder of type #1 for `\detokenize{#2}' not defined; used%
         }{%
             You must run \@backslashchar make@find@#1{\detokenize{#2}} first%
@@ -401,4 +401,4 @@
 \str@reset@catcodes
 \endinput
 %%
-%% End of file `gen/strings.sty'.
+%% End of file `gen/histrings.sty'.

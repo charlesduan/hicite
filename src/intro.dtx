@@ -1,6 +1,19 @@
 %%
 %% \iffalse filename: intro.dtx \fi
 %%
+%<*driver>
+\input driver
+\thisis{intro}{Introduction}
+
+This file includes the preamble code for the documentation and also the initial
+declarations for the package.
+
+%</driver>
+%
+%<*package>
+%\iffalse % Ignore the documentation preamble
+%</package>
+%
 %<*doc>
 
 \documentclass{ltxdoc}
@@ -42,9 +55,16 @@ Creative Commons, PO Box 1866, Mountain View, CA 94042, USA.}}
 
 %</doc>
 %<*package>
+%
+% \fi
+%
+% Preliminary package declarations.
+%
+%    \begin{macrocode}
 \ProvidesPackage{hicite}[2022/07/20 Legal citation formatting and management]
-\RequirePackage{etoolbox,strings,sortlist,keyval,abbrev}
+\RequirePackage{etoolbox,histrings,hisort,keyval,hiabbrev}
 \def\hi@pkgname{hicite}
+%    \end{macrocode}
 %</package>
 %<*test>
 \documentclass{article}

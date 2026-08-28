@@ -1,10 +1,10 @@
 %%
-%% This is file `gen/abbrev.sty',
+%% This is file `gen/hiabbrev.sty',
 %% generated with the docstrip utility.
 %%
 %% The original source files were:
 %%
-%% src/abbrev.dtx  (with options: `package')
+%% src/hiabbrev.dtx  (with options: `package')
 %% 
 %% This is a generated file.
 %% 
@@ -21,11 +21,11 @@
 %% this program.  If not, see <http://www.gnu.org/licenses/>.
 %% 
 %%
-%% \iffalse filename: abbrev.dtx \fi
+%% \iffalse filename: hiabbrev.dtx \fi
 %%
-\ProvidesPackage{abbrev}[2017/08/14 Abbreviations]
+\ProvidesPackage{hiabbrev}[2017/08/14 Abbreviations]
 \RequirePackage{etoolbox}
-\RequirePackage{strings}
+\RequirePackage{histrings}
 \def\abb@new#1{\@namedef{abb@class@#1}{}}%
 \def\abb@add#1#2#3{%
     \find@word{#2}{%
@@ -296,4 +296,4 @@
 \ProcessOptions\relax
 \endinput
 %%
-%% End of file `gen/abbrev.sty'.
+%% End of file `gen/hiabbrev.sty'.

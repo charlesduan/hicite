@@ -8,9 +8,16 @@ endif
 
 main: manual/hicite.pdf
 
-ctan: dist
-	( ls | grep -v 'gen|test|manual|doc' ; echo 'manual/hicite.pdf' ) \
-		| xargs tar czvf ctan.tgz
+ctan: clean dist
+	cd .. ; \
+	tar czvf hicite/ctan.tgz \
+		--exclude '*.log' \
+		--exclude 'gen' --exclude 'test' --exclude 'doc' \
+		--exclude 'ctan.tgz' \
+		--exclude manual/hicite.tex \
+		--exclude '.git*' --exclude '*.sw[op]' \
+		--exclude tables \
+		hicite
 
 dist: hicite.tds.zip
 

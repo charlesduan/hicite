@@ -1,9 +1,9 @@
 %%
-%% \iffalse filename: strings.dtx \fi
+%% \iffalse filename: histrings.dtx \fi
 %%
 %<*doc>
 \input driver
-\thisis{strings}{String Processing Macros}
+\thisis{histrings}{String Processing Macros}
 
 This package provides a variety of low-level text processing commands and macro
 helpers. The section in the main \hia* documentation just provides an overview
@@ -17,7 +17,7 @@ definitions, and expansion control. These are similar to the |etoolbox| package.
 %<*package>
 %
 %    \begin{macrocode}
-\ProvidesPackage{strings}[2004/10/09 String tests]
+\ProvidesPackage{histrings}[2004/10/09 String macros and other utilities]
 \RequirePackage{etoolbox}
 %    \end{macrocode}
 %
@@ -67,7 +67,7 @@ definitions, and expansion control. These are similar to the |etoolbox| package.
 
 \subsection{Expansion Control}
 
-Although, there are several useful macros defined in this section, the notable
+Although there are several useful macros defined in this section, the notable
 one is
 \DescribeMacro\@expand
 |\@expand|, which
@@ -286,7 +286,7 @@ none.
 %    \begin{macrocode}
 \def\find@use#1#2#3{%
     \@ifundefined{finder@#1@\detokenize{#2}}{%
-        \PackageError{strings}{%
+        \PackageError{histrings}{%
             Finder of type #1 for `\detokenize{#2}' not defined; used%
         }{%
             You must run \@backslashchar make@find@#1{\detokenize{#2}} first%
@@ -1003,7 +1003,7 @@ and adds separators.
 %</package>
 %<*test>
 
-\section{strings.dtx}
+\section{histrings.dtx}
 
 
 \begingroup
