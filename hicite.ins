@@ -20,7 +20,7 @@
 
 This is a generated file.
 
-Copyright 2013-2023 Charles Duan. This program is free software: you can
+Copyright 2013-\the\year Charles Duan. This program is free software: you can
 redistribute it and/or modify it under the terms of the GNU General Public
 License as published by the Free Software Foundation, either version 3 of the
 License, or (at your option) any later version.
@@ -49,7 +49,7 @@ this program.  If not, see <http://www.gnu.org/licenses/>.
 \def\addsupport#1{%
     \appto\userlist{\from{src/#1.dtx}{doc}}%
     \appto\testlist{\from{src/#1.dtx}{test}}%
-    \appto\supportlist{\file{gen/#1.sty}{\from{src/#1.dtx}{package}}}%
+    \appto\supportlist{\file{#1.sty}{\from{src/#1.dtx}{package}}}%
 }
 \def\addpart#1{\appto\userlist{\from{src/parts.dtx}{#1}}}
 
@@ -142,25 +142,19 @@ this program.  If not, see <http://www.gnu.org/licenses/>.
 
 \addtolist{conclusion}
 
-\generate{%
-    \file{manual/hicite.tex}{%
-        \userlist
-    }
-}
+\ifdefined\MakeManual
 
-\generate{%
-    \file{gen/hicite.sty}{%
-        \pkglist
-    }
-}
+    \generate{\file{manual/hicite-manual.tex}{\userlist}}
 
-\generate{
-    \file{test/test.tex}{%
-        \testlist
-    }
-}
+\else \ifdefined\MakeTests
 
-\generate{
-    \supportlist
-}
+    \generate{\file{test/test.tex}{\testlist}}
+
+\else
+
+    \generate{\file{hicite.sty}{\pkglist}}
+    \generate{\supportlist}
+
+\fi\fi
+
 \endbatchfile

@@ -1,4 +1,4 @@
-export TEXINPUTS := ./gen:./support:./helpers:
+export TEXINPUTS := ./tex//:./helpers:
 
 ifeq (, $(shell which xelatex-dev))
     XELATEX := xelatex
@@ -6,60 +6,95 @@ else
     XELATEX := xelatex-dev
 endif
 
-main: manual/hicite.pdf
+#
+# Generating documentation
+#
+manual: manual/hicite-manual.pdf
 
-ctan: clean dist
-	cd .. ; \
-	tar czvf hicite/ctan.tgz \
-		--exclude '*.log' \
-		--exclude 'gen' --exclude 'test' --exclude 'doc' \
-		--exclude 'ctan.tgz' \
-		--exclude manual/hicite.tex \
-		--exclude '.git*' --exclude '*.sw[op]' \
-		--exclude tables \
-		hicite
+manual/hicite-manual.tex: hicite.ins dirs FORCE
+	latex '\let\MakeManual\relax \input hicite.ins'
 
-dist: hicite.tds.zip
+manual/hicite-manual.pdf: manual/hicite-manual.tex
+	$(XELATEX) --output-directory=manual manual/hicite-manual
+	makeindex -s gind.ist manual/hicite-manual
+	$(XELATEX) --output-directory=manual manual/hicite-manual
 
-test: test/test.pdf
 
-package: gen/hicite.sty
-
-manual/hicite.pdf: manual/hicite.tex
-	$(XELATEX) --output-directory=manual manual/hicite
-	makeindex -s gind.ist manual/hicite
-	$(XELATEX) --output-directory=manual manual/hicite
-
-test/test.pdf: test/test.tex
-	$(XELATEX) --output-directory=test test/test
-
-hicite.tds.zip: gen/hicite.sty
-	mkdir -p tex/latex/hicite
-	cp gen/* support/* tex/latex/hicite
-	zip -r hicite.tds.zip tex
-	rm -rf tex
-
-manual/hicite.tex: hicite.ins dirs FORCE
-	latex hicite.ins
-
-gen/hicite.sty: hicite.ins dirs FORCE
-	latex hicite.ins
-
-test/test.tex: hicite.ins dirs FORCE
-	latex hicite.ins
-
-dirs:
-	test -d doc || mkdir doc
-	test -d test || mkdir test
-	test -d gen || mkdir gen
-	test -d manual || mkdir manual
-
-doc_helpers = helpers/driver.tex helpers/hidoc.sty helpers/docparams.tex
+#
+# Documentation for individual modules
+#
 
 doc/%.pdf: src/%.dtx dirs $(doc_helpers)
 	$(XELATEX) -output-directory=doc "$<"
 
 doc: $(patsubst src/%.dtx,doc/%.pdf,$(wildcard src/*.dtx))
+
+doc_helpers = helpers/driver.tex helpers/hidoc.sty helpers/docparams.tex
+
+
+
+#
+# Generating the package code
+#
+
+package: hicite.sty
+
+hicite.sty: hicite.ins dirs FORCE
+	latex hicite.ins
+
+
+#
+# Running tests
+#
+
+test: test/test.pdf
+
+test/test.pdf: test/test.tex
+	$(XELATEX) --output-directory=test test/test
+
+test/test.tex: hicite.ins dirs FORCE
+	latex '\let\MakeTests\relax \input hicite.ins'
+
+
+#
+# Making distributions
+#
+
+ctan: clean package
+	cd .. ; \
+	tar czvf hicite/ctan.tgz \
+		--exclude '*.log' \
+		--exclude 'test' --exclude 'doc' \
+		--exclude 'manual/*.tex' \
+		--exclude tables \
+		--exclude 'ctan.tgz' \
+		--exclude '*.tds.zip' \
+		--exclude '*.sty' \
+		--exclude '.git*' --exclude '*.sw[op]' \
+		hicite
+
+dist: hicite.tds.zip
+
+hicite.tds.zip: hicite.sty
+	mkdir hicite.tds ; \
+	mkdir -p hicite.tds/tex/latex/hicite ; \
+	cp tex/* *.sty hicite.tds/tex/latex/hicite ; \
+	cd hicite.tds ; \
+	zip -r hicite.tds.zip * ; \
+	cd .. ; \
+	rm -rf hicite.tds
+
+
+#
+# Utilities and cleanup
+#
+
+all: dist ctan manual test
+
+dirs:
+	test -d doc || mkdir doc
+	test -d test || mkdir test
+	test -d manual || mkdir manual
 
 FORCE:
 
