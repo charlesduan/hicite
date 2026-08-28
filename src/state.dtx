@@ -61,7 +61,7 @@ forcing all citations to be the full form.
 % Recordation of all full cites.
 %    \begin{macrocode}
 \def\hi@allfullcites{}
-\def\hi@addfullcite#1{\gappto\hi@allfullcites{\let#1\relax}}
+\def\hi@addfullcite#1{\gappto\hi@allfullcites{\global\let#1\relax}}
 %    \end{macrocode}
 %
 % Resets all citation state.

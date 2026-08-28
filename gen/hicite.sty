@@ -1773,8 +1773,8 @@
 }
 \let\noid\hi@noid
 \def\fullcite#1{%
-    \expandafter\let\csname dfc@#1\endcsname\relax
-    \expandafter\let\csname dfi@#1\endcsname\relax
+    \global\expandafter\let\csname dfc@#1\endcsname\relax
+    \global\expandafter\let\csname dfi@#1\endcsname\relax
     \noid
 }
 \def\nofullcite#1{\hi@record@cite{#1}}
@@ -3874,7 +3874,7 @@
 %% \iffalse filename: state.dtx \fi
 %%
 \def\hi@allfullcites{}
-\def\hi@addfullcite#1{\gappto\hi@allfullcites{\let#1\relax}}
+\def\hi@addfullcite#1{\gappto\hi@allfullcites{\global\let#1\relax}}
 \def\resetcitationforms{%
     \hi@allfullcites
     \gdef\hi@allfullcites{}%
