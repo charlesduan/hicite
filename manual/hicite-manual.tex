@@ -1792,49 +1792,43 @@ exclamation point deals with \TeX\ spacing issues.
 
 Several macros affect memory of citation state to change what forms of citations
 will be produced.
-\begin{itemize}
-\item
-\DescribeMacro{\noid}
-The |\noid| command informs the package not to use \emph{id.}\ for the next
+
+\MacroSpec\noid
+Informs the package not to use \emph{id.}\ for the next
 citation, by resetting memory of the last reference cited.
 
-\item
-\DescribeMacro\fullcite
-Similarly, the |\fullcite|\marg{ref} command informs the package to produce a
+\MacroSpec\fullcite \marg{ref} Informs the package to produce a
 full citation of \meta{ref} by resetting memory of that reference's use.
 
-\item
-\DescribeMacro\nofullcite
-By contrast, the |\nofullcite|\marg{ref} effectively cites \meta{ref} without
+\MacroSpec\nofullcite
+\marg{ref} Cites \meta{ref} without
 displaying anything, so that the next citation to that reference is a short
 form.
 
-\item
-\DescribeMacro\fulltitle
-The |\fulltitle|\marg{ref} command resets memory of the last statutory title
+\MacroSpec\fulltitle\marg{ref}
+Resets memory of the last statutory title
 cited.
 
-\item
-\DescribeMacro\addtotoa
-The |\addtotoa|\marg{ref} command adds \meta{ref} to the table of authorities
+\MacroSpec\addtotoa\marg{ref}
+Adds \meta{ref} to the table of authorities
 without producing any citation text.
-\end{itemize}
+
 
 \subsection{Shorter Commands}
 
 The following are synonyms to the citation commands thus described.
 
-\DescribeMacro\Ct Synonym for |\sentence|.
+\MacroSpec\Ct Synonym for |\sentence|.
 
-\DescribeMacro\ct Synonym for |\clause|.
+\MacroSpec\ct Synonym for |\clause|.
 
-\DescribeMacro\Ci Synonym for |\Inline|.
+\MacroSpec\Ci Synonym for |\Inline|.
 
-\DescribeMacro\ci Synonym for |\inline|.
+\MacroSpec\ci Synonym for |\inline|.
 
-\DescribeMacro\cn Synonym for |\note|.
+\MacroSpec\cn Synonym for |\note|.
 
-\DescribeMacro\cx Synonym for |\addtotoa|.
+\MacroSpec\cx Synonym for |\addtotoa|.
 
 %%
 %% \iffalse filename: parse.dtx \fi
