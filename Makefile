@@ -11,7 +11,7 @@ endif
 #
 manual: manual/hicite-manual.pdf
 
-manual/hicite-manual.tex: hicite.ins dirs FORCE
+manual/hicite-manual.tex: hicite.sty hicite.ins dirs FORCE
 	latex '\let\MakeManual\relax \input hicite.ins'
 
 manual/hicite-manual.pdf: manual/hicite-manual.tex
@@ -60,16 +60,19 @@ test/test.tex: hicite.ins dirs FORCE
 # Making distributions
 #
 
-ctan: clean package
+ctan: hicite-ctan.tgz
+
+hicite-ctan.tgz: clean package
 	cd .. ; \
-	tar czvf hicite/ctan.tgz \
+	tar czvf hicite/hicite-ctan.tgz \
 		--exclude '*.log' \
 		--exclude 'test' --exclude 'doc' \
 		--exclude 'manual/*.tex' \
 		--exclude tables \
-		--exclude 'ctan.tgz' \
-		--exclude '*.tds.zip' \
-		--exclude '*.sty' \
+		--exclude '*.tgz' \
+		--exclude '*.zip' \
+		--exclude 'hicite/hi*.sty' \
+		--exclude 'TODO.md' \
 		--exclude '.git*' --exclude '*.sw[op]' \
 		hicite
 
@@ -89,7 +92,7 @@ hicite.tds.zip: hicite.sty
 # Utilities and cleanup
 #
 
-all: dist ctan manual test
+all: manual test dist ctan
 
 dirs:
 	test -d doc || mkdir doc
