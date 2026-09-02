@@ -49,7 +49,7 @@ hicite.sty: hicite.ins dirs FORCE
 
 test: test/test.pdf
 
-test/test.pdf: test/test.tex
+test/test.pdf: package test/test.tex
 	$(XELATEX) --output-directory=test test/test
 
 test/test.tex: hicite.ins dirs FORCE
@@ -83,7 +83,7 @@ hicite.tds.zip: hicite.sty
 	mkdir -p hicite.tds/tex/latex/hicite ; \
 	cp tex/* *.sty hicite.tds/tex/latex/hicite ; \
 	cd hicite.tds ; \
-	zip -r hicite.tds.zip * ; \
+	zip -r ../hicite.tds.zip * ; \
 	cd .. ; \
 	rm -rf hicite.tds
 

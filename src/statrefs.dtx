@@ -748,65 +748,73 @@ See \sec{pages-segments} for more on segments in pin cites.
                 \hi@inline@the\@capnext\hi@kv@name
             }%
             \hi@maybepage{ }%
-            \hi@inline@never{%
-                \noexpand\hi@statsess@statpage{%
-                    , 
-                    \hi@ifset\hi@kv@vol\hi@kv@vol\hi@kv@year \space
-                    \noexpand\hi@fn@statute{\hi@kv@rep}\space
-                    \noexpand\hi@atorsect@withpage
-                }%
-            }%
         }%
         \hi@inline@never{%
             , \noexpand\hi@fn@sig{in}\space
-            \noexpand\clause{\hi@kv@in\space at \hi@kv@page}%
+            \hi@ifpage{%
+                \noexpand\clause{%
+                    \hi@kv@in\space at \hi@kv@origsect\space ::stat:
+                    \unexpanded{%
+                        \@expandarg\hi@fpg@segment{\@this@orig@page}{stat}{}{}%
+                    }%
+                }%
+            }{%
+                \noexpand\clause{%
+                    \hi@kv@in\space at \hi@kv@origsect\space ::stat: \hi@kv@page
+                }%
+            }%
             \noexpand\hi@clause@endflag
         }%
     }%
 }
 \def\hi@statsess@normal#1{%
+    \hi@newcite@form{ifc}{#1}{%
+        \hi@maybeusedefaultopt
+        \hi@citeguts{%
+            \hi@name@only{%
+                \hi@inline@the\@capnext\hi@kv@name
+            }%
+        }%
+    }%
     \hi@newcite@form{fc}{#1}{%
         \hi@maybeusedefaultopt
         \hi@citeguts{%
             \hi@name@only{%
                 \hi@inline@the\@capnext\hi@kv@name
             }%
-            \hi@inline@never{%
-                \hi@name@only{, }%
-                \@capnext\hi@kv@type~\hi@kv@number
-                \hi@maybepage{, }%
-                \hi@ifset\hi@kv@rep{%
-                    ,
-                    \hi@ifset\hi@kv@vol\hi@kv@vol\hi@kv@year \space
-                    \noexpand\hi@fn@statute{\hi@kv@rep}%
-                    \hi@ifset\hi@kv@slip{}{%
-                        \space\hi@kv@page
-                        \noexpand\hi@statsess@statpage{, \noexpand\@iden}%
-                    }%
+            \hi@name@only{, }%
+            \@capnext\hi@kv@type~\hi@kv@number
+            \hi@maybepage{, }%
+            \hi@ifset\hi@kv@rep{%
+                ,
+                \hi@ifset\hi@kv@vol\hi@kv@vol\hi@kv@year \space
+                \noexpand\hi@fn@statute{\hi@kv@rep}%
+                \hi@ifset\hi@kv@slip{}{%
+                    \space\hi@kv@page
+                    \noexpand\hi@statsess@statpage{, \noexpand\@iden}%
+                }%
+            }{}%
+        }%
+        \hi@ifset\hi@kv@slip{}{\noexpand\hi@statsess@chkstatpage}%
+        % Should this be a bookparen?
+        \hi@ifset\hi@kv@year{%
+            \hi@parens@add\hi@paren@date{%
+                \hi@ifset\hi@kv@place{\hi@kv@place\space}{}%
+                \hi@param@optspc\hi@kv@publisher\hi@kv@year
+            }%
+        }{%
+            \hi@ifset\hi@kv@publisher{%
+                \hi@parens@add\hi@paren@date{%
+                    \hi@ifset\hi@kv@place{\hi@kv@place\space}{}%
+                    \hi@kv@publisher
+                }%
+            }{%
+                \hi@ifset\hi@kv@place{%
+                    \hi@parens@add\hi@paren@date{\hi@kv@place}%
                 }{}%
             }%
         }%
-        \hi@inline@never{%
-            \hi@ifset\hi@kv@slip{}{\noexpand\hi@statsess@chkstatpage}%
-            \hi@ifset\hi@kv@year{%
-                \hi@parens@add\hi@paren@date{%
-                    \hi@ifset\hi@kv@place{\hi@kv@place\space}{}%
-                    \hi@param@optspc\hi@kv@publisher\hi@kv@year
-                }%
-            }{%
-                \hi@ifset\hi@kv@publisher{%
-                    \hi@parens@add\hi@paren@date{%
-                        \hi@ifset\hi@kv@place{\hi@kv@place\space}{}%
-                        \hi@kv@publisher
-                    }%
-                }{%
-                    \hi@ifset\hi@kv@place{%
-                        \hi@parens@add\hi@paren@date{\hi@kv@place}%
-                    }{}%
-                }%
-            }%
-            \the\hi@param@parens
-        }%
+        \the\hi@param@parens
     }%
 }
 \def\hi@statsess@shortforms#1{%
@@ -865,12 +873,17 @@ See \sec{pages-segments} for more on segments in pin cites.
     }%
 }
 \make@find@in{ }
+%    \end{macrocode}
 %
 % Sets up the name for a session law, if one is not provided. The rules are:
-% - use the form "Act of [date]"
-% - Place the year invisibly in front of the name to make TOA sorting correct
-% - If no inline (short) form is set, use "the [YEAR] Act"
+% \begin{itemize}
+% \item use the form ``Act of [date]''
+% \item Place the year invisibly in front of the name to make TOA sorting
+% correct
+% \item If no inline (short) form is set, use ``the [YEAR] Act''
+% \end{itemize}
 %
+%    \begin{macrocode}
 \def\hi@statsess@name{%
     \hi@ifset\hi@kv@name\relax{%
         \protected@edef\hi@kv@name{Act of \hi@kv@year}%
@@ -880,10 +893,12 @@ See \sec{pages-segments} for more on segments in pin cites.
         }%
     }%
 }
+%    \end{macrocode}
 %
-% If there is a ::stat: segment in the page number, then place #1[stat-page] on
-% the token list.
+% If there is a |::stat:| segment in the page number, then place \#1[stat-page]
+% on the token list.
 %
+%    \begin{macrocode}
 \def\hi@statsess@statpage#1{%
     \ifx\@this@orig@page\relax\else
         \protected@edef\reserved@a{%
@@ -896,12 +911,14 @@ See \sec{pages-segments} for more on segments in pin cites.
 }
 \def\hi@getyear#1#2{\hi@getyear@{#2}{}{#1}}
 \def\hi@getyear@#1#2#3{\find@in{ }{#3}{\hi@getyear@{#1}}{#1{#3}}}
+%    \end{macrocode}
 %
-% As necessary, checks whether a statute pincite includes the ::stat: element.
+% As necessary, checks whether a statute pincite includes the |::stat:| element.
 % If not, raises an error. This macro should be executed at use-time of a
-% citation form (i.e., it should be \noexpand'ed in the definition of the
+% citation form (i.e., it should be |\noexpand|'ed in the definition of the
 % citation form).
 %
+%    \begin{macrocode}
 \def\hi@statsess@chkstatpage{%
     \ifx\@this@page\relax
         % In some older statutes there are no section numbers, so you could have
@@ -918,7 +935,7 @@ See \sec{pages-segments} for more on segments in pin cites.
 }
 \def\hi@statsess@statpageerr{%
     \PackageError\hi@pkgname{%
-        Missing page number in session law citation
+        Missing ::stat: page number in session law citation
     }{%
         A pin cite to a statute in session laws must include\MessageBreak
         both a section number and a page number. The page\MessageBreak
@@ -1328,5 +1345,22 @@ Torts} \S~847A (\textsc{Am.~L.~Inst.}, Tentative Draft No.~17, 2000).}}
 
 \AssertBox{\note{ali at S 848}}{\InFootnote{\textsc{Restatement (Second) of
 Torts} \S~848.}}
+
+\defstatsess{dmca-sess}{
+name={Digital Millennnium Copyright Act},
+publiclaw={105-304},
+cite={112 Stat. 2860},
+year={1998}
+}
+\defstatsess{ocilla}{
+name={Online Copyright Infringement Liability Limitation Act},
+page=2877,
+in=dmca-sess,
+origsect=title II,
+}
+
+\expandafter\show\csname fc@ocilla\endcsname
+
+\AssertBox{\note{ocilla at S 203 ::stat: 2886}}{\InFootnote{}}
 
 %</test>

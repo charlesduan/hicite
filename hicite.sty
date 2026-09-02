@@ -5717,65 +5717,73 @@
                 \hi@inline@the\@capnext\hi@kv@name
             }%
             \hi@maybepage{ }%
-            \hi@inline@never{%
-                \noexpand\hi@statsess@statpage{%
-                    ,
-                    \hi@ifset\hi@kv@vol\hi@kv@vol\hi@kv@year \space
-                    \noexpand\hi@fn@statute{\hi@kv@rep}\space
-                    \noexpand\hi@atorsect@withpage
-                }%
-            }%
         }%
         \hi@inline@never{%
             , \noexpand\hi@fn@sig{in}\space
-            \noexpand\clause{\hi@kv@in\space at \hi@kv@page}%
+            \hi@ifpage{%
+                \noexpand\clause{%
+                    \hi@kv@in\space at \hi@kv@origsect\space ::stat:
+                    \unexpanded{%
+                        \@expandarg\hi@fpg@segment{\@this@orig@page}{stat}{}{}%
+                    }%
+                }%
+            }{%
+                \noexpand\clause{%
+                    \hi@kv@in\space at \hi@kv@origsect\space ::stat: \hi@kv@page
+                }%
+            }%
             \noexpand\hi@clause@endflag
         }%
     }%
 }
 \def\hi@statsess@normal#1{%
+    \hi@newcite@form{ifc}{#1}{%
+        \hi@maybeusedefaultopt
+        \hi@citeguts{%
+            \hi@name@only{%
+                \hi@inline@the\@capnext\hi@kv@name
+            }%
+        }%
+    }%
     \hi@newcite@form{fc}{#1}{%
         \hi@maybeusedefaultopt
         \hi@citeguts{%
             \hi@name@only{%
                 \hi@inline@the\@capnext\hi@kv@name
             }%
-            \hi@inline@never{%
-                \hi@name@only{, }%
-                \@capnext\hi@kv@type~\hi@kv@number
-                \hi@maybepage{, }%
-                \hi@ifset\hi@kv@rep{%
-                    ,
-                    \hi@ifset\hi@kv@vol\hi@kv@vol\hi@kv@year \space
-                    \noexpand\hi@fn@statute{\hi@kv@rep}%
-                    \hi@ifset\hi@kv@slip{}{%
-                        \space\hi@kv@page
-                        \noexpand\hi@statsess@statpage{, \noexpand\@iden}%
-                    }%
+            \hi@name@only{, }%
+            \@capnext\hi@kv@type~\hi@kv@number
+            \hi@maybepage{, }%
+            \hi@ifset\hi@kv@rep{%
+                ,
+                \hi@ifset\hi@kv@vol\hi@kv@vol\hi@kv@year \space
+                \noexpand\hi@fn@statute{\hi@kv@rep}%
+                \hi@ifset\hi@kv@slip{}{%
+                    \space\hi@kv@page
+                    \noexpand\hi@statsess@statpage{, \noexpand\@iden}%
+                }%
+            }{}%
+        }%
+        \hi@ifset\hi@kv@slip{}{\noexpand\hi@statsess@chkstatpage}%
+        % Should this be a bookparen?
+        \hi@ifset\hi@kv@year{%
+            \hi@parens@add\hi@paren@date{%
+                \hi@ifset\hi@kv@place{\hi@kv@place\space}{}%
+                \hi@param@optspc\hi@kv@publisher\hi@kv@year
+            }%
+        }{%
+            \hi@ifset\hi@kv@publisher{%
+                \hi@parens@add\hi@paren@date{%
+                    \hi@ifset\hi@kv@place{\hi@kv@place\space}{}%
+                    \hi@kv@publisher
+                }%
+            }{%
+                \hi@ifset\hi@kv@place{%
+                    \hi@parens@add\hi@paren@date{\hi@kv@place}%
                 }{}%
             }%
         }%
-        \hi@inline@never{%
-            \hi@ifset\hi@kv@slip{}{\noexpand\hi@statsess@chkstatpage}%
-            \hi@ifset\hi@kv@year{%
-                \hi@parens@add\hi@paren@date{%
-                    \hi@ifset\hi@kv@place{\hi@kv@place\space}{}%
-                    \hi@param@optspc\hi@kv@publisher\hi@kv@year
-                }%
-            }{%
-                \hi@ifset\hi@kv@publisher{%
-                    \hi@parens@add\hi@paren@date{%
-                        \hi@ifset\hi@kv@place{\hi@kv@place\space}{}%
-                        \hi@kv@publisher
-                    }%
-                }{%
-                    \hi@ifset\hi@kv@place{%
-                        \hi@parens@add\hi@paren@date{\hi@kv@place}%
-                    }{}%
-                }%
-            }%
-            \the\hi@param@parens
-        }%
+        \the\hi@param@parens
     }%
 }
 \def\hi@statsess@shortforms#1{%
@@ -5871,7 +5879,7 @@
 }
 \def\hi@statsess@statpageerr{%
     \PackageError\hi@pkgname{%
-        Missing page number in session law citation
+        Missing ::stat: page number in session law citation
     }{%
         A pin cite to a statute in session laws must include\MessageBreak
         both a section number and a page number. The page\MessageBreak
@@ -7985,7 +7993,7 @@
     \hi@abbrev@leg{#1}{\def\hi@kv@committee}%
 }
 \hi@newparam{congress}{Congressional session number}
-\hi@newparam{origsect}{Original section number of a statute in a code}
+\hi@newparam{origsect}{Original section number of a statute}
 \hi@param@alias{publiclaw}{number}
 \hi@param@alias{publno}{number}
 \hi@param@alias{sesslawid}{type}

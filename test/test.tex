@@ -2122,6 +2122,23 @@ Torts} \S~847A (\textsc{Am.~L.~Inst.}, Tentative Draft No.~17, 2000).}}
 \AssertBox{\note{ali at S 848}}{\InFootnote{\textsc{Restatement (Second) of
 Torts} \S~848.}}
 
+\defstatsess{dmca-sess}{
+name={Digital Millennnium Copyright Act},
+publiclaw={105-304},
+cite={112 Stat. 2860},
+year={1998}
+}
+\defstatsess{ocilla}{
+name={Online Copyright Infringement Liability Limitation Act},
+page=2877,
+in=dmca-sess,
+origsect=title II,
+}
+
+\expandafter\show\csname fc@ocilla\endcsname
+
+\AssertBox{\note{ocilla at S 203 ::stat: 2886}}{\InFootnote{}}
+
 %%
 %% \iffalse filename: specrefs.dtx \fi
 \hi@newcite{bill}{An bill or resolution of Congress}{other}{%
@@ -4043,7 +4060,7 @@ parallel=coke: 5 Coke 91a,
     \hi@abbrev@leg{#1}{\def\hi@kv@committee}%
 }
 \hi@newparam{congress}{Congressional session number}
-\hi@newparam{origsect}{Original section number of a statute in a code}
+\hi@newparam{origsect}{Original section number of a statute}
 \hi@param@alias{publiclaw}{number}
 \hi@param@alias{publno}{number}
 \hi@param@alias{sesslawid}{type}

@@ -80,13 +80,16 @@ This has to be a parameter separate from \param{number} because \rtype{bill}
 references already use \param{number} for the bill identifier.
 %</doc>
 %
-\hi@newparam{origsect}{Original section number of a statute in a code}
+\hi@newparam{origsect}{Original section number of a statute}
 %<*doc>
 This is used, for example, when a U.S. Code section corresponds to a section of
 a statute with different numbering (for example, section 337 of the Tariff Act
-of 1930 being 19 U.S.C. \textsection~1337). It is specific to \rtype{statcode}
-references, and should be obviated with the newer reference type
-\rtype{stattitle}.
+of 1930 being 19 U.S.C. \textsection~1337). It should be obviated with the newer
+reference type \rtype{stattitle}.
+
+This parameter is also used for \rtype{statsess} references that use the
+\param{in} parameter. In this case, the value indicates the subdivision where
+the contained session law is found.
 %</doc>
 %
 \hi@param@alias{publiclaw}{number}
