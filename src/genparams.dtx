@@ -154,7 +154,7 @@ in the future.
     \hi@param@addparen\hi@paren@parallel{%
         #2%
         \@test\ifx\@this@page\relax\fi{}{%
-            \@expandarg\hi@fpg@segment{\@this@orig@page}{#1}{, }{%
+            \hi@fpg@orig@page@segment{#1}{, \@format@pageno}{%
                 \PackageWarning\hi@pkgname{%
                     In citation to \@this@case, parallel cite\MessageBreak
                     with key `#1' not given in page number%

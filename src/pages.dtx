@@ -94,17 +94,40 @@ The example would cite \textsection~12 of a statute, at page 783.
 }
 %    \end{macrocode}
 %
-% \DescribeMacro\hi@fpg@segment
-% \cmd\hi@fpg@segment\marg{page}\marg{segment-name}\marg{prefix}\marg{else}
-% selects a named segment and formats it. If there is a named segment, it is
-% prefixed with \meta{prefix}. If there is no such named segment,
-% \meta{else} is run.
+% \MacroSpec\hi@fpg@segment
+% \marg{page}\marg{segment-name}\marg{callback}\marg{else}\\
+% Selects a named segment. If there is a named segment, then
+% \meta{callback} is run with the segment as the argument. If there is no such
+% named segment, \meta{else} is run.
 %
 %    \begin{macrocode}
 \def\hi@fpg@segment#1#2#3#4{%
-    \find@in{ ::#2: }{#1}{#3\@tworun\@gobble\@format@pageno}{#4}%
+    \find@in{ ::#2: }{#1}{\@tworun\@gobble{\hi@fpg@segment@{#3}}}{#4}%
 }
 %    \end{macrocode}
+%
+% \#1 is the callback, \#2 the segment plus any trailing material, if any.
+%    \begin{macrocode}
+\def\hi@fpg@segment@#1#2{%
+    \find@in{ ::}{#2}{\@rungobble{#1}}{#1{#2}}%
+}
+%    \end{macrocode}
+%
+% \MacroSpec\hi@fpg@orig@page@segment
+% \marg{segment-name}\marg{callback}\marg{else}\\
+% Runs |\hi@fpg@segment| on the expanded value of |\@this@orig@page|. If it is
+% |\relax|, then runs \meta{else}.
+%
+%    \begin{macrocode}
+\def\hi@fpg@orig@page@segment#1#2#3{%
+    \@test\ifx\@this@orig@page\relax\fi{%
+        #3%
+    }{%
+        \@expandarg\hi@fpg@segment\@this@orig@page{#1}{#2}{#3}%
+    }%
+}
+%    \end{macrocode}
+%
 %
 % \DescribeMacro\hi@fpg@defsegment
 % A reference type macro must call |\hi@fpg@defsegment| to declare that it will
@@ -1219,4 +1242,27 @@ command
 \AssertBox{\def\@this@page{para.~3}\hi@page@space{Title 5}}{, }
 \AssertBox{\def\@this@page{para.~3}\hi@page@space{R.}}{ at }
 \AssertBox{\def\@this@page{3}\hi@page@space{R.}}{ at }
+
+
+\subsection{Segments}
+
+\begingroup
+
+\hi@fpg@defsegment{foo}
+\hi@fpg@defsegment{bar}
+
+\AssertExpand{\hi@fpg@segment{15}{foo}{\@iden}{missing}}{missing}
+\AssertExpand{\hi@fpg@segment{15 ::bar: 7}{foo}{\@iden}{missing}}{missing}
+\AssertExpand{\hi@fpg@segment{15 ::foo: 24}{foo}{\@iden}{fail}}{24}
+\AssertExpand{\hi@fpg@segment{15 ::foo: 24 ::bar: 7}{foo}{\@iden}{fail}}{24}
+\AssertExpand{\hi@fpg@segment{15 ::foo: 24 ::bar: 7}{bar}{\@iden}{fail}}{7}
+
+\def\@this@orig@page{15 ::foo: 24 ::bar: 7}
+\AssertExpand{\hi@fpg@orig@page@segment{foo}{\@iden}{fail}}{24}
+
+\let\@this@orig@page\relax
+\AssertExpand{\hi@fpg@orig@page@segment{foo}{\@iden}{missing}}{missing}
+
+\endgroup
+
 %</test>

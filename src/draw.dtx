@@ -245,7 +245,7 @@ capitalized. That could be the signal or a part of the citation text itself.
             \ifx\@this@vol\@last@vol\fi{}%
             \default{\@this@vol\hi@nocap\space}%
         \hi@id
-        \@test\ifx\@this@page\@last@page\fi{}{%
+        \hi@ifsamepage{}{%
             \hi@pageordefault{%
                 ~\hi@page@atorsect
             }{}%
@@ -254,6 +254,16 @@ capitalized. That could be the signal or a part of the citation text itself.
 }
 %    \end{macrocode}
 %
+% \MacroSpec\hi@ifsamepage\marg{if-true}\marg{if-false}
+% Determines if |\@this@page| is the same as |\@last@page|. Runs \meta{if-true}
+% if so, or \meta{if-false} otherwise. The command is robust so it may be
+% included in reference definitions.
+%
+%    \begin{macrocode}
+\DeclareRobustCommand\hi@ifsamepage{%
+    \@test\ifx\@this@page\@last@page\fi
+}
+%    \end{macrocode}
 %
 %
 % \paragraph{Reading Citation Item Components}

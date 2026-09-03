@@ -706,6 +706,28 @@ themselves work as expected.
 \AssertBox{\def\@this@page{para.~3}\hi@page@space{Title 5}}{, }
 \AssertBox{\def\@this@page{para.~3}\hi@page@space{R.}}{ at }
 \AssertBox{\def\@this@page{3}\hi@page@space{R.}}{ at }
+
+\subsection{Segments}
+
+\begingroup
+
+\hi@fpg@defsegment{foo}
+\hi@fpg@defsegment{bar}
+
+\AssertExpand{\hi@fpg@segment{15}{foo}{\@iden}{missing}}{missing}
+\AssertExpand{\hi@fpg@segment{15 ::bar: 7}{foo}{\@iden}{missing}}{missing}
+\AssertExpand{\hi@fpg@segment{15 ::foo: 24}{foo}{\@iden}{fail}}{24}
+\AssertExpand{\hi@fpg@segment{15 ::foo: 24 ::bar: 7}{foo}{\@iden}{fail}}{24}
+\AssertExpand{\hi@fpg@segment{15 ::foo: 24 ::bar: 7}{bar}{\@iden}{fail}}{7}
+
+\def\@this@orig@page{15 ::foo: 24 ::bar: 7}
+\AssertExpand{\hi@fpg@orig@page@segment{foo}{\@iden}{fail}}{24}
+
+\let\@this@orig@page\relax
+\AssertExpand{\hi@fpg@orig@page@segment{foo}{\@iden}{missing}}{missing}
+
+\endgroup
+
 %%
 %% \iffalse filename: parens.dtx \fi
 %%
@@ -1848,7 +1870,6 @@ year=1997,
     }{%
         \hi@statsess@normal{#1}%
     }%
-    \hi@statsess@shortforms{#1}%
 }
 \hi@newcite{stattitle}{A titled statutory citation}{statute}{%
     \hi@include@page@in@toa{#1}%
@@ -1914,9 +1935,7 @@ year=1997,
         \hi@pstruct@initialize\hi@stattitle@choppedpage
         \hi@citeguts{%
             \noexpand\hi@id
-            \noexpand\@test
-                \noexpand\ifx\noexpand\@this@page\noexpand\@last@page
-            \noexpand\fi{}{%
+            \hi@ifsamepage{}{%
                 \noexpand\@hi@dotfalse
                 \hi@maybepage{ },\space
                 \hi@pstruct@use{vol}\space
@@ -2122,6 +2141,8 @@ Torts} \S~847A (\textsc{Am.~L.~Inst.}, Tentative Draft No.~17, 2000).}}
 \AssertBox{\note{ali at S 848}}{\InFootnote{\textsc{Restatement (Second) of
 Torts} \S~848.}}
 
+\subsection{Contained Session Laws}
+
 \defstatsess{dmca-sess}{
 name={Digital Millennnium Copyright Act},
 publiclaw={105-304},
@@ -2133,12 +2154,39 @@ name={Online Copyright Infringement Liability Limitation Act},
 page=2877,
 in=dmca-sess,
 origsect=title II,
+inline=OCILLA,
 }
 
-\expandafter\show\csname fc@ocilla\endcsname
+\AssertBox{\note{ocilla}}{\InFootnote{Online Copyright Infringement Liability
+Limitation Act (OCILLA), \emph{in} Digital Millennnium Copyright Act, Pub.~L.
+No.~105-304, tit.~II, 112 \textsc{Stat.}~2860, 2877 (1998).}}
 
-\AssertBox{\note{ocilla at S 203 ::stat: 2886}}{\InFootnote{}}
+\fullcite{ocilla}
+\fullcite{dmca-sess}
 
+\AssertBox{\note{ocilla at S 203 ::stat: 2886}}{\InFootnote{Online Copyright
+Infringement Liability Limitation Act (OCILLA) \S~203, \emph{in} Digital
+Millennnium Copyright Act, Pub.~L. No.~105-304, tit.~II, 112
+\textsc{Stat.}~2860, 2886 (1998).}}
+
+\noid
+
+\AssertBox{\note{ocilla}}{\InFootnote{OCILLA, 112 \textsc{Stat.}~at 2877.}}
+\noid
+
+\AssertBox{\note{ocilla at S 204 ::stat: 2887}}{\InFootnote{OCILLA
+\S~204, 112 \textsc{Stat.}~at 2887.}}
+
+\AssertBox{\note{ocilla}}{\InFootnote{\emph{Id.}, 112 \textsc{Stat.}~at 2877.}}
+
+\AssertBox{\note{ocilla at S 204 ::stat: 2887}}{\InFootnote{\emph{Id.}~\S~204,
+112 \textsc{Stat.}~at 2887.}}
+
+\AssertBox{\note{ocilla at S 204 ::stat: 2887}}{\InFootnote{\emph{Id.}}}
+
+\AssertBox{\inline{ocilla}}{the Online Copyright Infringement Liability
+Limitation Act (``OCILLA'')}
+\AssertBox{\inline{ocilla at S 203}}{\S~203 of OCILLA}
 %%
 %% \iffalse filename: specrefs.dtx \fi
 \hi@newcite{bill}{An bill or resolution of Congress}{other}{%

@@ -41,6 +41,12 @@
     \llap{\hbox to 3em{\textbf{Exp:}\hfil}}\nobreak\strut\vrule#3\vrule\par
     \vskip 6pt
 }
+%
+% \AssertEqual\oarg{message}\marg{test}\marg{exp}
+% Assert that \meta{test} is identical to \meta{exp}, based on the \ifx
+% testing of macro definition identity. If not, then \meta{message} is used as
+% the error.
+%
 \newcommand\AssertEqual[3][AssertEqual]{%
     \global\advance\ut@testcount\@ne
     \def\unittest@a{#2}\def\unittest@b{#3}%
@@ -116,6 +122,10 @@
 \newcommand\AssertCS[3][\AssertEqual]{
     \@expand{\AssertMacro[#1]}{\csname #2\endcsname}{i}{#3}%
 }
+%
+% Asserts that the \protected@edef expansions of #2 and #3 meet the test of #1,
+% which by default is \AssertEqual.
+%
 \newcommand\AssertExpand[3][\AssertEqual]{%
     \protected@edef\reserved@a{%
         \noexpand#1[%

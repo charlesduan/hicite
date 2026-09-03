@@ -162,6 +162,16 @@ the meaning of |\macro|, and then run the callback |\process|, to result in:
 \def\@tworun#1#2#3#4{%
     #1{#3}#2{#4}%
 }
+%
+% Takes one callback and two parameters, discards the second parameter, and runs
+% the callback on the first parameter. (The alternative, where the first
+% parameter is discarded and the callback is run on the second parameter, can be
+% achieved with |\@tworun\@gobble|\marg{callback}.)
+%
+%    \begin{macrocode}
+\def\@rungobble#1#2#3{%
+    #1{#2}%
+}
 %    \end{macrocode}
 %
 %

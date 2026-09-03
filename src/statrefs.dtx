@@ -207,7 +207,6 @@ those for \rtype{statcode}.
     }{}%
     \hi@book@pubparen
     \hi@newcite@form{fc}{#1}{%
-        \hi@maybeusedefaultopt
         \hi@citeguts{%
             \hi@statcode@fmtname
             \hi@statcode@full@title{\hi@kv@vol/\hi@kv@rep}{%
@@ -313,7 +312,6 @@ those for \rtype{statcode}.
 %    \begin{macrocode}
 \def\hi@statcode@sc@origsect#1{%
     \hi@newcite@form{sc}{#1}{%
-        \hi@maybeusedefaultopt
         \hi@citeguts{%
             % \reserved@a holds any space to follow the title
             \def\noexpand\reserved@a{}%
@@ -350,7 +348,6 @@ those for \rtype{statcode}.
 %    \begin{macrocode}
 \def\hi@statcode@sc@noorigsect#1{%
     \hi@newcite@form{sc}{#1}{%
-        \hi@maybeusedefaultopt
         \hi@statcode@makeshortname{#1}%
         \hi@citeguts{%
             \def\noexpand\reserved@a{}%
@@ -689,7 +686,6 @@ those for \rtype{statcode}.
     }{%
         \hi@statsess@normal{#1}%
     }%
-    \hi@statsess@shortforms{#1}%
 }
 %<*doc>
 
@@ -742,7 +738,6 @@ See \sec{pages-segments} for more on segments in pin cites.
 \hi@fpg@defsegment{stat}
 \def\hi@statsess@contained#1{%
     \hi@newcite@form{fc}{#1}{%
-        \hi@maybeusedefaultopt
         \hi@citeguts{%
             \hi@name@only{%
                 \hi@inline@the\@capnext\hi@kv@name
@@ -751,25 +746,86 @@ See \sec{pages-segments} for more on segments in pin cites.
         }%
         \hi@inline@never{%
             , \noexpand\hi@fn@sig{in}\space
-            \hi@ifpage{%
-                \noexpand\clause{%
-                    \hi@kv@in\space at \hi@kv@origsect\space ::stat:
-                    \unexpanded{%
-                        \@expandarg\hi@fpg@segment{\@this@orig@page}{stat}{}{}%
-                    }%
-                }%
-            }{%
-                \noexpand\clause{%
-                    \hi@kv@in\space at \hi@kv@origsect\space ::stat: \hi@kv@page
-                }%
-            }%
+            \noexpand\hi@statsess@contained@cite{%
+                \hi@kv@in\space at \hi@kv@origsect
+            }{\hi@kv@page}%
             \noexpand\hi@clause@endflag
         }%
     }%
+%    \end{macrocode}
+%
+% The short citation form for contained cites is somewhat tricky. Following the
+% name, the citation information for the containing statute reference should be
+% displayed, but not the name. Because the name is not displayed, there should
+% be no state update resulting from the display of the containing statute,
+% meaning that |\clause| cannot be used. Instead, the state variables are
+% manually set and the |\sc@| macro for the containing statute is called
+% directly.
+%
+%    \begin{macrocode}
+    \hi@newcite@form{sc}{#1}{%
+        \hi@ifset\hi@kv@slip{}{\noexpand\hi@statsess@chkstatpage{#1}}%
+        \hi@citeguts{%
+            \hi@name@only{%
+                \hi@ifset\hi@kv@inline{\hi@kv@inline\hi@short@use{#1}}{%
+                    \hi@inline@the\@capnext\hi@kv@name
+                }%
+            }%
+            \begingroup
+                \noexpand\@hi@namefalse
+                \hi@ifpage{%
+                    \space
+                }{%
+                    \def\noexpand\@this@orig@page{ ::stat: \hi@kv@page}%
+                }%
+                \expandafter\noexpand\csname sc@\hi@kv@in\endcsname
+            \endgroup
+        }%
+    }%
+    \hi@newcite@form{isc}{#1}{%
+        \hi@citeguts{%
+            \hi@ifpage{%
+                \noexpand\@capnext\noexpand\@this@page\space of\space
+            }{}%
+            \hi@ifset\hi@kv@inline{\hi@kv@inline\hi@short@use{#1}}{%
+                \hi@inline@the\@capnext\hi@kv@name
+            }%
+        }%
+    }
+    \hi@newcite@form{idc}{#1}{%
+        \hi@ifset\hi@kv@slip{}{\noexpand\hi@statsess@chkstatpage{#1}}%
+        \hi@citeguts{%
+            \noexpand\hi@id
+            \hi@ifsamepage{}{%
+                \noexpand\@hi@dotfalse
+                \begingroup
+                    \noexpand\@hi@namefalse
+                    \hi@ifpage{%
+                        \space
+                    }{%
+                        \def\noexpand\@this@orig@page{ ::stat: \hi@kv@page}%
+                    }%
+                    \expandafter\noexpand\csname sc@\hi@kv@in\endcsname
+                \endgroup
+            }%
+        }%
+    }%
+}
+\DeclareRobustCommand\hi@statsess@contained@cite[2]{%
+    \hi@ifpage{%
+        \hi@fpg@orig@page@segment{stat}{\hi@statsess@contained@cite@{#1}{#2}}{%
+            \hi@statsess@statpageerr{#1}%
+            \clause{#1 ::stat: #2}%
+        }%
+    }{%
+        \clause{#1 ::stat: #2}%
+    }%
+}
+\def\hi@statsess@contained@cite@#1#2#3{%
+    \clause{#1 ::stat: #3}%
 }
 \def\hi@statsess@normal#1{%
     \hi@newcite@form{ifc}{#1}{%
-        \hi@maybeusedefaultopt
         \hi@citeguts{%
             \hi@name@only{%
                 \hi@inline@the\@capnext\hi@kv@name
@@ -777,7 +833,6 @@ See \sec{pages-segments} for more on segments in pin cites.
         }%
     }%
     \hi@newcite@form{fc}{#1}{%
-        \hi@maybeusedefaultopt
         \hi@citeguts{%
             \hi@name@only{%
                 \hi@inline@the\@capnext\hi@kv@name
@@ -795,7 +850,7 @@ See \sec{pages-segments} for more on segments in pin cites.
                 }%
             }{}%
         }%
-        \hi@ifset\hi@kv@slip{}{\noexpand\hi@statsess@chkstatpage}%
+        \hi@ifset\hi@kv@slip{}{\noexpand\hi@statsess@chkstatpage{#1}}%
         % Should this be a bookparen?
         \hi@ifset\hi@kv@year{%
             \hi@parens@add\hi@paren@date{%
@@ -816,11 +871,8 @@ See \sec{pages-segments} for more on segments in pin cites.
         }%
         \the\hi@param@parens
     }%
-}
-\def\hi@statsess@shortforms#1{%
     \hi@newcite@form{sc}{#1}{%
-        \hi@maybeusedefaultopt
-        \hi@ifset\hi@kv@slip{}{\noexpand\hi@statsess@chkstatpage}%
+        \hi@ifset\hi@kv@slip{}{\noexpand\hi@statsess@chkstatpage{#1}}%
         \hi@citeguts{%
             \hi@name@only{%
                 \hi@ifset\hi@kv@inline{\hi@kv@inline\hi@short@use{#1}}{%
@@ -851,9 +903,7 @@ See \sec{pages-segments} for more on segments in pin cites.
     \hi@newcite@form{idc}{#1}{%
         \hi@citeguts{%
             \noexpand\hi@id
-            \noexpand\@test
-                \noexpand\ifx\noexpand\@this@page\noexpand\@last@page
-            \noexpand\fi{}{%
+            \hi@ifsamepage{}{%
             }{%
                 % Use \hi@pageordefault to determine what to show. If
                 % \@this@page is given, prepend it with ~\hi@page@atorsect; if
@@ -901,9 +951,7 @@ See \sec{pages-segments} for more on segments in pin cites.
 %    \begin{macrocode}
 \def\hi@statsess@statpage#1{%
     \ifx\@this@orig@page\relax\else
-        \protected@edef\reserved@a{%
-            \@expandarg\hi@fpg@segment{\@this@orig@page}{stat}{}{}%
-        }%
+        \hi@fpg@orig@page@segment{stat}{\def\reserved@a}{}%
         \ifx\reserved@a\@empty\else
             \@expand{#1}\reserved@a{i}%
         \fi
@@ -918,24 +966,22 @@ See \sec{pages-segments} for more on segments in pin cites.
 % citation form (i.e., it should be |\noexpand|'ed in the definition of the
 % citation form).
 %
+% The argument is the reference name, used just for error messages.
+%
 %    \begin{macrocode}
-\def\hi@statsess@chkstatpage{%
+\def\hi@statsess@chkstatpage#1{%
     \ifx\@this@page\relax
         % In some older statutes there are no section numbers, so you could have
         % a pincite page with no pincite section.
-        % \ifx\@this@opt\relax\else \hi@statsess@opterr \fi
     \else
-        % \@this@orig@page could be \relax which would cause problems, but if
-        % \@this@page is not \relax then chances are we're good
-        \protected@edef\reserved@a{%
-            \@expandarg\hi@fpg@segment{\@this@orig@page}{stat}{}{}%
+        \hi@fpg@orig@page@segment{stat}{\@gobble}{%
+            \hi@statsess@statpageerr{#1}%
         }%
-        \ifx\reserved@a\@empty \hi@statsess@statpageerr \fi
     \fi
 }
-\def\hi@statsess@statpageerr{%
+\def\hi@statsess@statpageerr#1{%
     \PackageError\hi@pkgname{%
-        Missing ::stat: page number in session law citation
+        Missing ::stat: page number in session law citation #1%
     }{%
         A pin cite to a statute in session laws must include\MessageBreak
         both a section number and a page number. The page\MessageBreak
@@ -1009,9 +1055,7 @@ See \sec{pages-segments} for more on segments in pin cites.
         \hi@pstruct@initialize\hi@stattitle@choppedpage
         \hi@citeguts{%
             \noexpand\hi@id
-            \noexpand\@test
-                \noexpand\ifx\noexpand\@this@page\noexpand\@last@page
-            \noexpand\fi{}{%
+            \hi@ifsamepage{}{%
                 \noexpand\@hi@dotfalse
                 \hi@maybepage{ },\space
                 \hi@pstruct@use{vol}\space
@@ -1346,6 +1390,8 @@ Torts} \S~847A (\textsc{Am.~L.~Inst.}, Tentative Draft No.~17, 2000).}}
 \AssertBox{\note{ali at S 848}}{\InFootnote{\textsc{Restatement (Second) of
 Torts} \S~848.}}
 
+\subsection{Contained Session Laws}
+
 \defstatsess{dmca-sess}{
 name={Digital Millennnium Copyright Act},
 publiclaw={105-304},
@@ -1357,10 +1403,37 @@ name={Online Copyright Infringement Liability Limitation Act},
 page=2877,
 in=dmca-sess,
 origsect=title II,
+inline=OCILLA,
 }
 
-\expandafter\show\csname fc@ocilla\endcsname
+\AssertBox{\note{ocilla}}{\InFootnote{Online Copyright Infringement Liability
+Limitation Act (OCILLA), \emph{in} Digital Millennnium Copyright Act, Pub.~L.
+No.~105-304, tit.~II, 112 \textsc{Stat.}~2860, 2877 (1998).}}
 
-\AssertBox{\note{ocilla at S 203 ::stat: 2886}}{\InFootnote{}}
+\fullcite{ocilla}
+\fullcite{dmca-sess}
 
+\AssertBox{\note{ocilla at S 203 ::stat: 2886}}{\InFootnote{Online Copyright
+Infringement Liability Limitation Act (OCILLA) \S~203, \emph{in} Digital
+Millennnium Copyright Act, Pub.~L. No.~105-304, tit.~II, 112
+\textsc{Stat.}~2860, 2886 (1998).}}
+
+\noid
+
+\AssertBox{\note{ocilla}}{\InFootnote{OCILLA, 112 \textsc{Stat.}~at 2877.}}
+\noid
+
+\AssertBox{\note{ocilla at S 204 ::stat: 2887}}{\InFootnote{OCILLA
+\S~204, 112 \textsc{Stat.}~at 2887.}}
+
+\AssertBox{\note{ocilla}}{\InFootnote{\emph{Id.}, 112 \textsc{Stat.}~at 2877.}}
+
+\AssertBox{\note{ocilla at S 204 ::stat: 2887}}{\InFootnote{\emph{Id.}~\S~204,
+112 \textsc{Stat.}~at 2887.}}
+
+\AssertBox{\note{ocilla at S 204 ::stat: 2887}}{\InFootnote{\emph{Id.}}}
+
+\AssertBox{\inline{ocilla}}{the Online Copyright Infringement Liability
+Limitation Act (``OCILLA'')}
+\AssertBox{\inline{ocilla at S 203}}{\S~203 of OCILLA}
 %</test>

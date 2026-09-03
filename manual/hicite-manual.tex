@@ -4342,7 +4342,6 @@ those for \rtype{statcode}.
     }{%
         \hi@statsess@normal{#1}%
     }%
-    \hi@statsess@shortforms{#1}%
 }
 
 \keyparameters{
@@ -4452,9 +4451,7 @@ See \sec{pages-segments} for more on segments in pin cites.
         \hi@pstruct@initialize\hi@stattitle@choppedpage
         \hi@citeguts{%
             \noexpand\hi@id
-            \noexpand\@test
-                \noexpand\ifx\noexpand\@this@page\noexpand\@last@page
-            \noexpand\fi{}{%
+            \hi@ifsamepage{}{%
                 \noexpand\@hi@dotfalse
                 \hi@maybepage{ },\space
                 \hi@pstruct@use{vol}\space
@@ -7361,12 +7358,15 @@ The name will be abbreviated.
 \hi@newparam{congress}{Congressional session number}
 This has to be a parameter separate from \param{number} because \rtype{bill}
 references already use \param{number} for the bill identifier.
-\hi@newparam{origsect}{Original section number of a statute in a code}
+\hi@newparam{origsect}{Original section number of a statute}
 This is used, for example, when a U.S. Code section corresponds to a section of
 a statute with different numbering (for example, section 337 of the Tariff Act
-of 1930 being 19 U.S.C. \textsection~1337). It is specific to \rtype{statcode}
-references, and should be obviated with the newer reference type
-\rtype{stattitle}.
+of 1930 being 19 U.S.C. \textsection~1337). It should be obviated with the newer
+reference type \rtype{stattitle}.
+
+This parameter is also used for \rtype{statsess} references that use the
+\param{in} parameter. In this case, the value indicates the subdivision where
+the contained session law is found.
 \hi@param@alias{publiclaw}{number}
 \hi@param@alias{publno}{number}
 \hi@param@alias{sesslawid}{type}
