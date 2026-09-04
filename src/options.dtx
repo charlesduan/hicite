@@ -7,6 +7,8 @@
 
 The following options are accepted by this package.
 
+\subsection{Font and Formatting Styles}
+
 \ExplainOption{review} Law review formatting: selects law review fonts, expects
 footnotes, formats \emph{supra} cites with note numbers, and so on.
 
@@ -72,6 +74,46 @@ expects citations in text, and so on.
 %</package>
 %<*doc>
 
+\ExplainOption{italcase} Case names are italicized regardless of font packs
+previously chosen.
+
+%</doc>
+%<*package>
+%    \begin{macrocode}
+\DeclareOption{italcase}{\UseFontPack{italcase}}
+%    \end{macrocode}
+%
+%
+% \paragraph{Hooks for Memo and Review Formats}
+% The choice between review and memo style triggers a variety of differences in
+% citation processing, so provided here are two hooks that other components of
+% this package can add to for special processing depending on style. The hooks
+% will be executed at the end of the package.
+%
+%    \begin{macrocode}
+\def\hi@hooks@review{}
+\def\hi@hooks@memo{}
+%    \end{macrocode}
+%</package>
+%<*doc>
+
+\subsection{Author Lists}
+
+\ExplainOption{noauthwarn} No warning will be issued if three or more authors
+are given without the \param{noetal} parameter.
+
+%</doc>
+%<*package>
+%    \begin{macrocode}
+\DeclareOption{noauthwarn}{\hi@namelist@noauthwarn}
+%    \end{macrocode}
+%
+%</package>
+%<*doc>
+
+
+\subsection{Footnote Appearance}
+
 \ExplainOption{endnote} Uses endnotes rather than footnotes for formatting.
 
 %</doc>
@@ -91,6 +133,63 @@ expects citations in text, and so on.
 %    \end{macrocode}
 %</package>
 %<*doc>
+
+\ExplainOption{somenotename} In general, if a case is named inline in text and
+a citation to the case is made immediately thereafter, then the case name is
+suppressed in the citation so as to avoid redundancy. This option makes an
+exception where the citation to the case is the first citation in a footnote. In
+such cases, the inline use was in text potentially distant from the footnote, so
+naming the case again in the footnote is less redundant and potentially helpful
+to readers.
+
+%</doc>
+%<*package>
+%    \begin{macrocode}
+\DeclareOption{somenotename}{\hi@noname@sometimes}
+%    \end{macrocode}
+%</package>
+%<*doc>
+
+\ExplainOption{nonotename} Suppresses case names even in citations at the
+start of footnotes. This is typical of most legal journals.
+
+%</doc>
+%<*package>
+%    \begin{macrocode}
+\DeclareOption{nonotename}{\hi@noname@always}
+%    \end{macrocode}
+%</package>
+%<*doc>
+
+\subsection{URLs}
+
+\ExplainOption{overrideurl} \hia*'s |\url| command will override other packages
+without warning (see \sec{urls}).
+
+%</doc>
+%<*package>
+%    \begin{macrocode}
+\DeclareOption{overrideurl}{%
+    \def\hi@url@override{\let\url\HiUrl}%
+}
+%    \end{macrocode}
+%</package>
+%<*doc>
+
+
+\ExplainOption{nooverrideurl} \hia* will not define |\url|, leaving any other
+package's definition intact (see \sec{urls}).
+
+%</doc>
+%<*package>
+%    \begin{macrocode}
+\DeclareOption{nooverrideurl}{%
+    \let\hi@url@override\relax
+}
+%    \end{macrocode}
+%</package>
+%<*doc>
+
 
 \ExplainOption{fullurl} URLs are displayed with their full text.
 
@@ -124,16 +223,19 @@ authorities and a shortcut otherwise, as described in \sec{urls-appearance}.
 %</package>
 %<*doc>
 
-\ExplainOption{italcase} Case names are italicized regardless of font packs
-previously chosen.
+\ExplainOption{useopturl} Redefines the \param{opturl} parameter to be the same
+as \param{url}, as described in the documentation for the former parameter.
 
 %</doc>
 %<*package>
 %    \begin{macrocode}
-\DeclareOption{italcase}{\UseFontPack{italcase}}
+\DeclareOption{useopturl}{\hi@param@alias{opturl}{url}}
 %    \end{macrocode}
+%
 %</package>
 %<*doc>
+
+\subsection{Table of Authorities}
 
 \ExplainOption{toastar} Stars are added to common references in the table of
 authorities, as described in \sec{toa-star}.
@@ -146,44 +248,7 @@ authorities, as described in \sec{toa-star}.
 %</package>
 %<*doc>
 
-\ExplainOption{somenotename} In general, if a case is named inline in text and
-a citation to the case is made immediately thereafter, then the case name is
-suppressed in the citation so as to avoid redundancy. This option makes an
-exception where the citation to the case is the first citation in a footnote. In
-such cases, the inline use was in text potentially distant from the footnote, so
-naming the case again in the footnote is less redundant and potentially helpful
-to readers.
-
-%</doc>
-%<*package>
-%    \begin{macrocode}
-\DeclareOption{somenotename}{\hi@noname@sometimes}
-%    \end{macrocode}
-%</package>
-%<*doc>
-
-\ExplainOption{nonotename} Suppresses case names even in citations at the
-start of footnotes. This is typical of most legal journals.
-
-%</doc>
-%<*package>
-%    \begin{macrocode}
-\DeclareOption{nonotename}{\hi@noname@always}
-%    \end{macrocode}
-%</package>
-%<*doc>
-
-\ExplainOption{useopturl} Redefines the \param{opturl} parameter to be the same
-as \param{url}, as described in the documentation for the former parameter.
-
-%</doc>
-%<*package>
-%    \begin{macrocode}
-\DeclareOption{useopturl}{\hi@param@alias{opturl}{url}}
-%    \end{macrocode}
-%
-%</package>
-%<*doc>
+\subsection{Cross-References}
 
 \ExplainOption{noterefs} Cross-references to text will refer to the closest
 footnote numbers. This is typical of law reviews and is the standard when the
@@ -213,18 +278,6 @@ and is the standard when the \opt{memo} option is selected.
 %</package>
 %<*doc>
 
-\ExplainOption{noauthwarn} No warning will be issued if three or more authors
-are given without the \param{noetal} parameter.
-
-%</doc>
-%<*package>
-%    \begin{macrocode}
-\DeclareOption{noauthwarn}{\hi@namelist@noauthwarn}
-%    \end{macrocode}
-%
-%</package>
-%<*doc>
-
 \ExplainOption{xrefsupra} All \emph{supra}-style short citations will include a
 cross-reference to the full citation of the same reference. This is useful only
 for legal memoranda, and is described further in \sec{supra-xref}.
@@ -237,17 +290,4 @@ for legal memoranda, and is described further in \sec{supra-xref}.
 %
 %
 %
-%
-%
-%
-% \paragraph{Hooks for Memo and Review Formats}
-% The choice between review and memo style triggers a variety of differences in
-% citation processing, so provided here are two hooks that other components of
-% this package can add to for special processing depending on style. The hooks
-% will be executed at the end of the package.
-%
-%    \begin{macrocode}
-\def\hi@hooks@review{}
-\def\hi@hooks@memo{}
-%    \end{macrocode}
 %</package>

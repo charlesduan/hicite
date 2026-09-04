@@ -6,10 +6,16 @@
 \thisis{urls}{URLs}
 
 Every reference type can include a URL. \hia* formats URLs, makes them clickable
-links, and inserts line breaks into them. In that last respect, \hia*'s
-procedure is superior to other \LaTeX\ URL packages, which fail when a
-hyperlinked URL in a footnote breaks across a page, a common occurrence for law
-review articles.
+links, and inserts line breaks into them, an important feature for law review
+articles where full URLs are included in paragraph-long citations. It also
+provides a number of alternate ways of displaying URLs, which may be more
+visually appropriate for different types of documents such as textbooks or legal
+memoranda.
+
+To minimize dependencies on other packages, \hia* implements URL parsing,
+linking, and formatting on its own. It also provides user-level commands for
+handling URLs in text outside of citations. These features may be disabled with
+package options, as described below, to avoid conflicts with other packages.
 
 \subsection{Input Syntax}
 
@@ -26,18 +32,30 @@ package may not find a suitable breakpoint. Including \verb*|\ | (that is, a
 backslashed space) in the URL will force a breakpoint to be inserted into the
 URL, with no effect on appearance.
 
+\MacroSpec\HiUrl\marg{url-text} This provides a user-level command for inserting
+a URL into text. At the beginning of the document, the command
 \DescribeMacro\url
-The command |\url|\marg{url} can be used to format a URL in text.
+|\url| will be aliased to the same. If another package has already defined
+|\url| by then, a warning will be issued and \hia*'s definition will override
+it. This behavior may be altered by the package options \opt{overrideurl} and
+\opt{nooverrideurl}.
 
 %</doc>
 %<*package>
 %
-% User command to display a URL.
-%
 %    \begin{macrocode}
-\def\url#1{%
+\NewCommand\HiUrl[1]{%
     \hi@parseurl{#1}\reserved@a\reserved@a
 }%
+\AtBeginDocument{\hi@url@override}
+\def\hi@url@override{%
+    \@ifundefined{url}{}{%
+        \PackageWarning\hi@pkgname{%
+            Macro \string\url\space is already defined; overriding it%
+        }%
+    }%
+    \let\url\HiUrl
+}
 %    \end{macrocode}
 %
 % Parses the url (\#1) and puts it into control sequence (\#2). The resulting
@@ -514,7 +532,7 @@ themselves work as expected.
 \def\testbox#1{%
     \vrule\vbox{%
         \hsize 1in \relax
-        \url{#1}%
+        \HiUrl{#1}%
     }\vrule\quad
 }
 

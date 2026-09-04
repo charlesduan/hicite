@@ -689,6 +689,8 @@ those for \rtype{statcode}.
 }
 %<*doc>
 
+For ordinary session laws, the parameters are as follows:
+
 \keyparameters{
     {type}{The name to be prefixed to the statute's serial number. By default
     this is ``Pub.~L.~No.''}
@@ -704,13 +706,26 @@ those for \rtype{statcode}.
     constructed out of the date (which should be a full date as a result).}
     {chapter}{This sets \param{type} to ``ch.''\ and then sets \param{number} to
     the parameter value.}
-    {in}{For session laws contained within another larger session law (e.g., a
-    part of an omnibus budget act), it may be necessary to cite both session
-    laws to identify the contained one. This parameter can be given the
-    reference name of the larger session law to effect this citation form.}
     {slip}{For slip laws not yet included in a compilation, use this flag.}
     {place}{The place of publication (e.g., the state).}
     {publisher}{The publisher of the statute, if relevant.}
+}
+
+\paragraph{Contained session laws}
+A session law may also be contained within another larger session law (e.g., a
+part of an omnibus budget act). In this case, it may be desirable to cite both
+session laws to identify the contained one. The parameters used for such
+references are as follows:
+
+\keyparameters{
+    {name}{A name must be given for a contained session law, because the date of
+    enactment cannot be used as a default.}
+    {in}{The reference name of the larger session law containing this session
+    law.}
+    {origsect}{The subdivision of the containing session law in which this
+    session law is found.}
+    {page}{The page number in the session law compilation where this (contained)
+    session law begins.}
 }
 
 \begin{demo}
@@ -734,8 +749,14 @@ See \sec{pages-segments} for more on segments in pin cites.
 
 %</doc>
 %<*package>
+%
+% \subsubsection{Contained Session Laws}
+%
+% The full citation form for a contained session law comprises the session law
+% name, a section number if a pin cite is given, and a citation to the
+% containing session law.
+%
 %    \begin{macrocode}
-\hi@fpg@defsegment{stat}
 \def\hi@statsess@contained#1{%
     \hi@newcite@form{fc}{#1}{%
         \hi@citeguts{%
@@ -749,7 +770,6 @@ See \sec{pages-segments} for more on segments in pin cites.
             \noexpand\hi@statsess@contained@cite{%
                 \hi@kv@in\space at \hi@kv@origsect
             }{\hi@kv@page}%
-            \noexpand\hi@clause@endflag
         }%
     }%
 %    \end{macrocode}
@@ -811,19 +831,52 @@ See \sec{pages-segments} for more on segments in pin cites.
         }%
     }%
 }
+\hi@fpg@defsegment{stat}
+%    \end{macrocode}
+%
+% Produces the internal citation for the containing session law. \#1 is the text
+% of the citation input absent any |::stat:| part. \#2 is the default |::stat:|
+% page number to be used if the citation does not specify a pin cite. Thus,
+% for a citation with a pin-cite to a contained reference, the internal citation
+% produced by this macro is:
+% \begin{demo}
+% |\clause{|\meta{container} |at| \meta{division} |::stat:| \meta{pin-cite}|}|
+% \end{demo}
+% while a citation with no pin cite produces:
+% \begin{demo}
+% |\clause{|\meta{container} |at| \meta{division} |::stat:|
+% \meta{contained-start-page}|}|
+% \end{demo}
+%
+%
+%    \begin{macrocode}
 \DeclareRobustCommand\hi@statsess@contained@cite[2]{%
-    \hi@ifpage{%
-        \hi@fpg@orig@page@segment{stat}{\hi@statsess@contained@cite@{#1}{#2}}{%
-            \hi@statsess@statpageerr{#1}%
+    \begingroup
+        \let\@last@inline\relax
+        \hi@ifpage{%
+            \hi@fpg@orig@page@segment{stat}{%
+                \hi@statsess@contained@cite@{#1}{#2}%
+            }{%
+                \hi@statsess@statpageerr{#1}%
+                \clause{#1 ::stat: #2}%
+            }%
+        }{%
             \clause{#1 ::stat: #2}%
         }%
-    }{%
-        \clause{#1 ::stat: #2}%
-    }%
+        \hi@clause@endflag
+    \endgroup
 }
 \def\hi@statsess@contained@cite@#1#2#3{%
     \clause{#1 ::stat: #3}%
 }
+%    \end{macrocode}
+%
+%
+%
+%
+% \subsubsection{Non-contained Session Laws}
+%
+%    \begin{macrocode}
 \def\hi@statsess@normal#1{%
     \hi@newcite@form{ifc}{#1}{%
         \hi@citeguts{%
@@ -1439,9 +1492,10 @@ Limitation Act (``OCILLA'')}
 \AssertBox{\inline{ocilla at S 203}}{\S~203 of OCILLA}
 
 \fullcite{ocilla}
-\inline{dmca-sess}
 
-\AssertBox{\note{ocilla at S 203 ::stat: 2886}}{\InFootnote{OCILLA \S~203,
+
+\AssertBox{\inline{dmca-sess}\note{ocilla at S 203 ::stat: 2886}}{the Digital Millennium Copyright Act\InFootnote{Online Copyright
+Infringement Liability Limitation Act (OCILLA) \S~203,
 \emph{in} Digital Millennium Copyright Act, Pub.~L. No.~105-304, tit.~II, 112
 \textsc{Stat.}~2860, 2886 (1998).}}
 

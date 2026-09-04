@@ -551,6 +551,8 @@ the Indigo Book, which has been placed in the public domain.
 
 The following options are accepted by this package.
 
+\subsection{Font and Formatting Styles}
+
 \ExplainOption{review} Law review formatting: selects law review fonts, expects
 footnotes, formats \emph{supra} cites with note numbers, and so on.
 
@@ -573,29 +575,22 @@ expects citations in text, and so on.
 \ExplainOption{brief} Alias for \opt{memo}.
 
 
-\ExplainOption{endnote} Uses endnotes rather than footnotes for formatting.
-
-
-\ExplainOption{endnotes} Same as \opt{endnote}.
-
-
-\ExplainOption{fullurl} URLs are displayed with their full text.
-
-
-\ExplainOption{toaurl} URLs are displayed with their full text in the table of
-authorities and a shortcut otherwise, as described in \sec{urls-appearance}.
-
-
-\ExplainOption{linkurl} URLs are displayed as a linked word, as described in
-\sec{urls-appearance}.
-
-
 \ExplainOption{italcase} Case names are italicized regardless of font packs
 previously chosen.
 
 
-\ExplainOption{toastar} Stars are added to common references in the table of
-authorities, as described in \sec{toa-star}.
+\subsection{Author Lists}
+
+\ExplainOption{noauthwarn} No warning will be issued if three or more authors
+are given without the \param{noetal} parameter.
+
+
+\subsection{Footnote Appearance}
+
+\ExplainOption{endnote} Uses endnotes rather than footnotes for formatting.
+
+
+\ExplainOption{endnotes} Same as \opt{endnote}.
 
 
 \ExplainOption{somenotename} In general, if a case is named inline in text and
@@ -611,9 +606,38 @@ to readers.
 start of footnotes. This is typical of most legal journals.
 
 
+\subsection{URLs}
+
+\ExplainOption{overrideurl} \hia*'s |\url| command will override other packages
+without warning (see \sec{urls}).
+
+
+\ExplainOption{nooverrideurl} \hia* will not define |\url|, leaving any other
+package's definition intact (see \sec{urls}).
+
+
+\ExplainOption{fullurl} URLs are displayed with their full text.
+
+
+\ExplainOption{toaurl} URLs are displayed with their full text in the table of
+authorities and a shortcut otherwise, as described in \sec{urls-appearance}.
+
+
+\ExplainOption{linkurl} URLs are displayed as a linked word, as described in
+\sec{urls-appearance}.
+
+
 \ExplainOption{useopturl} Redefines the \param{opturl} parameter to be the same
 as \param{url}, as described in the documentation for the former parameter.
 
+
+\subsection{Table of Authorities}
+
+\ExplainOption{toastar} Stars are added to common references in the table of
+authorities, as described in \sec{toa-star}.
+
+
+\subsection{Cross-References}
 
 \ExplainOption{noterefs} Cross-references to text will refer to the closest
 footnote numbers. This is typical of law reviews and is the standard when the
@@ -623,10 +647,6 @@ footnote numbers. This is typical of law reviews and is the standard when the
 \ExplainOption{pagerefs} Cross-references to text will refer to the page
 numbers on which the relevant text is found. This is typical of legal memoranda
 and is the standard when the \opt{memo} option is selected.
-
-
-\ExplainOption{noauthwarn} No warning will be issued if three or more authors
-are given without the \param{noetal} parameter.
 
 
 \ExplainOption{xrefsupra} All \emph{supra}-style short citations will include a
@@ -1395,10 +1415,16 @@ Data is shown in |\inline|\{this at section-i\}.
 \thisis{urls}{URLs}
 
 Every reference type can include a URL. \hia* formats URLs, makes them clickable
-links, and inserts line breaks into them. In that last respect, \hia*'s
-procedure is superior to other \LaTeX\ URL packages, which fail when a
-hyperlinked URL in a footnote breaks across a page, a common occurrence for law
-review articles.
+links, and inserts line breaks into them, an important feature for law review
+articles where full URLs are included in paragraph-long citations. It also
+provides a number of alternate ways of displaying URLs, which may be more
+visually appropriate for different types of documents such as textbooks or legal
+memoranda.
+
+To minimize dependencies on other packages, \hia* implements URL parsing,
+linking, and formatting on its own. It also provides user-level commands for
+handling URLs in text outside of citations. These features may be disabled with
+package options, as described below, to avoid conflicts with other packages.
 
 \subsection{Input Syntax}
 
@@ -1415,8 +1441,13 @@ package may not find a suitable breakpoint. Including \verb*|\ | (that is, a
 backslashed space) in the URL will force a breakpoint to be inserted into the
 URL, with no effect on appearance.
 
+\MacroSpec\HiUrl\marg{url-text} This provides a user-level command for inserting
+a URL into text. At the beginning of the document, the command
 \DescribeMacro\url
-The command |\url|\marg{url} can be used to format a URL in text.
+|\url| will be aliased to the same. If another package has already defined
+|\url| by then, a warning will be issued and \hia*'s definition will override
+it. This behavior may be altered by the package options \opt{overrideurl} and
+\opt{nooverrideurl}.
 
 
 \subsection{Alternate Presentations of URLs}
@@ -4344,6 +4375,8 @@ those for \rtype{statcode}.
     }%
 }
 
+For ordinary session laws, the parameters are as follows:
+
 \keyparameters{
     {type}{The name to be prefixed to the statute's serial number. By default
     this is ``Pub.~L.~No.''}
@@ -4359,13 +4392,26 @@ those for \rtype{statcode}.
     constructed out of the date (which should be a full date as a result).}
     {chapter}{This sets \param{type} to ``ch.''\ and then sets \param{number} to
     the parameter value.}
-    {in}{For session laws contained within another larger session law (e.g., a
-    part of an omnibus budget act), it may be necessary to cite both session
-    laws to identify the contained one. This parameter can be given the
-    reference name of the larger session law to effect this citation form.}
     {slip}{For slip laws not yet included in a compilation, use this flag.}
     {place}{The place of publication (e.g., the state).}
     {publisher}{The publisher of the statute, if relevant.}
+}
+
+\paragraph{Contained session laws}
+A session law may also be contained within another larger session law (e.g., a
+part of an omnibus budget act). In this case, it may be desirable to cite both
+session laws to identify the contained one. The parameters used for such
+references are as follows:
+
+\keyparameters{
+    {name}{A name must be given for a contained session law, because the date of
+    enactment cannot be used as a default.}
+    {in}{The reference name of the larger session law containing this session
+    law.}
+    {origsect}{The subdivision of the containing session law in which this
+    session law is found.}
+    {page}{The page number in the session law compilation where this (contained)
+    session law begins.}
 }
 
 \begin{demo}

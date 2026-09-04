@@ -28,7 +28,11 @@ tracking. And it includes an extensive list of document types that may be cited,
 in view of the many different citation forms that legal citation manuals
 typically use.
 
+## Author
 
+The author of this package is Charles Duan, who may be reached at
+[cduan@wcl.american.edu](mailto:cduan@wcl.american.edu). Please contact him with
+any comments, bugs, or feature requests.
 
 ## License
 
