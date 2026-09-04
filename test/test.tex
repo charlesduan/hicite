@@ -554,18 +554,89 @@ C, \hi@namelist@insts Z\hi@namelist@and Y}
 
 \section{urls.dtx}
 
-\begingroup
+\subsection{URL to Link Conversion}
+
+\advance\hi@url@count1
+\hi@url@link{http://www.google.com}
+\AssertExpand{%
+    \csname hi@u\the\hi@url@count @link\endcsname
+}{http://www.google.com}
+
+\advance\hi@url@count1
+\hi@url@link{http://www.google.com?q=\_}
+\AssertExpand{%
+    \csname hi@u\the\hi@url@count @link\endcsname
+}{http://www.google.com?q=\string_}
+
+\advance\hi@url@count1
+\hi@url@link{http:// www.goo gle.c om}
+\AssertExpand{%
+    \csname hi@u\the\hi@url@count @link\endcsname
+}{http://www.google.com}
+
+\subsection{URL to Text Conversion}
+
+\advance\hi@url@count1
+\hi@url@text{:a}
+\AssertExpand{%
+    \csname hi@u\the\hi@url@count @text\endcsname
+}{%
+    \leavevmode
+    \hi@url@insertbox{:}{\the\hi@url@count}%
+    \hi@uchar@break
+    \hi@url@insertbox{a}{\the\hi@url@count}%
+}
+
+\advance\hi@url@count1
+\hi@url@text{:/}
+\AssertExpand{%
+    \csname hi@u\the\hi@url@count @text\endcsname
+}{%
+    \leavevmode
+    \hi@url@insertbox{:}{\the\hi@url@count}%
+    \hi@uchar@spacenobreak
+    \hi@url@insertbox{/}{\the\hi@url@count}%
+}
+
+\advance\hi@url@count1
+\hi@url@text{/a}
+\AssertExpand{%
+    \csname hi@u\the\hi@url@count @text\endcsname
+}{%
+    \leavevmode
+    \hi@uchar@spacenobreak
+    \hi@url@insertbox{/}{\the\hi@url@count}%
+    \hi@uchar@spacebreak
+    \hi@url@insertbox{a}{\the\hi@url@count}%
+}
+
+\advance\hi@url@count1
+\hi@url@text{a b}
+\AssertExpand{%
+    \csname hi@u\the\hi@url@count @text\endcsname
+}{%
+    \leavevmode
+    \hi@url@insertbox{a}{\the\hi@url@count}%
+    \hi@uchar@break
+    \hi@url@insertbox{b}{\the\hi@url@count}%
+}
+
+\subsection{Overfull Boxes}
 
 The following should not produce overfull boxes. Also ensure that the links
 themselves work as expected.
 
 \immediate\write16{THERE SHOULD BE NO OVERFULL BOXES AFTER THIS LINE}
 
+\begingroup
+
 \def\testbox#1{%
-    \vrule\vbox{%
+    \vrule
+    \vbox{%
         \hsize 1in \relax
-        \url{#1}%
-    }\vrule\quad
+        \HiUrl{#1}%
+    }%
+    \vrule\quad
 }
 
 \testbox{http://www.google.com/search?q=hello+world}
