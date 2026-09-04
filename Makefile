@@ -102,4 +102,6 @@ dirs:
 FORCE:
 
 clean:
-	rm -f {.,doc,gen,test,manual}/*.{aux,glo,hd,idx,log,out,toc,ilg,ind}
+	for ext in aux glo hd idx log out toc ilg ind ; do \
+	    find * -name "*.$$ext" | xargs rm -f ; \
+	done
