@@ -599,6 +599,17 @@ C, \hi@namelist@insts Z\hi@namelist@and Y}
 }
 
 \advance\hi@url@count1
+\hi@url@text{a.}
+\AssertExpand{%
+    \@expand\unexpanded{\csname hi@u\the\hi@url@count @text\endcsname}{ii}%
+}{%
+    \leavevmode
+    \noexpand\hi@url@insertbox{a}{\the\hi@url@count}%
+    \noexpand\hi@url@insertbox{.}{\the\hi@url@count}%
+    \noexpand\@hi@dottrue
+}
+
+\advance\hi@url@count1
 \hi@url@text{/a}
 \AssertExpand{%
     \csname hi@u\the\hi@url@count @text\endcsname
@@ -644,6 +655,25 @@ themselves work as expected.
 \testbox{http://www.google.com/search?q=antidis establishment arianism}
 
 \immediate\write16{THERE SHOULD BE NO OVERFULL BOXES BEFORE THIS LINE}
+
+\endgroup
+
+\subsection{Link URLs}
+
+\begingroup
+    \hi@urlstyle@link
+    \def\HiLinkText{link}
+    \def\HiLinkTrailer{Link trailer.}
+
+    \AssertBox{\url{http://www.google.com}}{link\InFootnote{Link trailer.}}
+
+    \AssertBox{\url{http://www.yahoo.com}}{link}
+
+    \@hi@in@toatrue
+    \AssertBox{\url{http://www.google.com}}{%
+        \hbox{http}\hbox{:}\hbox{/}\hbox{/}%
+        \hbox{www}\hbox{.}\hbox{google}\hbox{.}\hbox{com}%
+    }%
 
 \endgroup
 
@@ -851,28 +881,37 @@ themselves work as expected.
 \subsection{Deferred Notes}
 
 \begingroup
+    \AssertBox{abc\hi@defer@content{def}}{abc\InFootnote{def}}
+    \AssertBox{abc\footnote{def\hi@defer@content{ghi} jkl.}}{abc\InFootnote{def
+    jkl. ghi}}
 
-\AssertBox{\hi@deferred@note@enditem}{}
-\AssertBox{\hi@deferred@note@endstring}{}
-\AssertBox{\hi@deferred@note@endnote}{}
+\endgroup
 
-\hi@defer@content{abc}
-\AssertBox{\hi@deferred@note@enditem}{\InFootnote{abc}}
+\begingroup
 
-\hi@defer@content{def}
-\AssertBox{\hi@deferred@note@enditem}{\InFootnote{def}}
-\AssertBox{\hi@deferred@note@enditem}{}
+    \advance\hi@citelevel\@ne
 
-\hi@defer@content{ghi}
-\AssertBox{\hi@deferred@note@endstring}{\InFootnote{ghi}}
+    \AssertBox{\hi@deferred@note@enditem}{}
+    \AssertBox{\hi@deferred@note@endstring}{}
+    \AssertBox{\hi@deferred@note@endnote}{}
 
-\@hi@notetrue
-\hi@defer@content{jkl}
-\AssertBox{\hi@deferred@note@enditem}{}
-\AssertBox{\hi@deferred@note@endstring}{}
-\hi@defer@content{mno}
-\AssertBox{\hi@deferred@note@endstring}{}
-\AssertBox{\hi@deferred@note@endnote}{ jkl mno}
+    \hi@defer@content{abc}
+    \AssertBox{\hi@deferred@note@enditem}{\InFootnote{abc}}
+
+    \hi@defer@content{def}
+    \AssertBox{\hi@deferred@note@enditem}{\InFootnote{def}}
+    \AssertBox{\hi@deferred@note@enditem}{}
+
+    \hi@defer@content{ghi}
+    \AssertBox{\hi@deferred@note@endstring}{\InFootnote{ghi}}
+
+    \@hi@notetrue
+    \hi@defer@content{jkl}
+    \AssertBox{\hi@deferred@note@enditem}{}
+    \AssertBox{\hi@deferred@note@endstring}{}
+    \hi@defer@content{mno}
+    \AssertBox{\hi@deferred@note@endstring}{}
+    \AssertBox{\hi@deferred@note@endnote}{ jkl mno}
 
 \endgroup
 
@@ -4011,6 +4050,9 @@ paren=banana taped to wall,
     }%
 }
 \hi@defparam{parse}{Apply automatic citation parser}{\hi@cparse{#1}}
+\hi@defparam{permacc}{Perma.cc URL for reference}{%
+    \hi@parseurl{#1}{\hi@param@addparen\hi@paren@permacc}%
+}
 \hi@defparam{reprinted}{Reprinted in parenthetical}{%
     \hi@anonref{#1}{\hi@reprinted}%
 }
@@ -4036,8 +4078,7 @@ paren=banana taped to wall,
         {available at }{\hi@urlprefixwarn\KV@hi@url}%
         {at }{\hi@urlprefixwarn\KV@hi@url}%
     }{#1}{%
-        \hi@parseurl{#1}\hi@kv@url
-        \@expandarg\hi@defkey@url{\hi@kv@url}%
+        \hi@parseurl{#1}{\hi@param@addparen\hi@paren@url}%
     }%
 }
 

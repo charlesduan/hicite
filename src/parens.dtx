@@ -155,16 +155,7 @@ authors who wish to change the default ordering or appearances.
 \chardef\hi@paren@doc=100                % Document-level parenthetical
 \chardef\hi@paren@url=111                % URL parenthetical
 \chardef\hi@paren@accessdate=112         % URL access date
-\def\reserved@a{link}\ifx\hi@urlstyle\reserved@a
-    \chardef\hi@paren@url=110
-    \def\hi@paren@showone#1#2{%
-        \ifnum#1=\hi@paren@url
-            ~\chop@space{#2}%
-        \else
-            \space(\chop@space{#2})%
-        \fi
-    }%
-\fi
+\chardef\hi@paren@permacc=114            % perma.cc URL
 \chardef\hi@paren@cite=120               % Citation-level parenthetical
 \chardef\hi@paren@prior=131              % Prior history of case
 \chardef\hi@paren@subseq=133             % Subsequent history of case
@@ -270,6 +261,7 @@ subsequent commentary (using |in|, |by|, and |at|) comes last, with \meta{verb}|
 %<*doc>
 
 \paragraph{Deferred Footnotes}
+\label{s:parens-deferred}
 
 A parenthetical starting with |footnote:| creates a ``deferred footnote'' inside
 a citation item. As its name suggests, the footnote is deferred for placement
@@ -297,6 +289,13 @@ Authorities when that option is requested, as described in \sec{urls}.}
 %
 %    \begin{macrocode}
 \let\hi@deferred@note@endcontent\relax
+\def\hi@dnt@endfn@append#1{%
+    \ifx\hi@deferred@note@endcontent\relax
+        \global\def\hi@deferred@note@endcontent{#1}%
+    \else
+        \gappto\hi@deferred@note@endcontent{ #1}%
+    \fi
+}
 %    \end{macrocode}
 %
 % Adds content for a deferred footnote.
@@ -304,10 +303,18 @@ Authorities when that option is requested, as described in \sec{urls}.}
 %    \begin{macrocode}
 \def\hi@defer@content#1{%
     \ifblank{#1}{}{%
-        \ifx\hi@deferred@note@content\relax
-            \gdef\hi@deferred@note@content{#1}%
+        \ifnum\hi@citelevel=\z@
+            \if@hi@note
+                \hi@dnt@endfn@append{#1}%
+            \else
+                \unskip\footnote{#1}%
+            \fi
         \else
-            \gappto\hi@deferred@note@content{ #1}%
+            \ifx\hi@deferred@note@content\relax
+                \gdef\hi@deferred@note@content{#1}%
+            \else
+                \gappto\hi@deferred@note@content{ #1}%
+            \fi
         \fi
     }%
 }
@@ -338,15 +345,7 @@ Authorities when that option is requested, as described in \sec{urls}.}
 \def\hi@deferred@note@endstring{%
     \ifx\hi@deferred@note@content\relax\else
         \if@hi@note
-            \ifx\hi@deferred@note@endcontent\relax
-                \global\let\hi@deferred@note@endcontent\hi@deferred@note@content
-            \else
-                \xdef\hi@deferred@note@endcontent{%
-                    \expandonce\hi@deferred@note@endcontent
-                    \space
-                    \expandonce\hi@deferred@note@content
-                }%
-            \fi
+            \@expandarg\hi@dnt@endfn@append{\hi@deferred@note@content}%
             \global\let\hi@deferred@note@content\relax
         \else
             \@expand{%
@@ -387,25 +386,17 @@ here is that punctuation at the end of the parenthetical will be the last
 punctuation in the citation, so if the parenthetical ends with a dot then it is
 necessary to remove duplicative periods at the ends of sentences and such.
 
-\item Hereinafter parentheticals. In addition to using square brackets, we
-record use of the hereinafter form as described in \sec{short} and possibly
-suppress the parenthetical if the hereinafter form was never otherwise used.
+\item Other special forms, discussed below.
 \end{itemize}
 
 %</doc>
 %<*package>
 %
-% Draw the parentheticals. It will always add an extra space to the front as
-% necessary.
+% Draw the parentheticals.
 %
-%    \begin{macrocode}
-\def\hi@parens@show{%
-    \begingroup
-    \def\@paren##1##2{%
-        \@test \ifodd##1\fi{%
-%    \end{macrocode}
 %
-% Dot management here is tricky because parentheticals may end with
+% For comma-style parentheticals,
+% dot management is tricky because parentheticals may end with
 % |\clause|\marg{cite}. The solution here is to place |\hi@clause@endflag| at
 % the end of the parenthetical text, which |\clause| checks for to suppress
 % trailing punctuation. If the clause does end with a dot, then |\clause| will
@@ -414,21 +405,21 @@ suppress the parenthetical if the hereinafter form was never otherwise used.
 % caught.
 %
 %    \begin{macrocode}
-            ,
-            \@hi@dotfalse
-            ##2\hi@clause@endflag
-            \if@endswithdot{##2}{\@hi@dottrue}%
+\def\hi@parens@show{%
+    \begingroup
+    \def\@paren##1##2{%
+        \@ifundefined{hi@parens@special@\number##1}{%
+            \@test \ifodd##1\fi{%
+                ,
+                \@hi@dotfalse
+                ##2\hi@clause@endflag
+                \if@endswithdot{##2}{\@hi@dottrue}%
+            }{%
+                \space(\chop@space{##2})%
+                \@hi@dotfalse
+            }%
         }{%
-            \ifnum##1=\hi@paren@hia
-                \if@hi@in@toa\else      % Not in TOA
-                    \hi@short@maybeshow\@this@case{%
-                        \space[hereinafter ##2]%
-                    }%
-                \fi
-            \else
-                \hi@parens@showone{##1}{##2}%
-            \fi
-            \@hi@dotfalse
+            \csname hi@parens@special@\number##1\endcsname{##2}%
         }%
     }%
     \@no@dot@space % This is because of the abbreviations in dates and such.
@@ -436,11 +427,46 @@ suppress the parenthetical if the hereinafter form was never otherwise used.
     \hi@dot@after@group
     \endgroup
 }
-\def\hi@parens@showone#1#2{%
-    \space(\chop@space{#2})%
-}
 %    \end{macrocode}
 %
+% Special parentheticals are implemented by having a macro named based on the
+% parenthetical priority level. The macro will receive one argument, of the
+% parenthetical text.
+%
+%</package>
+%<*doc>
+
+\paragraph{Hereinafter parentheticals} These differ from other parentheticals
+as they use square brackets. Also, the parenthetical may be omitted from the
+Table of Authorities and if the hereinafter form is never used, as described
+in \sec{short}.
+
+%</doc>
+%<*package>
+%    \begin{macrocode}
+\@namedef{hi@parens@special@\the\hi@paren@hia}#1{%
+    \if@hi@in@toa\else      % Not in TOA
+        \hi@short@maybeshow\@this@case{%
+            \space[hereinafter #1]%
+        }%
+    \fi
+}
+%    \end{macrocode}
+%</package>
+%<*doc>
+
+\paragraph{Perma.cc parentheticals}
+\label{s:parens-permacc}
+These are placed in square brackets. They may be entered with the parameter
+\param{permacc}.
+
+%</doc>
+%<*package>
+%    \begin{macrocode}
+\@namedef{hi@parens@special@\the\hi@paren@permacc}#1{%
+    \space[#1]%
+}
+%    \end{macrocode}
 %</package>
 %<*test>
 
@@ -491,29 +517,39 @@ suppress the parenthetical if the hereinafter form was never otherwise used.
 
 \subsection{Deferred Notes}
 
+
+\begingroup
+    \AssertBox{abc\hi@defer@content{def}}{abc\InFootnote{def}}
+    \AssertBox{abc\footnote{def\hi@defer@content{ghi} jkl.}}{abc\InFootnote{def
+    jkl. ghi}}
+
+\endgroup
+
 \begingroup
 
-\AssertBox{\hi@deferred@note@enditem}{}
-\AssertBox{\hi@deferred@note@endstring}{}
-\AssertBox{\hi@deferred@note@endnote}{}
+    \advance\hi@citelevel\@ne
 
-\hi@defer@content{abc}
-\AssertBox{\hi@deferred@note@enditem}{\InFootnote{abc}}
+    \AssertBox{\hi@deferred@note@enditem}{}
+    \AssertBox{\hi@deferred@note@endstring}{}
+    \AssertBox{\hi@deferred@note@endnote}{}
 
-\hi@defer@content{def}
-\AssertBox{\hi@deferred@note@enditem}{\InFootnote{def}}
-\AssertBox{\hi@deferred@note@enditem}{}
+    \hi@defer@content{abc}
+    \AssertBox{\hi@deferred@note@enditem}{\InFootnote{abc}}
 
-\hi@defer@content{ghi}
-\AssertBox{\hi@deferred@note@endstring}{\InFootnote{ghi}}
+    \hi@defer@content{def}
+    \AssertBox{\hi@deferred@note@enditem}{\InFootnote{def}}
+    \AssertBox{\hi@deferred@note@enditem}{}
 
-\@hi@notetrue
-\hi@defer@content{jkl}
-\AssertBox{\hi@deferred@note@enditem}{}
-\AssertBox{\hi@deferred@note@endstring}{}
-\hi@defer@content{mno}
-\AssertBox{\hi@deferred@note@endstring}{}
-\AssertBox{\hi@deferred@note@endnote}{ jkl mno}
+    \hi@defer@content{ghi}
+    \AssertBox{\hi@deferred@note@endstring}{\InFootnote{ghi}}
+
+    \@hi@notetrue
+    \hi@defer@content{jkl}
+    \AssertBox{\hi@deferred@note@enditem}{}
+    \AssertBox{\hi@deferred@note@endstring}{}
+    \hi@defer@content{mno}
+    \AssertBox{\hi@deferred@note@endstring}{}
+    \AssertBox{\hi@deferred@note@endnote}{ jkl mno}
 
 \endgroup
 

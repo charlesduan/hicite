@@ -66,7 +66,7 @@
 %% \iffalse filename: intro.dtx \fi
 %%
 \ProvidesPackage{hicite}[2022/07/20 Legal citation formatting and management]
-\RequirePackage{etoolbox,histrings,hisort,keyval,hiabbrev}
+\RequirePackage{etoolbox,iftex,histrings,hisort,keyval,hiabbrev}
 \def\hi@pkgname{hicite}
 %%
 %% \iffalse filename: quickstart.dtx \fi
@@ -98,7 +98,14 @@
     \let\hi@url@override\relax
 }
 \DeclareOption{fullurl}{\hi@urlstyle@full}
-\DeclareOption{toaurl}{\hi@urlstyle@toa}
+\DeclareOption{toaurl}{%
+    \hi@urlstyle@link
+    \def\HiLinkText{online}
+    \def\HiLinkTrailer{%
+        Locations of authorities available online are shown in the Table of
+        Authorities.%
+    }
+}
 \DeclareOption{linkurl}{\hi@urlstyle@link}
 \DeclareOption{useopturl}{\hi@param@alias{opturl}{url}}
 \DeclareOption{toastar}{\hi@toa@starcount=4\relax}
@@ -1097,7 +1104,7 @@
 %% \iffalse filename: urls.dtx \fi
 %%
 \newcommand\HiUrl[1]{%
-    \hi@parseurl{#1}\reserved@a\reserved@a
+    \hi@parseurl{#1}\@iden
 }%
 \AtBeginDocument{\hi@url@override}
 \def\hi@url@override{%
@@ -1112,15 +1119,15 @@
     \global\advance\hi@url@count\@ne
     \hi@url@link{#1}%
     \hi@url@text{#1}%
-    \hi@url@assign{#2}%
+    \hi@url@call{#2}%
 }
 \newcount\hi@url@count
-\def\hi@url@assign@default#1{%
-    \letcs#1{hi@u\the\hi@url@count @text}%
-    \@expand\if@endswithdot{\csname hi@u\the\hi@url@count @text\endcsname}{ii}%
-        {\appto#1{\protect\@hi@dottrue}}%
+\def\hi@url@call@default#1{%
+    \@expand{#1}{\csname hi@u\the\hi@url@count @text\endcsname}{ii}%
 }
-\let\hi@url@assign\hi@url@assign@default
+\def\hi@urlstyle@full{%
+    \let\hi@url@call\hi@url@call@default
+}
 \def\hi@url@link#1{%
     % Force the link to start with https:// unless it has a protocol already
     \expandafter\protected@xdef\csname hi@u\the\hi@url@count @link\endcsname{%
@@ -1160,25 +1167,12 @@
 }
 \DeclareRobustCommand\hi@url@declare[1]{%
     \@ifundefined{hi@u#1@declared}{%
-        \edef\reserved@a{%
-            \noexpand\special{%
-                pdf:object @HIURL#1 <<
-                    /S /URI
-                    /URI (\csname hi@u#1@link\endcsname)
-                >>
-            }%
-        }\reserved@a
-        \global\cslet{hi@u#1@declared}\@empty
+        \@expand{\hi@urldrv@obj{#1}}{\csname hi@u#1@link\endcsname}{ii}%
     }{}%
 }
 \DeclareRobustCommand\hi@url@insert[2]{%
     \@ifundefined{hi@u#1@declared}{\hi@url@declare{#1}}{}%
-    \noexpand\special{pdf:bann <<
-        /Type /Annot
-        /Subtype /Link
-        /Border [0 0 0]
-        /A @HIURL#1
-    >>}#2\noexpand\special{pdf:eann}%
+    \@expand\hi@urldrv@link{\csname hi@u#1@declared\endcsname}{ii}{#2}%
 }%
 \DeclareRobustCommand\hi@url@insertbox[2]{%
     \hbox{\hi@url@insert{#2}{#1}}%
@@ -1187,7 +1181,6 @@
     \noexpand\hi@url@insertbox{#1}{\the\hi@url@count}%
 }
 \def\hi@url@text#1{%
-    \let\hi@url@acc\@empty
     \expandafter\protected@xdef\csname hi@u\the\hi@url@count @text\endcsname{%
         \leavevmode
         \hi@url@text@next{#1}%
@@ -1234,7 +1227,7 @@
         \hi@url@text@next{##1}%
     }%
 }
-\do\.\do\@\do\!\do\;\do\]\do\)\do\,\do\+\do\=\do\#\do\:
+\do\@\do\!\do\;\do\]\do\)\do\,\do\+\do\=\do\#\do\:
 \def\do#1{%
     \@namedef{hi@uchar@\string #1}##1{%
         \noexpand\hi@uchar@spacenobreak
@@ -1308,6 +1301,12 @@
     \noexpand\hi@uchar@spacebreak
     \hi@url@text@next{#3}%
 }
+\@namedef{hi@uchar@\string\.}#1{%
+    \hi@url@box{.}%
+    \@ifstartswithwordchar{#1}{\noexpand\hi@uchar@break}{}%
+    \ifstrempty{#1}{\noexpand\@hi@dottrue}{}%
+    \hi@url@text@next{#1}%
+}%
 \newskip\urlbreakskip \urlbreakskip=0pt plus .4pt
 \DeclareRobustCommand\hi@uchar@break{%
     \penalty\exhyphenpenalty
@@ -1319,42 +1318,32 @@
 \DeclareRobustCommand\hi@uchar@spacebreak{%
     \penalty\exhyphenpenalty\hskip\urlbreakskip
 }
-\def\hi@urlstyle@full{%
-    \def\hi@showurl##1{##1}%
+\def\hi@url@call@link#1{%
+    \@expandarg\hi@url@call@link@{\the\hi@url@count}{#1}%
 }
-\def\hi@urlstyle@toa{%
-    \def\hi@showurl##1{%
-        \if@hi@in@toa
-            ##1%
-        \else
-            \ToaUrlMark
-            \hi@showurl@toatext
-        \fi
-    }
-    \def\hi@showurl@toatext{%
-        \hi@defer@content{\ToaUrlText}%
-        \global\let\hi@showurl@toatext\@empty
-    }
-    \def\ToaUrlText{%
-        Locations of authorities available online are shown in the Table of
-        Authorities.
-    }
-    \def\ToaUrlMark{\emph{available online}}
-}
-\def\hi@url@assign@link#1{%
-    \edef#1{%
-        \noexpand\leavevmode
-        \noexpand\hi@url@insert{\the\hi@url@count}{\noexpand\LinkText}%
-        \noexpand\hi@linkurl@auxwrite{\the\hi@url@count}%
+\def\hi@url@call@link@#1#2{%
+    #2{%
+        \@test\if@hi@in@toa\fi{%
+            \csname hi@u#1@text\endcsname
+        }{%
+            \leavevmode
+            \hi@linkurl@auxwrite{#1}%
+            \hi@url@insertbox{\HiLinkText}{#1}%
+            \ifx\HiLinkTrailer\relax\else
+                \hi@defer@content{\HiLinkTrailer}%
+                \global\let\HiLinkTrailer\relax
+            \fi
+        }%
     }%
 }
 \def\hi@urlstyle@link{%
-    \let\hi@url@assign\hi@url@assign@link
+    \let\hi@url@call\hi@url@call@link
 }
 \def\hi@linkurl@auxwrite#1{%
     \addtocontents{tou}{\protect\l@hi@tou{#1}{\thepage}}%
 }
-\def\LinkText{\emph{link}}
+\def\HiLinkText{\emph{link}}
+\let\HiLinkTrailer\relax
 \def\TableOfUrls{%
     \makeatletter
     \@input{\jobname.tou}%
@@ -1366,6 +1355,100 @@
 }
 \def\l@hi@tou#1#2{%
     \@dottedtocline{1}{0em}{1.5em}{\csname hi@u#1@text\endcsname}{#2}%
+}
+\def\HiUrlDriver#1{%
+    \@ifundefined{hi@url@driver@#1}{%
+        \PackageError\hi@pkgname{%
+            No URL driver named `#1' found for \string\HiUrlDriver
+        }{Check the documentation for valid driver names}%
+    }{%
+        \csname hi@url@driver@#1\endcsname
+    }%
+}
+\def\hi@url@detect@driver{%
+    \ifxetex
+        \HiUrlDriver{xetex}
+    \else \ifpdftex
+        \HiUrlDriver{pdftex}
+    \else \ifluatex
+        \HiUrlDriver{luatex}
+    \else \ifpdf
+        \PackageWarning\hi@pkgname{%
+            Could not detect correct URL driver; defaulting to XeTeX%
+        }%
+        \HiUrlDriver{xetex}
+    \else
+        \PackageWarning\hi@pkgname{%
+            Output not to a PDF, so no URL links will be generated%
+        }%
+        \HiUrlDriver{none}
+    \fi \fi \fi \fi
+}
+\AtBeginDocument{%
+    \ifdefined\hi@urldrv@obj\else \hi@url@detect@driver \fi
+}
+\def\hi@url@driver@none{
+    \def\hi@urldrv@obj##1##2{%
+        \global\expandafter\let\csname hi@u##1@declared\endcsname\@empty
+    }
+    \def\hi@urldrv@link##1##2{%
+        ##2%
+    }
+}
+\def\hi@url@driver@pdftex{
+    \def\hi@urldrv@obj##1##2{%
+        \pdfobj{<<
+            /S /URI
+            /URI (##2)
+        >>}
+        \expandafter\xdef\csname hi@u##1@declared\endcsname{\the\pdflastobj}%
+        \pdfrefobj\pdflastobj
+    }
+    \def\hi@urldrv@link##1##2{%
+        \pdfannot{
+            /Subtype /Link
+            /Border [0 0 0]
+            /A ##1 0 R
+        }##2%
+    }
+}
+\def\hi@url@driver@luatex{
+    \def\hi@urldrv@obj##1##2{%
+        \pdfextension obj {<<
+            /S /URI
+            /URI (##2)
+        >>}
+        \expandafter\xdef\csname hi@u##1@declared\endcsname{%
+            \the\numexpr\pdffeedback lastobj%
+        }%
+        \pdfextension refobj \pdffeedback lastobj\relax
+    }
+    \def\hi@urldrv@link##1##2{%
+        \pdfextension annot {
+            /Subtype /Link
+            /Border [0 0 0]
+            /A ##1 0 R
+        }##2%
+    }
+}
+\def\hi@url@driver@xetex{
+    \def\hi@urldrv@obj##1##2{%
+        \special{%
+            pdf:object @HIURL##1 <<
+                /S /URI
+                /URI (##2)
+            >>
+        }%
+        \global\@namedef{hi@u##1@declared}{@HIURL##1}%
+    }
+    \def\hi@urldrv@link##1##2{%
+        \noexpand\special{pdf:bann <<
+            /Type /Annot
+            /Subtype /Link
+            /Border [0 0 0]
+            /A ##1%
+        >>}##2\noexpand\special{pdf:eann}%
+    }
 }
 %%
 %% \iffalse filename: struct.dtx \fi
@@ -2668,16 +2751,7 @@
 \chardef\hi@paren@doc=100                % Document-level parenthetical
 \chardef\hi@paren@url=111                % URL parenthetical
 \chardef\hi@paren@accessdate=112         % URL access date
-\def\reserved@a{link}\ifx\hi@urlstyle\reserved@a
-    \chardef\hi@paren@url=110
-    \def\hi@paren@showone#1#2{%
-        \ifnum#1=\hi@paren@url
-            ~\chop@space{#2}%
-        \else
-            \space(\chop@space{#2})%
-        \fi
-    }%
-\fi
+\chardef\hi@paren@permacc=114            % perma.cc URL
 \chardef\hi@paren@cite=120               % Citation-level parenthetical
 \chardef\hi@paren@prior=131              % Prior history of case
 \chardef\hi@paren@subseq=133             % Subsequent history of case
@@ -2721,12 +2795,27 @@
 }
 \let\hi@deferred@note@content\relax
 \let\hi@deferred@note@endcontent\relax
+\def\hi@dnt@endfn@append#1{%
+    \ifx\hi@deferred@note@endcontent\relax
+        \global\def\hi@deferred@note@endcontent{#1}%
+    \else
+        \gappto\hi@deferred@note@endcontent{ #1}%
+    \fi
+}
 \def\hi@defer@content#1{%
     \ifblank{#1}{}{%
-        \ifx\hi@deferred@note@content\relax
-            \gdef\hi@deferred@note@content{#1}%
+        \ifnum\hi@citelevel=\z@
+            \if@hi@note
+                \hi@dnt@endfn@append{#1}%
+            \else
+                \unskip\footnote{#1}%
+            \fi
         \else
-            \gappto\hi@deferred@note@content{ #1}%
+            \ifx\hi@deferred@note@content\relax
+                \gdef\hi@deferred@note@content{#1}%
+            \else
+                \gappto\hi@deferred@note@content{ #1}%
+            \fi
         \fi
     }%
 }
@@ -2743,15 +2832,7 @@
 \def\hi@deferred@note@endstring{%
     \ifx\hi@deferred@note@content\relax\else
         \if@hi@note
-            \ifx\hi@deferred@note@endcontent\relax
-                \global\let\hi@deferred@note@endcontent\hi@deferred@note@content
-            \else
-                \xdef\hi@deferred@note@endcontent{%
-                    \expandonce\hi@deferred@note@endcontent
-                    \space
-                    \expandonce\hi@deferred@note@content
-                }%
-            \fi
+            \@expandarg\hi@dnt@endfn@append{\hi@deferred@note@content}%
             \global\let\hi@deferred@note@content\relax
         \else
             \@expand{%
@@ -2770,22 +2851,18 @@
 \def\hi@parens@show{%
     \begingroup
     \def\@paren##1##2{%
-        \@test \ifodd##1\fi{%
-            ,
-            \@hi@dotfalse
-            ##2\hi@clause@endflag
-            \if@endswithdot{##2}{\@hi@dottrue}%
+        \@ifundefined{hi@parens@special@\number##1}{%
+            \@test \ifodd##1\fi{%
+                ,
+                \@hi@dotfalse
+                ##2\hi@clause@endflag
+                \if@endswithdot{##2}{\@hi@dottrue}%
+            }{%
+                \space(\chop@space{##2})%
+                \@hi@dotfalse
+            }%
         }{%
-            \ifnum##1=\hi@paren@hia
-                \if@hi@in@toa\else      % Not in TOA
-                    \hi@short@maybeshow\@this@case{%
-                        \space[hereinafter ##2]%
-                    }%
-                \fi
-            \else
-                \hi@parens@showone{##1}{##2}%
-            \fi
-            \@hi@dotfalse
+            \csname hi@parens@special@\number##1\endcsname{##2}%
         }%
     }%
     \@no@dot@space % This is because of the abbreviations in dates and such.
@@ -2793,8 +2870,15 @@
     \hi@dot@after@group
     \endgroup
 }
-\def\hi@parens@showone#1#2{%
-    \space(\chop@space{#2})%
+\@namedef{hi@parens@special@\the\hi@paren@hia}#1{%
+    \if@hi@in@toa\else      % Not in TOA
+        \hi@short@maybeshow\@this@case{%
+            \space[hereinafter #1]%
+        }%
+    \fi
+}
+\@namedef{hi@parens@special@\the\hi@paren@permacc}#1{%
+    \space[#1]%
 }
 %%
 %% \iffalse filename: toa.dtx \fi
@@ -7881,6 +7965,9 @@
     \hi@param@addparen\hi@paren@comment{\hi@fn@comment{#2#1} \clause{#3}}%
 }
 \hi@defparam{parse}{Apply automatic citation parser}{\hi@cparse{#1}}
+\hi@defparam{permacc}{Perma.cc URL for reference}{%
+    \hi@parseurl{#1}{\hi@param@addparen\hi@paren@permacc}%
+}
 \hi@defparam{reprinted}{Reprinted in parenthetical}{%
     \hi@anonref{#1}{\hi@reprinted}%
 }
@@ -7912,15 +7999,11 @@
         {available at }{\hi@urlprefixwarn\KV@hi@url}%
         {at }{\hi@urlprefixwarn\KV@hi@url}%
     }{#1}{%
-        \hi@parseurl{#1}\hi@kv@url
-        \@expandarg\hi@defkey@url{\hi@kv@url}%
+        \hi@parseurl{#1}{\hi@param@addparen\hi@paren@url}%
     }%
 }
 \make@find@start{available at }
 \make@find@start{at }
-\def\hi@defkey@url#1{%
-    \hi@param@addparen\hi@paren@url{\hi@showurl{#1}}%
-}
 \def\hi@urlprefixwarn{%
     \PackageWarning\hi@pkgname{URL started with `at' or `available at'}%
 }

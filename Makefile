@@ -1,4 +1,4 @@
-export TEXINPUTS := ./tex//:./helpers:
+export TEXINPUTS := ./tex//:./helpers:./ltxdoc:
 
 ifeq (, $(shell which xelatex-dev))
     XELATEX := xelatex
@@ -69,6 +69,7 @@ hicite-ctan.tgz: clean package
 		--exclude 'test' --exclude 'doc' \
 		--exclude 'manual/*.tex' \
 		--exclude tables \
+		--exclude ltxdoc \
 		--exclude '*.tgz' \
 		--exclude '*.zip' \
 		--exclude 'hicite/hi*.sty' \

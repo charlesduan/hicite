@@ -110,6 +110,10 @@ Creative Commons, PO Box 1866, Mountain View, CA 94042, USA.}}
 
 \makeatletter
 
+
+\def\ListOfRequiredPackages{\texttt{etoolbox}, \texttt{iftex}, and
+\texttt{keyval}}
+
 \clearpage
 \part{Introduction}
 \label{p:intro}
@@ -518,6 +522,60 @@ necessary in order to get cross-references and short citations to be correct.
 
 If you have an existing Biblatex file, see \sec{hibib} for possible
 compatibility options.
+
+\subsection{Interaction with Other Packages}
+
+\hia* is designed to be as self-contained as possible, minimizing its
+dependencies on other packages. The packages that it requires are
+\ListOfRequiredPackages, in addition to several auxiliary packages bundled with
+\hia*.
+
+The package also attempts to make minimal modifications to the \LaTeX\
+environment, in order to limit potential conflicts with other packages. However,
+some modifications are essential due to the fact that legal citations interact
+closely with the underlying document structure. The following is a list of
+general areas that may be affected:
+\begin{itemize}
+\item The |\footnote| macro is modified to install some beginning and ending
+hooks, so that the package can perform accounting of citations at each
+footnote (see \sec{state-footnote}). Other packages that modify footnotes may
+conflict with these modifications. In particular, most standard endnote packages
+will not work with \hia* or legal citation generally, which is why the package
+provides its own endnote feature (see \sec{endnotes}).
+
+\item URL processing is handled internally by \hia* (see \sec{urls}). This
+generally should not cause conflicts with other packages, although the package
+will optionally define a standalone |\url| command for typesetting URLs.
+Depending on the \TeX\ engine being used, it may also be necessary to select or
+implement a driver for emitting hyperlink code (see \sec{urls-drivers}).
+
+\item Cross-references in \hia* use different commands from standard \LaTeX\
+references, but the package uses the same underlying data storage. The two
+cannot be intermixed (e.g., the |\ref| and command cannot be used with \hia*
+cross-references).
+
+\item Some common macro names are defined and used in the package. Some of these
+are the interface of user-level commands, which are listed in the index of this
+manual. Internal macro names are generally prefixed with |\hi@| to avoid package
+conflicts, but there are some legacy internal macro names that do not follow
+this convention yet.
+\end{itemize}
+
+The following are some notes on specific packages and their interaction with
+\hia*.
+
+\begin{itemize}
+\item \textbf{hyperref}: This works, but the |hyperfootnotes| option should be
+turned off.
+\item \textbf{sidenotes}: If included, \hia* will detect it and modify the
+|\sidenote| macro analogously to what it does to |\footnote|. It is recommended
+that documents using sidenotes use legal memorandum formatting (see option
+\opt{memo}), because law review formatting depends heavily on having a single,
+continuous series of footnotes.
+\item \textbf{tex4ht}: This largely works but sometimes has difficulty with
+converting URLs and footnotes. The author has some experimental configuration
+files that can help with this, although they are not extensively tested.
+\end{itemize}
 
 \subsection{Intellectual Property Concerns}
 
@@ -1457,40 +1515,43 @@ it. This behavior may be altered by the package options \opt{overrideurl} and
 
 By default, URLs are shown in text. This format, logical for print publications
 with no other easy access to hyperlinks, can look lengthy and cumbersome in
-legal memoranda and other contexts. Accordingly, several other options are
-provided.
+legal memoranda and other contexts.
 
-In documents with tables of authorities, URLs can be presented in an alternate
-format: The URLs are included only in the table listing, and citations in the
-document include a marker ``\emph{available online}.'' A footnote is added after
-the first such omitted URL, informing the reader that omitted URLs are in the
-Table of Authorities. To select this format, use the package option
-\opt{toaurl}.
+With the package option \opt{linkurl}, all URLs will be replaced with a short
+phrase, by default \emph{link}. The word will be hyperlinked to the given URL\@.
+However, the full URL will be included as text only in the Table of Authorities
+or a Table of URLs as described below. A footnote may be added after the first
+instance of such a URL, to identify the location of any full printing of the
+URLs as text. This format has the advantage of producing cleaner-looking
+documents, particularly given the large font-to-text-field ratios that most
+courts require of briefs (such that URLs could take up a large fraction of a
+page).
 
-This format has the advantage of producing cleaner-looking briefs, particularly
-given the large font-to-text-field ratios that most courts require of briefs
-(such that URLs could take up a large fraction of a page). The main disadvantage
-is that it actually increases word count, since URLs typically count only as one
-word.
+The package option \opt{toaurl} uses the same mechanism as \opt{linkurl}, but
+uses different text for the links and the footnote.
 
-The text to be shown in place of URLs can be redefined with the macro
-\DescribeMacro\ToaUrlMark
-|\ToaUrlMark|.
-The text to be shown in the footnote after the first such replaced URL can be
-redefined with the macro
-\DescribeMacro\ToaUrlText
-|\ToaUrlText|.
-
-
-Alternatively, in documents intended to be used only electronically, URLs can be
-replaced with a word that is hyperlinked.
-To select this format, use the package option \opt{linkurl}.
-
-\DescribeMacro\LinkText
-The text to be used in place of the URL is defined in the macro |\LinkText|.
+\DescribeMacro\HiLinkText
+The text to be used in place of the URL is defined in the macro |\HiLinkText|.
 No line break protection is performed on the word, so it should be an
 unbreakable word or the macro should be defined to include an unbreakable
-|\hbox|.
+|\hbox|. After the first link is displayed, the content of
+\DescribeMacro\HiLinkTrailer |\HiLinkTrailer| will be displayed as deferred
+content (see \sec{parens-deferred}), which will be moved to a footnote.
+
+\subsection{Drivers}
+\label{s:urls-drivers}
+
+To output hyperlinked URLs with various \TeX\ engines, driver code is provided
+for individual engines. By default, the correct driver is detected based
+on the |iftex| package. A specific driver may also be selected using the macro
+\DescribeMacro\HiUrlDriver\cmd\HiUrlDriver\marg{name}. The available drivers
+are:
+\begin{itemize}
+\item pdftex
+\item luatex
+\item xetex
+\item none (URLs are typeset but not linked)
+\end{itemize}
 
 %%
 %% \iffalse filename: struct.dtx \fi
@@ -2416,6 +2477,7 @@ subsequent commentary (using |in|, |by|, and |at|) comes last, with \meta{verb}|
 
 
 \paragraph{Deferred Footnotes}
+\label{s:parens-deferred}
 
 A parenthetical starting with |footnote:| creates a ``deferred footnote'' inside
 a citation item. As its name suggests, the footnote is deferred for placement
@@ -2444,10 +2506,20 @@ here is that punctuation at the end of the parenthetical will be the last
 punctuation in the citation, so if the parenthetical ends with a dot then it is
 necessary to remove duplicative periods at the ends of sentences and such.
 
-\item Hereinafter parentheticals. In addition to using square brackets, we
-record use of the hereinafter form as described in \sec{short} and possibly
-suppress the parenthetical if the hereinafter form was never otherwise used.
+\item Other special forms, discussed below.
 \end{itemize}
+
+
+\paragraph{Hereinafter parentheticals} These differ from other parentheticals
+as they use square brackets. Also, the parenthetical may be omitted from the
+Table of Authorities and if the hereinafter form is never used, as described
+in \sec{short}.
+
+
+\paragraph{Perma.cc parentheticals}
+\label{s:parens-permacc}
+These are placed in square brackets. They may be entered with the parameter
+\param{permacc}.
 
 \part{Additional Features}
 \label{p:features}
@@ -3475,6 +3547,8 @@ state variables to a macro so that they can be restored or reset later.
 
 
 \subsection{Footnote State Management}
+
+\label{s:state-footnote}
 
 Footnotes interact closely with both short and \emph{id.}\ citations: Whether a
 short citation can be used depends in part on whether the full citation was in
@@ -7150,6 +7224,13 @@ what follows the colon is a citation string to be formatted. Thus,
 The value is a formatted reference input as described in \sec{cparse}. It is
 useful if that input contains an equal sign, which would otherwise cause this
 package to mistakenly interpret the formatted input as parameter-value input.
+\hi@defparam{permacc}{Perma.cc URL for reference}{%
+    \hi@parseurl{#1}{\hi@param@addparen\hi@paren@permacc}%
+}
+See \sec{urls} for information on how to present the URL and how it is
+formatted. The URL will be placed in square brackets, as described in
+\sec{parens-permacc}.
+
 \hi@defparam{reprinted}{Reprinted in parenthetical}{%
     \hi@anonref{#1}{\hi@reprinted}%
 }
@@ -7186,8 +7267,7 @@ Authorities entries differently when this parameter is given.
         {available at }{\hi@urlprefixwarn\KV@hi@url}%
         {at }{\hi@urlprefixwarn\KV@hi@url}%
     }{#1}{%
-        \hi@parseurl{#1}\hi@kv@url
-        \@expandarg\hi@defkey@url{\hi@kv@url}%
+        \hi@parseurl{#1}{\hi@param@addparen\hi@paren@url}%
     }%
 }
 See \sec{urls} for information on how to present the URL and how it is

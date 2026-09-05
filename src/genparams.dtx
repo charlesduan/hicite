@@ -199,6 +199,15 @@ useful if that input contains an equal sign, which would otherwise cause this
 package to mistakenly interpret the formatted input as parameter-value input.
 %</doc>
 %
+\hi@defparam{permacc}{Perma.cc URL for reference}{%
+    \hi@parseurl{#1}{\hi@param@addparen\hi@paren@permacc}%
+}
+%<*doc>
+See \sec{urls} for information on how to present the URL and how it is
+formatted. The URL will be placed in square brackets, as described in
+\sec{parens-permacc}.
+
+%</doc>
 \hi@defparam{reprinted}{Reprinted in parenthetical}{%
     \hi@anonref{#1}{\hi@reprinted}%
 }
@@ -258,8 +267,7 @@ Authorities entries differently when this parameter is given.
         {available at }{\hi@urlprefixwarn\KV@hi@url}%
         {at }{\hi@urlprefixwarn\KV@hi@url}%
     }{#1}{%
-        \hi@parseurl{#1}\hi@kv@url
-        \@expandarg\hi@defkey@url{\hi@kv@url}%
+        \hi@parseurl{#1}{\hi@param@addparen\hi@paren@url}%
     }%
 }
 %<*doc>
@@ -270,9 +278,6 @@ formatted.
 %    \begin{macrocode}
 \make@find@start{available at }
 \make@find@start{at }
-\def\hi@defkey@url#1{%
-    \hi@param@addparen\hi@paren@url{\hi@showurl{#1}}%
-}
 \def\hi@urlprefixwarn{%
     \PackageWarning\hi@pkgname{URL started with `at' or `available at'}%
 }
