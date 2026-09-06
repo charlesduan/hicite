@@ -62,10 +62,18 @@ Creative Commons, PO Box 1866, Mountain View, CA 94042, USA.}}
 %
 %    \begin{macrocode}
 \ProvidesPackage{hicite}[2022/07/20 Legal citation formatting and management]
-\RequirePackage{etoolbox,histrings,hisort,keyval,hiabbrev}
+\RequirePackage{etoolbox,iftex,histrings,hisort,keyval,hiabbrev}
 \def\hi@pkgname{hicite}
 %    \end{macrocode}
 %</package>
+%<*doc>
+
+% This list should correspond to the above
+\def\ListOfRequiredPackages{\texttt{etoolbox}, \texttt{iftex}, and
+\texttt{keyval}}
+
+
+%</doc>
 %<*test>
 \documentclass{article}
 \usepackage[margin=1in]{geometry}

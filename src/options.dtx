@@ -207,7 +207,14 @@ authorities and a shortcut otherwise, as described in \sec{urls-appearance}.
 %</doc>
 %<*package>
 %    \begin{macrocode}
-\DeclareOption{toaurl}{\hi@urlstyle@toa}
+\DeclareOption{toaurl}{%
+    \hi@urlstyle@link
+    \def\HiLinkText{online}
+    \def\HiLinkTrailer{%
+        Locations of authorities available online are shown in the Table of
+        Authorities.%
+    }
+}
 %    \end{macrocode}
 %</package>
 %<*doc>

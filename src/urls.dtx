@@ -32,7 +32,8 @@ package may not find a suitable breakpoint. Including \verb*|\ | (that is, a
 backslashed space) in the URL will force a breakpoint to be inserted into the
 URL, with no effect on appearance.
 
-\MacroSpec\HiUrl\marg{url-text} This provides a user-level command for inserting
+\MacroSpec\HiUrl\marg{url-text} \\
+This provides a user-level command for inserting
 a URL into text. At the beginning of the document, the command
 \DescribeMacro\url
 |\url| will be aliased to the same. If another package has already defined
@@ -44,8 +45,8 @@ it. This behavior may be altered by the package options \opt{overrideurl} and
 %<*package>
 %
 %    \begin{macrocode}
-\NewCommand\HiUrl[1]{%
-    \hi@parseurl{#1}\reserved@a\reserved@a
+\newcommand\HiUrl[1]{%
+    \hi@parseurl{#1}\@iden
 }%
 \AtBeginDocument{\hi@url@override}
 \def\hi@url@override{%
@@ -58,23 +59,40 @@ it. This behavior may be altered by the package options \opt{overrideurl} and
 }
 %    \end{macrocode}
 %
-% Parses the url (\#1) and puts it into control sequence (\#2). The resulting
-% URL should have appropriate breakpoints put in, and be totally unexpandable or
-% protected.
+% \MacroSpec\hi@parseurl\marg{url}\marg{callback}\\
+% Parses \meta{url} to produce the data structres described below, and calls
+% \meta{callback} on content that will typeset the URL. The URL will
+% have appropriate breakpoints put in, and can be safely inserted into a
+% protected expansion environment such as |\protected@edef|.
+%
+% The process is implemented in four steps. First, a unique number is generated
+% to identify the URL. Second, the URL is parsed to construct a hyperlink href
+% text. Third, the URL is parsed to construct a typeset text. Finally, the
+% callback is executed.
+%
 %    \begin{macrocode}
 \def\hi@parseurl#1#2{%
     \global\advance\hi@url@count\@ne
-    \let\hi@url@cur\hi@url@count
     \hi@url@link{#1}%
     \hi@url@text{#1}%
-    \hi@url@assign{#2}%
+    \hi@url@call{#2}%
 }
-\def\hi@url@assign@default#1{%
-    \letcs#1{hi@u\the\hi@url@cur @text}%
-    \@expand\if@endswithdot{\csname hi@u\the\hi@url@cur @text\endcsname}{ii}%
-        {\addto@macro#1{\protect\@hi@dottrue}}%
+\newcount\hi@url@count
+%    \end{macrocode}
+%
+% \MacroSpec\hi@url@call\marg{callback}\\
+% This macro executes \meta{callback} with a single argument, the typeset text
+% for the URL most recently parsed. By default, the definition is the URL
+% itself, but as described in \sec{urls-appearance}, alternate forms may be used
+% by redefining |\hi@url@call|.
+%
+%    \begin{macrocode}
+\def\hi@url@call@default#1{%
+    \@expand{#1}{\csname hi@u\the\hi@url@count @text\endcsname}{ii}%
 }
-\let\hi@url@assign\hi@url@assign@default
+\def\hi@urlstyle@full{%
+    \let\hi@url@call\hi@url@call@default
+}
 %    \end{macrocode}
 %
 %
@@ -92,108 +110,106 @@ it. This behavior may be altered by the package options \opt{overrideurl} and
 % document.
 % \end{itemize}
 %
-% |\hi@url@declare|\marg{num}
-% inserts code declaring the URL that has been assigned number \meta{num}. A
-% macro |\hi@u|\meta{num}|@link| should be defined as the properly escaped URL.
-% This should be called once within the document.
-%
-%    \begin{macrocode}
-\DeclareRobustCommand\hi@url@declare[1]{%
-    \@ifundefined{hi@u#1@declared}{%
-        \edef\reserved@a{%
-            \noexpand\special{%
-                pdf:object @HIURL#1 <<
-                    /S /URI
-                    /URI (\csname hi@u#1@link\endcsname)
-                >>
-            }%
-        }\reserved@a
-        \global\cslet{hi@u#1@declared}\@empty
-    }{}%
-}
-%    \end{macrocode}
-%
-% |\hi@url@insert|\marg{num}\marg{text}
-% inserts \meta{text} with a PDF hyperlink to the url identified by \meta{num}.
-%
-%    \begin{macrocode}
-\DeclareRobustCommand\hi@url@insert[2]{%
-    \@ifundefined{hi@u#1@declared}{\hi@url@declare{#1}}{}%
-    \noexpand\special{pdf:bann <<
-        /Type /Annot
-        /Subtype /Link
-        /Border [0 0 0]
-        /A @HIURL#1
-    >>}#2\noexpand\special{pdf:eann}%
-}%
-%    \end{macrocode}
-%
-% |\hi@url@insertbox|\marg{text}
-% inserts \meta{text} within an |\hbox|, with a PDF hyperlink to the url
-% identified by the current URL count number.
-%
-%    \begin{macrocode}
-\DeclareRobustCommand\hi@url@insertbox[1]{%
-    \hbox{\@expandarg\hi@url@insert{\the\hi@url@cur}{#1}}%
-}
-\newcount\hi@url@count
-\newcount\hi@url@cur
-\make@find@start{http://}
-\make@find@start{https://}
-\make@find@start{ftp://}
-\make@find@start{mailto:}
-%    \end{macrocode}
-%
-%
 % \subsection{Converting to PDF-Compatible Link}
 %
 % Parses a URL for purposes of forming it into a link URL. This primarily strips
 % the URL of backslash escape characters. The result is placed in |\hi@u#@link|,
-% where the number is |\hi@url@cur|.
+% where the number is |\hi@url@count|.
 %
 %    \begin{macrocode}
 \def\hi@url@link#1{%
-    \let\reserved@a\@empty
     % Force the link to start with https:// unless it has a protocol already
-    \find@try\find@start{%
-        {http://}\@gobble{https://}\@gobble{ftp://}\@gobble{mailto:}\@gobble
-    }{#1}{\def\reserved@a{https://}}%
-    \hi@url@link@{#1}%
-    \global\cslet{hi@u\the\hi@url@cur @link}\reserved@a
+    \expandafter\protected@xdef\csname hi@u\the\hi@url@count @link\endcsname{%
+        \find@try\find@start{%
+            {http://}\@gobble
+            {https://}\@gobble
+            {ftp://}\@gobble
+            {mailto:}\@gobble
+        }{#1}{https://}%
+        \hi@url@link@next{#1}%
+    }%
 }
-\def\hi@url@link@#1{%
-    \find@word{#1}%
-        \hi@url@link@chars
-        \hi@url@link@groups
-        \hi@url@link@words
-        \relax
+\make@find@start{http://}
+\make@find@start{https://}
+\make@find@start{ftp://}
+\make@find@start{mailto:}
+\def\hi@url@link@next#1{%
+    \find@word{#1}\hi@url@link@chars\hi@url@link@groups\hi@url@link@words{}%
 }
 \def\hi@url@link@words#1#2{%
-    \addto@macro\reserved@a{#1}%
-    \hi@url@link@{#2}%
+    #1\hi@url@link@next{#2}%
 }
 \def\hi@url@link@groups#1#2{%
-    \hi@url@link@{\{#1\}#2}%
+    \hi@url@link@next{\{#1\}#2}%
 }
 \def\hi@url@link@chars#1#2{%
     \@test \ifcat\relax\noexpand#1\fi{%
         % If the char is a macro
-        \@ifundefined{hi@uchar@\string#1}{%
-            \expandafter\addto@macro\expandafter\reserved@a\expandafter{%
-                \string#1%
-            }%
-        }{%
-            \@expand{\addto@macro\reserved@a}{%
-                \expandafter\@gobble\string#1%
-            }{ii}%
+        \@ifundefined{hi@uchar@\string#1}{\string#1}{%
+            \expandafter\@gobble\string#1%
         }%
     }{%
-        % All other non-word chars
-        \ifblank{#1}{}{% Ignore bare spaces
-            \addto@macro\reserved@a{#1}%
-        }%
+        % All other non-word chars. Ignore blank spaces.
+        \ifblank{#1}{}{\detokenize{#1}}%
     }%
-    \hi@url@link@{#2}%
+    \hi@url@link@next{#2}%
+}
+%    \end{macrocode}
+%
+%
+% \subsection{Inserting Link Code Into URLs}
+%
+% Once the URL has been converted into a link and saved, two things must occur
+% for the link to be used:
+% \begin{enumerate}
+% \item The link must be ``declared'' the first time it is used in the PDF file.
+% \item Code invoking the now-declared link must be inserted surrounding typeset
+% text.
+% \end{enumerate}
+% The macros below perform these actions.
+%
+%
+% \MacroSpec\hi@url@declare\marg{num} \\
+% Inserts a |\special| into the document declaring the URL that has been
+% assigned number \meta{num}. A macro |\hi@u|\meta{num}|@link| should be defined
+% as the properly escaped URL. This should be called once within the document.
+%
+%    \begin{macrocode}
+\DeclareRobustCommand\hi@url@declare[1]{%
+    \@ifundefined{hi@u#1@declared}{%
+        \@expand{\hi@urldrv@obj{#1}}{\csname hi@u#1@link\endcsname}{ii}%
+    }{}%
+}
+%    \end{macrocode}
+%
+%
+% \MacroSpec\hi@url@insert\marg{num}\marg{text}\\
+% Inserts \meta{text} with a PDF hyperlink to the url identified by \meta{num}.
+%
+%    \begin{macrocode}
+\DeclareRobustCommand\hi@url@insert[2]{%
+    \@ifundefined{hi@u#1@declared}{\hi@url@declare{#1}}{}%
+    \@expand\hi@urldrv@link{\csname hi@u#1@declared\endcsname}{ii}{#2}%
+}%
+%    \end{macrocode}
+%
+% \MacroSpec\hi@url@insertbox\marg{text}\marg{num}\\
+% Inserts \meta{text} within an |\hbox|, with a PDF hyperlink to the url
+% identified by the current URL count number.
+%
+%    \begin{macrocode}
+\DeclareRobustCommand\hi@url@insertbox[2]{%
+    \hbox{\hi@url@insert{#2}{#1}}%
+}
+%    \end{macrocode}
+%
+% \MacroSpec\hi@url@box\marg{text}\\
+% In an expansion context, produces the tokens to be included in a macro
+% defining the text of a URL inside a box.
+%
+%    \begin{macrocode}
+\def\hi@url@box#1{%
+    \noexpand\hi@url@insertbox{#1}{\the\hi@url@count}%
 }
 %    \end{macrocode}
 %
@@ -204,123 +220,135 @@ it. This behavior may be altered by the package options \opt{overrideurl} and
 %
 % Formats a URL as text intended for insertion into a paragraph. The resulting
 % content is stored in the macro |\hi@u#@text|, where the number is
-% |\hi@url@cur|.
+% |\hi@url@count|.
+%
 %    \begin{macrocode}
 \def\hi@url@text#1{%
-    \edef\reserved@a{\noexpand\hi@url@cur=\the\hi@url@cur \relax}%
-    \hi@url@text@next{#1}\reserved@a
-    \global\cslet{hi@u\the\hi@url@cur @text}\reserved@a
+    \expandafter\protected@xdef\csname hi@u\the\hi@url@count @text\endcsname{%
+        \leavevmode
+        \hi@url@text@next{#1}%
+    }%
 }
-
-\def\hi@url@text@next#1#2{%
+%    \end{macrocode}
+%
+% The rest of these macros drop tokens within the expansion context of a
+% |\protected@xdef|.
+%
+%    \begin{macrocode}
+\def\hi@url@text@next#1{%
     \find@word{#1}{%
-        \hi@url@text@chars{#2}%
+        \hi@url@text@chars
     }{%
-        \hi@url@text@groups{#2}%
+        \hi@url@text@groups
     }{%
-        \hi@url@text@words{#2}%
+        \hi@url@text@words
     }{}%
 }
 %    \end{macrocode}
 %
 % 
-% \#1 is the macro for the formatted URL; \#2 is the text to process; \#3 is the
-% rest of the URL.
+% \#1 is the text to process; \#2 is the rest of the URL.
 %    \begin{macrocode}
-\def\hi@url@text@words#1#2#3{%
-    \addto@macro#1{\hi@url@insertbox{#2}}%
-    \hi@url@text@next{#3}{#1}%
-}
-\def\hi@url@text@groups#1#2#3{%
-    \hi@url@text@next{\{#2\}#3}{#1}%
+\def\hi@url@text@words#1#2{%
+    \hi@url@box{#1}%
+    \hi@url@text@next{#2}%
 }
 %    \end{macrocode}
 %
-% Parse a non-word character in a URL. \#1 is the macro to which the formatted
-% URL will be added; \#2 is the character, and \#3 is the rest of the URL to be
+% \#1 is a group; \#2 is the rest of the URL. Insert the braces explicitly and
+% continue processing.
+%
+%    \begin{macrocode}
+\def\hi@url@text@groups#1#2{%
+    \hi@url@text@next{\{#1\}#2}%
+}
+%    \end{macrocode}
+%
+% Parse a non-word character in a URL.
+% \#1 is the character, and \#2 is the rest of the URL to be
 % processed.
 %
 %    \begin{macrocode}
-\def\hi@url@text@chars#1#2#3{%
-    \@test \ifcat\relax\noexpand#2\fi{%
+\def\hi@url@text@chars#1#2{%
+    \@test \ifcat\relax\noexpand#1\fi{%
 %    \end{macrocode}
 %
-% If the character (\#2) is a command (e.g., |\%|), see if a definition is
+% If the character (\#1) is a command (e.g., |\%|), see if a definition is
 % given for this command. If so, then execute the definition for the
 % command (e.g., |\hi@uchar@\%|). Otherwise, treat the command like text in
 % the URL and parse it along with the remainder of the URL.
 %    \begin{macrocode}
-        \@ifundefined{hi@uchar@\string#2}{%
-            \expandafter\hi@url@text\expandafter{\string#2#3}{#1}%
+        \@ifundefined{hi@uchar@\string#1}{%
+            \expandafter\hi@url@text@next\expandafter{\string#1#2}%
         }{%
-            \csname hi@uchar@\string#2\endcsname{#1}{#3}%
-            \hi@url@text@next{#3}{#1}%
+            \csname hi@uchar@\string#1\endcsname{#2}%
         }%
     }{%
 %    \end{macrocode}
-% If \#2 is not a command, then see if a definition is given for this
+% If \#1 is not a command, then see if a definition is given for this
 % character. If so, execute that definition. Otherwise, just add the
 % character to the URL. In all cases, continue with parsing the
 % remainder of the string.
 %    \begin{macrocode}
-        \@ifundefined{hi@uchar@\@backslashchar\string#2}{%
-            \addto@macro#1{\hi@url@insertbox #2}%
+        \@ifundefined{hi@uchar@\@backslashchar\string#1}{%
+            \hi@url@box{#2}%
+            \hi@url@text@next{#2}%
         }{%
-            \csname hi@uchar@\@backslashchar\string#2\endcsname{#1}{#3}%
+            \csname hi@uchar@\@backslashchar\string#1\endcsname{#2}%
         }%
-        \hi@url@text@next{#3}{#1}%
     }%
 }
 %    \end{macrocode}
 %
 % We now define macros of the form |\hi@uchar@|\meta{char} for each character
-% that will receive special processing. Each macro will take two arguments: \#1
-% is the URL macro for adding content, and \#2 is the trailing text of the URL.
+% that will receive special processing. Each macro will take one argument:
+% \#1 the trailing text of the URL. The macro is responsible for continuing URL
+% processing with |\hi@url@text@next|.
 %
 % The original lists of characters were borrowed from url.sty, by Donald
 % Arsenau. At this point the code no longer resembles the original beyond
 % standard TeX programming conventions, but I'd like to credit the original
 % package.
 %
-% These characters accept a breakpoint after them.
+% These characters accept a breakpoint after them, so long as the next
+% characters in the URL are word characters.
 %    \begin{macrocode}
 \def\do#1{%
-    \@namedef{hi@uchar@\string #1}##1##2{%
-        \addto@macro##1{\hi@url@insertbox}%
-        \@expand{\addto@macro##1}{\expandafter\@gobble\string #1}{ii}%
-        \find@word{##2}\@gobbletwo\@gobbletwo{%
-            \addto@macro##1{\hi@uchar@break}\@gobbletwo
+    \@namedef{hi@uchar@\string #1}##1{%
+        \hi@url@box{\expandafter\@gobble\string#1}%
+        \@ifstartswithwordchar{##1}{%
+            \noexpand\hi@uchar@break
         }{}%
+        \hi@url@text@next{##1}%
     }%
 }
-\do\.\do\@\do\!\do\;\do\]\do\)\do\,\do\+\do\=\do\#\do\:
+\do\@\do\!\do\;\do\]\do\)\do\,\do\+\do\=\do\#\do\:
 %    \end{macrocode}
 %
 % These characters accept a breakpoint \emph{and} add a little extra space.
 %    \begin{macrocode}
 \def\do#1{%
-    \@namedef{hi@uchar@\string #1}##1##2{%
-        \addto@macro##1{\hi@uchar@spacenobreak\hi@url@insertbox}%
-        \@expand{\addto@macro##1}{\expandafter\@gobble\string #1}{ii}%
-        \find@word{##2}{%
-            \addto@macro##1{\hi@uchar@spacenobreak}\@gobbletwo
-        }{%
-            \addto@macro##1{\hi@uchar@spacenobreak}\@gobbletwo
-        }{%
-            \addto@macro##1{\hi@uchar@spacebreak}\@gobbletwo
-        }{}%
+    \@namedef{hi@uchar@\string #1}##1{%
+        \noexpand\hi@uchar@spacenobreak
+        \hi@url@box{\expandafter\@gobble\string #1}%
+        \find@word{##1}%
+            {\@gobbletwo}%
+            {\noexpand\hi@uchar@spacebreak\@gobbletwo}%
+            {\noexpand\hi@uchar@spacebreak\@gobbletwo}%
+            {}%
+        \hi@url@text@next{##1}%
     }%
 }
 \do\/\do\?\do\&\do\-
 %    \end{macrocode}
 %
-% These characters accept no breakpoints, but are often backslashed; including
+% These characters accept no breakpoints but are often backslashed; including
 % them forces the removal of the backslash.
 %    \begin{macrocode}
 \def\do#1{%
-    \@namedef{hi@uchar@\string #1}##1##2{%
-        \addto@macro##1{\hi@url@insertbox}%
-        \@expand{\addto@macro##1}{\expandafter\@gobble\string #1}{ii}%
+    \@namedef{hi@uchar@\string #1}##1{%
+        \hi@url@box{\expandafter\@gobble\string #1}%
+        \hi@url@text@next{##1}%
     }%
 }
 \do\^\do\$
@@ -330,11 +358,12 @@ it. This behavior may be altered by the package options \opt{overrideurl} and
 % breakpoint is inserted if the next character is a word character.
 %    \begin{macrocode}
 \def\do#1#2{%
-    \@namedef{hi@uchar@\string #1}##1##2{%
-        \addto@macro##1{\hi@url@insertbox{#2}}%
-        \find@word{##2}\@gobbletwo\@gobbletwo{%
-            \addto@macro##1{\hi@uchar@break}\@gobbletwo
+    \@namedef{hi@uchar@\string #1}##1{%
+        \hi@url@box{\unexpanded{#2}}%
+        \@ifstartswithwordchar{##1}{%
+            \noexpand\hi@uchar@break
         }{}%
+        \hi@url@text@next{##1}%
     }%
 }
 \do\<{$\protect\langle$}%
@@ -342,39 +371,88 @@ it. This behavior may be altered by the package options \opt{overrideurl} and
 \expandafter\do\csname|\endcsname{$\protect\mid$}%
 \do\{{$\protect\lbrace$}%
 \do\\{$\protect\backslash$}%
-\do\ {}%
 \do\_{\_}%
 %    \end{macrocode}
 %
-% These characters require special treatment. The first ones are not legal
-% breakpoints; the percent sign is but the breakpoint comes before the
-% character. (Ideally the percent would be recognized as an entity escape,
-% collecting the next two characters, but that would require modifying the
-% URL parser.)
+% These characters require special treatment and are not legal
+% breakpoints.
 %
 %    \begin{macrocode}
 \def\do#1#2{%
-    \@namedef{hi@uchar@\string #1}##1##2{%
-        \addto@macro##1{\hi@url@insertbox{#2}}%
+    \@namedef{hi@uchar@\string #1}##1{%
+        \hi@url@box{\unexpanded{#2}}%
+        \hi@url@text@next{##1}%
     }%
 }
 \do\>{$\protect\rangle$}
 \do\}{$\protect\rbrace$}
-\do\~{\char`\~}%
-\@namedef{hi@uchar@\string\%}#1#2{%
-    \ifstrempty{#2}{}{\addto@macro#1{\hi@uchar@spacebreak}}%
-    \addto@macro#1{\hi@url@insertbox{\%}}%
+\do\~{\char`\~}
+%    \end{macrocode}
+%
+% A space indicates to insert a break alone.
+%
+%    \begin{macrocode}
+\@namedef{hi@uchar@\string\ }#1{%
+    \noexpand\hi@uchar@break
+    \hi@url@text@next{#1}%
+}
+\@namedef{hi@uchar@\string\^^M}#1{%
+    \noexpand\hi@uchar@break
+    \hi@url@text@next{#1}%
+}
+%    \end{macrocode}
+%
+%
+% The percent sign indicates a URL-encoded value. It consumes two tokens from
+% the trailing text and puts a breakpoint before the percent sign and after the
+% two tokens. (No check is made to determine what those tokens are).
+%
+%    \begin{macrocode}
+\@namedef{hi@uchar@\string\%}#1{%
+    \noexpand\hi@uchar@spacebreak
+    \ifstrempty{#1}{%
+        \hi@url@box{\noexpand\%}%
+        \hi@url@text@next{}%
+    }{%
+        \hi@url@pct#1\@stop
+    }%
+}%
+\def\hi@url@pct#1#2\@stop{%
+    \ifstrempty{#2}{%
+        \hi@url@box{\noexpand\%\detokenize{#1}}%
+        \hi@url@text@next{}%
+    }{%
+        \hi@url@pct@{#1}#2\@stop
+    }%
+}
+\def\hi@url@pct@#1#2#3\@stop{%
+    \hi@url@box{\noexpand\%\detokenize{#1#2}}%
+    \noexpand\hi@uchar@spacebreak
+    \hi@url@text@next{#3}%
+}
+%    \end{macrocode}
+%
+% A dot permits a break after if the subsequent text is a word. If the
+% subsequent text is empty, then mark that the URL ends with a dot.
+%
+%    \begin{macrocode}
+\@namedef{hi@uchar@\string\.}#1{%
+    \hi@url@box{.}%
+    \@ifstartswithwordchar{#1}{\noexpand\hi@uchar@break}{}%
+    \ifstrempty{#1}{\noexpand\@hi@dottrue}{}%
+    \hi@url@text@next{#1}%
 }%
 %    \end{macrocode}
 %
 % Macros for types of breakpoints and spaces.
+%
 %    \begin{macrocode}
 \newskip\urlbreakskip \urlbreakskip=0pt plus .4pt
 \DeclareRobustCommand\hi@uchar@break{%
     \penalty\exhyphenpenalty
 }
 \DeclareRobustCommand\hi@uchar@spacenobreak{%
-    \unskip\unpenalty\nobreak
+    \unskip\unpenalty\penalty\@M
     \hskip\urlbreakskip
 }
 \DeclareRobustCommand\hi@uchar@spacebreak{%
@@ -382,15 +460,6 @@ it. This behavior may be altered by the package options \opt{overrideurl} and
 }
 %    \end{macrocode}
 %
-% Now actually apply commands to the character classes.
-%    \begin{macrocode}
-\@namedef{hi@uchar@\string\ }#1#2{%
-    \ifstrempty{#2}{}{\addto@macro#1{\hi@uchar@break}}%
-}
-\@namedef{hi@uchar@\string\^^M}#1#2{%
-    \ifstrempty{#2}{}{\addto@macro#1{\hi@uchar@break}}%
-}
-%    \end{macrocode}
 %</package>
 %<*doc>
 
@@ -400,98 +469,61 @@ it. This behavior may be altered by the package options \opt{overrideurl} and
 
 By default, URLs are shown in text. This format, logical for print publications
 with no other easy access to hyperlinks, can look lengthy and cumbersome in
-legal memoranda and other contexts. Accordingly, several other options are
-provided.
+legal memoranda and other contexts.
 
-In documents with tables of authorities, URLs can be presented in an alternate
-format: The URLs are included only in the table listing, and citations in the
-document include a marker ``\emph{available online}.'' A footnote is added after
-the first such omitted URL, informing the reader that omitted URLs are in the
-Table of Authorities. To select this format, use the package option
-\opt{toaurl}.
+With the package option \opt{linkurl}, all URLs will be replaced with a short
+phrase, by default \emph{link}. The word will be hyperlinked to the given URL\@.
+However, the full URL will be included as text only in the Table of Authorities
+or a Table of URLs as described below. A footnote may be added after the first
+instance of such a URL, to identify the location of any full printing of the
+URLs as text. This format has the advantage of producing cleaner-looking
+documents, particularly given the large font-to-text-field ratios that most
+courts require of briefs (such that URLs could take up a large fraction of a
+page).
 
+The package option \opt{toaurl} uses the same mechanism as \opt{linkurl}, but
+uses different text for the links and the footnote.
 
-This format has the advantage of producing cleaner-looking briefs, particularly
-given the large font-to-text-field ratios that most courts require of briefs
-(such that URLs could take up a large fraction of a page). The main disadvantage
-is that it actually increases word count, since URLs typically count only as one
-word.
-
-The text to be shown in place of URLs can be redefined with the macro
-\DescribeMacro\ToaUrlMark
-|\ToaUrlMark|.
-The text to be shown in the footnote after the first such replaced URL can be
-redefined with the macro
-\DescribeMacro\ToaUrlText
-|\ToaUrlText|.
-
-%</doc>
-%<*package>
-%
-% \DescribeMacro\hi@showurl
-% All displays of URLs are filtered through |\hi@showurl|\marg{text}. By
-% default, it just displays its argument.
-%
-%    \begin{macrocode}
-\def\hi@urlstyle@full{%
-    \def\hi@showurl##1{##1}%
-}
-%    \end{macrocode}
-%
-% Provides for URL being shown only in the table of authorities. \#1 is the
-% pre-URL signal; \#2 is the URL itself.
-%
-%    \begin{macrocode}
-\def\hi@urlstyle@toa{%
-    \def\hi@showurl##1{%
-        \if@hi@in@toa
-            ##1%
-        \else
-            \ToaUrlMark
-            \hi@showurl@toatext
-        \fi
-    }
-    \def\hi@showurl@toatext{%
-        \hi@defer@content{\ToaUrlText}%
-        \global\let\hi@showurl@toatext\@empty
-    }
-    \def\ToaUrlText{%
-        Locations of authorities available online are shown in the Table of
-        Authorities.
-    }
-    \def\ToaUrlMark{\emph{available online}}
-}
-%    \end{macrocode}
-%</package>
-%<*doc>
-
-Alternatively, in documents intended to be used only electronically, URLs can be
-replaced with a word that is hyperlinked.
-To select this format, use the package option \opt{linkurl}.
-
-\DescribeMacro\LinkText
-The text to be used in place of the URL is defined in the macro |\LinkText|.
+\DescribeMacro\HiLinkText
+The text to be used in place of the URL is defined in the macro |\HiLinkText|.
 No line break protection is performed on the word, so it should be an
 unbreakable word or the macro should be defined to include an unbreakable
-|\hbox|.
+|\hbox|. After the first link is displayed, the content of
+\DescribeMacro\HiLinkTrailer |\HiLinkTrailer| will be displayed as deferred
+content (see \sec{parens-deferred}), which will be moved to a footnote.
 
 %</doc>
 %<*package>
+%
+% |\hi@url@call@link| follows the specification of |\hi@url@call| above.
+%
 %    \begin{macrocode}
-\def\hi@url@assign@link#1{%
-    \edef#1{%
-        \noexpand\leavevmode
-        \noexpand\hi@url@insert{\the\hi@url@cur}{\noexpand\LinkText}%
-        \noexpand\hi@linkurl@auxwrite{\the\hi@url@cur}%
+\def\hi@url@call@link#1{%
+    \@expandarg\hi@url@call@link@{\the\hi@url@count}{#1}%
+}
+\def\hi@url@call@link@#1#2{%
+    #2{%
+        \@test\if@hi@in@toa\fi{%
+            \csname hi@u#1@text\endcsname
+        }{%
+            \leavevmode
+            \hi@linkurl@auxwrite{#1}%
+            \hi@url@insertbox{\HiLinkText}{#1}%
+            \ifx\HiLinkTrailer\relax\else
+                \hi@defer@content{\HiLinkTrailer}%
+                \global\let\HiLinkTrailer\relax
+            \fi
+        }%
     }%
 }
 \def\hi@urlstyle@link{%
-    \let\hi@url@assign\hi@url@assign@link
+    \let\hi@url@call\hi@url@call@link
 }
 \def\hi@linkurl@auxwrite#1{%
     \addtocontents{tou}{\protect\l@hi@tou{#1}{\thepage}}%
 }
-\def\LinkText{\emph{link}}
+\def\HiLinkText{\emph{link}}
+\let\HiLinkTrailer\relax
 %    \end{macrocode}
 %</package>
 %<*doc>
@@ -499,7 +531,11 @@ unbreakable word or the macro should be defined to include an unbreakable
 % If the URL link style is selected, then a table of URLs may be generated with
 % the command |\TableOfUrls|. This ensures that print copies of a document
 % contain any URLs that were otherwise omitted by replacement with the
-% |\LinkText| word.
+% |\HiLinkText| word.
+%
+% The table must be produced after all the URLs have been otherwise used in the
+% document, because the auxiliary file contains only the URL's identifying
+% numbers, not the content of the URLs themselves.
 %
 %</doc>
 %<*package>
@@ -517,23 +553,256 @@ unbreakable word or the macro should be defined to include an unbreakable
     \@dottedtocline{1}{0em}{1.5em}{\csname hi@u#1@text\endcsname}{#2}%
 }
 %    \end{macrocode}
+%
+%
+%</package>
+%<*doc>
+\subsection{Drivers}
+\label{s:urls-drivers}
+
+To output hyperlinked URLs with various \TeX\ engines, driver code is provided
+for individual engines. By default, the correct driver is detected based
+on the |iftex| package. A specific driver may also be selected using the macro
+\DescribeMacro\HiUrlDriver\cmd\HiUrlDriver\marg{name}. The available drivers
+are:
+\begin{itemize}
+\item pdftex
+\item luatex
+\item xetex
+\item none (URLs are typeset but not linked)
+\end{itemize}
+
+%</doc>
+%<*package>
+%    \begin{macrocode}
+\def\HiUrlDriver#1{%
+    \@ifundefined{hi@url@driver@#1}{%
+        \PackageError\hi@pkgname{%
+            No URL driver named `#1' found for \string\HiUrlDriver
+        }{Check the documentation for valid driver names}%
+    }{%
+        \csname hi@url@driver@#1\endcsname
+    }%
+}
+%    \end{macrocode}
+%
+% Detection of the current \TeX\ engine for driver selection.
+%
+%    \begin{macrocode}
+\def\hi@url@detect@driver{%
+    \ifxetex
+        \HiUrlDriver{xetex}
+    \else \ifpdftex
+        \HiUrlDriver{pdftex}
+    \else \ifluatex
+        \HiUrlDriver{luatex}
+    \else \ifpdf
+        \PackageWarning\hi@pkgname{%
+            Could not detect correct URL driver; defaulting to XeTeX%
+        }%
+        \HiUrlDriver{xetex}
+    \else
+        \PackageWarning\hi@pkgname{%
+            Output not to a PDF, so no URL links will be generated%
+        }%
+        \HiUrlDriver{none}
+    \fi \fi \fi \fi
+}
+\AtBeginDocument{%
+    \ifdefined\hi@urldrv@obj\else \hi@url@detect@driver \fi
+}
+%    \end{macrocode}
+%
+% The ``none'' driver.
+%
+%    \begin{macrocode}
+\def\hi@url@driver@none{
+    \def\hi@urldrv@obj##1##2{%
+        \global\expandafter\let\csname hi@u##1@declared\endcsname\@empty
+    }
+    \def\hi@urldrv@link##1##2{%
+        ##2%
+    }
+}
+%    \end{macrocode}
+%
+% The pdf\TeX\ driver.
+%
+%    \begin{macrocode}
+\def\hi@url@driver@pdftex{
+    \def\hi@urldrv@obj##1##2{%
+        \pdfobj{<<
+            /S /URI
+            /URI (##2)
+        >>}
+        \expandafter\xdef\csname hi@u##1@declared\endcsname{\the\pdflastobj}%
+        \pdfrefobj\pdflastobj
+    }
+    \def\hi@urldrv@link##1##2{%
+        \pdfannot{
+            /Subtype /Link
+            /Border [0 0 0]
+            /A ##1 0 R
+        }##2%
+    }
+}
+%    \end{macrocode}
+%
+% The Lua\TeX\ driver.
+%
+%    \begin{macrocode}
+\def\hi@url@driver@luatex{
+    \def\hi@urldrv@obj##1##2{%
+        \pdfextension obj {<<
+            /S /URI
+            /URI (##2)
+        >>}
+        \expandafter\xdef\csname hi@u##1@declared\endcsname{%
+            \the\numexpr\pdffeedback lastobj%
+        }%
+        \pdfextension refobj \pdffeedback lastobj\relax
+    }
+    \def\hi@urldrv@link##1##2{%
+        \pdfextension annot {
+            /Subtype /Link
+            /Border [0 0 0]
+            /A ##1 0 R
+        }##2%
+    }
+}
+%    \end{macrocode}
+%
+% The Xe\TeX\ driver.
+%
+%    \begin{macrocode}
+\def\hi@url@driver@xetex{
+    \def\hi@urldrv@obj##1##2{%
+        \special{%
+            pdf:object @HIURL##1 <<
+                /S /URI
+                /URI (##2)
+            >>
+        }%
+        \global\@namedef{hi@u##1@declared}{@HIURL##1}%
+    }
+    \def\hi@urldrv@link##1##2{%
+        \noexpand\special{pdf:bann <<
+            /Type /Annot
+            /Subtype /Link
+            /Border [0 0 0]
+            /A ##1%
+        >>}##2\noexpand\special{pdf:eann}%
+    }
+}
+%    \end{macrocode}
 %</package>
 %<*test>
 
+
+
+
 \section{urls.dtx}
 
-\begingroup
+\subsection{URL to Link Conversion}
+
+
+\advance\hi@url@count1
+\hi@url@link{http://www.google.com}
+\AssertExpand{%
+    \csname hi@u\the\hi@url@count @link\endcsname
+}{http://www.google.com}
+
+\advance\hi@url@count1
+\hi@url@link{http://www.google.com?q=\_}
+\AssertExpand{%
+    \csname hi@u\the\hi@url@count @link\endcsname
+}{http://www.google.com?q=\string_}
+
+\advance\hi@url@count1
+\hi@url@link{http:// www.goo gle.c om}
+\AssertExpand{%
+    \csname hi@u\the\hi@url@count @link\endcsname
+}{http://www.google.com}
+
+
+\subsection{URL to Text Conversion}
+
+
+\advance\hi@url@count1
+\hi@url@text{:a}
+\AssertExpand{%
+    \csname hi@u\the\hi@url@count @text\endcsname
+}{%
+    \leavevmode
+    \hi@url@insertbox{:}{\the\hi@url@count}%
+    \hi@uchar@break
+    \hi@url@insertbox{a}{\the\hi@url@count}%
+}
+
+\advance\hi@url@count1
+\hi@url@text{:/}
+\AssertExpand{%
+    \csname hi@u\the\hi@url@count @text\endcsname
+}{%
+    \leavevmode
+    \hi@url@insertbox{:}{\the\hi@url@count}%
+    \hi@uchar@spacenobreak
+    \hi@url@insertbox{/}{\the\hi@url@count}%
+}
+
+\advance\hi@url@count1
+\hi@url@text{a.}
+\AssertExpand{%
+    \@expand\unexpanded{\csname hi@u\the\hi@url@count @text\endcsname}{ii}%
+}{%
+    \leavevmode
+    \noexpand\hi@url@insertbox{a}{\the\hi@url@count}%
+    \noexpand\hi@url@insertbox{.}{\the\hi@url@count}%
+    \noexpand\@hi@dottrue
+}
+
+\advance\hi@url@count1
+\hi@url@text{/a}
+\AssertExpand{%
+    \csname hi@u\the\hi@url@count @text\endcsname
+}{%
+    \leavevmode
+    \hi@uchar@spacenobreak
+    \hi@url@insertbox{/}{\the\hi@url@count}%
+    \hi@uchar@spacebreak
+    \hi@url@insertbox{a}{\the\hi@url@count}%
+}
+
+
+\advance\hi@url@count1
+\hi@url@text{a b}
+\AssertExpand{%
+    \csname hi@u\the\hi@url@count @text\endcsname
+}{%
+    \leavevmode
+    \hi@url@insertbox{a}{\the\hi@url@count}%
+    \hi@uchar@break
+    \hi@url@insertbox{b}{\the\hi@url@count}%
+}
+
+
+
+\subsection{Overfull Boxes}
 
 The following should not produce overfull boxes. Also ensure that the links
 themselves work as expected.
 
 \immediate\write16{THERE SHOULD BE NO OVERFULL BOXES AFTER THIS LINE}
 
+\begingroup
+
 \def\testbox#1{%
-    \vrule\vbox{%
+    \vrule
+    \vbox{%
         \hsize 1in \relax
         \HiUrl{#1}%
-    }\vrule\quad
+    }%
+    \vrule\quad
 }
 
 \testbox{http://www.google.com/search?q=hello+world}
@@ -541,6 +810,25 @@ themselves work as expected.
 \testbox{http://www.google.com/search?q=antidis establishment arianism}
 
 \immediate\write16{THERE SHOULD BE NO OVERFULL BOXES BEFORE THIS LINE}
+
+\endgroup
+
+\subsection{Link URLs}
+
+\begingroup
+    \hi@urlstyle@link
+    \def\HiLinkText{link}
+    \def\HiLinkTrailer{Link trailer.}
+
+    \AssertBox{\url{http://www.google.com}}{link\InFootnote{Link trailer.}}
+
+    \AssertBox{\url{http://www.yahoo.com}}{link}
+
+    \@hi@in@toatrue
+    \AssertBox{\url{http://www.google.com}}{%
+        \hbox{http}\hbox{:}\hbox{/}\hbox{/}%
+        \hbox{www}\hbox{.}\hbox{google}\hbox{.}\hbox{com}%
+    }%
 
 \endgroup
 

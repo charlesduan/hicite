@@ -148,6 +148,61 @@ compatibility options.
 
 
 
+\subsection{Interaction with Other Packages}
+
+\hia* is designed to be as self-contained as possible, minimizing its
+dependencies on other packages. The packages that it requires are
+\ListOfRequiredPackages, in addition to several auxiliary packages bundled with
+\hia*.
+
+The package also attempts to make minimal modifications to the \LaTeX\
+environment, in order to limit potential conflicts with other packages. However,
+some modifications are essential due to the fact that legal citations interact
+closely with the underlying document structure. The following is a list of
+general areas that may be affected:
+\begin{itemize}
+\item The |\footnote| macro is modified to install some beginning and ending
+hooks, so that the package can perform accounting of citations at each
+footnote (see \sec{state-footnote}). Other packages that modify footnotes may
+conflict with these modifications. In particular, most standard endnote packages
+will not work with \hia* or legal citation generally, which is why the package
+provides its own endnote feature (see \sec{endnotes}).
+
+\item URL processing is handled internally by \hia* (see \sec{urls}). This
+generally should not cause conflicts with other packages, although the package
+will optionally define a standalone |\url| command for typesetting URLs.
+Depending on the \TeX\ engine being used, it may also be necessary to select or
+implement a driver for emitting hyperlink code (see \sec{urls-drivers}).
+
+\item Cross-references in \hia* use different commands from standard \LaTeX\
+references, but the package uses the same underlying data storage. The two
+cannot be intermixed (e.g., the |\ref| and command cannot be used with \hia*
+cross-references).
+
+\item Some common macro names are defined and used in the package. Some of these
+are the interface of user-level commands, which are listed in the index of this
+manual. Internal macro names are generally prefixed with |\hi@| to avoid package
+conflicts, but there are some legacy internal macro names that do not follow
+this convention yet.
+\end{itemize}
+
+The following are some notes on specific packages and their interaction with
+\hia*.
+
+\begin{itemize}
+\item \textbf{hyperref}: This works, but the |hyperfootnotes| option should be
+turned off.
+\item \textbf{sidenotes}: If included, \hia* will detect it and modify the
+|\sidenote| macro analogously to what it does to |\footnote|. It is recommended
+that documents using sidenotes use legal memorandum formatting (see option
+\opt{memo}), because law review formatting depends heavily on having a single,
+continuous series of footnotes.
+\item \textbf{tex4ht}: This largely works but sometimes has difficulty with
+converting URLs and footnotes. The author has some experimental configuration
+files that can help with this, although they are not extensively tested.
+\end{itemize}
+
+
 \subsection{Intellectual Property Concerns}
 
 Over the years, there have been multiple disputes over intellectual property in
