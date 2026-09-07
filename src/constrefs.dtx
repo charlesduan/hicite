@@ -116,7 +116,7 @@ Amendment\\ and ``amendment \meta{number}'' respectively.
                     \hi@ifset\hi@kv@page{%
                         \hi@ifset\hi@kv@year{,}{}\space
                         \noexpand\@hi@dotfalse
-                        \@format@page@macro\hi@kv@page
+                        \hi@fmt@page@macro\hi@kv@page
                     }{}%
                 }%
             }%
@@ -135,7 +135,7 @@ Amendment\\ and ``amendment \meta{number}'' respectively.
             }{%
                 \hi@ifset\hi@kv@page{%
                     \hi@ifset\hi@kv@year{, }{ }%
-                    \@format@page@macro\hi@kv@page
+                    \hi@fmt@page@macro\hi@kv@page
                 }{}%
             }%
         }{%
@@ -144,7 +144,7 @@ Amendment\\ and ``amendment \meta{number}'' respectively.
             }{%
                 \hi@ifset\hi@kv@page{%
                     \hi@ifset\hi@kv@year{, }{ }%
-                    \@format@page@macro\hi@kv@page
+                    \hi@fmt@page@macro\hi@kv@page
                 }{}%
             }%
         }%
@@ -160,7 +160,7 @@ Amendment\\ and ``amendment \meta{number}'' respectively.
         \hi@citeguts{%
             \noexpand\hi@fn@const{\hi@kv@name}%
             \hi@pageordefault{ }{%
-                \hi@ifset\hi@kv@page{ \@format@page@macro\hi@kv@page}{}%
+                \hi@ifset\hi@kv@page{ \hi@fmt@page@macro\hi@kv@page}{}%
             }%
         }%
         \the\hi@param@parens
@@ -171,7 +171,7 @@ Amendment\\ and ``amendment \meta{number}'' respectively.
     \hi@newcite@form{lc}{#1}{%
         \noexpand\hi@toa@duptitle{}{\hi@fn@const{\hi@kv@name}}{%
             \hi@pageordefault{ }{%
-                \hi@ifset\hi@kv@page{ \@format@page@macro\hi@kv@page}{}%
+                \hi@ifset\hi@kv@page{ \hi@fmt@page@macro\hi@kv@page}{}%
             }%
             \the\hi@param@parens
             \hi@ifset\hi@kv@year{%
@@ -179,7 +179,7 @@ Amendment\\ and ``amendment \meta{number}'' respectively.
             }{}%
         }{%
             \hi@pageordefault{ }{%
-                \hi@ifset\hi@kv@page{ \@format@page@macro\hi@kv@page}{}%
+                \hi@ifset\hi@kv@page{ \hi@fmt@page@macro\hi@kv@page}{}%
             }%
         }%
         \the\hi@param@parens

@@ -14,7 +14,7 @@ The input text syntax is used for all citation commands that this package
 accepts (\cmd\sentence, \cmd\clause, \cmd\inline, etc.).
 
 
-\subsection{Data Model}
+\subsection{Contents of a Citation String}
 
 A \emph{citation string} is an ordered list of one or more \emph{citation
 items}. \unskip\footnote{Multiple citation items are permitted even for citation
@@ -69,22 +69,24 @@ signal |see, e.g.|, an optional argument |opt|, and two parentheticals.
 More commonly, only a few components of a citation item will be included. An
 example citation string in ordinary use might look as follows:
 \begin{demo}
-\ttfamily
-statute at S 167; see also supporting-case at 189; another-case at 465; cf.
-journal-article at 754 (discussing related applications of the statute); see
-generally 7 treatise at S 56
+\ttfamily\frenchspacing
+statute at S 167;\\
+see also supporting-case at 189;\\
+another-case at 465;\\
+cf. journal-article at 754 (discussing related applications of the statute);\\
+see generally 7 treatise at S 56
 \end{demo}
+Line breaks have been inserted for readability, but are not necessary.
 
 Note that if the same reference is cited multiple times in a row, there is no
 facility for writing \emph{id.}\ or the like in the input syntax. The reference
 must be fully identified and pin-cited on each use, and the package will
 automatically compute whether \emph{id.}\ should be inserted as described in
-\sec{state}. While this may seem like unnecessary work, there is a major
-advantage: The citation string input is fully independent of where in the
-document the citation string appears. As a result, writers can freely move
-blocks of text around a document without having to rewrite input citation
-strings. If \emph{id.}\ or other shortcuts had been used in the document, then
-they likely would become unintelligible upon a document reorganization.
+\sec{state}. This additional verbosity is necessary to make citation inputs
+stateless, as explained further in \sec{state}: any component of a citation
+string may be moved around or deleted, and additional references may be added to
+the citation string, without requiring any manual editing of existing citation
+components.
 
 
 %</doc>

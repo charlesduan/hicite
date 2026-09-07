@@ -11,14 +11,14 @@ abbreviated using different word lists, but with different abbreviation
 algorithms. Knowledge of these will generally not be important to writers, but
 they are discussed briefly below.
 
-\DescribeMacro\AbbreviateFor
-|\AbbreviateFor|\marg{scheme}\marg{text} abbreviates a text based on a given
+\MacroSpec\HiAbbrev \marg{scheme}\marg{text} \\
+Abbreviates a text based on a given
 scheme. The schemes available are described below.
 
 %</doc>
 %<*package>
 %    \begin{macrocode}
-\def\AbbreviateFor#1#2{%
+\def\HiAbbrev#1#2{%
     \@nameuse{hi@abbrev@#1}{#2}{\@iden}%
 }
 %    \end{macrocode}
@@ -313,6 +313,7 @@ institutional and subject-matter word dots.
 
 \subsection{Procedural Phrases}
 \label{abbscheme:expl}
+\label{s:abbrevs-expl}
 
 \DescribeAbb{expl}
 Procedural phrases use a unique set of word-based abbreviations, but there is
@@ -325,15 +326,15 @@ is issued because the correctness of any trailing comma cannot be established.
 
 The abbreviation scheme is called \abbscheme{expl}.
 
-\DescribeMacro\ExplanatoryPhrase
-The macro |\ExplanatoryPhrase|\marg{phrase} defines a new explanatory phrase.
+\MacroSpec\HiExplPhrase \marg{phrase} \\
+Defines a new explanatory phrase.
 The unabbreviated phrase should be given, including any trailing comma if
 needed.
 
 %</doc>
 %<*package>
 %    \begin{macrocode}
-\def\ExplanatoryPhrase#1{%
+\def\HiExplPhrase#1{%
     \find@end{,}{#1}{\hi@explanatoryphrase{,}}{\hi@explanatoryphrase{}{#1}}%
 }
 \make@find@end{,}
@@ -362,7 +363,7 @@ needed.
 %    \begin{macrocode}
 \abb@new{expl}
 \def\hi@abbrev#1#2{\abb@add{expl}{#1}{#2}}
-\let\hi@multi@abbrev\ExplanatoryPhrase
+\let\hi@multi@abbrev\HiExplPhrase
 \input hi-explanatory
 %    \end{macrocode}
 %
@@ -383,7 +384,7 @@ needed.
     \PackageWarning\hi@pkgname{%
         In defining reference \@this@case, the explanatory\MessageBreak
         phrase `#1' was not previously\MessageBreak
-        known. Use \string\ExplanatoryPhrase{#1} to\MessageBreak
+        known. Use \string\HiExplPhrase{#1} to\MessageBreak
         define it. Also, make sure your comma usage conforms\MessageBreak
         to T.9. This occurred%
     }%  

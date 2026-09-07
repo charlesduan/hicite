@@ -5,24 +5,37 @@
 \input driver
 \thisis{state}{Full, Short, and \emph{Id.}\ Citations}
 
-Except in limited circumstances, \unskip\footnote{These are namely internal
-cross-references and Table of Authorities generation, described in \sec{xref}
-and \sec{toa} respectively, both of which use \LaTeX's aux file system.} this
-package processes citations linearly starting from the beginning of the document
-and never looking backwards or forwards. As a result, it must constantly store
-``state'' information about citations previously seen, in order to generate
-contextually correct citations.
+Legal citations are ``stateful'' insofar as the formatting of any citation
+depends on the context of citations tht preceded it. Citations may take on short
+forms or \emph{id.}~forms may be used on subsequent citations to a reference,
+for example. Inputs to \hia* are designed to be ``stateless,'' meaning that
+declarations of citations, using the input syntax described in \sec{parse},
+generally are independent of prior citations. The statelessness of the input
+syntax is what allows blocks of text to be moved around freely within a document
+without the need to rewrite citation declarations. As a result, \hia* is
+responsible for computing and remembering relevant citation state information so
+that the forms of citations may be selected.
 
-Two types of state information are discussed here: information about where
-references were first or previously cited, and information about the last
-citation shown.
+Statefulness in citation systems is not uncommon, but legal citations are more
+complex than most because the different forms and placements of citations
+(inline, clause, and sentence; in footnotes versus in text; top-level versus
+nested) all have different effects on what citation forms are subsequently
+chosen. Furthermore, due to the nature of \TeX\ compilation, the computation of
+citation state generally occurs in a single forward pass through a document.
+\unskip\footnote{The exceptions are for internal cross-references and the Table
+of Authorities, described in \sec{xref} and \sec{toa} respectively, both of
+which use \LaTeX's aux file system.} Rules like ``look backwards through the
+last five footnotes to determine if a short citation should be used'' must thus
+be restructured in implementation to accommodate this single-pass processing.
 
-If you are looking for commands that change the citation state, for example to
-suppress \emph{id.}\ or short citation forms, those commands are in
-\sec{iface-misc}.
+This section describes how \hia* structures, stores, and updates its internal
+state information about citations. It also provides commands for altering the
+internal state, in order to change the appearance of citations.
+
 
 
 \subsection{Short Forms}
+\label{s:state-short}
 
 For most references, there is a full citation form and a short one. The full
 form is used first, and the short one used subsequently according to one of two
@@ -50,11 +63,6 @@ This package follows the following rules to determine long and short forms:
    this is a supra-type short cite, or (c) if the full citation has been used
    in the last five footnotes.
 \end{enumerate}
-
-\DescribeMacro\resetcitationforms
-The command |\resetcitationforms| resets the aforementioned citation state,
-forcing all citations to be the full form.
-
 %</doc>
 %<*package>
 %
@@ -64,24 +72,13 @@ forcing all citations to be the full form.
 \def\hi@addfullcite#1{\gappto\hi@allfullcites{\global\let#1\relax}}
 %    \end{macrocode}
 %
-% Resets all citation state.
-%    \begin{macrocode}
-\def\resetcitationforms{%
-    \hi@allfullcites
-    \gdef\hi@allfullcites{}%
-    \def\do##1{%
-        \cslet{@last@##1}\relax
-    }%
-    \hi@state@list
-}
-%    \end{macrocode}
-%
 %
 % These rules are implemented as follows. For every reference, two citation
-% state variables are maintained: |\dfc@|\meta{ref}, and |\dfi@|\meta{ref}. The
-% former pertains to citations, and the latter to inline textual references.
+% state variables are maintained: |\hi@dfc@|\meta{ref}, and
+% |\hi@dfi@|\meta{ref}. The former pertains to citations, and the latter to
+% inline textual references.
 %
-% For the |\dfi@|\meta{ref} forms, there are three possible values:
+% For the |\hi@dfi@|\meta{ref} forms, there are three possible values:
 % \begin{itemize}
 % \item |\relax| (undefined): The full inline form should be used in all
 %   situations.
@@ -92,7 +89,7 @@ forcing all citations to be the full form.
 % \item |\tw@| (2): The short form should be used in all situations.
 % \end{itemize}
 %
-% For the |\dfc@|\meta{ref} forms:
+% For the |\hi@dfc@|\meta{ref} forms:
 % \begin{itemize}
 % \item A value of zero indicates that the reference has been cited in text but
 %   no footnote.
@@ -102,33 +99,33 @@ forcing all citations to be the full form.
 %   text and in a footnote. The absolute value is the footnote number.
 % \end{itemize}
 %
-% Note that while |\dfi@|\meta{ref} values are number registers, the
-% |\dfc@|\meta{ref} values are text numbers.
+% Note that while |\hi@dfi@|\meta{ref} values are number registers, the
+% |\hi@dfc@|\meta{ref} values are text numbers.
 %
 %</package>
 %<*doc>
 
-\DescribeMacro\ShowCitationState
-The macro |\ShowCitationState|\marg{ref} gives a textual account of the state of
+\MacroSpec\HiShowState \marg{ref} \\
+Prints to the terminal a textual account of the state of
 a reference at the point that the macro is called.
 
 %</doc>
 %<*package>
 %    \begin{macrocode}
-\def\ShowCitationState#1{%
+\def\HiShowState#1{%
     \immediate\write16{For citation reference `#1',
-        \@ifundefined{dfi@#1}{the full inline form will be used}{%
-            \ifcase\csname dfi@#1\endcsname
+        \@ifundefined{hi@dfi@#1}{the full inline form will be used}{%
+            \ifcase\csname hi@dfi@#1\endcsname
                 an illegal inline state was encountered%
                 \or the short inline form will be used in footnotes only%
                 \or the short inline form will be used%
                 \else an illegal inline state was encountered%
             \fi
         }, and
-        \@ifundefined{dfc@#1}{the full citation form will be used}{%
-            \ifnum\csname dfc@#1\endcsname>\z@
+        \@ifundefined{hi@dfc@#1}{the full citation form will be used}{%
+            \ifnum\csname hi@dfc@#1\endcsname>\z@
                 the full citation was used in footnote
-                \csname dfc@#1\endcsname
+                \csname hi@dfc@#1\endcsname
             \else
                 the full citation was used in text so the short form will be
                 used%
@@ -138,7 +135,7 @@ a reference at the point that the macro is called.
 }
 %    \end{macrocode}
 %
-% \DescribeMacro\hi@record@cite
+% \MacroSpec\hi@record@cite
 % This utility macro is run every time a reference is cited, as part of the
 % citation drawing routines in \sec{draw}. It updates state variables indicating
 % whether the full or short citation form should be used. The macro runs
@@ -156,19 +153,19 @@ a reference at the point that the macro is called.
 %    \begin{macrocode}
 \DeclareRobustCommand\hi@record@cite[1]{%
     \if@hi@in@toa\else
-        \expandafter\hi@addfullcite\csname dfc@#1\endcsname
-        \expandafter\hi@addfullcite\csname dfi@#1\endcsname
+        \expandafter\hi@addfullcite\csname hi@dfc@#1\endcsname
+        \expandafter\hi@addfullcite\csname hi@dfi@#1\endcsname
         \ifnum\hi@citelevel<\tw@
-            \expandafter\hi@record@cite@inline\csname dfi@#1\endcsname
+            \expandafter\hi@record@cite@inline\csname hi@dfi@#1\endcsname
         \fi
         \if@hi@inline\else
-            \expandafter\hi@record@cite@\csname dfc@#1\endcsname{#1}%
+            \expandafter\hi@record@cite@\csname hi@dfc@#1\endcsname{#1}%
         \fi
     \fi
 }
 %    \end{macrocode}
 %
-% Records an inline citation, setting |\dfi@|\meta{ref} (which is \#1) to the
+% Records an inline citation, setting |\hi@dfi@|\meta{ref} (which is \#1) to the
 % appropriate value.
 %
 %    \begin{macrocode}
@@ -185,7 +182,7 @@ a reference at the point that the macro is called.
 }
 %    \end{macrocode}
 %
-% Records a citation. \#1 is the |\dfc@|\meta{ref} macro, and \#2 is the
+% Records a citation. \#1 is the |\hi@dfc@|\meta{ref} macro, and \#2 is the
 % reference name.
 %
 %    \begin{macrocode}
@@ -243,8 +240,8 @@ a reference at the point that the macro is called.
 %
 %    \begin{macrocode}
 \DeclareRobustCommand\hi@record@choose@inline[1]{%
-    \@ifundefined{dfi@#1}{\@firstoftwo}{%
-        \@test \ifnum\csname dfi@#1\endcsname=\tw@ \fi{\@secondoftwo}{%
+    \@ifundefined{hi@dfi@#1}{\@firstoftwo}{%
+        \@test \ifnum\csname hi@dfi@#1\endcsname=\tw@ \fi{\@secondoftwo}{%
             \@test \if@hi@note \fi{\@secondoftwo}{\@firstoftwo}%
         }%
     }%
@@ -255,7 +252,7 @@ a reference at the point that the macro is called.
 %
 %    \begin{macrocode}
 \DeclareRobustCommand\hi@record@choose@cite[1]{%
-    \expandafter\hi@record@choose@cite@\csname dfc@#1\endcsname{#1}%
+    \expandafter\hi@record@choose@cite@\csname hi@dfc@#1\endcsname{#1}%
 }
 \def\hi@record@choose@cite@#1#2{%
     \@test \ifx#1\relax \fi{\@firstoftwo}{%
@@ -325,15 +322,15 @@ macros to adjust the contents of full citations accordingly.
 %
 % \DescribeMacro\hi@record@firstfullcite
 % Determines if this citation has had at least one full citation. This will be
-% true if |\dfc@|\meta{ref} is defined at all. It is useful for citations that
-% follow the five-footnote rule, as it is sometimes relevant to know whether a
-% full citation is the first full citation ever or a repeated full citation.
-% Takes three arguments: \#1 is the reference name, \#2 is the callback for the
-% first full citation ever, and \#3 the callback otherwise.
+% true if |\hi@dfc@|\meta{ref} is defined at all. It is useful for citations
+% that follow the five-footnote rule, as it is sometimes relevant to know
+% whether a full citation is the first full citation ever or a repeated full
+% citation. Takes three arguments: \#1 is the reference name, \#2 is the
+% callback for the first full citation ever, and \#3 the callback otherwise.
 %
 %    \begin{macrocode}
 \def\hi@record@firstfullcite#1{%
-    \@ifundefined{dfc@#1}%
+    \@ifundefined{hi@dfc@#1}%
 }
 %    \end{macrocode}
 %
@@ -739,6 +736,96 @@ the last footnote or the last in-text citation.
 %
 %    \begin{macrocode}
 \newif\if@hi@note \@hi@notefalse
+%    \end{macrocode}
+%
+%</package>
+%<*doc>
+
+\subsection{Manipulating Citation State}
+
+\label{s:state-manip}
+
+While \hia* attempts to choose the correct citation form in any context
+automatically, there may be situations where it chooses incorrectly or a writer
+wishes to override the automatically selected form. The following macros allow
+for doing so.
+
+To avoid conflicts with other packages, these macros are all prefixed with
+|\Hi|. This is a change from older versions of \hia*. The legacy macro names are
+given in \sec{legacy}.
+
+\MacroSpec\HiNoId
+Informs the package not to use \emph{id.}\ for the next
+citation, by resetting memory of the last reference cited.
+%</doc>
+%<*package>
+%    \begin{macrocode}
+\def\hi@noid{%
+    \let\@last@case\relax\let\@last@page\relax\let\@last@vol\relax
+    \let\@last@title\relax
+}
+\let\HiNoId\hi@noid
+%    \end{macrocode}
+%</package>
+%<*doc>
+
+\MacroSpec\HiFullCite \marg{ref} \\
+Informs the package to produce a
+full citation of \meta{ref} by resetting memory of that reference's use.
+
+%</doc>
+%<*package>
+%    \begin{macrocode}
+\def\HiFullCite#1{%
+    \global\expandafter\let\csname hi@dfc@#1\endcsname\relax
+    \global\expandafter\let\csname hi@dfi@#1\endcsname\relax
+    \hi@noid
+}
+%    \end{macrocode}
+%</package>
+%<*doc>
+
+\MacroSpec\HiNoFullCite\marg{ref} \\
+Acts as if \meta{ref} was cited without displaying anything, so that the next
+citation to that reference is a short form.
+
+%</doc>
+%<*package>
+%    \begin{macrocode}
+\def\HiNoFullCite#1{\hi@record@cite{#1}}
+%    \end{macrocode}
+%</package>
+
+%<*doc>
+
+\MacroSpec\HiFullTitle\marg{ref}\\
+Resets memory of the last statutory title cited.
+
+%
+%</doc>
+%<*package>
+%    \begin{macrocode}
+\def\HiFullTitle{\let\@this@title\relax}
+%    \end{macrocode}
+%</package>
+%<*doc>
+
+\MacroSpec\HiResetState
+Resets all citation state, forcing all citations to be the full form and
+discarding memory of previous citations.
+
+%</doc>
+%<*package>
+%
+%    \begin{macrocode}
+\def\HiResetState{%
+    \hi@allfullcites
+    \gdef\hi@allfullcites{}%
+    \def\do##1{%
+        \cslet{@last@##1}\relax
+    }%
+    \hi@state@list
+}
 %    \end{macrocode}
 %
 %</package>

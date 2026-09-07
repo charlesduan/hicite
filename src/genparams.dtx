@@ -37,7 +37,7 @@ book being reviewed, which will be cited in the parenthetical.
 %</doc>
 %
 \hi@defparam{toacat}{Table of Authorities category for this citation}{%
-    \@expandarg\SetTOACategory\@this@case{#1}%
+    \@expandarg\HiSetTOACat\@this@case{#1}%
 }
 %<*doc>
 The valid category types are listed in \sec{toa-categories}.
@@ -100,7 +100,7 @@ warning if it detects an name list of three or more entities.
 %</doc>
 %
 \hi@defparam@noval{notoa}{Do not include in the table of authorities}{%
-    \SetTOACategory{\@this@case}{}%
+    \HiSetTOACat{\@this@case}{}%
 }
 %
 \hi@newparam{opturl}{Optional URL}
@@ -154,7 +154,7 @@ in the future.
     \hi@param@addparen\hi@paren@parallel{%
         #2%
         \@test\ifx\@this@page\relax\fi{}{%
-            \hi@fpg@orig@page@segment{#1}{, \@format@pageno}{%
+            \hi@fpg@orig@page@segment{#1}{, \hi@fmt@pageno}{%
                 \PackageWarning\hi@pkgname{%
                     In citation to \@this@case, parallel cite\MessageBreak
                     with key `#1' not given in page number%
@@ -302,11 +302,28 @@ parallel=coke: 5 Coke 91a,
     1604).}%
 }
 
-\fullcite{semayne}
+\HiFullCite{semayne}
 
 \AssertBox{\note{semayne at 195 ::coke: 91b}}{%
     \InFootnote{Semayne's Case, 77 Eng.~Rep.~194, 195, 5 Coke 91a, 91b (K.B.
     1604).}%
 }
+
+\subsection{URLs and Perma.cc}
+
+\defbook{itc-centennial}{
+instauth=United States International Trade Commission,
+title=A Centennial History of the USITC,
+date=nov 2017,
+url=https://www.usitc.gov/publications/other/pub4744.pdf,
+permacc=https://perma.cc/EE2T-C7SZ,
+}
+
+\AssertBox{\note{itc-centennial at 129}}{%
+\InFootnote{\textsc{U.S. Int'l Trade Comm'n}, \textsc{A Centennial History of
+the USITC} 129 (Nov.~2017),
+\hbox{https}://\hbox{www}.\hbox{usitc}.\hbox{gov}/\hbox{publications}/%
+\hbox{other}/\hbox{pub4744}\hbox{.}\hbox{pdf}
+[https://\hbox{perma}.\hbox{cc}/\hbox{EE2T}-\hbox{C7SZ}].}}
 
 %</test>

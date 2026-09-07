@@ -31,23 +31,23 @@ footnotes, formats \emph{supra} cites with note numbers, and so on.
 %<*doc>
 
 \ExplainOption{journalfonts} Selects law review fonts. Same as
-|\UseFontPack{review}|. Other formatting aspects are not changed.
+|\HiUseFontPack{review}|. Other formatting aspects are not changed.
 
 %</doc>
 %<*package>
 %    \begin{macrocode}
-\DeclareOption{journalfonts}{\UseFontPack{review}}
+\DeclareOption{journalfonts}{\HiUseFontPack{review}}
 %    \end{macrocode}
 %</package>
 %<*doc>
 
 \ExplainOption{memofonts} Selects legal memorandum fonts. Same as
-|\UseFontPack{memo}|. Other formatting aspects are not changed.
+|\HiUseFontPack{memo}|. Other formatting aspects are not changed.
 
 %</doc>
 %<*package>
 %    \begin{macrocode}
-\DeclareOption{memofonts}{\UseFontPack{memo}}
+\DeclareOption{memofonts}{\HiUseFontPack{memo}}
 %    \end{macrocode}
 %</package>
 %<*doc>
@@ -80,7 +80,7 @@ previously chosen.
 %</doc>
 %<*package>
 %    \begin{macrocode}
-\DeclareOption{italcase}{\UseFontPack{italcase}}
+\DeclareOption{italcase}{\HiUseFontPack{italcase}}
 %    \end{macrocode}
 %
 %
@@ -295,6 +295,31 @@ for legal memoranda, and is described further in \sec{supra-xref}.
 \DeclareOption{xrefsupra}{\hi@supra@opt@xref}
 %    \end{macrocode}
 %
+%</package>
+%<*doc>
+
+\subsection{Table of Authorities}
+
+
+\ExplainOption{legacy} Enable all legacy commands described in \sec{legacy},
+overwriting existing commands without warning.
+
+%</doc>
+%<*package>
+%    \begin{macrocode}
+\DeclareOption{legacy}{\let\hi@legacy@chk\@secondoftwo}
+%    \end{macrocode}
 %
+%</package>
+%<*doc>
+
+
+\ExplainOption{nolegacy} Disable all legacy commands described in \sec{legacy}.
+
+%</doc>
+%<*package>
+%    \begin{macrocode}
+\DeclareOption{legacy}{\let\hi@legacy@chk\@gobbletwo}
+%    \end{macrocode}
 %
 %</package>

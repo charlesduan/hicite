@@ -16,29 +16,9 @@ the sky is blue).
 Legal citation uses parentheticals extensively, both in highly structured ways
 to include required bibliographic data about references and more freeform ways
 that allow authors an additional avenue to converse with readers.
-
 This section describes the nature of parentheticals as understood by this
 package, how parentheticals are entered for citation items, and how
 parentheticals are formatted.
-
-
-\subsection{Data Model}
-
-\paragraph{Types}
-At the time that a citation item is being formatted, the package begins building
-up a list of parentheticals. The parentheticals can originate from two places.
-First, they may be associated with the reference itself, providing bibliographic
-information or commentary to be generally associated with the reference (e.g.,
-publication dates, judicial opinion types, or alternate sources for finding
-references). These parentheticals are typically displayed only with the full
-citation of the reference.
-
-Parentheticals may be provided as part of the citation item input, as described
-in \sec{parse}. These ``citation-level'' parentheticals are generally meant to
-explain the writer's use of the reference in a particular
-citation---characterizing the holding of a case to demonstrate its relevance to
-the writer's argument, quoting the relevant portion of a reference, or
-identifying sources that the reference itself quotes or cites.
 
 ``Parentheticals'' as used in this package are not merely text set inside
 parentheses. They also include items such as URLs, prior and subsequent case
@@ -54,27 +34,53 @@ just like parentheses-enclosed text, because the two are intermingled in
 presentation. URLs, for example, appear after the date parenthetical to a
 citation but before parenthetical commentary text.
 
-\paragraph{Content and Ordering}
-Every parenthetical is associated with two items: (1) the text of the
-parenthetical, and (2) a priority number. The priority number serves two
+\subsection{Types of Parentheticals}
+
+There are generally two types of parentheticals: reference-level and
+citation-level.
+Reference-level parentheticals are associated with the reference itself,
+providing bibliographic information or commentary to be generally associated
+with the reference (e.g., publication dates, judicial opinion types, or
+alternate sources for finding references). These parentheticals are determined
+at the time a reference is defined, and they typically are displayed only with
+the full citation of the reference.
+
+Citation-level parentheticals are specified as part of the citation item input,
+as described in \sec{parse}. These parentheticals are generally meant to explain
+the writer's use of the reference in a particular citation---characterizing the
+holding of a case to demonstrate its relevance to the writer's argument, quoting
+the relevant portion of a reference, or identifying sources that the reference
+itself quotes or cites.
+
+
+\subsection{Content and Ordering}
+
+When typesetting a citation, all of the appropriate parentheticals must be
+combined into a listing to be presented after the citation information.
+Every parenthetical is stored as a structure of two pieces of information:
+\begin{enumerate}
+\item The text of the parenthetical
+\item A priority number
+\end{enumerate}
+The priority number serves two
 purposes. First, it establishes an ordering of parentheticals. For example, the
 date parenthetical for a citation always should precede other parentheticals, so
 it has the lowest priority number. Second, the priority number determines the
-appearance of the parenthetical. Other than hereinafter parentheticals (which
-unusually are set inside square brackets), parentheticals with even priority
-numbers are set inside parentheses while those with odd numbers are set off with
-a comma. As a result, there is consistency among even citations with many
-parentheticals.
+appearance of the parenthetical. Other than a few idiosyncratic parentheticals
+(described below with respect to formatting),
+parentheticals are displayed either in parentheses or as unparenthesized text
+set off by a comma. Internally, \hia* uses odd priority numbers for
+parenthesized parentheticals and even numbers for comma-set ones.
 
 The priority number for any parenthetical is set automatically based on the
-context in which the package receives the parenthetical. Generally writers
+context in which the package receives the parenthetical. Generally users
 should not need to deal with them, but the mechanism may be useful to know for
 authors who wish to change the default ordering or appearances.
 
 %</doc>
 %<*package>
 %
-% In this package, macros are defined as |\hi@parens@|\meta{*} and parenthetical
+% In this module, macros have names |\hi@parens@|\meta{*} and parenthetical
 % priority numbers are |\hi@paren@|\meta{*}.
 %
 % \DescribeMacro\hi@parens
@@ -138,61 +144,94 @@ authors who wish to change the default ordering or appearances.
 % The list of priority numbers for parentheticals now follows.
 %
 %    \begin{macrocode}
-\chardef\hi@paren@parallel=1             % Parallel citation
-\chardef\hi@paren@date=2                 % Date parenthetical
-\chardef\hi@paren@origdate=4             % Original date parenthetical
-\chardef\hi@paren@docno=10               % Document number for court docs
-\chardef\hi@paren@country=20             % Country name parenthetical
-\chardef\hi@paren@casedocdocket=20       % Docket number for case document
-\chardef\hi@paren@hia=30                 % Hereinafter
-\chardef\hi@paren@casealt=40             % Alternate case name
-\chardef\hi@paren@bookreview=50          % Book review citation
-\chardef\hi@paren@opinion=60             % Opinion disposition (en banc, etc.)
-\chardef\hi@paren@preparedby=70          % "prepared by" (R. 21.7.3)
-\chardef\hi@paren@codified=80            % "to be codified at" for Fed. Reg.
-\chardef\hi@paren@forthcomingms=80       % Page number for forthcoming article
-\chardef\hi@paren@manuscript=90          % "unpublished manuscript"
-\chardef\hi@paren@doc=100                % Document-level parenthetical
-\chardef\hi@paren@url=111                % URL parenthetical
-\chardef\hi@paren@accessdate=112         % URL access date
-\chardef\hi@paren@permacc=114            % perma.cc URL
-\chardef\hi@paren@cite=120               % Citation-level parenthetical
-\chardef\hi@paren@prior=131              % Prior history of case
-\chardef\hi@paren@subseq=133             % Subsequent history of case
-\chardef\hi@paren@comment=205            % Commentary
-\chardef\hi@paren@reprint=207            % "Reprinted in" parenthetical
+\def\hi@parens@assign#1#2#3{\chardef#1=#2\relax}
 %    \end{macrocode}
-%
 %</package>
 %<*doc>
 
+\subsection{List of Parentheticals and Priorities}
 
-\subsection{Input Syntax}
+The priority number for each parenthetical type is given, as well as a
+corresponding reference parameter where there is one.
 
-For parentheticals entered as parameters to references, the syntaxes are
-explained in \pt{allparams}. This section describes the syntax for
-parentheticals entered as components of citation items, expanding on
-\sec{parse}. These are called ``citation-level'' parentheticals.
+\def\hi@parens@assign#1#2#3{\expandafter\hi@parens@gobble\string#1&#2&#3\\}
+\expandafter\def\expandafter\hi@parens@gobble\string\hi@paren@{}
+\begin{demo}
+\begin{tabular}{lll}
+\textbf{Type}&\textbf{Priority}&\textbf{Description}\\
+\hline
+%</doc>
+%<*package|doc>
+\hi@parens@assign\hi@paren@parallel{1}{Parallel citation (\param{parallel})}
+\hi@parens@assign\hi@paren@date{2}{Date parenthetical (\param{year})}
+\hi@parens@assign\hi@paren@origdate{4}{Original date parenthetical
+(\param{origyear})}
+\hi@parens@assign\hi@paren@docno{10}{Court document number
+(\rtype{casedoc})}
+\hi@parens@assign\hi@paren@country{20}{Country name parenthetical
+(\param{country})}
+\hi@parens@assign\hi@paren@casedocdocket{20}{Case docket number
+(\param{docket})}
+\hi@parens@assign\hi@paren@hia{30}{Hereinafter (\param{hereinafter})}
+\hi@parens@assign\hi@paren@casealt{40}{Alternate case name}
+\hi@parens@assign\hi@paren@bookreview{50}{Book review citation
+(\param{bookreview})}
+\hi@parens@assign\hi@paren@opinion{60}{Opinion disposition (\param{enbanc} etc.)}
+\hi@parens@assign\hi@paren@preparedby{70}{``prepared by'' (\rtype{intdoc})}
+\hi@parens@assign\hi@paren@codified{80}{``codified at'' and similar
+(\param{codified})}
+\hi@parens@assign\hi@paren@forthcomingms{80}{Forthcoming article page number}
+\hi@parens@assign\hi@paren@manuscript{90}{``unpublished manuscript''
+(\rtype{manuscript})}
+\hi@parens@assign\hi@paren@doc{100}{Document-level parenthetical
+(\param{paren})}
+\hi@parens@assign\hi@paren@url{111}{URL parenthetical (\param{url})}
+\hi@parens@assign\hi@paren@accessdate{112}{URL access date (\param{accessdate})}
+\hi@parens@assign\hi@paren@permacc{114}{perma.cc URL (\param{permacc})}
+\hi@parens@assign\hi@paren@cite{120}{Citation-level parenthetical
+(\sec{parens-citelevel})}
+\hi@parens@assign\hi@paren@prior{131}{Prior history of case (\param{prior})}
+\hi@parens@assign\hi@paren@subseq{133}{Subsequent history of case
+(\param{subsequent})}
+\hi@parens@assign\hi@paren@comment{205}{Commentary (\sec{parens-citelevel})}
+\hi@parens@assign\hi@paren@reprint{207}{``Reprinted in'' parenthetical
+(\param{reprinted})}
+%<*package|doc>
+%<*doc>
+\end{tabular}
+\end{demo}
 
-Generally parentheticals are entered in citation items as plain text. Citation
+\subsection{Parentheticals Inside Citation Strings}
+\label{s:parens-citelevel}
+
+``Citation-level'' parentheticals are those entered as part of a citation
+string, as described in \sec{parse}. Typically, these parentheticals are simply
+explanatory text or a quotation from the source being cited. Citation
 commands may be used inside parentheticals to produce nested citations, as
 described in \sec{iface}. In addition, several special syntaxes are provided to
 allow for different types of common parentheticals.
 
-The following input will convert \meta{cite} to
-|\clause|\marg{cite} and remove the colon. This is a convenient shortcut for the
+Often it is useful to state a relationship between two sources, for example
+where one source quotes another. A parenthetical may be entered using one of the
+following syntactic forms:
+\begin{grammar}
+\begin{tabular}{ll}
+\textbf{Form} & \textbf{Parenthetical type} \\
+\hline
+|(|\meta{verb}|ing: |\meta{cite}|)| & cite \\
+|(|\meta{verb}| in: |\meta{cite}|)| & comment \\
+|(|\meta{verb}| by: |\meta{cite}|)| & comment \\
+|(|\meta{verb}| at: |\meta{cite}|)| & comment \\
+|(codified at: |\meta{cite}|)| & codified \\
+|(codified as amended at: |\meta{cite}|)| & codified \\
+|(footnote: |\meta{cite}|)| & See \sec{parens-deferred} \\
+\end{tabular}
+\end{grammar}
+The \meta{cite} will be converted to a |\clause| citation and placed after the
+words preceding the colon inside a parenthetical. This is a shortcut for the
 common types of parentheticals that start with ``quoting,'' ``cited by,'' or
 ``discussed in'' followed by a citation.
-\begin{demo}
-\begin{tabular}{l}
-|(|\meta{verb}|ing: |\meta{cite}|)| \\
-|(|\meta{verb}| in: |\meta{cite}|)| \\
-|(|\meta{verb}| by: |\meta{cite}|)| \\
-|(|\meta{verb}| at: |\meta{cite}|)| \\
-|(codified at: |\meta{cite}|)| \\
-|(codified as amended at: |\meta{cite}|)| \\
-\end{tabular}
-\end{demo}
+
 For example, the following are largely equivalent:
 \begin{demo}
 |\sentence{ref at 3 (quoting: source at 15)}| \\
@@ -260,7 +299,7 @@ subsequent commentary (using |in|, |by|, and |at|) comes last, with \meta{verb}|
 %</package>
 %<*doc>
 
-\paragraph{Deferred Footnotes}
+\subsection{Deferred Footnotes}
 \label{s:parens-deferred}
 
 A parenthetical starting with |footnote:| creates a ``deferred footnote'' inside
@@ -375,6 +414,7 @@ Authorities when that option is requested, as described in \sec{urls}.}
 
 \subsection{Formatting}
 
+As discussed initially, different parentheticals receive different formatting.
 The main task in formatting parentheticals is distinguishing among the different
 types. As discussed above, there are three parenthetical forms:
 \begin{itemize}

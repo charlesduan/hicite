@@ -132,7 +132,7 @@ that it does not affect \emph{id.}\ citations surrounding it.
         \hi@ifset\hi@kv@page{%
             \noexpand\ifx\noexpand\@this@page\relax
                 \def\noexpand\@this@orig@page{\expandonce\hi@kv@page}%
-                \def\@this@page{\@format@page@macro\hi@kv@page}%
+                \def\@this@page{\hi@fmt@page@macro\hi@kv@page}%
             \noexpand\fi
         }{}%
     }%
@@ -145,7 +145,7 @@ that it does not affect \emph{id.}\ citations surrounding it.
             \noexpand\hi@pages@join{\expandonce\hi@kv@page}{##1}%
         }{%
             \noexpand\protected@edef\noexpand\@this@page{%
-                \noexpand\@format@pageno{##1}%
+                \noexpand\hi@fmt@pageno{##1}%
             }%
         }%
     }%

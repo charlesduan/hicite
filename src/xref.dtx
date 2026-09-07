@@ -38,6 +38,7 @@ II.A.3'').
 \end{itemize}
 
 \subsection{Labeling Document Parts}
+\label{s:xref-parts}
 
 The following commands are used to mark parts of a document with labels.
 
@@ -98,19 +99,19 @@ cross-reference ranges.
 %<*doc>
 
 
-\MacroSpec\hitanlabel\marg{label}
+\MacroSpec\hitanlabel\marg{label} \\
 Creates a cross-reference label of the form ``notes $x$--$y$ and accompanying
 text.'' It should be used before footnote $x$.
 
-\MacroSpec\hiendtanlabel\marg{label}
+\MacroSpec\hiendtanlabel\marg{label} \\
 Ends a cross-reference label of the above form.
 
-\MacroSpec\hiflabel\marg{label}
+\MacroSpec\hiflabel\marg{label} \\
 Labels a figure or table. This should be used after the |\caption| is given.
 This and the next macro should not be needed since |\hilabel| will detect these
 contexts and adjust the label accordingly.
 
-\MacroSpec\hinotelabel\marg{label}
+\MacroSpec\hinotelabel\marg{label} \\
 Labels a footnote, while inside the footnote.
 
 %</doc>
@@ -140,16 +141,17 @@ Labels a footnote, while inside the footnote.
 %</package>
 %<*doc>
 
-\MacroSpec\hisectlabel
-\marg{label} labels the current section.
+\MacroSpec\hisectlabel \marg{label} \\
+Labels the current section.
 
-\MacroSpec\hiendsectlabel
-\marg{label} labels an end of a section range.
+\MacroSpec\hiendsectlabel \marg{label} \\
+Labels an end of a section range.
 
 For law review articles, top-level cross-references will use the word ``Part''
 while other cross-references will use ``Section.'' (The distinction is
 determined by whether the section number contains a dot.) For legal memoranda,
 ``Section'' will always be used. To change this, redefine the internal macro
+\DescribeMacro\hi@xref@sect@choose
 |\hi@xref@sect@choose|.
 
 %</doc>

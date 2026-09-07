@@ -223,7 +223,7 @@ which are optional (although some reference types will require \param{year}):
     author=David Nimmer,
     title=Nimmer on Copyright,
     year=2014,
-    hereinafter=\UseFontFor{booktitle}{Nimmer},
+    hereinafter=\HiFont{booktitle}{Nimmer},
 }
 \end{verbatim}
 \Produces \textsc{Melville B. Nimmer \& David Nimmer}, \textsc{Nimmer on
@@ -698,7 +698,7 @@ complex reference definition that I have constructed.
         \hi@ifset\hi@kv@page{%
             \def\noexpand\@this@orig@page{\hi@kv@page}%
             \@ifundefined{pc@#1}{%
-                \def\noexpand\@this@page{\@format@page@macro\hi@kv@page}%
+                \def\noexpand\@this@page{\hi@fmt@page@macro\hi@kv@page}%
             }{%
                 \@expand{\@nameuse{pc@#1}}\hi@kv@page i%
             }%

@@ -136,35 +136,42 @@ turn internal emph into roman.
 %<*doc>
 
 \subsection{Font Packs}
+\label{s:fonts-pack}
 
-\DescribeMacro\MakeFontPack
 A font pack associates font contexts with font commands. Each context receives
 two font commands: one for use in non-inline citations, and one for use with
-inline texts. The syntax for defining a font pack is as follows:
+inline texts.
+
+\MacroSpec\HiFontPack\marg{name}\marg{font-specs} \\
+Creates a font pack \meta{name}. The specification is as follows:
 \begin{grammar}
-|\MakeFontPack|\marg{name}\marg{font-specs} \\
 \meta{font-specs} := \meta{font-spec} ( \littext{, } \meta{font-spec} )* \\
 \meta{font-spec} := \meta{context} \littext{: } \meta{font} \littext{/}
 \meta{font} \\
 \meta{font} := \littext{emph} \| \littext{empht} \| \littext{rm} \| \littext{sc}
 \\
-\Example |\MakeFontPack{new}{booktitle: sc/empht, bookauthor: sc/rm}|
+\Example |\HiFontPack{new}{|\\
+|    booktitle: sc/empht,|\\
+|    bookauthor: sc/rm|\\
+|}|
 \end{grammar}
+The slash is required, so both the non-inline and inline fonts must be given.
+
 A font pack need not define every font context, since a user can select multiple
 font packs. In the case of two font packs containing the same font context, the
 last selected pack overrides earlier ones.
 
-\DescribeMacro\UseFontPack
-To invoke a font pack, call |\UseFontPack|\marg{name}.
+\MacroSpec\HiUseFontPack\marg{name}\\
+Executes the font definitions given in the named font pack.
 
 %</doc>
 %<*package>
 %
 %    \begin{macrocode}
-\def\MakeFontPack#1#2{%
+\def\HiFontPack#1#2{%
     \csgdef{hi@fontpack@#1}{\forcsvlist\hi@font@dopack{#2}}%
 }
-\def\UseFontPack#1{\csname hi@fontpack@#1\endcsname}
+\def\HiUseFontPack#1{\csname hi@fontpack@#1\endcsname}
 %    \end{macrocode}
 %
 % These macros create the font macros themselves. The macros are structured as
@@ -208,7 +215,7 @@ after review or memo.
 % Make the font packs.
 %
 %    \begin{macrocode}
-\MakeFontPack{review}{%
+\HiFontPack{review}{%
     bookauthor: sc/rm,
     booktitle: sc/rm,
     congdoc: sc/empht,
@@ -227,7 +234,7 @@ after review or memo.
     dateprefix: rm/rm,
     latin: emph/emph%
 }
-\MakeFontPack{memo}{%
+\HiFontPack{memo}{%
     bookauthor: rm/rm,
     booktitle: empht/empht,
     congdoc: rm/empht,
@@ -246,12 +253,12 @@ after review or memo.
     dateprefix: rm/rm,
     latin: emph/emph%
 }
-\MakeFontPack{italcase}{%
+\HiFontPack{italcase}{%
     caseproc: empht/empht,
     casefc: empht/empht,
     casesc: empht/empht,
 }
-\MakeFontPack{italdateprefix}{%
+\HiFontPack{italdateprefix}{%
     dateprefix: empht/empht,
 }
 %    \end{macrocode}
@@ -259,9 +266,9 @@ after review or memo.
 % Install hooks for the font packs, and call memo fonts by default.
 %
 %    \begin{macrocode}
-\UseFontPack{memo}
-\appto\hi@hooks@review{\UseFontPack{review}}
-\appto\hi@hooks@memo{\UseFontPack{memo}}
+\HiUseFontPack{memo}
+\appto\hi@hooks@review{\HiUseFontPack{review}}
+\appto\hi@hooks@memo{\HiUseFontPack{memo}}
 %    \end{macrocode}
 %
 % \DescribeMacro\hi@italdateprefix
@@ -271,7 +278,7 @@ after review or memo.
 %    \begin{macrocode}
 \DeclareRobustCommand\hi@italdateprefix[1]{%
     \begingroup
-        \UseFontPack{italdateprefix}#1%
+        \HiUseFontPack{italdateprefix}#1%
     \endgroup
 }
 %    \end{macrocode}
@@ -280,17 +287,18 @@ after review or memo.
 %<*doc>
 
 \subsection{Shortcut Commands for Fonts}
+\label{s:fonts-use}
 
-\DescribeMacro\UseFontFor
 Occasionally, the user needs to select a font manually, for example when
 defining a hereinafter form that includes a part of a journal article's title.
-The command |\UseFontFor|\marg{context}\marg{text} selects the font for
-\meta{context} and sets \meta{text} in that font.
+
+\MacroSpec\HiFont\marg{context}\marg{text}\\
+Selects the font for \meta{context} and sets \meta{text} in that font.
 
 %</doc>
 %<*package>
 %    \begin{macrocode}
-\DeclareRobustCommand\UseFontFor[2]{%
+\DeclareRobustCommand\HiFont[2]{%
     \ifinlist{#1}{\hi@font@context@list}{%
         \csname hi@fn@#1\endcsname{#2}%
     }{%
@@ -306,17 +314,17 @@ The command |\UseFontFor|\marg{context}\marg{text} selects the font for
 \section{fonts.dtx}
 
 \begingroup
-    \UseFontPack{memo}
-    \AssertBox{\UseFontFor{booktitle}{Book Title}}{\emph{Book Title}}
+    \HiUseFontPack{memo}
+    \AssertBox{\HiFont{booktitle}{Book Title}}{\emph{Book Title}}
 \endgroup
 
 \begingroup
-    \UseFontPack{review}
-    \AssertBox{\UseFontFor{booktitle}{Book Title}}{\textsc{Book Title}}
-    \AssertBox{\UseFontFor{casefc}{Case Title}}{Case Title}
+    \HiUseFontPack{review}
+    \AssertBox{\HiFont{booktitle}{Book Title}}{\textsc{Book Title}}
+    \AssertBox{\HiFont{casefc}{Case Title}}{Case Title}
 
-    \UseFontPack{italcase}
-    \AssertBox{\UseFontFor{casefc}{Case Title}}{\emph{Case Title}}
+    \HiUseFontPack{italcase}
+    \AssertBox{\HiFont{casefc}{Case Title}}{\emph{Case Title}}
 \endgroup
 
 %</test>

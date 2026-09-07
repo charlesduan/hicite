@@ -21,15 +21,16 @@
 %% src/signals.dtx  (with options: `package')
 %% src/pages.dtx  (with options: `package')
 %% src/parens.dtx  (with options: `package')
-%% src/toa.dtx  (with options: `package')
-%% src/endnotes.dtx  (with options: `package')
-%% src/short.dtx  (with options: `package')
 %% src/draw.dtx  (with options: `package')
 %% src/abbrevs.dtx  (with options: `package')
 %% src/fonts.dtx  (with options: `package')
 %% src/state.dtx  (with options: `package')
 %% src/supra.dtx  (with options: `package')
+%% src/short.dtx  (with options: `package')
 %% src/format.dtx  (with options: `package')
+%% src/toa.dtx  (with options: `package')
+%% src/endnotes.dtx  (with options: `package')
+%% src/legacy.dtx  (with options: `package')
 %% src/caseref.dtx  (with options: `package')
 %% src/constrefs.dtx  (with options: `package')
 %% src/statrefs.dtx  (with options: `package')
@@ -79,11 +80,11 @@
 %%
 \DeclareOption{review}{\hi@hooks@review}
 \DeclareOption{journal}{\hi@hooks@review}
-\DeclareOption{journalfonts}{\UseFontPack{review}}
-\DeclareOption{memofonts}{\UseFontPack{memo}}
+\DeclareOption{journalfonts}{\HiUseFontPack{review}}
+\DeclareOption{memofonts}{\HiUseFontPack{memo}}
 \DeclareOption{memo}{\hi@hooks@memo}
 \DeclareOption{brief}{\hi@hooks@memo}
-\DeclareOption{italcase}{\UseFontPack{italcase}}
+\DeclareOption{italcase}{\HiUseFontPack{italcase}}
 \def\hi@hooks@review{}
 \def\hi@hooks@memo{}
 \DeclareOption{noauthwarn}{\hi@namelist@noauthwarn}
@@ -112,11 +113,13 @@
 \DeclareOption{noterefs}{\hi@xref@opt@noterefs}
 \DeclareOption{pagerefs}{\hi@xref@opt@pagerefs}
 \DeclareOption{xrefsupra}{\hi@supra@opt@xref}
+\DeclareOption{legacy}{\let\hi@legacy@chk\@secondoftwo}
+\DeclareOption{legacy}{\let\hi@legacy@chk\@gobbletwo}
 %%
 %% \iffalse filename: refs.dtx \fi
 %%
 \def\hi@newcite#1#2#3#4{%
-    \DefaultTOACategory{#1}{#3}%
+    \HiDefaultTOACat{#1}{#3}%
     \global\@namedef{def#1}##1##2{%
         \@ifundefined{fc@##1}{}{%
             \PackageError\hi@pkgname{%
@@ -1875,26 +1878,7 @@
         }%
     }%
 }
-\def\sic!{[\emph{sic}]}
-\def\hi@noid{%
-    \let\@last@case\relax\let\@last@page\relax\let\@last@vol\relax
-    \let\@last@title\relax
-}
-\let\noid\hi@noid
-\def\fullcite#1{%
-    \global\expandafter\let\csname dfc@#1\endcsname\relax
-    \global\expandafter\let\csname dfi@#1\endcsname\relax
-    \noid
-}
-\def\nofullcite#1{\hi@record@cite{#1}}
-\def\fulltitle{\let\@this@title\relax}
-\def\addtotoa#1#2{\@bsphack\hi@addtotoa{#1}{#2}\@esphack}
-\newcommand\Ct{\sentence}
-\newcommand\ct{\clause}
-\newcommand\Ci{\Inline}
-\newcommand\ci{\inline}
-\newcommand\cn{\note}
-\newcommand\cx{\addtotoa}
+\def\HiSic!{[\emph{sic}]}
 %%
 %% \iffalse filename: parse.dtx \fi
 %%
@@ -2261,9 +2245,10 @@
 %%
 %% \iffalse filename: pages.dtx \fi
 %%
-\def\PageNumber#1{\@format@pageno{#1}}
-\def\@format@page@macro#1{\expandafter\@format@pageno\expandafter{#1}}%
-\def\@format@pageno#1{%
+\def\HiParsePin#1{\hi@fmt@pageno{#1}}
+\def\HiParsePin#1{\hi@fmt@pageno{#1}}
+\def\hi@fmt@page@macro#1{\expandafter\hi@fmt@pageno\expandafter{#1}}%
+\def\hi@fmt@pageno#1{%
     \find@in{ ::}{#1}{%
         \@tworun\hi@fpg@onesegment\@gobble
     }{\hi@fpg@onesegment{#1}}%
@@ -2295,7 +2280,7 @@
     }%
 }
 \def\hi@fpg@to#1#2{%
-    \@format@pageno{#1} to \@format@pageno{#2}%
+    \hi@fmt@pageno{#1} to \hi@fmt@pageno{#2}%
 }
 \def\hi@fpg@split#1,#2\@stop#3{%
     %
@@ -2614,7 +2599,7 @@
     }{%
         \ifstrempty{#2}{\def\@this@orig@page{#1}}{\def\@this@orig@page{#2}}%
     }%
-    \protected@edef\@this@page{\@format@page@macro\@this@orig@page}%
+    \protected@edef\@this@page{\hi@fmt@page@macro\@this@orig@page}%
 }
 \make@find@start{/}
 \make@find@in{/}
@@ -2734,29 +2719,41 @@
         \hi@parens@add@iterate{#4}{#5\@paren{#2}{#3}}{#6}{#7}%
     }%
 }
-\chardef\hi@paren@parallel=1             % Parallel citation
-\chardef\hi@paren@date=2                 % Date parenthetical
-\chardef\hi@paren@origdate=4             % Original date parenthetical
-\chardef\hi@paren@docno=10               % Document number for court docs
-\chardef\hi@paren@country=20             % Country name parenthetical
-\chardef\hi@paren@casedocdocket=20       % Docket number for case document
-\chardef\hi@paren@hia=30                 % Hereinafter
-\chardef\hi@paren@casealt=40             % Alternate case name
-\chardef\hi@paren@bookreview=50          % Book review citation
-\chardef\hi@paren@opinion=60             % Opinion disposition (en banc, etc.)
-\chardef\hi@paren@preparedby=70          % "prepared by" (R. 21.7.3)
-\chardef\hi@paren@codified=80            % "to be codified at" for Fed. Reg.
-\chardef\hi@paren@forthcomingms=80       % Page number for forthcoming article
-\chardef\hi@paren@manuscript=90          % "unpublished manuscript"
-\chardef\hi@paren@doc=100                % Document-level parenthetical
-\chardef\hi@paren@url=111                % URL parenthetical
-\chardef\hi@paren@accessdate=112         % URL access date
-\chardef\hi@paren@permacc=114            % perma.cc URL
-\chardef\hi@paren@cite=120               % Citation-level parenthetical
-\chardef\hi@paren@prior=131              % Prior history of case
-\chardef\hi@paren@subseq=133             % Subsequent history of case
-\chardef\hi@paren@comment=205            % Commentary
-\chardef\hi@paren@reprint=207            % "Reprinted in" parenthetical
+\def\hi@parens@assign#1#2#3{\chardef#1=#2\relax}
+\hi@parens@assign\hi@paren@parallel{1}{Parallel citation (\param{parallel})}
+\hi@parens@assign\hi@paren@date{2}{Date parenthetical (\param{year})}
+\hi@parens@assign\hi@paren@origdate{4}{Original date parenthetical
+(\param{origyear})}
+\hi@parens@assign\hi@paren@docno{10}{Court document number
+(\rtype{casedoc})}
+\hi@parens@assign\hi@paren@country{20}{Country name parenthetical
+(\param{country})}
+\hi@parens@assign\hi@paren@casedocdocket{20}{Case docket number
+(\param{docket})}
+\hi@parens@assign\hi@paren@hia{30}{Hereinafter (\param{hereinafter})}
+\hi@parens@assign\hi@paren@casealt{40}{Alternate case name}
+\hi@parens@assign\hi@paren@bookreview{50}{Book review citation
+(\param{bookreview})}
+\hi@parens@assign\hi@paren@opinion{60}{Opinion disposition (\param{enbanc} etc.)}
+\hi@parens@assign\hi@paren@preparedby{70}{``prepared by'' (\rtype{intdoc})}
+\hi@parens@assign\hi@paren@codified{80}{``codified at'' and similar
+(\param{codified})}
+\hi@parens@assign\hi@paren@forthcomingms{80}{Forthcoming article page number}
+\hi@parens@assign\hi@paren@manuscript{90}{``unpublished manuscript''
+(\rtype{manuscript})}
+\hi@parens@assign\hi@paren@doc{100}{Document-level parenthetical
+(\param{paren})}
+\hi@parens@assign\hi@paren@url{111}{URL parenthetical (\param{url})}
+\hi@parens@assign\hi@paren@accessdate{112}{URL access date (\param{accessdate})}
+\hi@parens@assign\hi@paren@permacc{114}{perma.cc URL (\param{permacc})}
+\hi@parens@assign\hi@paren@cite{120}{Citation-level parenthetical
+(\sec{parens-citelevel})}
+\hi@parens@assign\hi@paren@prior{131}{Prior history of case (\param{prior})}
+\hi@parens@assign\hi@paren@subseq{133}{Subsequent history of case
+(\param{subsequent})}
+\hi@parens@assign\hi@paren@comment{205}{Commentary (\sec{parens-citelevel})}
+\hi@parens@assign\hi@paren@reprint{207}{``Reprinted in'' parenthetical
+(\param{reprinted})}
 \def\hi@paren@parse#1{%
     \find@try\find@in{%
         {ing: }{\hi@parens@parse@ing}%
@@ -2881,638 +2878,6 @@
     \space[#1]%
 }
 %%
-%% \iffalse filename: toa.dtx \fi
-%%
-\newif\if@hi@in@toa
-\newif\if@hi@toa@disabled
-\let\disabletoa\@hi@toa@disabledtrue
-\let\enabletoa\@hi@toa@disabledfalse
-\def\NewTOACategory#1#2#3#4{%
-    \@namedef{hi@cats@#1}{#2:#3}%
-    \ifx#4Y%
-        \AddToList{hi@toacat@supercats}{#2}%
-    \fi
-}
-\def\DefaultTOACategory#1#2{%
-    \ifstrempty{#2}{%
-        \cslet{hi@catd@#1}\relax
-    }{%
-        \@ifundefined{hi@cats@#2}{%
-            \PackageError\hi@pkgname{%
-                TOA category #2 does not exist, in setting the\MessageBreak
-                default for reference type #1%
-            }{Define TOA category #2 first with \string\NewTOACategory}%
-        }{%
-            \@namedef{hi@catd@#1}{#2}%
-        }%
-    }%
-}
-\def\SetTOACategory#1#2{%
-    \ifstrempty{#2}{%
-        \global\cslet{hi@cat@#1}\relax
-    }{%
-        \@ifundefined{hi@cats@#2}{%
-            \PackageError\hi@pkgname{%
-                Invalid Table of Authorities category #1,\MessageBreak
-                given for reference #2%
-            }{%
-                Please enter a valid Table of Authorities category.
-            }%
-        }{%
-            \global\csletcs{hi@cat@#1}{hi@cats@#2}%
-        }%
-    }
-}
-\def\hi@toacat@get#1#2{%
-    \@ifundefined{hi@cat@#1}{}{%
-        \@expand{#2}{\csname hi@cat@#1\endcsname}{ii}%
-    }%
-}
-\def\hi@toacat@transfer#1#2{%
-    \global\csletcs{hi@cat@#2}{hi@cat@#1}%
-    \global\cslet{hi@cat@#1}\relax
-}
-\def\hi@toacat@setdefault#1#2{%
-    \@ifundefined{hi@cat@#1}{%
-        \@ifundefined{hi@catd@#2}{}{%
-            \SetTOACategory{#1}{\csname hi@catd@#2\endcsname}%
-        }%
-    }{}%
-}
-\NewSortedList{hi@toacat@supercats}{\SortEasyAlpha}{\StripForAlpha{#1}{\def#2}}
-\ListElementsMustBeUnique{hi@toacat@supercats}
-\NewTOACategory{other}{other}{Other Source/s}{Y}
-\NewTOACategory{const}{const}{Constitutional Provision/s}{Y}
-\NewTOACategory{found}{const}{Foundational Document/s}{Y}
-\NewTOACategory{statute}{edict}{Statute/s}{Y}
-\NewTOACategory{regulation}{edict}{Regulation/s}{Y}
-\NewTOACategory{rule}{edict}{Rule/s}{Y}
-\NewTOACategory{case}{case}{Case/s}{Y}
-\NewTOACategory{admin}{case}{Administrative Decision/s}{Y}
-\NewTOACategory{treaty}{edict}{Treat/y/ies}{Y}
-\NewTOACategory{abbrev}{abbrev}{Abbreviation/s}{N}
-\long\def\hi@toacat@each#1{%
-    %
-    % Unfortunately, this macro is used to iterate over items in the TOA, which
-    % also stores items in SortedLists. So we can't just use \ShowList directly
-    % since \ShowList can't be used in a nested fashion. So instead, we iterate
-    % over the supercategory list to construct a series of macro expansions of
-    % the given parameter, and then execute that series.
-    %
-    \begingroup % Will be ended when \reserved@a runs
-    \def\hi@toacat@temp{\endgroup}%
-    \def\hi@toacat@do##1{#1}%
-    \ShowList{hi@toacat@supercats}{%
-        \@expand{\appto\hi@toacat@temp}{\hi@toacat@do{##1}}{i}%
-    }%
-    \hi@toacat@temp
-}
-\def\hi@addtotoa#1#2{%
-    \hi@toacat@get{#1}{\hi@addtotoa@{#1}{#2}}%
-}
-\def\hi@addtotoa@#1#2#3{%
-    \if@hi@in@toa\else \if@hi@toa@disabled\else
-        \addtocontents{toa}{%
-            \protect\contentsline{hi@toa}{%
-                #1\@ifundefined{tcpg@#1}{}{\ifstrempty{#2}{}{ at #2}}%
-            }{%
-                {%
-                    \thepage
-                }{%
-                    \noexpand\the\noexpand\c@page
-                }{%
-                    % We want this to run at the time the |\write| is
-                    % executed.
-                    \noexpand\expandonce\thepage
-                }{%
-                    #3%
-                    \ifx\hi@toa@locationtag\relax\else
-                        ,\hi@toa@locationtag
-                    \fi
-                }%
-            }{}%
-        }%
-    \fi\fi
-}
-\def\hi@include@page@in@toa#1{%
-    \global\@namedef{tcpg@#1}{}%
-}
-\def\hi@setuptoa{%
-    \@hi@in@toatrue
-    \global\let\@last@toatitle\relax
-    \hi@toa@counter\z@
-    \@input{\jobname.toa}%
-    \@hi@in@toafalse
-    \if@filesw
-        \newwrite\tf@toa
-        \immediate\openout\tf@toa \jobname.toa\relax
-    \fi
-    \global\let\hi@setuptoa\relax
-}
-\def\l@hi@toa#1#2{\l@hi@toa@{#1}#2}
-\def\l@hi@toa@#1#2#3#4#5{%
-    \expandafter\hi@toa@addpg
-        \csname hi@pg@\detokenize{#1}\endcsname
-        {#2}{#3}{#4}%
-    \@for\hi@toa@tmp:=\@empty#5\do{%
-        \@expand{\find@in{:}}\hi@toa@tmp{i}{\hi@toa@addtolist{#1}}{%
-            \hi@toa@addtolist{#1}\hi@toa@tmp\hi@toa@tmp
-        }%
-    }%
-}
-\make@find@in{:}
-\newcount\hi@toa@counter
-\def\hi@toa@addtolist#1#2#3{%
-    \IfKnownList{hi@toa@#2}{}{%
-        \NewSortedList{hi@toa@#2}\SortEasyAlpha{%
-            \hi@toa@makesortable{##1}{\def##2}%
-        }%
-        \ListElementsMustBeUnique{hi@toa@#1}%
-    }%
-    \IfListContains{hi@toa@#2}{#1}{}{%
-        \AddToList{hi@toa@#2}{#1}%
-        \hi@toa@headlist@add{#2}{#3}%
-        \advance\hi@toa@counter\@ne
-        \message{(\the\hi@toa@counter)}%
-    }%
-}
-\def\hi@toa@makesortable#1#2{%
-    \find@in{ at }{#1}{\hi@toa@makesortable@}{\hi@toa@makesortable@{#1}{}}{#2}%
-}
-\def\hi@toa@makesortable@#1#2#3{%
-    \@expand\hi@toa@makesortable@@{%
-        \csname\@ifundefined{lc@#1}{fc@#1}{lc@#1}\endcsname
-    }{ii}{#2}{#3}%
-}
-\def\hi@toa@makesortable@@#1#2#3{%
-    \uppercase{\StripForAlpha{#1#2}}{#3}%
-}
-\make@find@in{ at }
-\def\hi@toa@headlist@add#1#2{%
-    \expandafter\hi@toa@headlist@add@\csname hi@headlist@#1\endcsname{#2}%
-}
-\def\hi@toa@headlist@add@#1#2{%
-    \ifx#1\relax
-        \def#1{\hi@toa@headlist@singular{#2}}%
-    \else
-        \def\reserved@a{#2}
-        \expandafter\hi@toa@headlist@update#1\@stop{}#1%
-    \fi
-}
-\def\hi@toa@headlist@update#1#2#3\@stop#4#5{%
-    \def\reserved@b{#2}%
-    \@test \ifx\reserved@a\reserved@b\fi {%
-        \def#5{#4\hi@toa@headlist@plural{#2}#3}%
-    }{%
-        \ifblank{#3}{%
-            \edef#5{%
-                \unexpanded{#4#1{#2}\hi@toa@headlist@singular}%
-                {\expandonce\reserved@a}%
-            }%
-        }{%
-            \hi@toa@headlist@update#3\@stop{#4#1{#2}}{#5}%
-        }%
-    }
-}
-\def\hi@toa@headlist@singular#1{%
-    \find@in{/}{#1}{\hi@toa@headlist@choose\@firstoftwo}{#1}%
-    \hi@toa@headlist@lookahead
-}
-\def\hi@toa@headlist@plural#1{%
-    \find@in{/}{#1}{\hi@toa@headlist@choose\@secondoftwo}{#1}%
-    \hi@toa@headlist@lookahead
-}
-\make@find@in{/}
-\def\hi@toa@headlist@lookahead#1{%
-    \ifx#1\@empty\else
-        \expandafter\hi@toa@headlist@lookahead@\expandafter#1%
-    \fi
-}
-\def\hi@toa@headlist@lookahead@#1#2#3{%
-    \@test \ifx#3\@empty \fi{%
-        \space and\space #1{#2}#3%
-    }{%
-        ,\space#1{#2}#3%
-    }%
-}
-\def\hi@toa@headlist@choose#1#2#3{%
-    #2\find@in{/}{#3}{#1}{#1{}{#3}}%
-}
-\DeclareRobustCommand\hi@toa@headlist@show[1]{%
-    \csname hi@headlist@#1\endcsname\@empty
-}
-\def\AuthorityTag#1{%
-    \def\hi@toa@locationtag{#1}%
-}
-\let\hi@toa@locationtag\relax
-\def\hi@toa@addpg#1#2#3#4{%
-    \@test \ifx#1\relax\fi {%
-        \def#1{{}{#3}{#4}{*:#2}}%
-    }{%
-        \expandafter\hi@toa@addpg@#1#1{#2}{#3}{#4}%
-    }%
-}
-\def\hi@toa@addpg@#1#2#3#4#5#6#7#8{%
-    \def\reserved@a{#3}\def\reserved@b{#8}%
-    \ifx\reserved@a\reserved@b
-        \@tempcnta=#2\relax
-        \ifnum#7=\@tempcnta
-            \def#5{{#1}{#2}{#3}{*#4}}%
-        \else
-            \advance\@tempcnta\@ne
-            \ifnum#7=\@tempcnta
-                \ifblank{#1}{%
-                    \def#5{{#6}{#7}{#8}{*#4--}}%
-                }{%
-                    \def#5{{#6}{#7}{#8}{*#4}}%
-                }%
-            \else
-                \def#5{{}{#7}{#8}{*#4#1, #6}}%
-            \fi
-        \fi
-    \else
-        \def#5{{}{#7}{#8}{*#4#1, #6}}%
-    \fi
-}
-\def\hi@toa@usepg#1#2{%
-    \@expand{\@unbrace\hi@toa@usepg@}{%
-        \csname hi@pg@\detokenize{#1}\endcsname
-    }{ii}{#2}%
-}
-\def\hi@toa@usepg@#1#2#3#4#5{%
-    \find@in{:}{#4#1}{%
-        \@tworun\@gobble\hi@toa@usepg@passim
-    }{%
-        \PackageError\hi@pkgname{%
-            Page data structure `#4#1' contains \MessageBreak
-            no colon, but it should. This indicates \MessageBreak
-            a bug in the hicite program%
-        }{Check the hicite program.}%
-        \@gobble
-    }{#5}%
-}
-\make@find@in{:}
-\def\hi@toa@usepg@passim#1#2{%
-    \@test \ifnum\c@passimnum>\z@ \fi{%
-        \hi@toa@usepg@passim@{1}#1, \@stop{#1}{#2}%
-    }{#2{#1}}%
-}
-\def\hi@toa@usepg@passim@#1#2, #3\@stop#4#5{%
-    \@test \ifnum#1<\c@passimnum \fi{%
-        \ifstrempty{#3}{#5{#4}}{%
-            \@expandarg\hi@toa@usepg@passim@{%
-                \number\numexpr#1+1\relax
-            }#3\@stop{#4}{#5}%
-        }%
-    }{#5{\PassimText}}%
-}
-\def\hi@toa@refcount#1#2{%
-    \@expand{\@unbrace\hi@toa@refcount@}{\csname hi@pg@#1\endcsname}{ii}{#2}%
-}
-\def\hi@toa@refcount@#1#2#3#4#5{%
-    \find@in{:}{#4}{\hi@toa@refcount@@}{%
-        \PackageError\hi@pkgname{%
-            Reference count data `#4' should have contained a \MessageBreak
-            colon, but it does not. This probably indicates \MessageBreak
-            a programming error.
-        }{Check the hicite program.}%
-        \@gobble
-    }{#5}%
-}
-\def\hi@toa@refcount@@#1#2#3{\hi@toa@refcount@@@{1}#1\@stop{#3}}%
-\def\hi@toa@refcount@@@#1#2#3\@stop#4{%
-    \ifstrempty{#3}{#4{#1}}{%
-        \@expandarg\hi@toa@refcount@@@{\number\numexpr#1+1\relax}#3\@stop{#4}%
-    }%
-}
-\newcount\hi@toa@starcount
-\def\hi@toa@star#1{%
-    \ifnum\hi@toa@starcount>\z@
-        \ifnum\hi@toa@refcount{#1}\@iden<\hi@toa@starcount\else
-            \everypar{\StarMark\everypar{}}%
-        \fi
-    \fi
-}
-\def\StarCount#1{\hi@toa@starcount=#1\relax}
-\def\StarText{%
-    Authorities upon which this brief primarily relies are indicated with
-    asterisks in the margin.\par
-}
-\def\StarMark{\llap{* }}
-\def\tableofauthorities{%
-    \ifnum\hi@toa@starcount>\z@
-        \StarText
-    \fi
-    \begingroup
-        \hi@toacat@each{%
-            \AuthorityTable[%
-                \toaheading{\hi@toa@headlist@show{##1}}\par
-                \ifdim\lastskip<\toaskip
-                    \vskip-\lastskip
-                \else
-                    \vskip-\toaskip
-                \fi
-                \parindent\z@
-                \parskip=\toaskip
-            ]{##1}%
-        }%
-    \endgroup
-}
-\def\toaheading{\section*}
-\newcommand\AuthorityTable[2][]{%
-    \hi@setuptoa
-    \@hi@in@toatrue
-    \noid
-    \IfKnownList{hi@toa@#2}{\IfEmptyList{hi@toa@#2}{}{%
-        #1%
-        \ShowList{hi@toa@#2}{%
-            \global\let\@this@toatitle\relax
-            \hi@toa@usepg{##1}{\@toaline{\hi@toa@star{##1}\toacite{##1}}}%
-            \global\let\@last@toatitle\@this@toatitle
-        }%
-    }}{}%
-    \@hi@in@toafalse
-}
-\def\@toaline#1#2{%
-    {\hi@toa@par@settings
-    #1\nobreak
-    \TOALeader
-    \nobreak
-    {\normalfont \normalcolor \hi@toa@brkpg{#2}}%
-    \par}%
-}
-\def\hi@toa@par@settings{%
-    \leftskip\z@\rightskip \@tocrmarg
-    % Make the right margin ragged. This is necessary because the ditto spacing
-    % gets messed up on occasion due to space stretching.
-    \rightskip=1\rightskip plus .1\hsize
-    \parfillskip -\rightskip
-    \hangindent\toahangindentlen\relax
-    \parindent \z@\@afterindenttrue
-    \interlinepenalty\@M
-}
-\def\TOALeader{%
-    \leaders\hbox{%
-        $\m@th \mkern \@dotsep mu\hbox{.}\mkern \@dotsep mu$%
-    }\hskip 2em \@plus 1fill \@minus 0.5em
-}
-\def\toacite#1{%
-    \begingroup
-    \let\clause\hi@clause
-    \let\sentence\hi@sentence
-    \hi@pse@parse{#1}{\hi@draw@citation{\@hi@captrue\@hi@senttrue}{}}%
-    \endgroup
-}
-\def\hi@toa@brkpg#1{%
-    \@tempcnta=9999\relax
-    \@tempskipb=\hsize\@minus\hsize\relax
-    \@tempskipa=\glueexpr \@tempskipb * -1 + 1\rightskip\relax
-    \find@in{, }{#1}\hi@toa@brkpg@{\hbox{#1}}%
-}
-\make@find@in{, }
-\def\hi@toa@brkpg@#1#2{%
-    \hbox{#1,}%
-    % Pull the page number to the right margin
-    \nobreak\hskip-\rightskip
-    % Now permit a line break. If the break is not accepted, nix the
-    % right-margin glue above, insert a -1fil glue to counteract the |\hfil| to
-    % come, and insert a space to separate the commas.
-    \penalty\@tempcnta\hskip \@tempskipa\relax
-    % Insert an |\hbox| and then an |\hfil|. If the line is broken, then the
-    % |\hfil| will show up, pushing this page number to the right side of the
-    % page. If the line is not broken here, then the -1fil glue from above will
-    % counteract this glue, and nothing will result.
-    \hbox{ }\nobreak\hskip\@tempskipb\relax
-    % Reduce the penalty, to encourage later line breaks rather than earlier
-    % ones
-    \advance\@tempcnta\m@ne
-    \find@in{, }{#2}\hi@toa@brkpg@{\hbox{#2}}%
-}
-\DeclareRobustCommand\hi@toa@dupauthor[2]{%
-    \if@hi@in@toa
-        \global\def\@this@toatitle{#2}%
-        \hi@nocap
-        \ifx\@this@toatitle\@last@toatitle
-            \toaditto, % space
-        \else
-            #1{#2}, % space
-        \fi
-    \else
-        #1{#2}, % space
-    \fi
-}
-\DeclareRobustCommand\hi@toa@dupnone{\global\let\@this@toatitle\relax}%
-\def\hi@toa@duptitle#1#2#3#4{%
-    \global\def\@this@toatitle{#1#2}%
-    \ifx\@this@toatitle\@last@toatitle
-        \ifhmode \immediate\write16{BAD!!!!}\fi
-        \penalty\z@
-        \@tempdima=\pagegoal \advance\@tempdima-\pagetotal
-        \advance\@tempdima-\pageshrink
-        \ifdim\@tempdima<\baselineskip
-            \ifvmode \break \fi
-            \hi@citeguts{#1#2#3}%
-        \else
-            \setbox\@tempboxa=\hbox{#2}%
-            \@tempdima=\wd\@tempboxa
-            \ifstrempty{#1}{}{\advance\@tempdima\toahangindentlen\relax}%
-            \ifdim 6em<\@tempdima \@tempdima=6em\relax\fi
-            \setbox\@tempboxa=\hbox{\toaditto}%
-            \ifdim\@tempdima<\wd\@tempboxa \@tempdima=\wd\@tempboxa \fi
-            \hi@citeguts{%
-                \leavevmode\hb@xt@\@tempdima{\hss \box\@tempboxa}%
-                \hi@nocap
-                #4%
-            }%
-        \fi
-    \else
-        \hi@citeguts{#1#2#3}%
-    \fi
-}
-\newskip\toaskip
-\toaskip=1\baselineskip \@plus .1\baselineskip \@minus .1\baselineskip
-\newcounter{passimnum} \c@passimnum=\z@
-\def\PassimText{\emph{passim}}
-\def\toaditto{---\kern-.1em---\kern-.1em---}
-\def\toahangindentlen{1.5em}
-\def\tableofabbreviations#1{%
-    \hi@setuptoa
-    \@hi@in@toatrue
-    \noid
-    \IfKnownList{hi@toa@abbrev}{\IfEmptyList{hi@toa@abbrev}{}{%
-        \ShowList{hi@toa@abbrev}{%
-            \@expand{\@unbrace#1}{\csname lc@##1\endcsname}{iii}%
-        }%
-    }}{}%
-    \@hi@in@toafalse
-}
-%%
-%% \iffalse filename: endnotes.dtx \fi
-%%
-\let\EndnoteText\@gobble
-\let\EndnoteTextDelayed\@gobble
-\let\SectionNote\relax
-\def\hi@useendnotes{%
-    \newbox\hi@endnotes
-    \long\def\@footnotetext##1{%
-        \EndnoteText{%
-            \reset@font\normalsize
-            \parskip\z@
-            \EndnoteFont
-            \protected@edef\@currentlabel{%
-               \csname p@footnote\endcsname\@thefnmark
-            }%
-            \color@begingroup
-            \@makefntext{\ignorespaces##1}%
-            \color@endgroup
-        }%
-    }%
-    \long\def\EndnoteText##1{%
-        \global\setbox\hi@endnotes\vbox{%
-            \ifvoid\hi@endnotes\else
-                \prevdepth\dp\hi@endnotes
-                \unvbox\hi@endnotes
-            \fi
-            \ifx\hi@endnotes@delayed\relax\else
-                \hi@endnotes@delayed
-                \global\let\hi@endnotes@delayed\relax
-            \fi
-            ##1%
-        }%
-    }
-    \def\EndnoteTextDelayed##1{%
-        \global\def\hi@endnotes@delayed{##1}%
-    }
-    \let\hi@endnotes@delayed\relax
-    \def\SectionNote{%
-        \EndnoteTextDelayed{%
-            \vskip .7\baselineskip
-            {\noindent\large\textbf{%
-                \expandafter\@capnext\SectionName\space \@currentlabel
-            }\par}%
-            \penalty\@M
-            \vskip .3\baselineskip
-        }%
-    }
-    \def\EndnoteFont{}%
-    \def\theendnotes{%
-        \setbox\hi@endnotes\vtop{\unvbox\hi@endnotes}%
-        \@tempskipa\baselineskip
-        \multiply\@tempskipa\m@ne
-        \advance\@tempskipa\prevdepth
-        \advance\@tempskipa\ht\hi@endnotes
-        \multiply\@tempskipa\m@ne
-        \ifdim\@tempskipa>\z@ \vskip\@tempskipa \fi
-        \unvbox\hi@endnotes
-    }
-    \AtEndDocument{%
-        \ifvoid\hi@endnotes\else
-            \PackageWarning\hi@pkgname{%
-                Endnotes not displayed;\MessageBreak inserting them%
-            }%
-            \vskip\baselineskip
-            \footnoterule
-            \theendnotes
-        \fi
-    }%
-}% End of |\hi@useendnotes|
-%%
-%% \iffalse filename: short.dtx \fi
-%%
-\def\hi@short@register#1#2#3{%
-    \@ifundefined{hi@short@cite@#1}{%
-        \StripForAlpha{#2}{\hi@short@register@duplicate{#1}}%
-        \find@eq{y}{#3}{%
-            \global\addto@macro\hi@short@user@list{#1,}%
-            \global\expandafter\addto@list\csname hi@short@cite@#1\endcsname{%
-                \hi@short@userdel{#1}%
-            }%
-        }{}%
-    }{}%
-}
-\DeclareRobustCommand\hi@short@maybeshow[2]{%
-    \@ifundefined{hi@short@nouser@#1}{#2}{}%
-}
-\DeclareRobustCommand\hi@short@use[1]{%
-    %
-    % Run the short citation instructions
-    %
-    \csname hi@short@cite@#1\endcsname
-    %
-    % Ensure that the instructions are only ever run once
-    %
-    \global\expandafter\let\csname hi@short@cite@#1\endcsname\relax
-    \@ifundefined{hi@short@nouser@#1}{}{%
-        \PackageWarning\hi@pkgname{%
-            The user-defined short form for #1\MessageBreak
-            was suppressed in the full citation but\MessageBreak
-            was later used. Recompile (possibly twice)\MessageBreak
-            to correct the full citation form.\MessageBreak
-            This occurred%
-        }%
-    }%
-}
-\def\hi@short@register@duplicate#1#2{%
-    \global\@namedef{hi@short@cite@#1}{\hi@short@testdup{#1}{#2}}%
-}
-\make@find@eq{y}%
-\def\hi@short@testdup#1#2{%
-    \@ifundefined{hi@short@name@#2}{%
-        \global\@namedef{hi@short@name@#2}{#1}%
-    }{%
-        \@expand\hi@short@warnambig{%
-            \csname hi@short@name@#2\endcsname
-        }{ii}{#1}{#2}%
-    }%
-}
-\def\hi@short@warnambig#1#2#3{%
-    \def\reserved@a{#3}%
-    \PackageWarning\hi@pkgname{%
-        A short citation for reference `#2' is\MessageBreak
-        ambiguous with a previously used short citation\MessageBreak
-        for `#1'. The citation looks like:\MessageBreak
-        \expandafter\strip@prefix\meaning\reserved@a\MessageBreak
-        Please use a hereinafter form.\MessageBreak
-        This occurred%
-    }%
-}
-\def\hi@short@user@list{,}
-\def\hi@short@userdel#1{%
-    \def\reserved@a##1,#1,##2\@mark##3\@stop{%
-        \ifstrempty{##3}{}{\gdef\hi@short@user@list{##1,##2}}%
-    }%
-    \expandafter\reserved@a\hi@short@user@list\@mark,#1,\@mark\@stop
-}
-\def\hi@short@nouser#1{%
-    \global\@namedef{hi@short@nouser@#1}{}%
-}
-\def\hi@short@final{%
-    \let\reserved@b\@empty
-    \@for\reserved@a:=\hi@short@user@list\do{%
-        \ifx\reserved@a\@empty\else
-            \begingroup
-                \let\protect\@unexpandable@protect
-                \immediate\write\@auxout{%
-                    \noexpand\hi@short@nouser{\reserved@a}%
-                }%
-            \endgroup
-            \@ifundefined{hi@short@nouser@\reserved@a}{%
-                \addto@macro\reserved@b{\@spaces}%
-                \add@macro@to@macro\reserved@b\reserved@a
-                \addto@macro\reserved@b{\MessageBreak}%
-            }{}%
-        \fi
-    }%
-    \ifx\reserved@b\@empty\else
-        \PackageWarning\hi@pkgname{%
-            The following short cite forms went unused:\MessageBreak
-            \reserved@b
-            They will be removed upon next compilation.\MessageBreak
-        }%
-    \fi
-}
-\AtEndDocument{\hi@short@final}
-%%
 %% \iffalse filename: draw.dtx \fi
 %%
 \def\hi@draw@citation#1#2#3{%
@@ -3628,7 +2993,7 @@
 \def\hi@pse@page#1{%
     \def\@this@orig@page{#1}%
     \@ifundefined{pc@\@this@case}{%
-        \protected@edef\@this@page{\@format@pageno{#1}}%
+        \protected@edef\@this@page{\hi@fmt@pageno{#1}}%
     }{%
         \@nameuse{pc@\@this@case}{#1}%
     }%
@@ -3719,7 +3084,7 @@
 %%
 %% \iffalse filename: abbrevs.dtx \fi
 %%
-\def\AbbreviateFor#1#2{%
+\def\HiAbbrev#1#2{%
     \@nameuse{hi@abbrev@#1}{#2}{\@iden}%
 }
 \abb@new{cases}
@@ -3833,7 +3198,7 @@
 \hi@abbrev{de}{}
 \hi@abbrev{in}{}
 \hi@abbrev{,}{}
-\def\ExplanatoryPhrase#1{%
+\def\HiExplPhrase#1{%
     \find@end{,}{#1}{\hi@explanatoryphrase{,}}{\hi@explanatoryphrase{}{#1}}%
 }
 \make@find@end{,}
@@ -3848,7 +3213,7 @@
 }
 \abb@new{expl}
 \def\hi@abbrev#1#2{\abb@add{expl}{#1}{#2}}
-\let\hi@multi@abbrev\ExplanatoryPhrase
+\let\hi@multi@abbrev\HiExplPhrase
 \input hi-explanatory
 \def\hi@abbrev@expl#1#2{%
     \@ifundefined{hi@exp@#1}{%
@@ -3862,7 +3227,7 @@
     \PackageWarning\hi@pkgname{%
         In defining reference \@this@case, the explanatory\MessageBreak
         phrase `#1' was not previously\MessageBreak
-        known. Use \string\ExplanatoryPhrase{#1} to\MessageBreak
+        known. Use \string\HiExplPhrase{#1} to\MessageBreak
         define it. Also, make sure your comma usage conforms\MessageBreak
         to T.9. This occurred%
     }%
@@ -3915,10 +3280,10 @@
 }
 \DeclareRobustCommand\@capsc{\@capfont\textsc}
 \DeclareRobustCommand\@caprm{\@capfont\@iden}
-\def\MakeFontPack#1#2{%
+\def\HiFontPack#1#2{%
     \csgdef{hi@fontpack@#1}{\forcsvlist\hi@font@dopack{#2}}%
 }
-\def\UseFontPack#1{\csname hi@fontpack@#1\endcsname}
+\def\HiUseFontPack#1{\csname hi@fontpack@#1\endcsname}
 \def\hi@font@dopack#1{\ifblank{#1}{}{\hi@font@dopack@#1\par}}
 \def\hi@font@dopack@#1: #2/#3\par{%
     \edef\reserved@a{%
@@ -3931,7 +3296,7 @@
 \def\hi@font@dopack@elt#1#2#3{%
     \DeclareRobustCommand#1{\@test \if@hi@inline \fi{#3}{#2}}%
 }
-\MakeFontPack{review}{%
+\HiFontPack{review}{%
     bookauthor: sc/rm,
     booktitle: sc/rm,
     congdoc: sc/empht,
@@ -3950,7 +3315,7 @@
     dateprefix: rm/rm,
     latin: emph/emph%
 }
-\MakeFontPack{memo}{%
+\HiFontPack{memo}{%
     bookauthor: rm/rm,
     booktitle: empht/empht,
     congdoc: rm/empht,
@@ -3969,23 +3334,23 @@
     dateprefix: rm/rm,
     latin: emph/emph%
 }
-\MakeFontPack{italcase}{%
+\HiFontPack{italcase}{%
     caseproc: empht/empht,
     casefc: empht/empht,
     casesc: empht/empht,
 }
-\MakeFontPack{italdateprefix}{%
+\HiFontPack{italdateprefix}{%
     dateprefix: empht/empht,
 }
-\UseFontPack{memo}
-\appto\hi@hooks@review{\UseFontPack{review}}
-\appto\hi@hooks@memo{\UseFontPack{memo}}
+\HiUseFontPack{memo}
+\appto\hi@hooks@review{\HiUseFontPack{review}}
+\appto\hi@hooks@memo{\HiUseFontPack{memo}}
 \DeclareRobustCommand\hi@italdateprefix[1]{%
     \begingroup
-        \UseFontPack{italdateprefix}#1%
+        \HiUseFontPack{italdateprefix}#1%
     \endgroup
 }
-\DeclareRobustCommand\UseFontFor[2]{%
+\DeclareRobustCommand\HiFont[2]{%
     \ifinlist{#1}{\hi@font@context@list}{%
         \csname hi@fn@#1\endcsname{#2}%
     }{%
@@ -3998,28 +3363,20 @@
 %%
 \def\hi@allfullcites{}
 \def\hi@addfullcite#1{\gappto\hi@allfullcites{\global\let#1\relax}}
-\def\resetcitationforms{%
-    \hi@allfullcites
-    \gdef\hi@allfullcites{}%
-    \def\do##1{%
-        \cslet{@last@##1}\relax
-    }%
-    \hi@state@list
-}
-\def\ShowCitationState#1{%
+\def\HiShowState#1{%
     \immediate\write16{For citation reference `#1',
-        \@ifundefined{dfi@#1}{the full inline form will be used}{%
-            \ifcase\csname dfi@#1\endcsname
+        \@ifundefined{hi@dfi@#1}{the full inline form will be used}{%
+            \ifcase\csname hi@dfi@#1\endcsname
                 an illegal inline state was encountered%
                 \or the short inline form will be used in footnotes only%
                 \or the short inline form will be used%
                 \else an illegal inline state was encountered%
             \fi
         }, and
-        \@ifundefined{dfc@#1}{the full citation form will be used}{%
-            \ifnum\csname dfc@#1\endcsname>\z@
+        \@ifundefined{hi@dfc@#1}{the full citation form will be used}{%
+            \ifnum\csname hi@dfc@#1\endcsname>\z@
                 the full citation was used in footnote
-                \csname dfc@#1\endcsname
+                \csname hi@dfc@#1\endcsname
             \else
                 the full citation was used in text so the short form will be
                 used%
@@ -4029,13 +3386,13 @@
 }
 \DeclareRobustCommand\hi@record@cite[1]{%
     \if@hi@in@toa\else
-        \expandafter\hi@addfullcite\csname dfc@#1\endcsname
-        \expandafter\hi@addfullcite\csname dfi@#1\endcsname
+        \expandafter\hi@addfullcite\csname hi@dfc@#1\endcsname
+        \expandafter\hi@addfullcite\csname hi@dfi@#1\endcsname
         \ifnum\hi@citelevel<\tw@
-            \expandafter\hi@record@cite@inline\csname dfi@#1\endcsname
+            \expandafter\hi@record@cite@inline\csname hi@dfi@#1\endcsname
         \fi
         \if@hi@inline\else
-            \expandafter\hi@record@cite@\csname dfc@#1\endcsname{#1}%
+            \expandafter\hi@record@cite@\csname hi@dfc@#1\endcsname{#1}%
         \fi
     \fi
 }
@@ -4078,14 +3435,14 @@
     }%
 }
 \DeclareRobustCommand\hi@record@choose@inline[1]{%
-    \@ifundefined{dfi@#1}{\@firstoftwo}{%
-        \@test \ifnum\csname dfi@#1\endcsname=\tw@ \fi{\@secondoftwo}{%
+    \@ifundefined{hi@dfi@#1}{\@firstoftwo}{%
+        \@test \ifnum\csname hi@dfi@#1\endcsname=\tw@ \fi{\@secondoftwo}{%
             \@test \if@hi@note \fi{\@secondoftwo}{\@firstoftwo}%
         }%
     }%
 }
 \DeclareRobustCommand\hi@record@choose@cite[1]{%
-    \expandafter\hi@record@choose@cite@\csname dfc@#1\endcsname{#1}%
+    \expandafter\hi@record@choose@cite@\csname hi@dfc@#1\endcsname{#1}%
 }
 \def\hi@record@choose@cite@#1#2{%
     \@test \ifx#1\relax \fi{\@firstoftwo}{%
@@ -4103,7 +3460,7 @@
     }%
 }
 \def\hi@record@firstfullcite#1{%
-    \@ifundefined{dfc@#1}%
+    \@ifundefined{hi@dfc@#1}%
 }
 \def\hi@state@list{}
 \def\hi@state@var#1{%
@@ -4250,6 +3607,27 @@
     \hi@noname@always
 }
 \newif\if@hi@note \@hi@notefalse
+\def\hi@noid{%
+    \let\@last@case\relax\let\@last@page\relax\let\@last@vol\relax
+    \let\@last@title\relax
+}
+\let\HiNoId\hi@noid
+\def\HiFullCite#1{%
+    \global\expandafter\let\csname hi@dfc@#1\endcsname\relax
+    \global\expandafter\let\csname hi@dfi@#1\endcsname\relax
+    \hi@noid
+}
+\def\HiNoFullCite#1{\hi@record@cite{#1}}
+
+\def\HiFullTitle{\let\@this@title\relax}
+\def\HiResetState{%
+    \hi@allfullcites
+    \gdef\hi@allfullcites{}%
+    \def\do##1{%
+        \cslet{@last@##1}\relax
+    }%
+    \hi@state@list
+}
 %%
 %% \iffalse filename: supra.dtx \fi
 %%
@@ -4279,9 +3657,9 @@
     \@hi@dotfalse
 }
 \def\hi@notepos#1{%
-    \ifnum\csname dfc@#1\endcsname=\c@footnote\else
-        \ifnum\csname dfc@#1\endcsname>\z@
-            \space note~\csname dfc@#1\endcsname
+    \ifnum\csname hi@dfc@#1\endcsname=\c@footnote\else
+        \ifnum\csname hi@dfc@#1\endcsname>\z@
+            \space note~\csname hi@dfc@#1\endcsname
         \fi
     \fi
 }%
@@ -4303,6 +3681,102 @@
 }
 \def\hi@supra@use@xref#1#2#3#4{#2#3#4}
 
+%%
+%% \iffalse filename: short.dtx \fi
+%%
+\def\hi@short@register#1#2#3{%
+    \@ifundefined{hi@short@cite@#1}{%
+        \StripForAlpha{#2}{\hi@short@register@duplicate{#1}}%
+        \find@eq{y}{#3}{%
+            \global\addto@macro\hi@short@user@list{#1,}%
+            \global\expandafter\addto@list\csname hi@short@cite@#1\endcsname{%
+                \hi@short@userdel{#1}%
+            }%
+        }{}%
+    }{}%
+}
+\DeclareRobustCommand\hi@short@maybeshow[2]{%
+    \@ifundefined{hi@short@nouser@#1}{#2}{}%
+}
+\DeclareRobustCommand\hi@short@use[1]{%
+    %
+    % Run the short citation instructions
+    %
+    \csname hi@short@cite@#1\endcsname
+    %
+    % Ensure that the instructions are only ever run once
+    %
+    \global\expandafter\let\csname hi@short@cite@#1\endcsname\relax
+    \@ifundefined{hi@short@nouser@#1}{}{%
+        \PackageWarning\hi@pkgname{%
+            The user-defined short form for #1\MessageBreak
+            was suppressed in the full citation but\MessageBreak
+            was later used. Recompile (possibly twice)\MessageBreak
+            to correct the full citation form.\MessageBreak
+            This occurred%
+        }%
+    }%
+}
+\def\hi@short@register@duplicate#1#2{%
+    \global\@namedef{hi@short@cite@#1}{\hi@short@testdup{#1}{#2}}%
+}
+\make@find@eq{y}%
+\def\hi@short@testdup#1#2{%
+    \@ifundefined{hi@short@name@#2}{%
+        \global\@namedef{hi@short@name@#2}{#1}%
+    }{%
+        \@expand\hi@short@warnambig{%
+            \csname hi@short@name@#2\endcsname
+        }{ii}{#1}{#2}%
+    }%
+}
+\def\hi@short@warnambig#1#2#3{%
+    \def\reserved@a{#3}%
+    \PackageWarning\hi@pkgname{%
+        A short citation for reference `#2' is\MessageBreak
+        ambiguous with a previously used short citation\MessageBreak
+        for `#1'. The citation looks like:\MessageBreak
+        \expandafter\strip@prefix\meaning\reserved@a\MessageBreak
+        Please use a hereinafter form.\MessageBreak
+        This occurred%
+    }%
+}
+\def\hi@short@user@list{,}
+\def\hi@short@userdel#1{%
+    \def\reserved@a##1,#1,##2\@mark##3\@stop{%
+        \ifstrempty{##3}{}{\gdef\hi@short@user@list{##1,##2}}%
+    }%
+    \expandafter\reserved@a\hi@short@user@list\@mark,#1,\@mark\@stop
+}
+\def\hi@short@nouser#1{%
+    \global\@namedef{hi@short@nouser@#1}{}%
+}
+\def\hi@short@final{%
+    \let\reserved@b\@empty
+    \@for\reserved@a:=\hi@short@user@list\do{%
+        \ifx\reserved@a\@empty\else
+            \begingroup
+                \let\protect\@unexpandable@protect
+                \immediate\write\@auxout{%
+                    \noexpand\hi@short@nouser{\reserved@a}%
+                }%
+            \endgroup
+            \@ifundefined{hi@short@nouser@\reserved@a}{%
+                \addto@macro\reserved@b{\@spaces}%
+                \add@macro@to@macro\reserved@b\reserved@a
+                \addto@macro\reserved@b{\MessageBreak}%
+            }{}%
+        \fi
+    }%
+    \ifx\reserved@b\@empty\else
+        \PackageWarning\hi@pkgname{%
+            The following short cite forms went unused:\MessageBreak
+            \reserved@b
+            They will be removed upon next compilation.\MessageBreak
+        }%
+    \fi
+}
+\AtEndDocument{\hi@short@final}
 %%
 %% \iffalse filename: format.dtx \fi
 %%
@@ -4603,6 +4077,602 @@
     \if@hi@name #1\fi
 }
 %%
+%% \iffalse filename: toa.dtx \fi
+%%
+\newif\if@hi@in@toa
+\newif\if@hi@toa@disabled
+\def\HiDisableTOA{\@hi@toa@disabledtrue}
+\def\HiEnableTOA{\@hi@toa@disabledfalse}
+\def\HiNewTOACat#1#2#3#4{%
+    \@namedef{hi@cats@#1}{#2:#3}%
+    \ifx#4Y%
+        \AddToList{hi@toacat@supercats}{#2}%
+    \fi
+}
+\def\HiDefaultTOACat#1#2{%
+    \ifstrempty{#2}{%
+        \cslet{hi@catd@#1}\relax
+    }{%
+        \@ifundefined{hi@cats@#2}{%
+            \PackageError\hi@pkgname{%
+                TOA category #2 does not exist, in setting the\MessageBreak
+                default for reference type #1%
+            }{Define TOA category #2 first with \string\HiNewTOACat}%
+        }{%
+            \@namedef{hi@catd@#1}{#2}%
+        }%
+    }%
+}
+\def\HiSetTOACat#1#2{%
+    \ifstrempty{#2}{%
+        \global\cslet{hi@cat@#1}\relax
+    }{%
+        \@ifundefined{hi@cats@#2}{%
+            \PackageError\hi@pkgname{%
+                Invalid Table of Authorities category #1,\MessageBreak
+                given for reference #2%
+            }{%
+                Please enter a valid Table of Authorities category.
+            }%
+        }{%
+            \global\csletcs{hi@cat@#1}{hi@cats@#2}%
+        }%
+    }
+}
+\def\hi@toacat@get#1#2{%
+    \@ifundefined{hi@cat@#1}{}{%
+        \@expand{#2}{\csname hi@cat@#1\endcsname}{ii}%
+    }%
+}
+\def\hi@toacat@transfer#1#2{%
+    \global\csletcs{hi@cat@#2}{hi@cat@#1}%
+    \global\cslet{hi@cat@#1}\relax
+}
+\def\hi@toacat@setdefault#1#2{%
+    \@ifundefined{hi@cat@#1}{%
+        \@ifundefined{hi@catd@#2}{}{%
+            \HiSetTOACat{#1}{\csname hi@catd@#2\endcsname}%
+        }%
+    }{}%
+}
+\NewSortedList{hi@toacat@supercats}{\SortEasyAlpha}{\StripForAlpha{#1}{\def#2}}
+\ListElementsMustBeUnique{hi@toacat@supercats}
+\HiNewTOACat{other}{other}{Other Source/s}{Y}
+\HiNewTOACat{const}{const}{Constitutional Provision/s}{Y}
+\HiNewTOACat{found}{const}{Foundational Document/s}{Y}
+\HiNewTOACat{statute}{edict}{Statute/s}{Y}
+\HiNewTOACat{regulation}{edict}{Regulation/s}{Y}
+\HiNewTOACat{rule}{edict}{Rule/s}{Y}
+\HiNewTOACat{case}{case}{Case/s}{Y}
+\HiNewTOACat{admin}{case}{Administrative Decision/s}{Y}
+\HiNewTOACat{treaty}{edict}{Treat/y/ies}{Y}
+\HiNewTOACat{abbrev}{abbrev}{Abbreviation/s}{N}
+\long\def\hi@toacat@each#1{%
+    %
+    % Unfortunately, this macro is used to iterate over items in the TOA, which
+    % also stores items in SortedLists. So we can't just use \ShowList directly
+    % since \ShowList can't be used in a nested fashion. So instead, we iterate
+    % over the supercategory list to construct a series of macro expansions of
+    % the given parameter, and then execute that series.
+    %
+    \begingroup % Will be ended when \reserved@a runs
+    \def\hi@toacat@temp{\endgroup}%
+    \def\hi@toacat@do##1{#1}%
+    \ShowList{hi@toacat@supercats}{%
+        \@expand{\appto\hi@toacat@temp}{\hi@toacat@do{##1}}{i}%
+    }%
+    \hi@toacat@temp
+}
+\def\HiAddToToa#1#2{\@bsphack\hi@addtotoa{#1}{#2}\@esphack}
+\def\hi@addtotoa#1#2{%
+    \hi@toacat@get{#1}{\hi@addtotoa@{#1}{#2}}%
+}
+\def\hi@addtotoa@#1#2#3{%
+    \if@hi@in@toa\else \if@hi@toa@disabled\else
+        \addtocontents{toa}{%
+            \protect\contentsline{hi@toa}{%
+                #1\@ifundefined{tcpg@#1}{}{\ifstrempty{#2}{}{ at #2}}%
+            }{%
+                {%
+                    \thepage
+                }{%
+                    \noexpand\the\noexpand\c@page
+                }{%
+                    % We want this to run at the time the |\write| is
+                    % executed.
+                    \noexpand\expandonce\thepage
+                }{%
+                    #3%
+                    \ifx\hi@toa@locationtag\relax\else
+                        ,\hi@toa@locationtag
+                    \fi
+                }%
+            }{}%
+        }%
+    \fi\fi
+}
+\def\hi@include@page@in@toa#1{%
+    \global\@namedef{tcpg@#1}{}%
+}
+\def\hi@setuptoa{%
+    \@hi@in@toatrue
+    \hi@noid
+    \global\let\@last@toatitle\relax
+    \hi@toa@counter\z@
+    \@input{\jobname.toa}%
+    \@hi@in@toafalse
+    \if@filesw
+        \newwrite\tf@toa
+        \immediate\openout\tf@toa \jobname.toa\relax
+    \fi
+    \global\let\hi@setuptoa\relax
+}
+\def\l@hi@toa#1#2{\l@hi@toa@{#1}#2}
+\def\l@hi@toa@#1#2#3#4#5{%
+    \expandafter\hi@toa@addpg
+        \csname hi@pg@\detokenize{#1}\endcsname
+        {#2}{#3}{#4}%
+    \@for\hi@toa@tmp:=\@empty#5\do{%
+        \@expand{\find@in{:}}\hi@toa@tmp{i}{\hi@toa@addtolist{#1}}{%
+            \hi@toa@addtolist{#1}\hi@toa@tmp\hi@toa@tmp
+        }%
+    }%
+}
+\make@find@in{:}
+\newcount\hi@toa@counter
+\def\hi@toa@addtolist#1#2#3{%
+    \IfKnownList{hi@toa@#2}{}{%
+        \NewSortedList{hi@toa@#2}\SortEasyAlpha{%
+            \hi@toa@makesortable{##1}{\def##2}%
+        }%
+        \ListElementsMustBeUnique{hi@toa@#1}%
+    }%
+    \IfListContains{hi@toa@#2}{#1}{}{%
+        \AddToList{hi@toa@#2}{#1}%
+        \hi@toa@headlist@add{#2}{#3}%
+        \advance\hi@toa@counter\@ne
+        \message{(\the\hi@toa@counter)}%
+    }%
+}
+\def\hi@toa@makesortable#1#2{%
+    \find@in{ at }{#1}{\hi@toa@makesortable@}{\hi@toa@makesortable@{#1}{}}{#2}%
+}
+\def\hi@toa@makesortable@#1#2#3{%
+    \@expand\hi@toa@makesortable@@{%
+        \csname\@ifundefined{lc@#1}{fc@#1}{lc@#1}\endcsname
+    }{ii}{#2}{#3}%
+}
+\def\hi@toa@makesortable@@#1#2#3{%
+    \uppercase{\StripForAlpha{#1#2}}{#3}%
+}
+\make@find@in{ at }
+\def\hi@toa@headlist@add#1#2{%
+    \expandafter\hi@toa@headlist@add@\csname hi@headlist@#1\endcsname{#2}%
+}
+\def\hi@toa@headlist@add@#1#2{%
+    \ifx#1\relax
+        \def#1{\hi@toa@headlist@singular{#2}}%
+    \else
+        \def\reserved@a{#2}
+        \expandafter\hi@toa@headlist@update#1\@stop{}#1%
+    \fi
+}
+\def\hi@toa@headlist@update#1#2#3\@stop#4#5{%
+    \def\reserved@b{#2}%
+    \@test \ifx\reserved@a\reserved@b\fi {%
+        \def#5{#4\hi@toa@headlist@plural{#2}#3}%
+    }{%
+        \ifblank{#3}{%
+            \edef#5{%
+                \unexpanded{#4#1{#2}\hi@toa@headlist@singular}%
+                {\expandonce\reserved@a}%
+            }%
+        }{%
+            \hi@toa@headlist@update#3\@stop{#4#1{#2}}{#5}%
+        }%
+    }
+}
+\def\hi@toa@headlist@singular#1{%
+    \find@in{/}{#1}{\hi@toa@headlist@choose\@firstoftwo}{#1}%
+    \hi@toa@headlist@lookahead
+}
+\def\hi@toa@headlist@plural#1{%
+    \find@in{/}{#1}{\hi@toa@headlist@choose\@secondoftwo}{#1}%
+    \hi@toa@headlist@lookahead
+}
+\make@find@in{/}
+\def\hi@toa@headlist@lookahead#1{%
+    \ifx#1\@empty\else
+        \expandafter\hi@toa@headlist@lookahead@\expandafter#1%
+    \fi
+}
+\def\hi@toa@headlist@lookahead@#1#2#3{%
+    \@test \ifx#3\@empty \fi{%
+        \space and\space #1{#2}#3%
+    }{%
+        ,\space#1{#2}#3%
+    }%
+}
+\def\hi@toa@headlist@choose#1#2#3{%
+    #2\find@in{/}{#3}{#1}{#1{}{#3}}%
+}
+\DeclareRobustCommand\hi@toa@headlist@show[1]{%
+    \csname hi@headlist@#1\endcsname\@empty
+}
+\def\HiTOATag#1{%
+    \def\hi@toa@locationtag{#1}%
+}
+\let\hi@toa@locationtag\relax
+\def\hi@toa@addpg#1#2#3#4{%
+    \@test \ifx#1\relax\fi {%
+        \def#1{{}{#3}{#4}{*:#2}}%
+    }{%
+        \expandafter\hi@toa@addpg@#1#1{#2}{#3}{#4}%
+    }%
+}
+\def\hi@toa@addpg@#1#2#3#4#5#6#7#8{%
+    \def\reserved@a{#3}\def\reserved@b{#8}%
+    \ifx\reserved@a\reserved@b
+        \@tempcnta=#2\relax
+        \ifnum#7=\@tempcnta
+            \def#5{{#1}{#2}{#3}{*#4}}%
+        \else
+            \advance\@tempcnta\@ne
+            \ifnum#7=\@tempcnta
+                \ifblank{#1}{%
+                    \def#5{{#6}{#7}{#8}{*#4--}}%
+                }{%
+                    \def#5{{#6}{#7}{#8}{*#4}}%
+                }%
+            \else
+                \def#5{{}{#7}{#8}{*#4#1, #6}}%
+            \fi
+        \fi
+    \else
+        \def#5{{}{#7}{#8}{*#4#1, #6}}%
+    \fi
+}
+\def\hi@toa@usepg#1#2{%
+    \@expand{\@unbrace\hi@toa@usepg@}{%
+        \csname hi@pg@\detokenize{#1}\endcsname
+    }{ii}{#2}%
+}
+\def\hi@toa@usepg@#1#2#3#4#5{%
+    \find@in{:}{#4#1}{%
+        \@tworun\@gobble\hi@toa@usepg@passim
+    }{%
+        \PackageError\hi@pkgname{%
+            Page data structure `#4#1' contains \MessageBreak
+            no colon, but it should. This indicates \MessageBreak
+            a bug in the hicite program%
+        }{Check the hicite program.}%
+        \@gobble
+    }{#5}%
+}
+\make@find@in{:}
+\def\hi@toa@usepg@passim#1#2{%
+    \@test \ifnum\HiTOAPassimNum>\z@ \fi{%
+        \hi@toa@usepg@passim@{1}#1, \@stop{#1}{#2}%
+    }{#2{#1}}%
+}
+\def\hi@toa@usepg@passim@#1#2, #3\@stop#4#5{%
+    \@test \ifnum#1<\HiTOAPassimNum \fi{%
+        \ifstrempty{#3}{#5{#4}}{%
+            \@expandarg\hi@toa@usepg@passim@{%
+                \number\numexpr#1+1\relax
+            }#3\@stop{#4}{#5}%
+        }%
+    }{#5{\HiTOAPassim}}%
+}
+\def\hi@toa@refcount#1#2{%
+    \@expand{\@unbrace\hi@toa@refcount@}{\csname hi@pg@#1\endcsname}{ii}{#2}%
+}
+\def\hi@toa@refcount@#1#2#3#4#5{%
+    \find@in{:}{#4}{\hi@toa@refcount@@}{%
+        \PackageError\hi@pkgname{%
+            Reference count data `#4' should have contained a \MessageBreak
+            colon, but it does not. This probably indicates \MessageBreak
+            a programming error.
+        }{Check the hicite program.}%
+        \@gobble
+    }{#5}%
+}
+\def\hi@toa@refcount@@#1#2#3{\hi@toa@refcount@@@{1}#1\@stop{#3}}%
+\def\hi@toa@refcount@@@#1#2#3\@stop#4{%
+    \ifstrempty{#3}{#4{#1}}{%
+        \@expandarg\hi@toa@refcount@@@{\number\numexpr#1+1\relax}#3\@stop{#4}%
+    }%
+}
+\newcount\hi@toa@starcount
+\def\hi@toa@star#1{%
+    \ifnum\hi@toa@starcount>\z@
+        \ifnum\hi@toa@refcount{#1}\@iden<\hi@toa@starcount\else
+            \everypar{\HiStarMark\everypar{}}%
+        \fi
+    \fi
+}
+\def\HiStarCount#1{\hi@toa@starcount=#1\relax}
+\def\HiStarText{%
+    Authorities upon which this brief primarily relies are indicated with
+    asterisks in the margin.\par
+}
+\def\HiStarMark{\llap{* }}
+\def\tableofauthorities{%
+    \ifnum\hi@toa@starcount>\z@
+        \HiStarText
+    \fi
+    \begingroup
+        \hi@toacat@each{%
+            \HiTOATable[%
+                \HiTOAHeading{\hi@toa@headlist@show{##1}}\par
+                \ifdim\lastskip<\HiTOASkip
+                    \vskip-\lastskip
+                \else
+                    \vskip-\HiTOASkip
+                \fi
+                \parindent\z@
+                \parskip=\HiTOASkip
+            ]{##1}%
+        }%
+    \endgroup
+}
+\def\HiTOAHeading{\section*}
+\newcommand\HiTOATable[2][]{%
+    \hi@setuptoa
+    \IfKnownList{hi@toa@#2}{\IfEmptyList{hi@toa@#2}{}{%
+        #1%
+        \ShowList{hi@toa@#2}{%
+            \global\let\@this@toatitle\relax
+            \hi@toa@usepg{##1}{\hi@toaline{\hi@toa@star{##1}\HiTOACite{##1}}}%
+            \global\let\@last@toatitle\@this@toatitle
+        }%
+    }}{}%
+}
+\def\hi@toaline#1#2{%
+    {\hi@toa@par@settings
+    #1\nobreak
+    \HiTOALeader
+    \nobreak
+    {\normalfont \normalcolor \hi@toa@brkpg{#2}}%
+    \par}%
+}
+\def\hi@toa@par@settings{%
+    \leftskip\z@\rightskip \@tocrmarg
+    % Make the right margin ragged. This is necessary because the ditto spacing
+    % gets messed up on occasion due to space stretching.
+    \rightskip=1\rightskip plus .1\hsize
+    \parfillskip -\rightskip
+    \hangindent\HiTOAIndent\relax
+    \parindent \z@\@afterindenttrue
+    \interlinepenalty\@M
+}
+\def\HiTOALeader{%
+    \leaders\hbox{%
+        $\m@th \mkern \@dotsep mu\hbox{.}\mkern \@dotsep mu$%
+    }\hskip 2em \@plus 1fill \@minus 0.5em
+}
+\DeclareRobustCommand\HiTOACite[1]{%
+    \begingroup
+    \@hi@in@toatrue
+    \hi@noid
+    \let\clause\hi@clause
+    \let\sentence\hi@sentence
+    \hi@pse@parse{#1}{\hi@draw@citation{\@hi@captrue\@hi@senttrue}{}}%
+    \endgroup
+}
+\def\hi@toa@brkpg#1{%
+    \@tempcnta=9999\relax
+    \@tempskipb=\hsize\@minus\hsize\relax
+    \@tempskipa=\glueexpr \@tempskipb * -1 + 1\rightskip\relax
+    \find@in{, }{#1}\hi@toa@brkpg@{\hbox{#1}}%
+}
+\make@find@in{, }
+\def\hi@toa@brkpg@#1#2{%
+    \hbox{#1,}%
+    % Pull the page number to the right margin
+    \nobreak\hskip-\rightskip
+    % Now permit a line break. If the break is not accepted, nix the
+    % right-margin glue above, insert a -1fil glue to counteract the |\hfil| to
+    % come, and insert a space to separate the commas.
+    \penalty\@tempcnta\hskip \@tempskipa\relax
+    % Insert an |\hbox| and then an |\hfil|. If the line is broken, then the
+    % |\hfil| will show up, pushing this page number to the right side of the
+    % page. If the line is not broken here, then the -1fil glue from above will
+    % counteract this glue, and nothing will result.
+    \hbox{ }\nobreak\hskip\@tempskipb\relax
+    % Reduce the penalty, to encourage later line breaks rather than earlier
+    % ones
+    \advance\@tempcnta\m@ne
+    \find@in{, }{#2}\hi@toa@brkpg@{\hbox{#2}}%
+}
+\DeclareRobustCommand\hi@toa@dupauthor[2]{%
+    \if@hi@in@toa
+        \global\def\@this@toatitle{#2}%
+        \hi@nocap
+        \ifx\@this@toatitle\@last@toatitle
+            \HiTOADitto, % space
+        \else
+            #1{#2}, % space
+        \fi
+    \else
+        #1{#2}, % space
+    \fi
+}
+\DeclareRobustCommand\hi@toa@dupnone{\global\let\@this@toatitle\relax}%
+\def\hi@toa@duptitle#1#2#3#4{%
+    \global\def\@this@toatitle{#1#2}%
+    \ifx\@this@toatitle\@last@toatitle
+        \ifhmode \immediate\write16{BAD!!!!}\fi
+        \penalty\z@
+        \@tempdima=\pagegoal \advance\@tempdima-\pagetotal
+        \advance\@tempdima-\pageshrink
+        \ifdim\@tempdima<\baselineskip
+            \ifvmode \break \fi
+            \hi@citeguts{#1#2#3}%
+        \else
+            \setbox\@tempboxa=\hbox{#2}%
+            \@tempdima=\wd\@tempboxa
+            \ifstrempty{#1}{}{\advance\@tempdima\HiTOAIndent\relax}%
+            \ifdim 6em<\@tempdima \@tempdima=6em\relax\fi
+            \setbox\@tempboxa=\hbox{\HiTOADitto}%
+            \ifdim\@tempdima<\wd\@tempboxa \@tempdima=\wd\@tempboxa \fi
+            \hi@citeguts{%
+                \leavevmode\hb@xt@\@tempdima{\hss \box\@tempboxa}%
+                \hi@nocap
+                #4%
+            }%
+        \fi
+    \else
+        \hi@citeguts{#1#2#3}%
+    \fi
+}
+\newskip\HiTOASkip
+\HiTOASkip=1\baselineskip \@plus .1\baselineskip \@minus .1\baselineskip
+\let\HiTOAPassimNum\z@
+\def\HiTOAPassim{\hi@fn@latin{passim}}
+\def\HiTOADitto{---\kern-.1em---\kern-.1em---}
+\def\HiTOAIndent{1.5em}
+\def\tableofabbreviations#1{%
+    \hi@setuptoa
+    \@hi@in@toatrue
+    \hi@noid
+    \IfKnownList{hi@toa@abbrev}{\IfEmptyList{hi@toa@abbrev}{}{%
+        \ShowList{hi@toa@abbrev}{%
+            \@expand{\@unbrace#1}{\csname lc@##1\endcsname}{iii}%
+        }%
+    }}{}%
+    \@hi@in@toafalse
+}
+%%
+%% \iffalse filename: endnotes.dtx \fi
+%%
+\let\HiEndNote\@gobble
+\let\HiENDelay\@gobble
+\let\HiENSection\relax
+\def\hi@useendnotes{%
+    \newbox\hi@endnotes
+    \long\def\@footnotetext##1{%
+        \HiEndNote{%
+            \reset@font\normalsize
+            \parskip\z@
+            \HiENFont
+            \protected@edef\@currentlabel{%
+               \csname p@footnote\endcsname\@thefnmark
+            }%
+            \color@begingroup
+            \@makefntext{\ignorespaces##1}%
+            \color@endgroup
+        }%
+    }%
+    \long\def\HiEndNote##1{%
+        \global\setbox\hi@endnotes\vbox{%
+            \ifvoid\hi@endnotes\else
+                \prevdepth\dp\hi@endnotes
+                \unvbox\hi@endnotes
+            \fi
+            \ifx\hi@endnotes@delayed\relax\else
+                \hi@endnotes@delayed
+                \global\let\hi@endnotes@delayed\relax
+            \fi
+            ##1%
+        }%
+    }
+    \def\HiENDelay##1{%
+        \global\def\hi@endnotes@delayed{##1}%
+    }
+    \let\hi@endnotes@delayed\relax
+    \def\HiENSection{%
+        \HiENDelay{%
+            \vskip .7\baselineskip
+            {\noindent\large\textbf{Section \@currentlabel}\par}%
+            \penalty\@M
+            \vskip .3\baselineskip
+        }%
+    }
+    \def\HiENFont{}%
+    \def\theendnotes{%
+        \setbox\hi@endnotes\vtop{\unvbox\hi@endnotes}%
+        \@tempskipa\baselineskip
+        \multiply\@tempskipa\m@ne
+        \advance\@tempskipa\prevdepth
+        \advance\@tempskipa\ht\hi@endnotes
+        \multiply\@tempskipa\m@ne
+        \ifdim\@tempskipa>\z@ \vskip\@tempskipa \fi
+        \unvbox\hi@endnotes
+    }
+    \AtEndDocument{%
+        \ifvoid\hi@endnotes\else
+            \PackageWarning\hi@pkgname{%
+                Endnotes not displayed;\MessageBreak inserting them%
+            }%
+            \vskip\baselineskip
+            \footnoterule
+            \theendnotes
+        \fi
+    }%
+}% End of |\hi@useendnotes|
+%%
+%% \iffalse filename: legacy.dtx \fi
+%%
+\def\hi@legacy@cmd#1#2#3{%
+    \hi@legacy@chk#1{%
+        \def#1{#2}% Rather than \let, in case macro is redefined later
+    }%
+}
+\def\hi@legacy@chk#1#2{%
+    \ifdefined#1%
+        \ifx#1\relax
+            #2
+        \else
+            \PackageWarning\hi@pkgname{%
+                Legacy command \string#1\space already defined; not overwriting%
+            }%
+        \fi
+    \else
+        #2%
+    \fi
+}
+\hi@legacy@cmd\sic              \HiSic          {iface-misc}
+\hi@legacy@cmd\PageNumber       \HiParsePin     {pages}
+\hi@legacy@cmd\AuthorityTag     \HiTOATag       {toa-tag}
+\hi@legacy@cmd\enabletoa        \HiEnableTOA    {toa}
+\hi@legacy@cmd\disabletoa       \HiDisableTOA   {toa}
+\hi@legacy@cmd\NewTOACategory   \HiNewTOACat    {toa-categories}
+\hi@legacy@cmd\SetTOACategory   \HiSetTOACat    {toa-set}
+\hi@legacy@cmd\DefaultTOACategory \HiDefaultTOACat {toa-set}
+\hi@legacy@cmd\addtotoa         \HiAddToTOA     {toa-index}
+\hi@legacy@cmd\StarCount        \HiStarCount    {toa-star}
+\hi@legacy@cmd\StarText         \HiStarText     {toa-star}
+\hi@legacy@cmd\StarMark         \HiStarMark     {toa-star}
+\hi@legacy@cmd\toaheading       \HiTOAHeading   {toa-show}
+\hi@legacy@cmd\AuthorityTable   \HiTOATable     {toa-show}
+\hi@legacy@cmd\TOALeader        \HiTOALeader    {toa-show}
+\hi@legacy@cmd\toacite          \HiTOACite      {toa-show}
+\hi@legacy@cmd\toaskip          \HiTOASkip      {toa-show}
+\hi@legacy@cmd\PassimText       \HiTOAPassim    {toa-show}
+\hi@legacy@cmd\toahangindentlen \HiTOAIndent    {toa-show}
+\hi@legacy@cmd\AbbreviateFor    \HiAbbrev       {abbrevs}
+\hi@legacy@cmd\ExplanatoryPhrase \HiExplPhrase  {abbrevs-expl}
+\hi@legacy@cmd\MakeFontPack     \HiFontPack     {fonts-pack}
+\hi@legacy@cmd\UseFontPack      \HiUseFontPack  {fonts-pack}
+\hi@legacy@cmd\UseFontFor       \HiFont         {fonts-use}
+\hi@legacy@cmd\noid             \HiNoId         {state-manip}
+\hi@legacy@cmd\fullcite         \HiFullCite     {state-manip}
+\hi@legacy@cmd\nofullcite       \HiNoFullCite   {state-manip}
+\hi@legacy@cmd\fulltitle        \HiFullTitle    {state-manip}
+\hi@legacy@cmd\resetcitationforms \HiResetState {state-manip}
+\hi@legacy@cmd\ShowCitationState \HiShowState   {state-short}
+\hi@legacy@cmd\EndnoteText      \HiEndNote      {endnotes}
+\hi@legacy@cmd\EndnoteTextDelayed \HiENDelay    {endnotes}
+\hi@legacy@cmd\SectionNote      \HiENSection    {endnotes}
+\hi@legacy@cmd\EndnoteFont      \HiENFont       {endnotes}
+\hi@legacy@cmd\Ct       \sentence       {iface}
+\hi@legacy@cmd\ct       \clause         {iface}
+\hi@legacy@cmd\Ci       \Inline         {iface}
+\hi@legacy@cmd\ci       \inline         {iface}
+\hi@legacy@cmd\cn       \note           {iface}
+\hi@legacy@cmd\cx       \HiAddToTOA     {iface}
+%%
 %% \iffalse filename: caseref.dtx \fi
 %%
 \def\hi@case@def#1{%
@@ -4622,7 +4692,7 @@
                 \hi@name@only{\hi@kv@aname\hi@font@comma}%
                 \hi@ifset\hi@kv@rep{%
                     \hi@kv@vol\space \hi@kv@rep\space
-                    \@format@page@macro\hi@kv@page
+                    \hi@fmt@page@macro\hi@kv@page
                     \hi@maybepage{, }%
                 }{%
                     \hi@kv@docket % Docket number
@@ -4645,7 +4715,7 @@
             \hi@name@only{\@capnext\hi@kv@lname\unkern,\hfill\break}%
             \hi@ifset\hi@kv@rep{%
                 \hi@kv@vol\space\hi@kv@rep\space
-                \@format@page@macro\hi@kv@page
+                \hi@fmt@page@macro\hi@kv@page
                 \hi@maybepage{, }%
             }{%
                 \hi@kv@docket % Docket number
@@ -4672,7 +4742,7 @@
                 \hi@ifset\hi@kv@rep{%
                     \hi@kv@vol\space\hi@kv@rep\space %
                     \hi@ifpage{\hi@maybepage{\hi@page@atorsect}}{%
-                        \@format@page@macro\hi@kv@page
+                        \hi@fmt@page@macro\hi@kv@page
                     }%
                 }{%
                     \hi@ifset{\hi@kv@dbid}{\hi@kv@dbid}{\hi@kv@docket}%
@@ -5261,7 +5331,7 @@
                     \hi@ifset\hi@kv@page{%
                         \hi@ifset\hi@kv@year{,}{}\space
                         \noexpand\@hi@dotfalse
-                        \@format@page@macro\hi@kv@page
+                        \hi@fmt@page@macro\hi@kv@page
                     }{}%
                 }%
             }%
@@ -5280,7 +5350,7 @@
             }{%
                 \hi@ifset\hi@kv@page{%
                     \hi@ifset\hi@kv@year{, }{ }%
-                    \@format@page@macro\hi@kv@page
+                    \hi@fmt@page@macro\hi@kv@page
                 }{}%
             }%
         }{%
@@ -5289,7 +5359,7 @@
             }{%
                 \hi@ifset\hi@kv@page{%
                     \hi@ifset\hi@kv@year{, }{ }%
-                    \@format@page@macro\hi@kv@page
+                    \hi@fmt@page@macro\hi@kv@page
                 }{}%
             }%
         }%
@@ -5303,7 +5373,7 @@
         \hi@citeguts{%
             \noexpand\hi@fn@const{\hi@kv@name}%
             \hi@pageordefault{ }{%
-                \hi@ifset\hi@kv@page{ \@format@page@macro\hi@kv@page}{}%
+                \hi@ifset\hi@kv@page{ \hi@fmt@page@macro\hi@kv@page}{}%
             }%
         }%
         \the\hi@param@parens
@@ -5314,7 +5384,7 @@
     \hi@newcite@form{lc}{#1}{%
         \noexpand\hi@toa@duptitle{}{\hi@fn@const{\hi@kv@name}}{%
             \hi@pageordefault{ }{%
-                \hi@ifset\hi@kv@page{ \@format@page@macro\hi@kv@page}{}%
+                \hi@ifset\hi@kv@page{ \hi@fmt@page@macro\hi@kv@page}{}%
             }%
             \the\hi@param@parens
             \hi@ifset\hi@kv@year{%
@@ -5322,7 +5392,7 @@
             }{}%
         }{%
             \hi@pageordefault{ }{%
-                \hi@ifset\hi@kv@page{ \@format@page@macro\hi@kv@page}{}%
+                \hi@ifset\hi@kv@page{ \hi@fmt@page@macro\hi@kv@page}{}%
             }%
         }%
         \the\hi@param@parens
@@ -5450,13 +5520,13 @@
             }%
             \hi@ifset\hi@kv@origsect{%
                 \hi@ifset\hi@kv@page{%
-                    \noexpand\reserved@a\@format@page@macro\hi@kv@page
+                    \noexpand\reserved@a\hi@fmt@page@macro\hi@kv@page
                 }{}%
             }{%
                 \hi@pageordefault{\noexpand\reserved@a}{%
                     \hi@ifset\hi@kv@page{%
                         \noexpand\reserved@a
-                        \@format@page@macro\hi@kv@page
+                        \hi@fmt@page@macro\hi@kv@page
                     }{}%
                 }%
             }%
@@ -5478,24 +5548,24 @@
         }{%
             \hi@ifset\hi@kv@origsect{%
                 \hi@ifset\hi@kv@page{%
-                    \space\@format@page@macro\hi@kv@page
+                    \space\hi@fmt@page@macro\hi@kv@page
                 }{}%
             }{%
                 \hi@pageordefault{ }{%
                     \hi@ifset\hi@kv@page{%
-                        \space\@format@page@macro\hi@kv@page
+                        \space\hi@fmt@page@macro\hi@kv@page
                     }{}%
                 }%
             }%
         }{%
             \hi@ifset\hi@kv@origsect{%
                 \hi@pageordefault{ }{%
-                    \space\@format@page@macro\hi@kv@origsect
+                    \space\hi@fmt@page@macro\hi@kv@origsect
                 }%
             }{%
                 \hi@pageordefault{ }{%
                     \hi@ifset\hi@kv@page{%
-                        \space\@format@page@macro\hi@kv@page
+                        \space\hi@fmt@page@macro\hi@kv@page
                     }{}%
                 }%
             }%
@@ -5527,7 +5597,7 @@
                 \noexpand\hi@pages@join{\hi@kv@page}{##1}%
             }{%
                 \noexpand\protected@edef\noexpand\@this@page{%
-                    \noexpand\@format@pageno{##1}%
+                    \noexpand\hi@fmt@pageno{##1}%
                 }%
             }%
         }%
@@ -5556,7 +5626,7 @@
             % any given page descriptor.
             \hi@pageordefault{\noexpand\reserved@a}{%
                 \noexpand\reserved@a
-                \@capnext\@format@page@macro\hi@kv@origsect
+                \@capnext\hi@fmt@page@macro\hi@kv@origsect
             }%
         }%
         % Set the last title to \hi@kv@inline, which is the title to be
@@ -5583,7 +5653,7 @@
             \hi@pageordefault{\noexpand\reserved@a}{%
                 \hi@ifset\hi@kv@page{%
                     \noexpand\reserved@a
-                    \@capnext\@format@page@macro\hi@kv@page
+                    \@capnext\hi@fmt@page@macro\hi@kv@page
                 }{}%
             }%
         }%
@@ -5617,7 +5687,7 @@
             \@capnext\hi@kv@name
             \hi@ifset\hi@kv@origsect{%
                 \hi@pageordefault{ }{%
-                    \space\@format@page@macro\hi@kv@origsect
+                    \space\hi@fmt@page@macro\hi@kv@origsect
                 }%
             }{}%
             ,\noexpand\if@hi@in@toa \hfil\break
@@ -5660,12 +5730,12 @@
     \protected@edef\reserved@a{%
         \hi@ifset\hi@kv@origsect{%
             \@expand{\find@in{-}}\hi@kv@origsect i{\@gobbletwo}{%
-                \@format@page@macro\hi@kv@origsect
+                \hi@fmt@page@macro\hi@kv@origsect
             }%
         }{%
             \hi@ifset\hi@kv@page{%
                 \@expand{\find@in{-}}\hi@kv@page i{\@gobbletwo}{%
-                    \@format@page@macro\hi@kv@page
+                    \hi@fmt@page@macro\hi@kv@page
                 }%
             }{}%
         }%
@@ -6061,7 +6131,7 @@
                 \hi@maybepage{ },\space
                 \hi@pstruct@use{vol}\space
                 \hi@pstruct@use@font{rep}\hi@fn@statute\space
-                \hi@pstruct@call{page}{\noexpand\@format@page@macro}%
+                \hi@pstruct@call{page}{\noexpand\hi@fmt@page@macro}%
             }%
             \hi@book@paren
             \the\hi@param@parens
@@ -6092,7 +6162,7 @@
                 \noexpand\fi
                 \hi@pstruct@use{vol}\space
                 \hi@pstruct@use@font{rep}\hi@fn@statute\space
-                \hi@pstruct@call{page}{\noexpand\@format@page@macro}%
+                \hi@pstruct@call{page}{\noexpand\hi@fmt@page@macro}%
             }%
             \hi@inline@only{%
                 \hi@ifpage{%
@@ -6116,7 +6186,7 @@
                 \hi@maybepage{ },\space
                 \hi@pstruct@use{vol}\space
                 \hi@pstruct@use@font{rep}\hi@fn@statute\space
-                \hi@pstruct@call{page}{\noexpand\@format@page@macro}%
+                \hi@pstruct@call{page}{\noexpand\hi@fmt@page@macro}%
             }%
         }%
     }%
@@ -6134,7 +6204,7 @@
             \hi@ifset\hi@kv@name{\noexpand\@capnext\hi@kv@name, }%
             \noexpand\hi@fn@statute{\hi@kv@rep}%
             \hi@pageordefault{ }{%
-                \hi@ifset\hi@kv@page{ \@format@page@macro\hi@kv@page}{}%
+                \hi@ifset\hi@kv@page{ \hi@fmt@page@macro\hi@kv@page}{}%
             }%
         }%
         \hi@ifeitherset\hi@kv@year\hi@kv@court{%
@@ -6258,7 +6328,7 @@
             }{}%
             \noexpand\hi@fn@congdoc{\hi@kv@number}%
             \hi@ifset\hi@kv@page{%
-                , \@format@page@macro\hi@kv@page
+                , \hi@fmt@page@macro\hi@kv@page
             }{}%
             \hi@maybepage{, \hi@page@atorsect}%
         }%
@@ -6283,7 +6353,7 @@
             }{}%
             \noexpand\hi@fn@congdoc{\reserved@a}%
             \hi@ifset\hi@kv@page{%
-                , \@format@page@macro\hi@kv@page
+                , \hi@fmt@page@macro\hi@kv@page
             }{}%
             \hi@maybepage{, \hi@page@atorsect}%
         }%
@@ -6353,7 +6423,7 @@
         \hi@citeguts{%
             \hi@usevol{\hi@ifset\hi@kv@vol{\hi@kv@vol\space}{}}%
             \noexpand\hi@fn@congdoc{\hi@kv@rep}\space
-            \hi@ifpage{\hi@maybepage{}}{\@format@page@macro\hi@kv@page}%
+            \hi@ifpage{\hi@maybepage{}}{\hi@fmt@page@macro\hi@kv@page}%
         }%
         \hi@book@paren
         \the\hi@param@parens
@@ -6382,7 +6452,7 @@
         \hi@parens@add\hi@paren@date{\@expandarg\hi@date@parse\@this@opt}%
     \fi
 }
-\SetTOACategory{cr}{other}
+\HiSetTOACat{cr}{other}
 \hi@newcite{hearing}{A hearing in Congress}{other}{%
     \hi@ifset\hi@kv@type{}{\def\hi@kv@type{Hearing}}%
     \hi@newcite@form{fc}{#1}{%
@@ -7029,7 +7099,7 @@
         \hi@ifset\hi@kv@page{%
             \def\noexpand\@this@orig@page{\hi@kv@page}%
             \@ifundefined{pc@#1}{%
-                \def\noexpand\@this@page{\@format@page@macro\hi@kv@page}%
+                \def\noexpand\@this@page{\hi@fmt@page@macro\hi@kv@page}%
             }{%
                 \@expand{\@nameuse{pc@#1}}\hi@kv@page i%
             }%
@@ -7086,7 +7156,7 @@
                 \hi@ifset\hi@kv@useissue{%
                     No.~\hi@kv@issue, at\space
                 }{}%
-                \@format@page@macro\hi@kv@page % First page
+                \hi@fmt@page@macro\hi@kv@page % First page
                 \hi@maybepage{, }% Pin cite page
             }%
         }%
@@ -7143,7 +7213,7 @@
                 \noexpand\hi@fn@sig{in}\space
                 \hi@ifset\hi@kv@vol{\hi@kv@vol}{\hi@kv@year} % Volume
                 \noexpand\hi@fn@jrntitle{\hi@kv@rep}%
-                \hi@ifset\hi@kv@page{\space \@format@page@macro\hi@kv@page}{}%
+                \hi@ifset\hi@kv@page{\space \hi@fmt@page@macro\hi@kv@page}{}%
             }%
             \hi@ifset\hi@kv@vol{%
                 \ifx\hi@kv@vol\hi@kv@year\else
@@ -7168,7 +7238,7 @@
 \hi@newcite{magart}{A magazine article}{other}{%
     \hi@abbrev@journal@check
     \hi@ifset\hi@kv@page{%
-        \protected@edef\hi@kv@page{\@format@page@macro\hi@kv@page}%
+        \protected@edef\hi@kv@page{\hi@fmt@page@macro\hi@kv@page}%
     }{}%
     \hi@newcite@form{fc}{#1}{%
         \hi@citeguts{%
@@ -7291,7 +7361,7 @@
             }{}%
             (\hi@kv@year)\space
             \hi@pageordefault{}{%
-                \@format@page@macro\hi@kv@page
+                \hi@fmt@page@macro\hi@kv@page
             }%
         }%
     }%
@@ -7305,7 +7375,7 @@
             }{}%
             (\hi@kv@year)\space
             \hi@pageordefault{}{%
-                \@format@page@macro\hi@kv@page
+                \hi@fmt@page@macro\hi@kv@page
             }%
         }%
         \the\hi@param@parens
@@ -7334,7 +7404,7 @@
                 % section.
                 \hi@ifset\hi@kv@rep{}{%
                     \hi@ifset\hi@kv@page{%
-                        , \@format@page@macro\hi@kv@page
+                        , \hi@fmt@page@macro\hi@kv@page
                     }{}%
                 }%
             }%
@@ -7342,7 +7412,7 @@
                 ,\space
                 \hi@ifset\hi@kv@vol{\hi@kv@vol\space}{}%
                 \noexpand\hi@fn@statute{\hi@kv@rep}\space
-                \@format@page@macro\hi@kv@page
+                \hi@fmt@page@macro\hi@kv@page
             }{}%
         }%
         \hi@ifset\hi@kv@name{%
@@ -7422,7 +7492,7 @@
                     \hi@ifset\hi@kv@vol{\hi@kv@vol\space}{}%
                     \noexpand\hi@fn@statute{\hi@kv@rep}%
                     \hi@ifset\hi@kv@page{%
-                        \space\@format@page@macro\hi@kv@page
+                        \space\hi@fmt@page@macro\hi@kv@page
                     }{}%
                 }{}%
             }%
@@ -7844,7 +7914,7 @@
         \hi@ifset\hi@kv@page{%
             \noexpand\ifx\noexpand\@this@page\relax
                 \def\noexpand\@this@orig@page{\expandonce\hi@kv@page}%
-                \def\@this@page{\@format@page@macro\hi@kv@page}%
+                \def\@this@page{\hi@fmt@page@macro\hi@kv@page}%
             \noexpand\fi
         }{}%
     }%
@@ -7857,7 +7927,7 @@
             \noexpand\hi@pages@join{\expandonce\hi@kv@page}{##1}%
         }{%
             \noexpand\protected@edef\noexpand\@this@page{%
-                \noexpand\@format@pageno{##1}%
+                \noexpand\hi@fmt@pageno{##1}%
             }%
         }%
     }%
@@ -7897,7 +7967,7 @@
     }%
 }
 \hi@defparam{toacat}{Table of Authorities category for this citation}{%
-    \@expandarg\SetTOACategory\@this@case{#1}%
+    \@expandarg\HiSetTOACat\@this@case{#1}%
 }
 \hi@param@alias{comment}{paren}
 \hi@defparam{country}{Country for citation}{%
@@ -7920,7 +7990,7 @@
 \hi@newparam{kind}{Type of reference}
 \hi@newparam@noval{noetal}{No et al. with 3 or more authors}
 \hi@defparam@noval{notoa}{Do not include in the table of authorities}{%
-    \SetTOACategory{\@this@case}{}%
+    \HiSetTOACat{\@this@case}{}%
 }
 \hi@newparam{opturl}{Optional URL}
 \hi@defparam{origyear}{Year of original publication of the reference}{%
@@ -7940,7 +8010,7 @@
     \hi@param@addparen\hi@paren@parallel{%
         #2%
         \@test\ifx\@this@page\relax\fi{}{%
-            \hi@fpg@orig@page@segment{#1}{, \@format@pageno}{%
+            \hi@fpg@orig@page@segment{#1}{, \hi@fmt@pageno}{%
                 \PackageWarning\hi@pkgname{%
                     In citation to \@this@case, parallel cite\MessageBreak
                     with key `#1' not given in page number%
@@ -8135,7 +8205,7 @@
             #1
             \expandonce\hi@kv@vol \space
             \expandonce\hi@kv@rep \space
-            \expandafter\@format@pageno\expandafter{\hi@kv@page}%
+            \hi@fmt@page@macro\hi@kv@page
             \hi@ifset\hi@kv@year{ (\expandonce\hi@kv@year)}{}%
         }%
         \expandafter\hi@defkey@codified@\expandafter{\reserved@a}%

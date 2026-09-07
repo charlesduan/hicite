@@ -9,10 +9,15 @@ The usual \LaTeX\ endnote option stores the unexecuted text of notes and
 then executes them all at the end of the document. This does not work for legal
 citations because the content of the body text interacts with the content of the
 endnotes: An inline citation in body text can change the appearance of citations
-in the notes, and vice versa.
-
+in the notes, for example.
 Instead, it is necessary to typeset endnotes as they are encountered and store
 them to a vertical box that can be displayed upon request.
+
+To use endnotes, include the option \opt{endnote} with this package. This will
+automatically convert all footnotes to endnotes, including citations using
+|\note|. (Specifically, all footnote texts will be executed with the macro
+|\HiEndNote| described below). The following macros may further be used to
+control the content of the endnotes.
 
 %</doc>
 %<*package>
@@ -20,9 +25,9 @@ them to a vertical box that can be displayed upon request.
 % If endnotes are not used, then define the user commands to do nothing.
 %
 %    \begin{macrocode}
-\let\EndnoteText\@gobble
-\let\EndnoteTextDelayed\@gobble
-\let\SectionNote\relax
+\let\HiEndNote\@gobble
+\let\HiENDelay\@gobble
+\let\HiENSection\relax
 \def\hi@useendnotes{%
 %    \end{macrocode}
 %
@@ -33,17 +38,17 @@ them to a vertical box that can be displayed upon request.
     \newbox\hi@endnotes
 %    \end{macrocode}
 %
-% |\@footnotetext| is redefined to run |\EndnoteText|, adding the note text to
+% |\@footnotetext| is redefined to run |\HiEndNote|, adding the note text to
 % the vertical box. Note that, as described in \sec{state}, the |\@footnotetext|
 % macro will be decorated for citation count tracking with |\AtBeginDocument|,
 % so the tracking macros need not be added here.
 %
 %    \begin{macrocode}
     \long\def\@footnotetext##1{%
-        \EndnoteText{%
+        \HiEndNote{%
             \reset@font\normalsize
             \parskip\z@
-            \EndnoteFont
+            \HiENFont
             \protected@edef\@currentlabel{%
                \csname p@footnote\endcsname\@thefnmark
             }%
@@ -57,16 +62,15 @@ them to a vertical box that can be displayed upon request.
 %</package>
 %<*doc>
 
-\DescribeMacro\EndnoteText
-
-|\EndnoteText|\marg{text} adds arbitrary text to the endnote list. The text is
+\MacroSpec\HiEndNote \marg{text} \\
+Adds arbitrary text to the endnote list. The text is
 set in vertical mode.
 
 %</doc>
 %<*package>
 %
 %    \begin{macrocode}
-    \long\def\EndnoteText##1{%
+    \long\def\HiEndNote##1{%
         \global\setbox\hi@endnotes\vbox{%
             \ifvoid\hi@endnotes\else
                 \prevdepth\dp\hi@endnotes
@@ -84,11 +88,10 @@ set in vertical mode.
 %</package>
 %<*doc>
 
-\DescribeMacro\EndnoteTextDelayed
-|\EndnoteTextDelayed| reserves a certain text for future adding to the endnote
+\MacroSpec\HiENDelay\marg{text}\\
+reserves a certain text for future adding to the endnote
 list. The text is actually added only if other endnote text is added before
-|\EndnoteTextDelayed| is invoked a second time.
-
+|\HiENDelay| is invoked a second time.
 This is useful for adding chapter or section heading markers to and endnote list
 conditionally. If the chapter contains no endnotes, then the chapter heading
 will never be inserted into the endnote list.
@@ -99,7 +102,7 @@ Again, the text is set in vertical mode.
 %<*package>
 %
 %    \begin{macrocode}
-    \def\EndnoteTextDelayed##1{%
+    \def\HiENDelay##1{%
         \global\def\hi@endnotes@delayed{##1}%
     }
     \let\hi@endnotes@delayed\relax
@@ -108,21 +111,19 @@ Again, the text is set in vertical mode.
 %</package>
 %<*doc>
 
-\DescribeMacro\SectionNote
-|\SectionNote| inserts text into the endnote list indicating where a section
-heading occurred. The section number is inserted automatically, preceded by
-|\SectionName| from \sec{xref}.
+\MacroSpec\HiENSection
+Inserts text into the endnote list (using |\HiENDelay|) indicating where a
+section heading occurred. The section number is inserted automatically, preceded
+by ``Section.''
 
 %</doc>
 %<*package>
 %
 %    \begin{macrocode}
-    \def\SectionNote{%
-        \EndnoteTextDelayed{%
+    \def\HiENSection{%
+        \HiENDelay{%
             \vskip .7\baselineskip
-            {\noindent\large\textbf{%
-                \expandafter\@capnext\SectionName\space \@currentlabel
-            }\par}%
+            {\noindent\large\textbf{Section \@currentlabel}\par}%
             \penalty\@M
             \vskip .3\baselineskip
         }%
@@ -132,8 +133,8 @@ heading occurred. The section number is inserted automatically, preceded by
 %</package>
 %<*doc>
 
-\DescribeMacro\EndnoteFont
-|\EndnoteFont| can be defined to set the font for endnotes. It must be defined
+\DescribeMacro\HiENFont
+|\HiENFont| can be defined to set the font for endnotes. It must be defined
 before endnotes are added, since once they are added the notes have been
 typeset and cannot be changed.
 
@@ -141,7 +142,7 @@ typeset and cannot be changed.
 %<*package>
 %
 %    \begin{macrocode}
-    \def\EndnoteFont{}%
+    \def\HiENFont{}%
 %    \end{macrocode}
 %
 %</package>

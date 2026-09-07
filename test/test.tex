@@ -21,15 +21,16 @@
 %% src/signals.dtx  (with options: `test')
 %% src/pages.dtx  (with options: `test')
 %% src/parens.dtx  (with options: `test')
-%% src/toa.dtx  (with options: `test')
-%% src/endnotes.dtx  (with options: `test')
-%% src/short.dtx  (with options: `test')
 %% src/draw.dtx  (with options: `test')
 %% src/abbrevs.dtx  (with options: `test')
 %% src/fonts.dtx  (with options: `test')
 %% src/state.dtx  (with options: `test')
 %% src/supra.dtx  (with options: `test')
+%% src/short.dtx  (with options: `test')
 %% src/format.dtx  (with options: `test')
+%% src/toa.dtx  (with options: `test')
+%% src/endnotes.dtx  (with options: `test')
+%% src/legacy.dtx  (with options: `test')
 %% src/caseref.dtx  (with options: `test')
 %% src/constrefs.dtx  (with options: `test')
 %% src/statrefs.dtx  (with options: `test')
@@ -766,35 +767,35 @@ themselves work as expected.
 
 \subsection{Formatting}
 
-\AssertExpand{\@format@pageno{15}}{15}
-\AssertExpand{\@format@pageno{15,,,}}{15}
-\AssertExpand{\@format@pageno{15, 20}}{15, 20}
-\AssertExpand{\@format@pageno{15,,, 20}}{15, 20}
-\AssertExpand{\@format@pageno{15-20, 25-30}}{15--20, 25--30}
-\AssertExpand{\@format@pageno{115-120, 1425-1530}}{115--20, 1425--530}
-\AssertExpand{\@format@pageno{paragraph 15}}{para.~15}
-\AssertExpand{\@format@pageno{paragraphs 15}}{para.~15}
-\AssertExpand{\@format@pageno{paragraph 15-20}}{paras.~15--20}
-\AssertExpand{\@format@pageno{paragraph 15, 20}}{paras.~15, 20}
-\AssertExpand{\@format@pageno{paragraph 15, at 25-30}}{para.~15, at 25--30}
-\AssertExpand{\@format@pageno{paragraph 15/a1}}
+\AssertExpand{\hi@fmt@pageno{15}}{15}
+\AssertExpand{\hi@fmt@pageno{15,,,}}{15}
+\AssertExpand{\hi@fmt@pageno{15, 20}}{15, 20}
+\AssertExpand{\hi@fmt@pageno{15,,, 20}}{15, 20}
+\AssertExpand{\hi@fmt@pageno{15-20, 25-30}}{15--20, 25--30}
+\AssertExpand{\hi@fmt@pageno{115-120, 1425-1530}}{115--20, 1425--530}
+\AssertExpand{\hi@fmt@pageno{paragraph 15}}{para.~15}
+\AssertExpand{\hi@fmt@pageno{paragraphs 15}}{para.~15}
+\AssertExpand{\hi@fmt@pageno{paragraph 15-20}}{paras.~15--20}
+\AssertExpand{\hi@fmt@pageno{paragraph 15, 20}}{paras.~15, 20}
+\AssertExpand{\hi@fmt@pageno{paragraph 15, at 25-30}}{para.~15, at 25--30}
+\AssertExpand{\hi@fmt@pageno{paragraph 15/a1}}
     {para.~15(a)\hi@psize@penalty(1)}
-\AssertExpand{\@format@pageno{paragraph 15/a1, /a2}}
+\AssertExpand{\hi@fmt@pageno{paragraph 15/a1, /a2}}
     {para.~15(a)\hi@psize@penalty(1), (a)\hi@psize@penalty(2)}
-\AssertExpand{\@format@pageno{paragraph 15/a1-/2}}
+\AssertExpand{\hi@fmt@pageno{paragraph 15/a1-/2}}
     {para.~15(a)\hi@psize@penalty(1)--(2)}
-\AssertExpand{\@format@pageno{paragraph 15/a1, /a2-/3}}
+\AssertExpand{\hi@fmt@pageno{paragraph 15/a1, /a2-/3}}
     {para.~15(a)\hi@psize@penalty(1), (a)\hi@psize@penalty(2)--(3)}
-\AssertExpand{\@format@pageno{paragraph 15, table 4-5, at 36}}
+\AssertExpand{\hi@fmt@pageno{paragraph 15, table 4-5, at 36}}
     {para.~15, tbls.4--5, at 36}
-\AssertExpand{\@format@pageno{15 note 6}}{15 n.6}
-\AssertExpand{\@format@pageno{15 note 5, 6, 7}}{15 nn.5, 6 \& 7}
-\AssertExpand{\@format@pageno{15 & note 5, 6, 7}}{15 \& nn.5, 6 \& 7}
-\AssertExpand{\@format@pageno{S 5-6}}{\textsection\textsection~5--6}
-\AssertExpand{\@format@pageno{P 5-6}}{\textparagraph\textparagraph~5--6}
-\AssertExpand{\@format@pageno{-34/a}}{34(a)}
-\AssertExpand{\@format@pageno{!A5}}{\hi@pgnum@raw A5}
-\AssertExpand{\@format@pageno{*123-125}}{*123--25}
+\AssertExpand{\hi@fmt@pageno{15 note 6}}{15 n.6}
+\AssertExpand{\hi@fmt@pageno{15 note 5, 6, 7}}{15 nn.5, 6 \& 7}
+\AssertExpand{\hi@fmt@pageno{15 & note 5, 6, 7}}{15 \& nn.5, 6 \& 7}
+\AssertExpand{\hi@fmt@pageno{S 5-6}}{\textsection\textsection~5--6}
+\AssertExpand{\hi@fmt@pageno{P 5-6}}{\textparagraph\textparagraph~5--6}
+\AssertExpand{\hi@fmt@pageno{-34/a}}{34(a)}
+\AssertExpand{\hi@fmt@pageno{!A5}}{\hi@pgnum@raw A5}
+\AssertExpand{\hi@fmt@pageno{*123-125}}{*123--25}
 
 \subsection{Spacing}
 
@@ -832,115 +833,139 @@ themselves work as expected.
 %%
 %% \iffalse filename: parens.dtx \fi
 %%
+%%
+%% \iffalse filename: draw.dtx \fi
+%%
 
-\section{parens.dtx}
+\section{draw.dtx}
 
-\subsection{Ordering}
-
-\begingroup
-
-\hi@parens@reset
-\hi@parens@add\@ne{One}
-\hi@parens@add\tw@{Two}
-\hi@parens@add\z@{Zero}
-\AssertMacro\hi@parens{%
-    \@paren{\z@}{Zero}\@paren{\@ne}{One}\@paren{\tw@}{Two}%
-}
-
-\hi@parens@reset
-\hi@paren@parse{generic}
-\AssertMacro\hi@parens{%
-    \@paren{\hi@paren@cite}{generic}%
-}
-
-\hi@paren@parse{discussed in: a}
-\AssertMacro\hi@parens{%
-    \@paren{\hi@paren@cite}{generic}%
-    \@paren{\hi@paren@comment}{\hi@fn@sig{discussed in} \clause{a}}%
-}
-
-\hi@paren@parse{quoting: b}
-\AssertMacro\hi@parens{%
-    \@paren{\hi@paren@cite}{generic}%
-    \@paren{\hi@paren@cite}{quoting \clause{b}}%
-    \@paren{\hi@paren@comment}{\hi@fn@sig{discussed in} \clause{a}}%
-}
-
-\def\hi@defer@content#1{\def\TestDefer{Deferred #1}}
-\def\TestDefer{failed}
-\hi@paren@parse{footnote: c}
-\AssertMacro\hi@parens{%
-    \@paren{\hi@paren@cite}{generic}%
-    \@paren{\hi@paren@cite}{quoting \clause{b}}%
-    \@paren{\hi@paren@comment}{\hi@fn@sig{discussed in} \clause{a}}%
-}
-\AssertMacro\TestDefer{Deferred c}
-
-\endgroup
-
-\subsection{Deferred Notes}
-
-\begingroup
-    \AssertBox{abc\hi@defer@content{def}}{abc\InFootnote{def}}
-    \AssertBox{abc\footnote{def\hi@defer@content{ghi} jkl.}}{abc\InFootnote{def
-    jkl. ghi}}
-
-\endgroup
+\subsection{Which}
 
 \begingroup
 
-    \advance\hi@citelevel\@ne
+    \def\@this@case{whichtest}
+    \def\fc@whichtest{a}
 
-    \AssertBox{\hi@deferred@note@enditem}{}
-    \AssertBox{\hi@deferred@note@endstring}{}
-    \AssertBox{\hi@deferred@note@endnote}{}
+    \AssertCallback{\hi@draw@which{sc,fc}}{fc}
 
-    \hi@defer@content{abc}
-    \AssertBox{\hi@deferred@note@enditem}{\InFootnote{abc}}
+    \def\sc@whichtest{a}
 
-    \hi@defer@content{def}
-    \AssertBox{\hi@deferred@note@enditem}{\InFootnote{def}}
-    \AssertBox{\hi@deferred@note@enditem}{}
-
-    \hi@defer@content{ghi}
-    \AssertBox{\hi@deferred@note@endstring}{\InFootnote{ghi}}
-
-    \@hi@notetrue
-    \hi@defer@content{jkl}
-    \AssertBox{\hi@deferred@note@enditem}{}
-    \AssertBox{\hi@deferred@note@endstring}{}
-    \hi@defer@content{mno}
-    \AssertBox{\hi@deferred@note@endstring}{}
-    \AssertBox{\hi@deferred@note@endnote}{ jkl mno}
+    \AssertCallback{\hi@draw@which{sc,fc}}{sc}
+    \AssertCallback{\hi@draw@which{isc,sc,fc}}{sc}
 
 \endgroup
 
-\subsection{Trailing Dots}
+%%
+%% \iffalse filename: abbrevs.dtx \fi
+%%
 
-\AssertBox{%
-    \def\hi@parens{\@paren{\hi@paren@cite}{abc}}%
-    \hi@parens@show\if@hi@dot\else.\fi
-}{ (abc).}
-\AssertBox{%
-    \def\hi@parens{\@paren{\hi@paren@cite}{abc.}}%
-    \hi@parens@show\if@hi@dot\else.\fi
-}{ (abc.).}
-\AssertBox{%
-    \def\hi@parens{\@paren{\hi@paren@comment}{abc}}%
-    \hi@parens@show\if@hi@dot\else.\fi
-}{, abc.}
-\AssertBox{%
-    \def\hi@parens{\@paren{\hi@paren@comment}{abc.}}%
-    \hi@parens@show\if@hi@dot\else.\fi
-}{, abc.}
-\AssertBox{%
-    \def\hi@parens{\@paren{\hi@paren@comment}{\emph{abc.}\@hi@dottrue}}%
-    \hi@parens@show\if@hi@dot\else.\fi
-}{, \emph{abc.}}
+\section{abbrevs.dtx}
+
+\AssertBox{\hi@abbrev@journal{American University Law Review}\@iden}{Am. U.
+L. Rev.}
+
+\AssertBox{\hi@abbrev@journal{Boston University Law Journal}\@iden}{B.U.
+L.J.}
+
+\AssertBox{\hi@abbrev@journal{American Law Weekly}\@iden}{Am. L. Wkly.}
+\AssertBox{\hi@abbrev@journal{American Lawyer}\@iden}{Am. Law.}
+\AssertBox{\hi@abbrev@journal{Law Weekly}\@iden}{Law Wkly.}
+
+\AssertBox{\hi@abbrev@journal{California Law Review}\@iden}{Calif. L. Rev.}
+\AssertBox{\hi@abbrev@journal{California Law Review Online}\@iden}{Calif. L.
+Rev. Online}
+\AssertBox{\hi@abbrev@journal{Southern California Law Review}\@iden}{S. Cal. L.
+Rev.}
+
+\AssertBox{\hi@abbrev@pub{special revised edition}\@iden}{spec. rev. ed.}
+
+%%
+%% \iffalse filename: fonts.dtx \fi
+%%
+
+\section{fonts.dtx}
+
+\begingroup
+    \HiUseFontPack{memo}
+    \AssertBox{\HiFont{booktitle}{Book Title}}{\emph{Book Title}}
+\endgroup
+
+\begingroup
+    \HiUseFontPack{review}
+    \AssertBox{\HiFont{booktitle}{Book Title}}{\textsc{Book Title}}
+    \AssertBox{\HiFont{casefc}{Case Title}}{Case Title}
+
+    \HiUseFontPack{italcase}
+    \AssertBox{\HiFont{casefc}{Case Title}}{\emph{Case Title}}
+\endgroup
+
+%%
+%% \iffalse filename: state.dtx \fi
+%%
+
+%%
+%% \iffalse filename: supra.dtx \fi
+%%
+
+%%
+%% \iffalse filename: short.dtx \fi
+%%
+%%
+%% \iffalse filename: format.dtx \fi
+%%
+\section{format.dtx}
+
+\subsection{Ordinal Numbers}
+
+\AssertExpand{\hi@numtotxt{1}}{First}
+\AssertExpand{\hi@numtotxt{2}}{Second}
+\AssertExpand{\hi@numtotxt{10}}{Tenth}
+\AssertExpand{\hi@numtotxt{12}}{Twelfth}
+\AssertExpand{\hi@numtotxt{45}}{Forty-Fifth}
+\AssertExpand{\hi@numtotxt{82}}{Eighty-Second}
+\AssertExpand{\hi@numtotxt{90}}{Ninetieth}
+\AssertExpand{\hi@numtotxt{123}}{123d}
+\AssertExpand{\hi@numtotxt{20000}}{Twenty Thousandth}
+\AssertExpand{\hi@numtotxt{23456}}{23,456th}
+
+\subsection{Capitalization}
+
+\AssertBox{\@capnext hello}{hello}
+\@hi@captrue
+\AssertBox{\@capnext hello}{Hello}
+\@hi@captrue
+\AssertBox{\@capnext Hello}{Hello}
+\@hi@captrue
+\AssertBox{\@capnext \emph{hello}}{\emph{Hello}}
+\@hi@captrue
+\AssertBox{\@capnext eBay}{eBay}
+\@hi@captrue
+\AssertBox{\@capnext emBay}{EmBay}
+
+\begingroup
+    \@hi@inlinetrue
+    \@hi@captrue
+    \AssertBox{\@capnext\emph{\textsection\textsection~123--124}}{\emph{Sections
+    123--124}}
+    \@hi@captrue
+    \AssertBox{\@capnext \emph{\textparagraph~15}}{\emph{Paragraph 15}}
+    \@hi@captrue
+    \AssertBox{\@capnext \hi@inline@the Great Escape}{The Great Escape}
+
+    \@hi@capfalse
+    \AssertBox{\@capnext \hi@inline@the Great Escape}{the Great Escape}
+\endgroup
+
+\subsection{Commas}
+
+\AssertBox{\hi@font@with@comma\textbf{Hello World}}{\textbf{Hello World}, }
+\AssertBox{\hi@font@with@comma\textbf{Hello ``World''}}{\textbf{Hello
+``World},\textbf{''} }
 
 %%
 %% \iffalse filename: toa.dtx \fi
 %%
+
 \section{toa.dtx}
 
 \subsection{Aux File Writing}
@@ -962,7 +987,7 @@ themselves work as expected.
 
 \begingroup
 
-    \SetTOACategory{ref}{other}
+    \HiSetTOACat{ref}{other}
     \let\tcpg@ref\relax
     \@hi@in@toafalse
     \@hi@toa@disabledfalse
@@ -1140,7 +1165,7 @@ themselves work as expected.
 \subsection{Page Numbers and Star Counting}
 
 \begingroup
-    \StarCount{4}
+    \HiStarCount{4}
     \everypar{}
     \let\hi@pg@ref\relax
     \hi@toa@addpg\hi@pg@ref{ii}{2}{roman}
@@ -1171,36 +1196,36 @@ themselves work as expected.
     Stars should now show up at the start of every first test paragraph.
 
     \hi@toa@star{ref}
-    \AssertExpand{\the\everypar}{\noexpand\StarMark\noexpand\everypar{}}
+    \AssertExpand{\the\everypar}{\noexpand\HiStarMark\noexpand\everypar{}}
 
     \hi@toa@addpg\hi@pg@ref{4}{4}{arabic}
     \AssertCallback{\hi@toa@usepg{ref}}{ii--iv, 4}
     \AssertCallback{\hi@toa@refcount{ref}}{5}
 
     \hi@toa@star{ref}
-    \AssertExpand{\the\everypar}{\noexpand\StarMark\noexpand\everypar{}}
+    \AssertExpand{\the\everypar}{\noexpand\HiStarMark\noexpand\everypar{}}
 
     \hi@toa@addpg\hi@pg@ref{5}{5}{arabic}
     \AssertCallback{\hi@toa@usepg{ref}}{ii--iv, 4--5}
     \AssertCallback{\hi@toa@refcount{ref}}{6}
 
     \hi@toa@star{ref}
-    \AssertExpand{\the\everypar}{\noexpand\StarMark\noexpand\everypar{}}
+    \AssertExpand{\the\everypar}{\noexpand\HiStarMark\noexpand\everypar{}}
 
     \hi@toa@addpg\hi@pg@ref{7}{7}{arabic}
     \AssertCallback{\hi@toa@usepg{ref}}{ii--iv, 4--5, 7}
     \AssertCallback{\hi@toa@refcount{ref}}{7}
 
     \hi@toa@star{ref}
-    \AssertExpand{\the\everypar}{\noexpand\StarMark\noexpand\everypar{}}
+    \AssertExpand{\the\everypar}{\noexpand\HiStarMark\noexpand\everypar{}}
 
-    \c@passimnum=2
-    \AssertCallback{\hi@toa@usepg{ref}}{\PassimText}
+    \let\HiTOAPassimNum\tw@
+    \AssertCallback{\hi@toa@usepg{ref}}{\HiTOAPassim}
 
-    \c@passimnum=3
-    \AssertCallback{\hi@toa@usepg{ref}}{\PassimText}
+    \let\HiTOAPassimNum\thr@@
+    \AssertCallback{\hi@toa@usepg{ref}}{\HiTOAPassim}
 
-    \c@passimnum=4
+    \chardef\HiTOAPassimNum=4
     \AssertCallback{\hi@toa@usepg{ref}}{ii--iv, 4--5, 7}
 \endgroup
 
@@ -1211,7 +1236,7 @@ themselves work as expected.
 The following can only be tested visually. Make sure that these look acceptable.
 \def\testbox#1#2{\vrule\vtop{%
     \hsize=1.25in\relax \hi@toa@par@settings
-    #1\nobreak\TOALeader\nobreak\hi@toa@brkpg{#2}\par
+    #1\nobreak\HiTOALeader\nobreak\hi@toa@brkpg{#2}\par
 }\vrule\allowbreak\space}
 
 \leavevmode
@@ -1246,8 +1271,8 @@ toacat=other,
 
 \AssertCallback{\hi@toacat@get{dc-comics}}{other:Other Source/s}
 
-\NewTOACategory{movie}{m}{Motion Picture/s}{Y}
-\DefaultTOACategory{film}{movie}
+\HiNewTOACat{movie}{m}{Motion Picture/s}{Y}
+\HiDefaultTOACat{film}{movie}
 
 \deffilm{faceoff}{
 name=Face/Off,
@@ -1271,133 +1296,8 @@ publisher=Paramount Pictures,
 %% \iffalse filename: endnotes.dtx \fi
 %%
 %%
-%% \iffalse filename: short.dtx \fi
+%% \iffalse filename: legacy.dtx \fi
 %%
-%%
-%% \iffalse filename: draw.dtx \fi
-%%
-
-\section{draw.dtx}
-
-\subsection{Which}
-
-\begingroup
-
-    \def\@this@case{whichtest}
-    \def\fc@whichtest{a}
-
-    \AssertCallback{\hi@draw@which{sc,fc}}{fc}
-
-    \def\sc@whichtest{a}
-
-    \AssertCallback{\hi@draw@which{sc,fc}}{sc}
-    \AssertCallback{\hi@draw@which{isc,sc,fc}}{sc}
-
-\endgroup
-
-%%
-%% \iffalse filename: abbrevs.dtx \fi
-%%
-
-\section{abbrevs.dtx}
-
-\AssertBox{\hi@abbrev@journal{American University Law Review}\@iden}{Am. U.
-L. Rev.}
-
-\AssertBox{\hi@abbrev@journal{Boston University Law Journal}\@iden}{B.U.
-L.J.}
-
-\AssertBox{\hi@abbrev@journal{American Law Weekly}\@iden}{Am. L. Wkly.}
-\AssertBox{\hi@abbrev@journal{American Lawyer}\@iden}{Am. Law.}
-\AssertBox{\hi@abbrev@journal{Law Weekly}\@iden}{Law Wkly.}
-
-\AssertBox{\hi@abbrev@journal{California Law Review}\@iden}{Calif. L. Rev.}
-\AssertBox{\hi@abbrev@journal{California Law Review Online}\@iden}{Calif. L.
-Rev. Online}
-\AssertBox{\hi@abbrev@journal{Southern California Law Review}\@iden}{S. Cal. L.
-Rev.}
-
-\AssertBox{\hi@abbrev@pub{special revised edition}\@iden}{spec. rev. ed.}
-
-%%
-%% \iffalse filename: fonts.dtx \fi
-%%
-
-\section{fonts.dtx}
-
-\begingroup
-    \UseFontPack{memo}
-    \AssertBox{\UseFontFor{booktitle}{Book Title}}{\emph{Book Title}}
-\endgroup
-
-\begingroup
-    \UseFontPack{review}
-    \AssertBox{\UseFontFor{booktitle}{Book Title}}{\textsc{Book Title}}
-    \AssertBox{\UseFontFor{casefc}{Case Title}}{Case Title}
-
-    \UseFontPack{italcase}
-    \AssertBox{\UseFontFor{casefc}{Case Title}}{\emph{Case Title}}
-\endgroup
-
-%%
-%% \iffalse filename: state.dtx \fi
-%%
-%%
-%% \iffalse filename: supra.dtx \fi
-%%
-
-%%
-%% \iffalse filename: format.dtx \fi
-%%
-\section{format.dtx}
-
-\subsection{Ordinal Numbers}
-
-\AssertExpand{\hi@numtotxt{1}}{First}
-\AssertExpand{\hi@numtotxt{2}}{Second}
-\AssertExpand{\hi@numtotxt{10}}{Tenth}
-\AssertExpand{\hi@numtotxt{12}}{Twelfth}
-\AssertExpand{\hi@numtotxt{45}}{Forty-Fifth}
-\AssertExpand{\hi@numtotxt{82}}{Eighty-Second}
-\AssertExpand{\hi@numtotxt{90}}{Ninetieth}
-\AssertExpand{\hi@numtotxt{123}}{123d}
-\AssertExpand{\hi@numtotxt{20000}}{Twenty Thousandth}
-\AssertExpand{\hi@numtotxt{23456}}{23,456th}
-
-\subsection{Capitalization}
-
-\AssertBox{\@capnext hello}{hello}
-\@hi@captrue
-\AssertBox{\@capnext hello}{Hello}
-\@hi@captrue
-\AssertBox{\@capnext Hello}{Hello}
-\@hi@captrue
-\AssertBox{\@capnext \emph{hello}}{\emph{Hello}}
-\@hi@captrue
-\AssertBox{\@capnext eBay}{eBay}
-\@hi@captrue
-\AssertBox{\@capnext emBay}{EmBay}
-
-\begingroup
-    \@hi@inlinetrue
-    \@hi@captrue
-    \AssertBox{\@capnext\emph{\textsection\textsection~123--124}}{\emph{Sections
-    123--124}}
-    \@hi@captrue
-    \AssertBox{\@capnext \emph{\textparagraph~15}}{\emph{Paragraph 15}}
-    \@hi@captrue
-    \AssertBox{\@capnext \hi@inline@the Great Escape}{The Great Escape}
-
-    \@hi@capfalse
-    \AssertBox{\@capnext \hi@inline@the Great Escape}{the Great Escape}
-\endgroup
-
-\subsection{Commas}
-
-\AssertBox{\hi@font@with@comma\textbf{Hello World}}{\textbf{Hello World}, }
-\AssertBox{\hi@font@with@comma\textbf{Hello ``World''}}{\textbf{Hello
-``World},\textbf{''} }
-
 %%
 %% \iffalse filename: caseref.dtx \fi
 %%
@@ -1826,7 +1726,7 @@ subsequent=rehearing denied: unocal-cafc,
     2d 1208 (C.D. Cal.\ 1998), \emph{aff'd}{}, 208 F.3d 989 (Fed.\ Cir.\
     2000).}}
 
-\fullcite{unocal-cafc}
+\HiFullCite{unocal-cafc}
 
 \AssertBox{\tiny\note{unocal-rf-dct}}{%
     \tiny
@@ -1834,7 +1734,7 @@ subsequent=rehearing denied: unocal-cafc,
     2d 1208 (C.D. Cal.\ 1998), \emph{aff'd} \emph{sub nom.}\ Oil Co.\ v.\
     Atlantic, 208 F.3d 989 (Fed.\ Cir.\ 2000).}}
 
-\fullcite{unocal-cafc}
+\HiFullCite{unocal-cafc}
 
 \AssertBox{\tiny\note{unocal-rf-rd-dct}}{%
     \tiny
@@ -1912,7 +1812,7 @@ year=1997,
         \hi@citeguts{%
             \noexpand\hi@fn@const{\hi@kv@name}%
             \hi@pageordefault{ }{%
-                \hi@ifset\hi@kv@page{ \@format@page@macro\hi@kv@page}{}%
+                \hi@ifset\hi@kv@page{ \hi@fmt@page@macro\hi@kv@page}{}%
             }%
         }%
         \the\hi@param@parens
@@ -1923,7 +1823,7 @@ year=1997,
     \hi@newcite@form{lc}{#1}{%
         \noexpand\hi@toa@duptitle{}{\hi@fn@const{\hi@kv@name}}{%
             \hi@pageordefault{ }{%
-                \hi@ifset\hi@kv@page{ \@format@page@macro\hi@kv@page}{}%
+                \hi@ifset\hi@kv@page{ \hi@fmt@page@macro\hi@kv@page}{}%
             }%
             \the\hi@param@parens
             \hi@ifset\hi@kv@year{%
@@ -1931,7 +1831,7 @@ year=1997,
             }{}%
         }{%
             \hi@pageordefault{ }{%
-                \hi@ifset\hi@kv@page{ \@format@page@macro\hi@kv@page}{}%
+                \hi@ifset\hi@kv@page{ \hi@fmt@page@macro\hi@kv@page}{}%
             }%
         }%
         \the\hi@param@parens
@@ -1995,7 +1895,7 @@ year=1997,
                 \hi@maybepage{ },\space
                 \hi@pstruct@use{vol}\space
                 \hi@pstruct@use@font{rep}\hi@fn@statute\space
-                \hi@pstruct@call{page}{\noexpand\@format@page@macro}%
+                \hi@pstruct@call{page}{\noexpand\hi@fmt@page@macro}%
             }%
             \hi@book@paren
             \the\hi@param@parens
@@ -2026,7 +1926,7 @@ year=1997,
                 \noexpand\fi
                 \hi@pstruct@use{vol}\space
                 \hi@pstruct@use@font{rep}\hi@fn@statute\space
-                \hi@pstruct@call{page}{\noexpand\@format@page@macro}%
+                \hi@pstruct@call{page}{\noexpand\hi@fmt@page@macro}%
             }%
             \hi@inline@only{%
                 \hi@ifpage{%
@@ -2050,7 +1950,7 @@ year=1997,
                 \hi@maybepage{ },\space
                 \hi@pstruct@use{vol}\space
                 \hi@pstruct@use@font{rep}\hi@fn@statute\space
-                \hi@pstruct@call{page}{\noexpand\@format@page@macro}%
+                \hi@pstruct@call{page}{\noexpand\hi@fmt@page@macro}%
             }%
         }%
     }%
@@ -2063,7 +1963,7 @@ year=1997,
             \hi@ifset\hi@kv@name{\noexpand\@capnext\hi@kv@name, }%
             \noexpand\hi@fn@statute{\hi@kv@rep}%
             \hi@pageordefault{ }{%
-                \hi@ifset\hi@kv@page{ \@format@page@macro\hi@kv@page}{}%
+                \hi@ifset\hi@kv@page{ \hi@fmt@page@macro\hi@kv@page}{}%
             }%
         }%
         \hi@ifeitherset\hi@kv@year\hi@kv@court{%
@@ -2271,18 +2171,18 @@ inline=OCILLA,
 Limitation Act (OCILLA), \emph{in} Digital Millennium Copyright Act, Pub.~L.
 No.~105-304, tit.~II, 112 \textsc{Stat.}~2860, 2877 (1998).}}
 
-\fullcite{ocilla}
-\fullcite{dmca-sess}
+\HiFullCite{ocilla}
+\HiFullCite{dmca-sess}
 
 \AssertBox{\note{ocilla at S 203 ::stat: 2886}}{\InFootnote{Online Copyright
 Infringement Liability Limitation Act (OCILLA) \S~203, \emph{in} Digital
 Millennium Copyright Act, Pub.~L. No.~105-304, tit.~II, 112
 \textsc{Stat.}~2860, 2886 (1998).}}
 
-\noid
+\HiNoId
 
 \AssertBox{\note{ocilla}}{\InFootnote{OCILLA, 112 \textsc{Stat.}~at 2877.}}
-\noid
+\HiNoId
 
 \AssertBox{\note{ocilla at S 204 ::stat: 2887}}{\InFootnote{OCILLA
 \S~204, 112 \textsc{Stat.}~at 2887.}}
@@ -2299,7 +2199,7 @@ Limitation Act (``OCILLA'')}
 
 \AssertBox{\inline{ocilla at S 203}}{\S~203 of OCILLA}
 
-\fullcite{ocilla}
+\HiFullCite{ocilla}
 
 \AssertBox{\inline{dmca-sess}\note{ocilla at S 203 ::stat: 2886}}{the Digital Millennium Copyright Act\InFootnote{Online Copyright
 Infringement Liability Limitation Act (OCILLA) \S~203,
@@ -2370,7 +2270,7 @@ Infringement Liability Limitation Act (OCILLA) \S~203,
             }{}%
             \noexpand\hi@fn@congdoc{\hi@kv@number}%
             \hi@ifset\hi@kv@page{%
-                , \@format@page@macro\hi@kv@page
+                , \hi@fmt@page@macro\hi@kv@page
             }{}%
             \hi@maybepage{, \hi@page@atorsect}%
         }%
@@ -2395,7 +2295,7 @@ Infringement Liability Limitation Act (OCILLA) \S~203,
             }{}%
             \noexpand\hi@fn@congdoc{\reserved@a}%
             \hi@ifset\hi@kv@page{%
-                , \@format@page@macro\hi@kv@page
+                , \hi@fmt@page@macro\hi@kv@page
             }{}%
             \hi@maybepage{, \hi@page@atorsect}%
         }%
@@ -2441,7 +2341,7 @@ Infringement Liability Limitation Act (OCILLA) \S~203,
         \hi@citeguts{%
             \hi@usevol{\hi@ifset\hi@kv@vol{\hi@kv@vol\space}{}}%
             \noexpand\hi@fn@congdoc{\hi@kv@rep}\space
-            \hi@ifpage{\hi@maybepage{}}{\@format@page@macro\hi@kv@page}%
+            \hi@ifpage{\hi@maybepage{}}{\hi@fmt@page@macro\hi@kv@page}%
         }%
         \hi@book@paren
         \the\hi@param@parens
@@ -2708,7 +2608,7 @@ Cong.\ (as reported by S. Health, Education, Labor \& Pensions Comm., June 17,
 
 \AssertBox{\inline{mapia}}{MAPIA}
 
-\noid
+\HiNoId
 
 \AssertBox{\note{mapia at S 1}}{\InFootnote{%
 S. 2658, \textsection~1.%
@@ -3063,7 +2963,7 @@ in=johnston,
                 \hi@ifset\hi@kv@useissue{%
                     No.~\hi@kv@issue, at\space
                 }{}%
-                \@format@page@macro\hi@kv@page % First page
+                \hi@fmt@page@macro\hi@kv@page % First page
                 \hi@maybepage{, }% Pin cite page
             }%
         }%
@@ -3119,7 +3019,7 @@ in=johnston,
                 \noexpand\hi@fn@sig{in}\space
                 \hi@ifset\hi@kv@vol{\hi@kv@vol}{\hi@kv@year} % Volume
                 \noexpand\hi@fn@jrntitle{\hi@kv@rep}%
-                \hi@ifset\hi@kv@page{\space \@format@page@macro\hi@kv@page}{}%
+                \hi@ifset\hi@kv@page{\space \hi@fmt@page@macro\hi@kv@page}{}%
             }%
             \hi@ifset\hi@kv@vol{%
                 \ifx\hi@kv@vol\hi@kv@year\else
@@ -3144,7 +3044,7 @@ in=johnston,
 \hi@newcite{magart}{A magazine article}{other}{%
     \hi@abbrev@journal@check
     \hi@ifset\hi@kv@page{%
-        \protected@edef\hi@kv@page{\@format@page@macro\hi@kv@page}%
+        \protected@edef\hi@kv@page{\hi@fmt@page@macro\hi@kv@page}%
     }{}%
     \hi@newcite@form{fc}{#1}{%
         \hi@citeguts{%
@@ -3353,7 +3253,7 @@ Wiping out While Filming ``The Sound of Music},\emph{''} \textsc{Ent.\ Wkly.}\
             }{}%
             (\hi@kv@year)\space
             \hi@pageordefault{}{%
-                \@format@page@macro\hi@kv@page
+                \hi@fmt@page@macro\hi@kv@page
             }%
         }%
     }%
@@ -3367,7 +3267,7 @@ Wiping out While Filming ``The Sound of Music},\emph{''} \textsc{Ent.\ Wkly.}\
             }{}%
             (\hi@kv@year)\space
             \hi@pageordefault{}{%
-                \@format@page@macro\hi@kv@page
+                \hi@fmt@page@macro\hi@kv@page
             }%
         }%
         \the\hi@param@parens
@@ -3396,7 +3296,7 @@ Wiping out While Filming ``The Sound of Music},\emph{''} \textsc{Ent.\ Wkly.}\
                 % section.
                 \hi@ifset\hi@kv@rep{}{%
                     \hi@ifset\hi@kv@page{%
-                        , \@format@page@macro\hi@kv@page
+                        , \hi@fmt@page@macro\hi@kv@page
                     }{}%
                 }%
             }%
@@ -3404,7 +3304,7 @@ Wiping out While Filming ``The Sound of Music},\emph{''} \textsc{Ent.\ Wkly.}\
                 ,\space
                 \hi@ifset\hi@kv@vol{\hi@kv@vol\space}{}%
                 \noexpand\hi@fn@statute{\hi@kv@rep}\space
-                \@format@page@macro\hi@kv@page
+                \hi@fmt@page@macro\hi@kv@page
             }{}%
         }%
         \hi@ifset\hi@kv@name{%
@@ -3484,7 +3384,7 @@ Wiping out While Filming ``The Sound of Music},\emph{''} \textsc{Ent.\ Wkly.}\
                     \hi@ifset\hi@kv@vol{\hi@kv@vol\space}{}%
                     \noexpand\hi@fn@statute{\hi@kv@rep}%
                     \hi@ifset\hi@kv@page{%
-                        \space\@format@page@macro\hi@kv@page
+                        \space\hi@fmt@page@macro\hi@kv@page
                     }{}%
                 }{}%
             }%
@@ -3850,11 +3750,11 @@ atop the U.S. Capitol, at 10 (installed 1963) (front view).}}
 
 \AssertBox{\inline{freedom-statue}}{\emph{Statue of Freedom}}
 
-\noid
+\HiNoId
 
 \AssertBox{\note{freedom-statue}}{\InFootnote{Crawford.}}
 
-\noid
+\HiNoId
 
 \AssertBox{\note{freedom-statue at 15}}{\InFootnote{Crawford at 15.}}
 
@@ -3872,7 +3772,7 @@ paren=banana taped to wall,
 
 \AssertBox{\footnote{\inline{comedian}}}{\InFootnote{Cattelan}}
 
-\noid
+\HiNoId
 
 \AssertBox{\note{see also comedian at 15}}{\InFootnote{\emph{See also} Cattelan,
 \emph{supra} note \ComedianFootnote, at 15.}}
@@ -3959,7 +3859,7 @@ paren=banana taped to wall,
         \hi@ifset\hi@kv@page{%
             \noexpand\ifx\noexpand\@this@page\relax
                 \def\noexpand\@this@orig@page{\expandonce\hi@kv@page}%
-                \def\@this@page{\@format@page@macro\hi@kv@page}%
+                \def\@this@page{\hi@fmt@page@macro\hi@kv@page}%
             \noexpand\fi
         }{}%
     }%
@@ -3972,7 +3872,7 @@ paren=banana taped to wall,
             \noexpand\hi@pages@join{\expandonce\hi@kv@page}{##1}%
         }{%
             \noexpand\protected@edef\noexpand\@this@page{%
-                \noexpand\@format@pageno{##1}%
+                \noexpand\hi@fmt@pageno{##1}%
             }%
         }%
     }%
@@ -4002,7 +3902,7 @@ paren=banana taped to wall,
     }%
 }
 \hi@defparam{toacat}{Table of Authorities category for this citation}{%
-    \@expandarg\SetTOACategory\@this@case{#1}%
+    \@expandarg\HiSetTOACat\@this@case{#1}%
 }
 \hi@param@alias{comment}{paren}
 \hi@defparam{country}{Country for citation}{%
@@ -4025,7 +3925,7 @@ paren=banana taped to wall,
 \hi@newparam{kind}{Type of reference}
 \hi@newparam@noval{noetal}{No et al. with 3 or more authors}
 \hi@defparam@noval{notoa}{Do not include in the table of authorities}{%
-    \SetTOACategory{\@this@case}{}%
+    \HiSetTOACat{\@this@case}{}%
 }
 \hi@newparam{opturl}{Optional URL}
 \hi@defparam{origyear}{Year of original publication of the reference}{%
@@ -4099,12 +3999,29 @@ parallel=coke: 5 Coke 91a,
     1604).}%
 }
 
-\fullcite{semayne}
+\HiFullCite{semayne}
 
 \AssertBox{\note{semayne at 195 ::coke: 91b}}{%
     \InFootnote{Semayne's Case, 77 Eng.~Rep.~194, 195, 5 Coke 91a, 91b (K.B.
     1604).}%
 }
+
+\subsection{URLs and Perma.cc}
+
+\defbook{itc-centennial}{
+instauth=United States International Trade Commission,
+title=A Centennial History of the USITC,
+date=nov 2017,
+url=https://www.usitc.gov/publications/other/pub4744.pdf,
+permacc=https://perma.cc/EE2T-C7SZ,
+}
+
+\AssertBox{\note{itc-centennial at 129}}{%
+\InFootnote{\textsc{U.S. Int'l Trade Comm'n}, \textsc{A Centennial History of
+the USITC} 129 (Nov.~2017),
+\hbox{https}://\hbox{www}.\hbox{usitc}.\hbox{gov}/\hbox{publications}/%
+\hbox{other}/\hbox{pub4744}\hbox{.}\hbox{pdf}
+[https://\hbox{perma}.\hbox{cc}/\hbox{EE2T}-\hbox{C7SZ}].}}
 
 %%
 %% \iffalse filename: commparams.dtx \fi

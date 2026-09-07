@@ -36,20 +36,23 @@ system accepts for them, and the rules for formatting.
 Because of the diversity of types of legal document numbering systems, the data
 model and syntax for pin cites are fairly complex. For testing purposes, a
 writer may access the pin cite formatting algorithm using the command
-\DescribeMacro\PageNumber
-\cmd\PageNumber\marg{number}.
+\DescribeMacro\HiParsePin
+\cmd\HiParsePin\marg{number}.
 
 %</doc>
 %<*package>
+%    \begin{macrocode}
+\def\HiParsePin#1{\hi@fmt@pageno{#1}}
+%    \end{macrocode}
 %
-% \DescribeMacro\@format@page@macro
-% The internal formatting command is |\@format@pageno|, described below.
-% |\@format@page@macro|\marg{command} is a shortcut when the page number is in a
+%
+% \MacroSpec\hi@fmt@page@macro \marg{command}\\
+% A shortcut to call |\hi@fmt@pageno| when the page number is in a
 % command sequence.
 %
 %    \begin{macrocode}
-\def\PageNumber#1{\@format@pageno{#1}}
-\def\@format@page@macro#1{\expandafter\@format@pageno\expandafter{#1}}%
+\def\HiParsePin#1{\hi@fmt@pageno{#1}}
+\def\hi@fmt@page@macro#1{\expandafter\hi@fmt@pageno\expandafter{#1}}%
 %    \end{macrocode}
 %
 %</package>
@@ -82,12 +85,12 @@ The example would cite \textsection~12 of a statute, at page 783.
 % handler. Instead, they just drop the formatted text into the document
 % directly.
 %
-% \DescribeMacro\@format@pageno
-% \cmd\@format@pageno\marg{page} is the main entrypoint into the pin cite
+% \DescribeMacro\hi@fmt@pageno
+% \cmd\hi@fmt@pageno\marg{page} is the main entrypoint into the pin cite
 % formatting algorithm. It extracts the default segment to be processed.
 %
 %    \begin{macrocode}
-\def\@format@pageno#1{%
+\def\hi@fmt@pageno#1{%
     \find@in{ ::}{#1}{%
         \@tworun\hi@fpg@onesegment\@gobble
     }{\hi@fpg@onesegment{#1}}%
@@ -169,7 +172,7 @@ Here, the word ``to'' must be used to separate the ranges to avoid ambiguity.
     }%
 }
 \def\hi@fpg@to#1#2{%
-    \@format@pageno{#1} to \@format@pageno{#2}%
+    \hi@fmt@pageno{#1} to \hi@fmt@pageno{#2}%
 }
 %    \end{macrocode}
 %
@@ -993,7 +996,7 @@ that enable it.
     }{%
         \ifstrempty{#2}{\def\@this@orig@page{#1}}{\def\@this@orig@page{#2}}%
     }%
-    \protected@edef\@this@page{\@format@page@macro\@this@orig@page}%
+    \protected@edef\@this@page{\hi@fmt@page@macro\@this@orig@page}%
 }
 \make@find@start{/}
 \make@find@in{/}
@@ -1201,35 +1204,35 @@ command
 
 \subsection{Formatting}
 
-\AssertExpand{\@format@pageno{15}}{15}
-\AssertExpand{\@format@pageno{15,,,}}{15}
-\AssertExpand{\@format@pageno{15, 20}}{15, 20}
-\AssertExpand{\@format@pageno{15,,, 20}}{15, 20}
-\AssertExpand{\@format@pageno{15-20, 25-30}}{15--20, 25--30}
-\AssertExpand{\@format@pageno{115-120, 1425-1530}}{115--20, 1425--530}
-\AssertExpand{\@format@pageno{paragraph 15}}{para.~15}
-\AssertExpand{\@format@pageno{paragraphs 15}}{para.~15}
-\AssertExpand{\@format@pageno{paragraph 15-20}}{paras.~15--20}
-\AssertExpand{\@format@pageno{paragraph 15, 20}}{paras.~15, 20}
-\AssertExpand{\@format@pageno{paragraph 15, at 25-30}}{para.~15, at 25--30}
-\AssertExpand{\@format@pageno{paragraph 15/a1}}
+\AssertExpand{\hi@fmt@pageno{15}}{15}
+\AssertExpand{\hi@fmt@pageno{15,,,}}{15}
+\AssertExpand{\hi@fmt@pageno{15, 20}}{15, 20}
+\AssertExpand{\hi@fmt@pageno{15,,, 20}}{15, 20}
+\AssertExpand{\hi@fmt@pageno{15-20, 25-30}}{15--20, 25--30}
+\AssertExpand{\hi@fmt@pageno{115-120, 1425-1530}}{115--20, 1425--530}
+\AssertExpand{\hi@fmt@pageno{paragraph 15}}{para.~15}
+\AssertExpand{\hi@fmt@pageno{paragraphs 15}}{para.~15}
+\AssertExpand{\hi@fmt@pageno{paragraph 15-20}}{paras.~15--20}
+\AssertExpand{\hi@fmt@pageno{paragraph 15, 20}}{paras.~15, 20}
+\AssertExpand{\hi@fmt@pageno{paragraph 15, at 25-30}}{para.~15, at 25--30}
+\AssertExpand{\hi@fmt@pageno{paragraph 15/a1}}
     {para.~15(a)\hi@psize@penalty(1)}
-\AssertExpand{\@format@pageno{paragraph 15/a1, /a2}}
+\AssertExpand{\hi@fmt@pageno{paragraph 15/a1, /a2}}
     {para.~15(a)\hi@psize@penalty(1), (a)\hi@psize@penalty(2)}
-\AssertExpand{\@format@pageno{paragraph 15/a1-/2}}
+\AssertExpand{\hi@fmt@pageno{paragraph 15/a1-/2}}
     {para.~15(a)\hi@psize@penalty(1)--(2)}
-\AssertExpand{\@format@pageno{paragraph 15/a1, /a2-/3}}
+\AssertExpand{\hi@fmt@pageno{paragraph 15/a1, /a2-/3}}
     {para.~15(a)\hi@psize@penalty(1), (a)\hi@psize@penalty(2)--(3)}
-\AssertExpand{\@format@pageno{paragraph 15, table 4-5, at 36}}
+\AssertExpand{\hi@fmt@pageno{paragraph 15, table 4-5, at 36}}
     {para.~15, tbls.4--5, at 36}
-\AssertExpand{\@format@pageno{15 note 6}}{15 n.6}
-\AssertExpand{\@format@pageno{15 note 5, 6, 7}}{15 nn.5, 6 \& 7}
-\AssertExpand{\@format@pageno{15 & note 5, 6, 7}}{15 \& nn.5, 6 \& 7}
-\AssertExpand{\@format@pageno{S 5-6}}{\textsection\textsection~5--6}
-\AssertExpand{\@format@pageno{P 5-6}}{\textparagraph\textparagraph~5--6}
-\AssertExpand{\@format@pageno{-34/a}}{34(a)}
-\AssertExpand{\@format@pageno{!A5}}{\hi@pgnum@raw A5}
-\AssertExpand{\@format@pageno{*123-125}}{*123--25}
+\AssertExpand{\hi@fmt@pageno{15 note 6}}{15 n.6}
+\AssertExpand{\hi@fmt@pageno{15 note 5, 6, 7}}{15 nn.5, 6 \& 7}
+\AssertExpand{\hi@fmt@pageno{15 & note 5, 6, 7}}{15 \& nn.5, 6 \& 7}
+\AssertExpand{\hi@fmt@pageno{S 5-6}}{\textsection\textsection~5--6}
+\AssertExpand{\hi@fmt@pageno{P 5-6}}{\textparagraph\textparagraph~5--6}
+\AssertExpand{\hi@fmt@pageno{-34/a}}{34(a)}
+\AssertExpand{\hi@fmt@pageno{!A5}}{\hi@pgnum@raw A5}
+\AssertExpand{\hi@fmt@pageno{*123-125}}{*123--25}
 
 \subsection{Spacing}
 

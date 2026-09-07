@@ -26,7 +26,7 @@
                 \hi@name@only{\hi@kv@aname\hi@font@comma}%
                 \hi@ifset\hi@kv@rep{%
                     \hi@kv@vol\space \hi@kv@rep\space
-                    \@format@page@macro\hi@kv@page
+                    \hi@fmt@page@macro\hi@kv@page
                     \hi@maybepage{, }%
                 }{%
                     \hi@kv@docket % Docket number
@@ -49,7 +49,7 @@
             \hi@name@only{\@capnext\hi@kv@lname\unkern,\hfill\break}%
             \hi@ifset\hi@kv@rep{%
                 \hi@kv@vol\space\hi@kv@rep\space
-                \@format@page@macro\hi@kv@page
+                \hi@fmt@page@macro\hi@kv@page
                 \hi@maybepage{, }%
             }{%
                 \hi@kv@docket % Docket number
@@ -76,7 +76,7 @@
                 \hi@ifset\hi@kv@rep{%
                     \hi@kv@vol\space\hi@kv@rep\space %
                     \hi@ifpage{\hi@maybepage{\hi@page@atorsect}}{%
-                        \@format@page@macro\hi@kv@page
+                        \hi@fmt@page@macro\hi@kv@page
                     }%
                 }{%
                     \hi@ifset{\hi@kv@dbid}{\hi@kv@dbid}{\hi@kv@docket}%
@@ -814,9 +814,8 @@ syntax for those parameters is:
 \end{grammar}
 The \meta{phrase} is an explanatory phrase that will be abbreviated and also
 checked against a table of valid explanatory phrases. If a desired phrase is not
-already listed, the macro
-\DescribeMacro\ExplanatoryPhrase
-|\ExplanatoryPhrase|\marg{phrase[,]} is used. Note that the comma at the end of
+already listed, the macro |\HiExplPhrase| (\sec{abbrevs-expl})
+is used. Note that the comma at the end of
 the argument is significant, as some explanatory phrases use a comma and others
 do not.
 
@@ -1623,7 +1622,7 @@ subsequent=rehearing denied: unocal-cafc,
     2d 1208 (C.D. Cal.\ 1998), \emph{aff'd}{}, 208 F.3d 989 (Fed.\ Cir.\
     2000).}}
 
-\fullcite{unocal-cafc}
+\HiFullCite{unocal-cafc}
 
 \AssertBox{\tiny\note{unocal-rf-dct}}{%
     \tiny
@@ -1631,7 +1630,7 @@ subsequent=rehearing denied: unocal-cafc,
     2d 1208 (C.D. Cal.\ 1998), \emph{aff'd} \emph{sub nom.}\ Oil Co.\ v.\
     Atlantic, 208 F.3d 989 (Fed.\ Cir.\ 2000).}}
 
-\fullcite{unocal-cafc}
+\HiFullCite{unocal-cafc}
 
 \AssertBox{\tiny\note{unocal-rf-rd-dct}}{%
     \tiny

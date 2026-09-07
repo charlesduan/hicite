@@ -47,7 +47,7 @@ like \rtype{statsess} or \rtype{govdoc}, but it can be given for anything.
             #1
             \expandonce\hi@kv@vol \space
             \expandonce\hi@kv@rep \space
-            \expandafter\@format@pageno\expandafter{\hi@kv@page}%
+            \hi@fmt@page@macro\hi@kv@page
             \hi@ifset\hi@kv@year{ (\expandonce\hi@kv@year)}{}%
         }%
         \expandafter\hi@defkey@codified@\expandafter{\reserved@a}%

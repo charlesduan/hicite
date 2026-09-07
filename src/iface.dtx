@@ -3,14 +3,23 @@
 %%
 %<*doc>
 \input driver
-\thisis{iface}{Citation Forms and Commands}
+\thisis{iface}{Inserting Citations}
 
 Depending on grammatical context, a legal citation in a work will take on one of
-several forms. \hia* supports these different grammatical forms of citation by
+several types. \hia* supports these different grammatical types of citation by
 offering several citation commands in this section.
-\unskip\footnote{\hia* also produces a distinct citation form for tables of
-authorities, but writers do not use this citation form directly.} This section
-describes each citation form along with the command used to access the form.
+\unskip\footnote{\hia* also produces a distinct citation type for tables of
+authorities, but writers do not use this citation type directly.} This section
+describes each citation type along with the command used to access the type. The
+argument for these commands is generally a citation string as described in
+\sec{parse}.
+
+By design, the citation commmands and strings do not require the user to select
+between full and short citation forms. \hia* selects the form automatically, as
+described in \sec{state}. Commands for manipulating the citation form selected
+are given in \sec{state-manip}.
+
+For more concise citation command equivalents, see \sec{legacy-short}.
 
 %</doc>
 %<*package>
@@ -325,18 +334,16 @@ inline citation:
 
 The following commands produce inline citations. Any of them may be used in text
 or footnotes, regardless of the document type.
-\begin{itemize}
-\item \DescribeMacro\inline |\inline| makes a typical inline citation.
 
-\item \DescribeMacro\Inline |\Inline| capitalizes the first letter of the
-citation.
+\MacroSpec\inline Makes a typical inline citation, acting as a noun phrase.
 
-\item \DescribeMacro\adjective |\adjective| removes leading ``the'' from the
-citation text, making it amenable to use as an adjective in a sentence.
+\MacroSpec\Inline Capitalizes the first letter of the citation, to be used at
+the beginning of sentences.
 
-\item \DescribeMacro\Adjective |\Adjective| is like |\adjective| but capitalizes
-the first letter.
-\end{itemize}
+\MacroSpec\adjective Removes leading ``the'' from the citation text, making it
+amenable to use as an adjective in a sentence.
+
+\MacroSpec\Adjective Like |\adjective| but capitalizes the first letter.
 
 \hia*'s support for inline citations is the most comprehensive for cases and
 statutes, where there are reasonably well-defined conventions for how to form
@@ -391,7 +398,7 @@ Here, it is unambiguous that the \emph{Id.}\ does not refer to the constitution.
 \hia* implements this distinction by designating the inline forms of statutes,
 constitutions, and a few other references as ``invisible'' to the
 \emph{id.}~citation algorithm. This behavior can be overridden by using the
-|\noid| command.
+|\HiNoId| command (see \sec{state-manip}).
 
 
 
@@ -699,13 +706,14 @@ common enough style that I provide it as an option.}
 %<*doc>
 
 
-\subsection{Miscellaneous Commands}
+\subsection{Formatted Text Commands}
 
 \label{s:iface-misc}
 
-A few additional commands are defined here.
+A few additional commands are provided for inserting formatted text, unrelated
+to citations, in accordance with legal citation standards.
 
-\DescribeMacro\textellipsis
+\MacroSpec\textellipsis
 Ellipses in legal documents are idiosyncratic, using full spaces between dots.
 The package redefines ellipses in \LaTeX\ to conform.
 
@@ -755,86 +763,17 @@ The package redefines ellipses in \LaTeX\ to conform.
 %</package>
 %<*doc>
 
-\DescribeMacro{\sic}
-The |\sic!| command inserts a properly formatted [\emph{sic}] into text. The
-exclamation point deals with \TeX\ spacing issues.
+\MacroSpec{{\HiSic!}}
+Inserts a properly formatted [\emph{sic}] into text. (The exclamation point
+after the macro is mandatory; it avoids the space issue after the macro.) The
+latin font selected (see \sec{fonts}) is used. The
+alternative \DescribeMacro\sic|\sic| is given as a ``legacy'' alternative.
 
 %</doc>
 %<*package>
 %    \begin{macrocode}
-\def\sic!{[\emph{sic}]}
+\def\HiSic!{[\emph{sic}]}
 %    \end{macrocode}
 %</package>
 %<*doc>
 
-Several macros affect memory of citation state to change what forms of citations
-will be produced.
-
-\MacroSpec\noid
-Informs the package not to use \emph{id.}\ for the next
-citation, by resetting memory of the last reference cited.
-
-\MacroSpec\fullcite \marg{ref} Informs the package to produce a
-full citation of \meta{ref} by resetting memory of that reference's use.
-
-\MacroSpec\nofullcite
-\marg{ref} Cites \meta{ref} without
-displaying anything, so that the next citation to that reference is a short
-form.
-
-\MacroSpec\fulltitle\marg{ref}
-Resets memory of the last statutory title
-cited.
-
-\MacroSpec\addtotoa\marg{ref}
-Adds \meta{ref} to the table of authorities
-without producing any citation text.
-
-%
-%</doc>
-%<*package>
-%    \begin{macrocode}
-\def\hi@noid{%
-    \let\@last@case\relax\let\@last@page\relax\let\@last@vol\relax
-    \let\@last@title\relax
-}
-\let\noid\hi@noid
-\def\fullcite#1{%
-    \global\expandafter\let\csname dfc@#1\endcsname\relax
-    \global\expandafter\let\csname dfi@#1\endcsname\relax
-    \noid
-}
-\def\nofullcite#1{\hi@record@cite{#1}}
-\def\fulltitle{\let\@this@title\relax}
-\def\addtotoa#1#2{\@bsphack\hi@addtotoa{#1}{#2}\@esphack}
-%    \end{macrocode}
-%</package>
-%<*doc>
-
-\subsection{Shorter Commands}
-
-The following are synonyms to the citation commands thus described.
-
-\MacroSpec\Ct Synonym for |\sentence|.
-
-\MacroSpec\ct Synonym for |\clause|.
-
-\MacroSpec\Ci Synonym for |\Inline|.
-
-\MacroSpec\ci Synonym for |\inline|.
-
-\MacroSpec\cn Synonym for |\note|.
-
-\MacroSpec\cx Synonym for |\addtotoa|.
-
-%</doc>
-%<*package>
-\newcommand\Ct{\sentence}
-\newcommand\ct{\clause}
-\newcommand\Ci{\Inline}
-\newcommand\ci{\inline}
-\newcommand\cn{\note}
-\newcommand\cx{\addtotoa}
-%</package>
-%
-%

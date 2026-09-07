@@ -119,7 +119,7 @@ into the above categories.
             }{}%
             \noexpand\hi@fn@congdoc{\hi@kv@number}%
             \hi@ifset\hi@kv@page{%
-                , \@format@page@macro\hi@kv@page
+                , \hi@fmt@page@macro\hi@kv@page
             }{}%
             \hi@maybepage{, \hi@page@atorsect}%
         }%
@@ -144,7 +144,7 @@ into the above categories.
             }{}%
             \noexpand\hi@fn@congdoc{\reserved@a}%
             \hi@ifset\hi@kv@page{%
-                , \@format@page@macro\hi@kv@page
+                , \hi@fmt@page@macro\hi@kv@page
             }{}%
             \hi@maybepage{, \hi@page@atorsect}%
         }%
@@ -265,7 +265,7 @@ This is essentially a more structured citation to a book.
         \hi@citeguts{%
             \hi@usevol{\hi@ifset\hi@kv@vol{\hi@kv@vol\space}{}}%
             \noexpand\hi@fn@congdoc{\hi@kv@rep}\space
-            \hi@ifpage{\hi@maybepage{}}{\@format@page@macro\hi@kv@page}%
+            \hi@ifpage{\hi@maybepage{}}{\hi@fmt@page@macro\hi@kv@page}%
         }%
         \hi@book@paren
         \the\hi@param@parens
@@ -348,7 +348,7 @@ edition. The date should be given as the optional argument:
         \hi@parens@add\hi@paren@date{\@expandarg\hi@date@parse\@this@opt}%
     \fi
 }
-\SetTOACategory{cr}{other}
+\HiSetTOACat{cr}{other}
 %    \end{macrocode}
 %</package>
 \hi@newcite{hearing}{A hearing in Congress}{other}{%
@@ -812,7 +812,7 @@ Cong.\ (as reported by S. Health, Education, Labor \& Pensions Comm., June 17,
 
 \AssertBox{\inline{mapia}}{MAPIA}
 
-\noid
+\HiNoId
 
 \AssertBox{\note{mapia at S 1}}{\InFootnote{%
 S. 2658, \textsection~1.%

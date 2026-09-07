@@ -1,0 +1,122 @@
+%%
+%% \iffalse filename: legacy.dtx \fi
+%%
+%<*doc>
+\input driver
+\thisis{legacy}{Legacy Command Names}
+
+The following are legacy macro names that have been changed to conform to
+\hia*'s naming convention of starting user-level macros with the prefix |\Hi|.
+By default, they will be defined only if they are not previously defined by
+another package, but a warning will be issued if another package has defined
+them. The options \opt{legacy} and \opt{nolegacy} affect this behavior.
+
+%</doc>
+%<*package>
+%
+% \MacroSpec\hi@legacy@cmd\marg{legacy}\marg{canonical}\marg{xref}\\
+% Defines \meta{legacy} to execute \marg{canonical}, after checking whether
+% \meta{legacy} exists. The \meta{xref} is used only for manual display
+% purposes.
+%
+%    \begin{macrocode}
+\def\hi@legacy@cmd#1#2#3{%
+    \hi@legacy@chk#1{%
+        \def#1{#2}% Rather than \let, in case macro is redefined later
+    }%
+}
+%    \end{macrocode}
+%
+% \MacroSpec\hi@legacy@chk\marg{legacy}\marg{if-true}\\
+% Checks whether \meta{legacy} ought to be defined. If so, then run
+% \meta{if-true}. By default, the test is whether \meta{legacy} is already
+% defined, and a warning is issued. Package options change this.
+%
+%    \begin{macrocode}
+\def\hi@legacy@chk#1#2{%
+    \ifdefined#1%
+        \ifx#1\relax
+            #2
+        \else
+            \PackageWarning\hi@pkgname{%
+                Legacy command \string#1\space already defined; not overwriting%
+            }%
+        \fi
+    \else
+        #2%
+    \fi
+}
+%    \end{macrocode}
+%
+%</package>
+%<*doc>
+
+\def\hi@legacy@cmd#1#2#3{%
+    \texttt{\string#1}& \texttt{\string#2}& \sec{#3}\\
+}
+
+\begin{demo}
+\begin{tabular}{lll}
+\textbf{Legacy name} & \textbf{New Name} & \textbf{See}\\
+\hline
+%</doc>
+%<*doc|package>
+\hi@legacy@cmd\sic              \HiSic          {iface-misc}
+\hi@legacy@cmd\PageNumber       \HiParsePin     {pages}
+\hi@legacy@cmd\AuthorityTag     \HiTOATag       {toa-tag}
+\hi@legacy@cmd\enabletoa        \HiEnableTOA    {toa}
+\hi@legacy@cmd\disabletoa       \HiDisableTOA   {toa}
+\hi@legacy@cmd\NewTOACategory   \HiNewTOACat    {toa-categories}
+\hi@legacy@cmd\SetTOACategory   \HiSetTOACat    {toa-set}
+\hi@legacy@cmd\DefaultTOACategory \HiDefaultTOACat {toa-set}
+\hi@legacy@cmd\addtotoa         \HiAddToTOA     {toa-index}
+\hi@legacy@cmd\StarCount        \HiStarCount    {toa-star}
+\hi@legacy@cmd\StarText         \HiStarText     {toa-star}
+\hi@legacy@cmd\StarMark         \HiStarMark     {toa-star}
+\hi@legacy@cmd\toaheading       \HiTOAHeading   {toa-show}
+\hi@legacy@cmd\AuthorityTable   \HiTOATable     {toa-show}
+\hi@legacy@cmd\TOALeader        \HiTOALeader    {toa-show}
+\hi@legacy@cmd\toacite          \HiTOACite      {toa-show}
+\hi@legacy@cmd\toaskip          \HiTOASkip      {toa-show}
+\hi@legacy@cmd\PassimText       \HiTOAPassim    {toa-show}
+\hi@legacy@cmd\toahangindentlen \HiTOAIndent    {toa-show}
+\hi@legacy@cmd\AbbreviateFor    \HiAbbrev       {abbrevs}
+\hi@legacy@cmd\ExplanatoryPhrase \HiExplPhrase  {abbrevs-expl}
+\hi@legacy@cmd\MakeFontPack     \HiFontPack     {fonts-pack}
+\hi@legacy@cmd\UseFontPack      \HiUseFontPack  {fonts-pack}
+\hi@legacy@cmd\UseFontFor       \HiFont         {fonts-use}
+\hi@legacy@cmd\noid             \HiNoId         {state-manip}
+\hi@legacy@cmd\fullcite         \HiFullCite     {state-manip}
+\hi@legacy@cmd\nofullcite       \HiNoFullCite   {state-manip}
+\hi@legacy@cmd\fulltitle        \HiFullTitle    {state-manip}
+\hi@legacy@cmd\resetcitationforms \HiResetState {state-manip}
+\hi@legacy@cmd\ShowCitationState \HiShowState   {state-short}
+\hi@legacy@cmd\EndnoteText      \HiEndNote      {endnotes}
+\hi@legacy@cmd\EndnoteTextDelayed \HiENDelay    {endnotes}
+\hi@legacy@cmd\SectionNote      \HiENSection    {endnotes}
+\hi@legacy@cmd\EndnoteFont      \HiENFont       {endnotes}
+%</doc|package>
+%<*doc>
+\end{tabular}
+\end{demo}
+
+\paragraph{Citation Command Shortcuts}
+\label{s:legacy-short}
+The following are not ``legacy'' commands but rather are shortcuts for the
+citation commands described in \sec{iface}.
+
+\begin{demo}
+\begin{tabular}{lll}
+\textbf{Shortcut name} & \textbf{Full Name} & \textbf{See}\\
+%</doc>
+%<*doc|package>
+\hi@legacy@cmd\Ct       \sentence       {iface}
+\hi@legacy@cmd\ct       \clause         {iface}
+\hi@legacy@cmd\Ci       \Inline         {iface}
+\hi@legacy@cmd\ci       \inline         {iface}
+\hi@legacy@cmd\cn       \note           {iface}
+\hi@legacy@cmd\cx       \HiAddToTOA     {iface}
+%</doc|package>
+%<*doc>
+\end{tabular}
+\end{demo}

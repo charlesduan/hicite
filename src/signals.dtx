@@ -16,7 +16,7 @@ background reading. Signals introduce a great deal of expressiveness into a
 system of legal citation, enabling writers to compactly distill a complete
 literature into a single citation string.
 
-\subsection{Data Model (List of Signals)}
+\subsection{List of Signals}
 
 %</doc>
 %
@@ -103,7 +103,7 @@ background. Here are all the signals available, along with their classes.
 \end{tabular}
 \end{demo}
 
-\subsection{Input Syntax}
+\subsection{Entering Signals in Citation Strings}
 
 As described in \sec{parse}, the signal for a citation
 item is placed at the beginning of the input text for the citation item, in all
@@ -139,7 +139,9 @@ signal for the writer to insert in the appropriate place in a citation string.
 
 \subsection{Formatting}
 
-There are four matters to be handled with respect to formatting of signals.
+There are four matters to be handled with respect to formatting of signals. All
+of these are handled automatically by \hia*.
+
 \begin{enumerate}
 \item The citation must be formatted with the correct fonts.
 
@@ -158,6 +160,13 @@ displayed on the first use.
 \item In a series of citation items with contrary-class signals, the word
 ``but'' is omitted from all but the first negative signal.
 \end{enumerate}
+
+Many legal citation systems prescribe an order in which signals are to be given
+within a citation string. \hia* does not mandate any ordering or reorder
+references within a citation string. Rather, it applies the above rules in view
+of whatever order the signals are written in the citation string. This affords
+users greater flexibility in using ordering and signals within a citation string
+to express a desired argument.
 
 %</doc>
 %<*package>

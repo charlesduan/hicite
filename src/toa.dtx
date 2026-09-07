@@ -13,9 +13,9 @@ complete, correct, and properly formatted Tables of Authorities.
 The table is generated using \LaTeX's auxiliary file feature. Citations generate
 index lines that are written to a |\jobname.toa| file, and those lines are read,
 sorted, and formatted to produce the table. Indexing can be disabled with
-\DescribeMacro\enabletoa
-\DescribeMacro\disabletoa
-|\disabletoa| and enabled with |\enabletoa|.
+\DescribeMacro\HiEnableTOA
+\DescribeMacro\HiDisableTOA
+|\HiDisableTOA| and enabled with |\HiEnableTOA|.
 
 A Table of Authorities is a complex structure, because it is typically sorted
 into sections based on reference types. This section describes how references
@@ -27,8 +27,8 @@ the tables are displayed, and finally how the table is formatted.
 %    \begin{macrocode}
 \newif\if@hi@in@toa
 \newif\if@hi@toa@disabled
-\let\disabletoa\@hi@toa@disabledtrue
-\let\enabletoa\@hi@toa@disabledfalse
+\def\HiDisableTOA{\@hi@toa@disabledtrue}
+\def\HiEnableTOA{\@hi@toa@disabledfalse}
 %    \end{macrocode}
 %</package>
 %<*doc>
@@ -40,7 +40,7 @@ the tables are displayed, and finally how the table is formatted.
 Each reference type is associated with a category, used to organize the
 Table of Authorities.
 The category can be altered using the reference
-definition parameter \param{toacat} or by the |\SetTOACategory| macro.
+definition parameter \param{toacat} or by the |\HiSetTOACat| macro.
 The categories are used to assemble the headings for the table.
 
 Specifically, every category has three properties:
@@ -63,8 +63,8 @@ the textual description consists of two to three parts, separated by slashes:
 \end{enumerate}
 \end{enumerate}
 
-\DescribeMacro\NewTOACategory
-A new TOA category may be defined with |\NewTOACategory|. The macro takes
+\MacroSpec\HiNewTOACat\marg{name}\marg{supercat}\meta{text}\meta{include?}\\
+Defines a new TOA category. The macro takes
 four parameters, the first three corresponding to the three properties of
 categories above, and the last (being ``Y'' or ``N'') indicating whether to
 include the supercategory in the default table of authorities.
@@ -77,7 +77,7 @@ include the supercategory in the default table of authorities.
 % the order in which they should appear in the TOA heading.
 %
 %    \begin{macrocode}
-\def\NewTOACategory#1#2#3#4{%
+\def\HiNewTOACat#1#2#3#4{%
     \@namedef{hi@cats@#1}{#2:#3}%
     \ifx#4Y%
         \AddToList{hi@toacat@supercats}{#2}%
@@ -86,14 +86,16 @@ include the supercategory in the default table of authorities.
 %    \end{macrocode}
 %
 %
-% \subsubsection{Setting and Getting Categories}
-%
 %</package>
 %<*doc>
 
-\DescribeMacro\DefaultTOACategory
+\subsubsection{Setting and Getting Categories}
+
+\label{s:toa-set}
+
+\MacroSpec\HiDefaultTOACat
 Each reference type may have a default category, set with the
-|\DefaultTOACategory| macro. The parameters are \#1 the reference type, and
+|\HiDefaultTOACat| macro. The parameters are \#1 the reference type, and
 \#2 the category name. If the category name is blank, then there will be no
 default category. This default category will be used unless another category
 is specified for a particular reference, overriding the default category.
@@ -101,7 +103,7 @@ is specified for a particular reference, overriding the default category.
 %</doc>
 %<*package>
 %    \begin{macrocode}
-\def\DefaultTOACategory#1#2{%
+\def\HiDefaultTOACat#1#2{%
     \ifstrempty{#2}{%
         \cslet{hi@catd@#1}\relax
     }{%
@@ -109,7 +111,7 @@ is specified for a particular reference, overriding the default category.
             \PackageError\hi@pkgname{%
                 TOA category #2 does not exist, in setting the\MessageBreak
                 default for reference type #1%
-            }{Define TOA category #2 first with \string\NewTOACategory}%
+            }{Define TOA category #2 first with \string\HiNewTOACat}%
         }{%
             \@namedef{hi@catd@#1}{#2}%
         }%
@@ -119,8 +121,9 @@ is specified for a particular reference, overriding the default category.
 %</package>
 %<*doc>
 
-\DescribeMacro\SetTOACategory
-The |\SetTOACategory|\marg{reference}\marg{category} macro sets the TOA
+\MacroSpec\HiSetTOACat
+\marg{reference}\marg{category} \\
+Sets the TOA
 category for \meta{reference}. This macro should be called within the
 reference definer macros to set the category, or it is invoked by the
 \param{toacat} parameter. If it is called multiple times, then the last
@@ -132,7 +135,7 @@ will be removed.
 %<*package>
 %
 %    \begin{macrocode}
-\def\SetTOACategory#1#2{%
+\def\HiSetTOACat#1#2{%
     \ifstrempty{#2}{%
         \global\cslet{hi@cat@#1}\relax
     }{%
@@ -182,7 +185,7 @@ will be removed.
 \def\hi@toacat@setdefault#1#2{%
     \@ifundefined{hi@cat@#1}{%
         \@ifundefined{hi@catd@#2}{}{%
-            \SetTOACategory{#1}{\csname hi@catd@#2\endcsname}%
+            \HiSetTOACat{#1}{\csname hi@catd@#2\endcsname}%
         }%
     }{}%
 }
@@ -218,22 +221,22 @@ supercategory names are never displayed, any new supercategories can be named to
 fit into the existing ordering.
 
 \begin{demo}
-\def\NewTOACategory#1#2#3#4{#1&#2&#3&#4\\}
+\def\HiNewTOACat#1#2#3#4{#1&#2&#3&#4\\}
 \begin{tabular}{llll}
 \textbf{Category} & \textbf{Supercat.} & \textbf{Text} & \textbf{In TOA?} \\
 \hline
 %</doc>
 %<*doc|package>
-\NewTOACategory{other}{other}{Other Source/s}{Y}
-\NewTOACategory{const}{const}{Constitutional Provision/s}{Y}
-\NewTOACategory{found}{const}{Foundational Document/s}{Y}
-\NewTOACategory{statute}{edict}{Statute/s}{Y}
-\NewTOACategory{regulation}{edict}{Regulation/s}{Y}
-\NewTOACategory{rule}{edict}{Rule/s}{Y}
-\NewTOACategory{case}{case}{Case/s}{Y}
-\NewTOACategory{admin}{case}{Administrative Decision/s}{Y}
-\NewTOACategory{treaty}{edict}{Treat/y/ies}{Y}
-\NewTOACategory{abbrev}{abbrev}{Abbreviation/s}{N}
+\HiNewTOACat{other}{other}{Other Source/s}{Y}
+\HiNewTOACat{const}{const}{Constitutional Provision/s}{Y}
+\HiNewTOACat{found}{const}{Foundational Document/s}{Y}
+\HiNewTOACat{statute}{edict}{Statute/s}{Y}
+\HiNewTOACat{regulation}{edict}{Regulation/s}{Y}
+\HiNewTOACat{rule}{edict}{Rule/s}{Y}
+\HiNewTOACat{case}{case}{Case/s}{Y}
+\HiNewTOACat{admin}{case}{Administrative Decision/s}{Y}
+\HiNewTOACat{treaty}{edict}{Treat/y/ies}{Y}
+\HiNewTOACat{abbrev}{abbrev}{Abbreviation/s}{N}
 %</doc|package>
 %<*doc>
 \end{tabular}
@@ -287,30 +290,30 @@ parameter, or set the \param{toacat} parameter to blank.
 \textbf{Place all references of a given type in a different part of the
 TOA} (e.g., treat \rtype{modelcode} references like statutes): Use
 \begin{grammar}
-|\DefaultTOACategory|\marg{type}\marg{category}
+|\HiDefaultTOACat|\marg{type}\marg{category}
 \Example
-|\DefaultTOACategory{modelcode}{statute}|
+|\HiDefaultTOACat{modelcode}{statute}|
 \end{grammar}
 where \meta{category} is chosen from the table above.
 
 \textbf{Add a new TOA section} (e.g., put \rtype{film} references in their
 own section): Use 
 \begin{grammar}
-|\NewTOACategory|\marg{category}\marg{super}\marg{text}|{Y}|
-|\DefaultTOACategory|\marg{type}\marg{category}
+|\HiNewTOACat|\marg{category}\marg{super}\marg{text}|{Y}|
+|\HiDefaultTOACat|\marg{type}\marg{category}
 \Example
-|\NewTOACategory{m}{movies}{Motion Picture/s}{Y}| \\
-|\DefaultTOACategory{film}{m}|
+|\HiNewTOACat{m}{movies}{Motion Picture/s}{Y}| \\
+|\HiDefaultTOACat{film}{m}|
 \end{grammar}
 where \meta{category} and \meta{super} are new names (not in the above table), and \meta{text} is the text of the heading.
 
 \textbf{Add a new type to an existing TOA section} (e.g., add ``Model
 Code'' to Statutes and Regulations): Use
 \begin{grammar}
-|\NewTOACategory|\marg{category}\marg{super}\marg{text}|{Y}| \\
-|\DefaultTOACategory|\marg{type}\marg{category}
-\Example |\NewTOACategory{mc}{edict}{Model Code/s}{Y}| \\
-|\DefaultTOACategory{modelcode}{mc}|
+|\HiNewTOACat|\marg{category}\marg{super}\marg{text}|{Y}| \\
+|\HiDefaultTOACat|\marg{type}\marg{category}
+\Example |\HiNewTOACat{mc}{edict}{Model Code/s}{Y}| \\
+|\HiDefaultTOACat{modelcode}{mc}|
 \end{grammar}
 where \meta{category} is a new name (not in the above table), \marg{super} is
 the supercategory name corresponding to the existing TOA section,
@@ -318,9 +321,11 @@ and \meta{text} is the text of the heading.
 
 \subsection{Indexing References}
 
+\label{s:toa-index}
+
 References are indexed for the Table of Authorities upon every citation, by
 having entries added to the |\jobname.toa| file automatically for each citation
-command. The command |\addtotoa| described in \sec{iface} can also add an entry
+command. The command |\AddToTOA| described below can also add an entry
 manually.
 
 An interesting challenge for indexing is that, especially for briefs, references
@@ -345,8 +350,15 @@ structure comprising a supercategory name and a textual heading name
 \sec{toa-categories}).
 \end{enumerate}
 
+
+\MacroSpec\HiAddToTOA\marg{ref} \\
+Adds \meta{ref} to the table of authorities without producing any citation text.
+
 %</doc>
 %<*package>
+%    \begin{macrocode}
+\def\HiAddToToa#1#2{\@bsphack\hi@addtotoa{#1}{#2}\@esphack}
+%    \end{macrocode}
 %
 %
 % Proposes adding a reference for indexing in the table of authorities. \#1 is
@@ -429,6 +441,7 @@ that reference.
 %    \begin{macrocode}
 \def\hi@setuptoa{%
     \@hi@in@toatrue
+    \hi@noid
     \global\let\@last@toatitle\relax
     \hi@toa@counter\z@
     \@input{\jobname.toa}%
@@ -652,11 +665,14 @@ marked as plural.
 %<*doc>
 
 \paragraph{Location-Based Lists}
+\label{s:toa-tag}
+
 It may be desirable to prepare a chapter-by-chapter bibliography, such that
-references are tagged not by type but by location in the document. The macro
-\DescribeMacro\AuthorityTag
-|\AuthorityTag|\marg{tag} will tag all subsequent references cited with the
-given \meta{tag}, which can then be used as a list of the Table of Authorities.
+references are tagged not by type but by location in the document.
+
+\MacroSpec\HiTOATag \marg{tag} \\
+Indicate that all subsequent references cited should be tagged with \meta{tag},
+which can then be used as a list of the Table of Authorities.
 
 %</doc>
 %<*package>
@@ -664,7 +680,7 @@ given \meta{tag}, which can then be used as a list of the Table of Authorities.
 % The current location tag is stored in |\hi@toa@locationtag|.
 %
 %    \begin{macrocode}
-\def\AuthorityTag#1{%
+\def\HiTOATag#1{%
     \def\hi@toa@locationtag{#1}%
 }
 \let\hi@toa@locationtag\relax
@@ -791,18 +807,18 @@ number listing and revising the last element of that listing as necessary.
 \make@find@in{:}
 % \#1 is the page list, \#2 is the callback.
 \def\hi@toa@usepg@passim#1#2{%
-    \@test \ifnum\c@passimnum>\z@ \fi{%
+    \@test \ifnum\HiTOAPassimNum>\z@ \fi{%
         \hi@toa@usepg@passim@{1}#1, \@stop{#1}{#2}%
     }{#2{#1}}%
 }
 \def\hi@toa@usepg@passim@#1#2, #3\@stop#4#5{%
-    \@test \ifnum#1<\c@passimnum \fi{%
+    \@test \ifnum#1<\HiTOAPassimNum \fi{%
         \ifstrempty{#3}{#5{#4}}{%
             \@expandarg\hi@toa@usepg@passim@{%
                 \number\numexpr#1+1\relax
             }#3\@stop{#4}{#5}%
         }%
-    }{#5{\PassimText}}%
+    }{#5{\HiTOAPassim}}%
 }
 %    \end{macrocode}
 %
@@ -841,18 +857,20 @@ Some courts ask litigants to insert asterisks in the Table of Authorities before
 references that they rely most heavily on. This can be done automatically by
 counting the number of times each reference has been used.
 
-\DescribeMacro\StarCount
-The macro |\StarCount|\marg{num} sets the minimum number of uses of a reference
+\MacroSpec\HiStarCount \marg{num} \\
+Sets the minimum number of uses of a reference
 before that reference receives a star. The package option \opt{toastar} sets the
 value to 4. By default it is zero, in which case no stars are displayed.
 
-\DescribeMacro\StarText
-The macro |\StarText| can be defined as text to place at the beginning of the
+\DescribeMacro\HiStarText
+This macro may be redefined with text to place at the beginning of the
 Table of Authorities explaining the stars.
 
-\DescribeMacro\StarMark
-The macro |\StarMark| is the actual text of the star; it will be added before
-the relevant TOA entries via |\everypar|.
+\DescribeMacro\HiStarMark
+The macro |\HiStarMark| may be redefined to specify the content of the star
+(by default an asterisk). It will be added before the relevant TOA entries via
+|\everypar|, so it probably should be an |\llap| box so as not to affect the
+alignment.
 
 %</doc>
 %<*package>
@@ -866,28 +884,30 @@ the relevant TOA entries via |\everypar|.
 \def\hi@toa@star#1{%
     \ifnum\hi@toa@starcount>\z@
         \ifnum\hi@toa@refcount{#1}\@iden<\hi@toa@starcount\else
-            \everypar{\StarMark\everypar{}}%
+            \everypar{\HiStarMark\everypar{}}%
         \fi
     \fi
 }
-\def\StarCount#1{\hi@toa@starcount=#1\relax}
-\def\StarText{%
+\def\HiStarCount#1{\hi@toa@starcount=#1\relax}
+\def\HiStarText{%
     Authorities upon which this brief primarily relies are indicated with
     asterisks in the margin.\par
 }
-\def\StarMark{\llap{* }}
+\def\HiStarMark{\llap{* }}
 %    \end{macrocode}
 %</package>
 %<*doc>
 
 \subsection{Showing the Table}
+\label{s:toa-show}
 
 \DescribeMacro\tableofauthorities
 The Table of Authorities is produced by calling |\tableofauthorities|. This will
-create one section for each reference category as described in \sec{refs}. Each
-heading will be created using whatever
-\DescribeMacro\toaheading
-|\toaheading| is defined as.
+create one section for each reference category as described in \sec{refs}.
+
+\MacroSpec\HiTOAHeading\marg{text}
+This macro may be redefined to specify how to format a heading within the table
+of authorities.
 
 %</doc>
 %<*package>
@@ -895,54 +915,47 @@ heading will be created using whatever
 %    \begin{macrocode}
 \def\tableofauthorities{%
     \ifnum\hi@toa@starcount>\z@
-        \StarText
+        \HiStarText
     \fi
     \begingroup
         \hi@toacat@each{%
-            \AuthorityTable[%
-                \toaheading{\hi@toa@headlist@show{##1}}\par
-                \ifdim\lastskip<\toaskip
+            \HiTOATable[%
+                \HiTOAHeading{\hi@toa@headlist@show{##1}}\par
+                \ifdim\lastskip<\HiTOASkip
                     \vskip-\lastskip
                 \else
-                    \vskip-\toaskip
+                    \vskip-\HiTOASkip
                 \fi
                 \parindent\z@
-                \parskip=\toaskip
+                \parskip=\HiTOASkip
             ]{##1}%
         }%
     \endgroup
 }
-\def\toaheading{\section*}
+\def\HiTOAHeading{\section*}
 %    \end{macrocode}
 %</package>
 %<*doc>
 
-\DescribeMacro\AuthorityTable
-Alternately, the macro
-|\AuthorityTable|\oarg{heading-text}\marg{list-name} will produce a single Table
-of Authorities list. This can be used for more fine-grained control over what
-tables are displayed.
+\MacroSpec\HiTOATable\oarg{heading-text}\marg{list-name}
+Typesets a single Table of Authorities section based on the authorities in
+\meta{list-name}, with a heading \meta{heading-text}. This macro can be used as
+an alternative to |\tableofauthorities| to provide more fine-grained control
+over which tables are emitted.
 
 %</doc>
 %<*package>
-%
-% \#1 is optional text to be displayed before the table if the table has any
-% content. \#2 is the table name.
-%
 %    \begin{macrocode}
-\newcommand\AuthorityTable[2][]{%
+\newcommand\HiTOATable[2][]{%
     \hi@setuptoa
-    \@hi@in@toatrue
-    \noid
     \IfKnownList{hi@toa@#2}{\IfEmptyList{hi@toa@#2}{}{%
         #1%
         \ShowList{hi@toa@#2}{%
             \global\let\@this@toatitle\relax
-            \hi@toa@usepg{##1}{\@toaline{\hi@toa@star{##1}\toacite{##1}}}%
+            \hi@toa@usepg{##1}{\hi@toaline{\hi@toa@star{##1}\HiTOACite{##1}}}%
             \global\let\@last@toatitle\@this@toatitle
         }%
     }}{}%
-    \@hi@in@toafalse
 }
 %    \end{macrocode}
 %
@@ -951,10 +964,10 @@ tables are displayed.
 % the reference citation, \#2 the page number aggregate.
 %
 %    \begin{macrocode}
-\def\@toaline#1#2{%
+\def\hi@toaline#1#2{%
     {\hi@toa@par@settings
     #1\nobreak
-    \TOALeader
+    \HiTOALeader
     \nobreak
     {\normalfont \normalcolor \hi@toa@brkpg{#2}}%
     \par}%
@@ -970,31 +983,45 @@ tables are displayed.
     % gets messed up on occasion due to space stretching.
     \rightskip=1\rightskip plus .1\hsize
     \parfillskip -\rightskip
-    \hangindent\toahangindentlen\relax
+    \hangindent\HiTOAIndent\relax
     \parindent \z@\@afterindenttrue
     \interlinepenalty\@M
 }
 %    \end{macrocode}
 %
-% \DescribeMacro\TOALeader
-% Inserts the dots for TOA entries.
-%
+%</package>
+%<*doc>
+
+\MacroSpec\HiTOALeader
+Produces the dots for TOA entries, between the reference text and the page
+numbers. This macro may be redefined to change the appearance of the dots.
+
+%</doc>
+%<*package>
 %    \begin{macrocode}
-\def\TOALeader{%
+\def\HiTOALeader{%
     \leaders\hbox{%
         $\m@th \mkern \@dotsep mu\hbox{.}\mkern \@dotsep mu$%
     }\hskip 2em \@plus 1fill \@minus 0.5em
 }
 %    \end{macrocode}
 %
-%
-% Displays a single entry in the Table of Authorities. This is essentially
-% another citation command like |\sentence| except it invokes less overhead
-% because there is no punctuation at the end of the entry to check.
-%
+%</package>
+%<*doc>
+
+\MacroSpec\HiTOACite\marg{cite-string}
+Displays a single entry in the Table of Authorities. This is essentially
+another citation command like |\sentence| except it invokes less overhead
+because there is no punctuation at the end of the entry to check. It may be
+useful in section headings within documents as well.
+
+%</doc>
+%<*package>
 %    \begin{macrocode}
-\def\toacite#1{%
+\DeclareRobustCommand\HiTOACite[1]{%
     \begingroup
+    \@hi@in@toatrue
+    \hi@noid
     \let\clause\hi@clause
     \let\sentence\hi@sentence
     \hi@pse@parse{#1}{\hi@draw@citation{\@hi@captrue\@hi@senttrue}{}}%
@@ -1055,7 +1082,7 @@ tables are displayed.
 % Citation macros should use this when displaying an author name as the first
 % item in a reference. It stores the author name in |\@this@toatitle|, for
 % identifying duplicates. It then displays the author name, replacing it with
-% |\toaditto| if it is a duplicate. \#1 is the font for the author; \#2 is the
+% |\HiTOADitto| if it is a duplicate. \#1 is the font for the author; \#2 is the
 % author name (sortable).
 %
 %    \begin{macrocode}
@@ -1064,7 +1091,7 @@ tables are displayed.
         \global\def\@this@toatitle{#2}%
         \hi@nocap
         \ifx\@this@toatitle\@last@toatitle
-            \toaditto, % space
+            \HiTOADitto, % space
         \else
             #1{#2}, % space
         \fi
@@ -1108,9 +1135,9 @@ tables are displayed.
         \else
             \setbox\@tempboxa=\hbox{#2}%
             \@tempdima=\wd\@tempboxa
-            \ifstrempty{#1}{}{\advance\@tempdima\toahangindentlen\relax}%
+            \ifstrempty{#1}{}{\advance\@tempdima\HiTOAIndent\relax}%
             \ifdim 6em<\@tempdima \@tempdima=6em\relax\fi
-            \setbox\@tempboxa=\hbox{\toaditto}%
+            \setbox\@tempboxa=\hbox{\HiTOADitto}%
             \ifdim\@tempdima<\wd\@tempboxa \@tempdima=\wd\@tempboxa \fi
             \hi@citeguts{%
                 \leavevmode\hb@xt@\@tempdima{\hss \box\@tempboxa}%
@@ -1126,31 +1153,62 @@ tables are displayed.
 %</package>
 %<*doc>
 
-The following affect the appearance of the Table of Authorities:
-\begin{itemize}
-\item \DescribeMacro\toaskip |\toaskip| is a glue specification for how much
+The following affect the appearance of the Table of Authorities.
+
+\MacroSpec\HiTOASkip A glue specification for how much
 space to put between entries.
-\item \DescribeMacro{passimnum} |passimnum| is a counter for how many items an
-aggregate page listing must have before it is replaced with \emph{passim}.
-\item \DescribeMacro{\PassimText} |\PassimText| is the text to be used if
-|passimnum| is met or exceeded.
-\item \DescribeMacro\toaditto |\toaditto| is the text that
-replaces repeated authors, statutory titles, and other information that can be
-omitted from the table listings.
-\item\DescribeMacro\toahangindentlen |\toahangindentlen| is defined as a length
-for the hanging indent. (It is specified in |em| units so it is defined as macro
-text.)
-\end{itemize}
 
 %</doc>
 %<*package>
 %    \begin{macrocode}
-\newskip\toaskip
-\toaskip=1\baselineskip \@plus .1\baselineskip \@minus .1\baselineskip
-\newcounter{passimnum} \c@passimnum=\z@
-\def\PassimText{\emph{passim}}
-\def\toaditto{---\kern-.1em---\kern-.1em---}
-\def\toahangindentlen{1.5em}
+\newskip\HiTOASkip
+\HiTOASkip=1\baselineskip \@plus .1\baselineskip \@minus .1\baselineskip
+%    \end{macrocode}
+%</package>
+%<*doc>
+
+\MacroSpec\HiTOAPassimNum A number (defined by |\chardef|), representing many
+items an aggregate page listing must have before it is replaced with
+\emph{passim}. When zero (the default), \emph{passim} is never used.
+
+%</doc>
+%<*package>
+%    \begin{macrocode}
+\let\HiTOAPassimNum\z@
+%    \end{macrocode}
+%</package>
+%<*doc>
+
+\MacroSpec\HiTOAPassim is the text to be used if
+|\HiTOAPassimNum| is met or exceeded.
+
+%</doc>
+%<*package>
+%    \begin{macrocode}
+\def\HiTOAPassim{\hi@fn@latin{passim}}
+%    \end{macrocode}
+%</package>
+%<*doc>
+
+\MacroSpec\HiTOADitto The text that
+replaces repeated authors, statutory titles, and other information that can be
+omitted from the table listings.
+
+%</doc>
+%<*package>
+%    \begin{macrocode}
+\def\HiTOADitto{---\kern-.1em---\kern-.1em---}
+%    \end{macrocode}
+%</package>
+%<*doc>
+
+\MacroSpec\HiTOAIndent The length for the hanging indent. (It is specified in
+|em| units so it is defined as macro text.)
+
+%</doc>
+%<*package>
+%    \begin{macrocode}
+\def\HiTOAIndent{1.5em}
 %    \end{macrocode}
 %</package>
 %<*doc>
@@ -1171,7 +1229,7 @@ definition and full text. Entries are sorted by abbreviations, ignoring any
 \def\tableofabbreviations#1{%
     \hi@setuptoa
     \@hi@in@toatrue
-    \noid
+    \hi@noid
     \IfKnownList{hi@toa@abbrev}{\IfEmptyList{hi@toa@abbrev}{}{%
         \ShowList{hi@toa@abbrev}{%
             \@expand{\@unbrace#1}{\csname lc@##1\endcsname}{iii}%
@@ -1182,6 +1240,10 @@ definition and full text. Entries are sorted by abbreviations, ignoring any
 %    \end{macrocode}
 %</package>
 %<*test>
+
+
+
+
 \section{toa.dtx}
 
 \subsection{Aux File Writing}
@@ -1204,7 +1266,7 @@ definition and full text. Entries are sorted by abbreviations, ignoring any
 \begingroup
 
 
-    \SetTOACategory{ref}{other}
+    \HiSetTOACat{ref}{other}
     \let\tcpg@ref\relax
     \@hi@in@toafalse
     \@hi@toa@disabledfalse
@@ -1387,7 +1449,7 @@ definition and full text. Entries are sorted by abbreviations, ignoring any
 \subsection{Page Numbers and Star Counting}
 
 \begingroup
-    \StarCount{4}
+    \HiStarCount{4}
     \everypar{}
     \let\hi@pg@ref\relax
     \hi@toa@addpg\hi@pg@ref{ii}{2}{roman}
@@ -1419,36 +1481,36 @@ definition and full text. Entries are sorted by abbreviations, ignoring any
     Stars should now show up at the start of every first test paragraph.
 
     \hi@toa@star{ref}
-    \AssertExpand{\the\everypar}{\noexpand\StarMark\noexpand\everypar{}}
+    \AssertExpand{\the\everypar}{\noexpand\HiStarMark\noexpand\everypar{}}
 
     \hi@toa@addpg\hi@pg@ref{4}{4}{arabic}
     \AssertCallback{\hi@toa@usepg{ref}}{ii--iv, 4}
     \AssertCallback{\hi@toa@refcount{ref}}{5}
 
     \hi@toa@star{ref}
-    \AssertExpand{\the\everypar}{\noexpand\StarMark\noexpand\everypar{}}
+    \AssertExpand{\the\everypar}{\noexpand\HiStarMark\noexpand\everypar{}}
 
     \hi@toa@addpg\hi@pg@ref{5}{5}{arabic}
     \AssertCallback{\hi@toa@usepg{ref}}{ii--iv, 4--5}
     \AssertCallback{\hi@toa@refcount{ref}}{6}
 
     \hi@toa@star{ref}
-    \AssertExpand{\the\everypar}{\noexpand\StarMark\noexpand\everypar{}}
+    \AssertExpand{\the\everypar}{\noexpand\HiStarMark\noexpand\everypar{}}
 
     \hi@toa@addpg\hi@pg@ref{7}{7}{arabic}
     \AssertCallback{\hi@toa@usepg{ref}}{ii--iv, 4--5, 7}
     \AssertCallback{\hi@toa@refcount{ref}}{7}
 
     \hi@toa@star{ref}
-    \AssertExpand{\the\everypar}{\noexpand\StarMark\noexpand\everypar{}}
+    \AssertExpand{\the\everypar}{\noexpand\HiStarMark\noexpand\everypar{}}
 
-    \c@passimnum=2
-    \AssertCallback{\hi@toa@usepg{ref}}{\PassimText}
+    \let\HiTOAPassimNum\tw@
+    \AssertCallback{\hi@toa@usepg{ref}}{\HiTOAPassim}
 
-    \c@passimnum=3
-    \AssertCallback{\hi@toa@usepg{ref}}{\PassimText}
+    \let\HiTOAPassimNum\thr@@
+    \AssertCallback{\hi@toa@usepg{ref}}{\HiTOAPassim}
 
-    \c@passimnum=4
+    \chardef\HiTOAPassimNum=4
     \AssertCallback{\hi@toa@usepg{ref}}{ii--iv, 4--5, 7}
 \endgroup
 
@@ -1459,7 +1521,7 @@ definition and full text. Entries are sorted by abbreviations, ignoring any
 The following can only be tested visually. Make sure that these look acceptable.
 \def\testbox#1#2{\vrule\vtop{%
     \hsize=1.25in\relax \hi@toa@par@settings
-    #1\nobreak\TOALeader\nobreak\hi@toa@brkpg{#2}\par
+    #1\nobreak\HiTOALeader\nobreak\hi@toa@brkpg{#2}\par
 }\vrule\allowbreak\space}
 
 \leavevmode
@@ -1494,8 +1556,8 @@ toacat=other,
 
 \AssertCallback{\hi@toacat@get{dc-comics}}{other:Other Source/s}
 
-\NewTOACategory{movie}{m}{Motion Picture/s}{Y}
-\DefaultTOACategory{film}{movie}
+\HiNewTOACat{movie}{m}{Motion Picture/s}{Y}
+\HiDefaultTOACat{film}{movie}
 
 \deffilm{faceoff}{
 name=Face/Off,

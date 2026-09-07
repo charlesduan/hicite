@@ -22,7 +22,7 @@ extent it is necessary, use \rtype{verbatim}.
             }{}%
             (\hi@kv@year)\space
             \hi@pageordefault{}{%
-                \@format@page@macro\hi@kv@page
+                \hi@fmt@page@macro\hi@kv@page
             }%
         }%
     }%
@@ -36,7 +36,7 @@ extent it is necessary, use \rtype{verbatim}.
             }{}%
             (\hi@kv@year)\space
             \hi@pageordefault{}{%
-                \@format@page@macro\hi@kv@page
+                \hi@fmt@page@macro\hi@kv@page
             }%
         }%
         \the\hi@param@parens
@@ -74,7 +74,7 @@ extent it is necessary, use \rtype{verbatim}.
                 % section.
                 \hi@ifset\hi@kv@rep{}{%
                     \hi@ifset\hi@kv@page{%
-                        , \@format@page@macro\hi@kv@page
+                        , \hi@fmt@page@macro\hi@kv@page
                     }{}%
                 }%
             }%
@@ -82,7 +82,7 @@ extent it is necessary, use \rtype{verbatim}.
                 ,\space
                 \hi@ifset\hi@kv@vol{\hi@kv@vol\space}{}%
                 \noexpand\hi@fn@statute{\hi@kv@rep}\space
-                \@format@page@macro\hi@kv@page
+                \hi@fmt@page@macro\hi@kv@page
             }{}%
         }%
         \hi@ifset\hi@kv@name{%
@@ -208,7 +208,7 @@ difference in \param{page} for each.
                     \hi@ifset\hi@kv@vol{\hi@kv@vol\space}{}%
                     \noexpand\hi@fn@statute{\hi@kv@rep}%
                     \hi@ifset\hi@kv@page{%
-                        \space\@format@page@macro\hi@kv@page
+                        \space\hi@fmt@page@macro\hi@kv@page
                     }{}%
                 }{}%
             }%
@@ -363,7 +363,7 @@ Typically these are reports.
 \keyparameters{
     {author, instauth}{The author of the document. The institutional author will
     be separated from the human author, with the latter placed in a
-    parenthetical.}
+    parenthetical starting with ``prepared by.''}
     {name}{Title of the document.}
     {type}{The institution issuing the document control number, default
     ``U.N.''}

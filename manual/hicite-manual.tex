@@ -24,17 +24,18 @@
 %% src/signals.dtx  (with options: `doc')
 %% src/pages.dtx  (with options: `doc')
 %% src/parens.dtx  (with options: `doc')
-%% src/parts.dtx  (with options: `features')
-%% src/toa.dtx  (with options: `doc')
-%% src/endnotes.dtx  (with options: `doc')
-%% src/short.dtx  (with options: `doc')
 %% src/parts.dtx  (with options: `formatting')
 %% src/draw.dtx  (with options: `doc')
 %% src/abbrevs.dtx  (with options: `doc')
 %% src/fonts.dtx  (with options: `doc')
 %% src/state.dtx  (with options: `doc')
 %% src/supra.dtx  (with options: `doc')
+%% src/short.dtx  (with options: `doc')
 %% src/format.dtx  (with options: `doc')
+%% src/parts.dtx  (with options: `features')
+%% src/toa.dtx  (with options: `doc')
+%% src/endnotes.dtx  (with options: `doc')
+%% src/legacy.dtx  (with options: `doc')
 %% src/parts.dtx  (with options: `alltypes')
 %% src/caseref.dtx  (with options: `doc')
 %% src/constrefs.dtx  (with options: `doc')
@@ -534,7 +535,7 @@ The package also attempts to make minimal modifications to the \LaTeX\
 environment, in order to limit potential conflicts with other packages. However,
 some modifications are essential due to the fact that legal citations interact
 closely with the underlying document structure. The following is a list of
-general areas that may be affected:
+general considerations with regard to package interactions and conflicts:
 \begin{itemize}
 \item The |\footnote| macro is modified to install some beginning and ending
 hooks, so that the package can perform accounting of citations at each
@@ -557,8 +558,13 @@ cross-references).
 \item Some common macro names are defined and used in the package. Some of these
 are the interface of user-level commands, which are listed in the index of this
 manual. Internal macro names are generally prefixed with |\hi@| to avoid package
-conflicts, but there are some legacy internal macro names that do not follow
-this convention yet.
+conflicts, and less-common user macros are generally prefixed with |\Hi| and
+written in CamelCase. Where user macro names have been changed to conform to
+these conventions, the older macro names are defined as specified in
+\sec{legacy}, in a manner that avoids or warns about conflicts.
+
+\item The command |\textellipsis| is redefined as specified in \sec{iface-misc},
+to conform with typical legal citation standards.
 \end{itemize}
 
 The following are some notes on specific packages and their interaction with
@@ -566,15 +572,24 @@ The following are some notes on specific packages and their interaction with
 
 \begin{itemize}
 \item \textbf{hyperref}: This works, but the |hyperfootnotes| option should be
-turned off.
+turned off. Additionally, both packages provide a |\url| command; see \sec{urls}
+on selecting between them.
+
 \item \textbf{sidenotes}: If included, \hia* will detect it and modify the
 |\sidenote| macro analogously to what it does to |\footnote|. It is recommended
 that documents using sidenotes use legal memorandum formatting (see option
 \opt{memo}), because law review formatting depends heavily on having a single,
 continuous series of footnotes.
+
 \item \textbf{tex4ht}: This largely works but sometimes has difficulty with
 converting URLs and footnotes. The author has some experimental configuration
 files that can help with this, although they are not extensively tested.
+
+\item \textbf{biblatex}: While this package is not compatible with other
+citation systems, it does not override them, so other citation systems could
+theoretically be used in tandem. (In particular, the |\cite| macro is
+unchanged.) There is a partial implementation of a Biblatex converter, described
+in \sec{hibib}.
 \end{itemize}
 
 \subsection{Intellectual Property Concerns}
@@ -619,11 +634,11 @@ footnotes, formats \emph{supra} cites with note numbers, and so on.
 
 
 \ExplainOption{journalfonts} Selects law review fonts. Same as
-|\UseFontPack{review}|. Other formatting aspects are not changed.
+|\HiUseFontPack{review}|. Other formatting aspects are not changed.
 
 
 \ExplainOption{memofonts} Selects legal memorandum fonts. Same as
-|\UseFontPack{memo}|. Other formatting aspects are not changed.
+|\HiUseFontPack{memo}|. Other formatting aspects are not changed.
 
 
 \ExplainOption{memo} Legal memorandum formatting: selects memorandum fonts,
@@ -710,6 +725,15 @@ and is the standard when the \opt{memo} option is selected.
 \ExplainOption{xrefsupra} All \emph{supra}-style short citations will include a
 cross-reference to the full citation of the same reference. This is useful only
 for legal memoranda, and is described further in \sec{supra-xref}.
+
+
+\subsection{Table of Authorities}
+
+\ExplainOption{legacy} Enable all legacy commands described in \sec{legacy},
+overwriting existing commands without warning.
+
+
+\ExplainOption{nolegacy} Disable all legacy commands described in \sec{legacy}.
 
 \part{References}
 \label{p:references}
@@ -1397,6 +1421,7 @@ II.A.3'').
 \end{itemize}
 
 \subsection{Labeling Document Parts}
+\label{s:xref-parts}
 
 The following commands are used to mark parts of a document with labels.
 
@@ -1416,32 +1441,33 @@ additional feature for the package would be support for non-contiguous
 cross-reference ranges.
 
 
-\MacroSpec\hitanlabel\marg{label}
+\MacroSpec\hitanlabel\marg{label} \\
 Creates a cross-reference label of the form ``notes $x$--$y$ and accompanying
 text.'' It should be used before footnote $x$.
 
-\MacroSpec\hiendtanlabel\marg{label}
+\MacroSpec\hiendtanlabel\marg{label} \\
 Ends a cross-reference label of the above form.
 
-\MacroSpec\hiflabel\marg{label}
+\MacroSpec\hiflabel\marg{label} \\
 Labels a figure or table. This should be used after the |\caption| is given.
 This and the next macro should not be needed since |\hilabel| will detect these
 contexts and adjust the label accordingly.
 
-\MacroSpec\hinotelabel\marg{label}
+\MacroSpec\hinotelabel\marg{label} \\
 Labels a footnote, while inside the footnote.
 
 
-\MacroSpec\hisectlabel
-\marg{label} labels the current section.
+\MacroSpec\hisectlabel \marg{label} \\
+Labels the current section.
 
-\MacroSpec\hiendsectlabel
-\marg{label} labels an end of a section range.
+\MacroSpec\hiendsectlabel \marg{label} \\
+Labels an end of a section range.
 
 For law review articles, top-level cross-references will use the word ``Part''
 while other cross-references will use ``Section.'' (The distinction is
 determined by whether the section number contains a dot.) For legal memoranda,
 ``Section'' will always be used. To change this, redefine the internal macro
+\DescribeMacro\hi@xref@sect@choose
 |\hi@xref@sect@choose|.
 
 
@@ -1667,14 +1693,23 @@ components of citation strings in more detail.
 %% \iffalse filename: iface.dtx \fi
 %%
 \input driver
-\thisis{iface}{Citation Forms and Commands}
+\thisis{iface}{Inserting Citations}
 
 Depending on grammatical context, a legal citation in a work will take on one of
-several forms. \hia* supports these different grammatical forms of citation by
+several types. \hia* supports these different grammatical types of citation by
 offering several citation commands in this section.
-\unskip\footnote{\hia* also produces a distinct citation form for tables of
-authorities, but writers do not use this citation form directly.} This section
-describes each citation form along with the command used to access the form.
+\unskip\footnote{\hia* also produces a distinct citation type for tables of
+authorities, but writers do not use this citation type directly.} This section
+describes each citation type along with the command used to access the type. The
+argument for these commands is generally a citation string as described in
+\sec{parse}.
+
+By design, the citation commmands and strings do not require the user to select
+between full and short citation forms. \hia* selects the form automatically, as
+described in \sec{state}. Commands for manipulating the citation form selected
+are given in \sec{state-manip}.
+
+For more concise citation command equivalents, see \sec{legacy-short}.
 
 
 \subsection{Sentences}
@@ -1760,18 +1795,16 @@ inline citation:
 
 The following commands produce inline citations. Any of them may be used in text
 or footnotes, regardless of the document type.
-\begin{itemize}
-\item \DescribeMacro\inline |\inline| makes a typical inline citation.
 
-\item \DescribeMacro\Inline |\Inline| capitalizes the first letter of the
-citation.
+\MacroSpec\inline Makes a typical inline citation, acting as a noun phrase.
 
-\item \DescribeMacro\adjective |\adjective| removes leading ``the'' from the
-citation text, making it amenable to use as an adjective in a sentence.
+\MacroSpec\Inline Capitalizes the first letter of the citation, to be used at
+the beginning of sentences.
 
-\item \DescribeMacro\Adjective |\Adjective| is like |\adjective| but capitalizes
-the first letter.
-\end{itemize}
+\MacroSpec\adjective Removes leading ``the'' from the citation text, making it
+amenable to use as an adjective in a sentence.
+
+\MacroSpec\Adjective Like |\adjective| but capitalizes the first letter.
 
 \hia*'s support for inline citations is the most comprehensive for cases and
 statutes, where there are reasonably well-defined conventions for how to form
@@ -1825,7 +1858,7 @@ Here, it is unambiguous that the \emph{Id.}\ does not refer to the constitution.
 \hia* implements this distinction by designating the inline forms of statutes,
 constitutions, and a few other references as ``invisible'' to the
 \emph{id.}~citation algorithm. This behavior can be overridden by using the
-|\noid| command.
+|\HiNoId| command (see \sec{state-manip}).
 
 
 \subsection{Note}
@@ -1867,61 +1900,24 @@ the rule that a citation comes after the proposition being cited. But it is a
 common enough style that I provide it as an option.}
 
 
-\subsection{Miscellaneous Commands}
+\subsection{Formatted Text Commands}
 
 \label{s:iface-misc}
 
-A few additional commands are defined here.
+A few additional commands are provided for inserting formatted text, unrelated
+to citations, in accordance with legal citation standards.
 
-\DescribeMacro\textellipsis
+\MacroSpec\textellipsis
 Ellipses in legal documents are idiosyncratic, using full spaces between dots.
 The package redefines ellipses in \LaTeX\ to conform.
 
 
-\DescribeMacro{\sic}
-The |\sic!| command inserts a properly formatted [\emph{sic}] into text. The
-exclamation point deals with \TeX\ spacing issues.
+\MacroSpec{{\HiSic!}}
+Inserts a properly formatted [\emph{sic}] into text. (The exclamation point
+after the macro is mandatory; it avoids the space issue after the macro.) The
+latin font selected (see \sec{fonts}) is used. The
+alternative \DescribeMacro\sic|\sic| is given as a ``legacy'' alternative.
 
-
-Several macros affect memory of citation state to change what forms of citations
-will be produced.
-
-\MacroSpec\noid
-Informs the package not to use \emph{id.}\ for the next
-citation, by resetting memory of the last reference cited.
-
-\MacroSpec\fullcite \marg{ref} Informs the package to produce a
-full citation of \meta{ref} by resetting memory of that reference's use.
-
-\MacroSpec\nofullcite
-\marg{ref} Cites \meta{ref} without
-displaying anything, so that the next citation to that reference is a short
-form.
-
-\MacroSpec\fulltitle\marg{ref}
-Resets memory of the last statutory title
-cited.
-
-\MacroSpec\addtotoa\marg{ref}
-Adds \meta{ref} to the table of authorities
-without producing any citation text.
-
-
-\subsection{Shorter Commands}
-
-The following are synonyms to the citation commands thus described.
-
-\MacroSpec\Ct Synonym for |\sentence|.
-
-\MacroSpec\ct Synonym for |\clause|.
-
-\MacroSpec\Ci Synonym for |\Inline|.
-
-\MacroSpec\ci Synonym for |\inline|.
-
-\MacroSpec\cn Synonym for |\note|.
-
-\MacroSpec\cx Synonym for |\addtotoa|.
 
 %%
 %% \iffalse filename: parse.dtx \fi
@@ -1937,7 +1933,7 @@ the syntax for input text that this package uses to receive that information.
 The input text syntax is used for all citation commands that this package
 accepts (\cmd\sentence, \cmd\clause, \cmd\inline, etc.).
 
-\subsection{Data Model}
+\subsection{Contents of a Citation String}
 
 A \emph{citation string} is an ordered list of one or more \emph{citation
 items}. \unskip\footnote{Multiple citation items are permitted even for citation
@@ -1989,22 +1985,24 @@ signal |see, e.g.|, an optional argument |opt|, and two parentheticals.
 More commonly, only a few components of a citation item will be included. An
 example citation string in ordinary use might look as follows:
 \begin{demo}
-\ttfamily
-statute at S 167; see also supporting-case at 189; another-case at 465; cf.
-journal-article at 754 (discussing related applications of the statute); see
-generally 7 treatise at S 56
+\ttfamily\frenchspacing
+statute at S 167;\\
+see also supporting-case at 189;\\
+another-case at 465;\\
+cf. journal-article at 754 (discussing related applications of the statute);\\
+see generally 7 treatise at S 56
 \end{demo}
+Line breaks have been inserted for readability, but are not necessary.
 
 Note that if the same reference is cited multiple times in a row, there is no
 facility for writing \emph{id.}\ or the like in the input syntax. The reference
 must be fully identified and pin-cited on each use, and the package will
 automatically compute whether \emph{id.}\ should be inserted as described in
-\sec{state}. While this may seem like unnecessary work, there is a major
-advantage: The citation string input is fully independent of where in the
-document the citation string appears. As a result, writers can freely move
-blocks of text around a document without having to rewrite input citation
-strings. If \emph{id.}\ or other shortcuts had been used in the document, then
-they likely would become unintelligible upon a document reorganization.
+\sec{state}. This additional verbosity is necessary to make citation inputs
+stateless, as explained further in \sec{state}: any component of a citation
+string may be moved around or deleted, and additional references may be added to
+the citation string, without requiring any manual editing of existing citation
+components.
 
 %%
 %% \iffalse filename: signals.dtx \fi
@@ -2022,7 +2020,7 @@ background reading. Signals introduce a great deal of expressiveness into a
 system of legal citation, enabling writers to compactly distill a complete
 literature into a single citation string.
 
-\subsection{Data Model (List of Signals)}
+\subsection{List of Signals}
 
 
 Each signal belongs to one of four classes: support, comparison, contrary, and
@@ -2063,7 +2061,7 @@ background. Here are all the signals available, along with their classes.
 \end{tabular}
 \end{demo}
 
-\subsection{Input Syntax}
+\subsection{Entering Signals in Citation Strings}
 
 As described in \sec{parse}, the signal for a citation
 item is placed at the beginning of the input text for the citation item, in all
@@ -2098,7 +2096,9 @@ signal for the writer to insert in the appropriate place in a citation string.
 
 \subsection{Formatting}
 
-There are four matters to be handled with respect to formatting of signals.
+There are four matters to be handled with respect to formatting of signals. All
+of these are handled automatically by \hia*.
+
 \begin{enumerate}
 \item The citation must be formatted with the correct fonts.
 
@@ -2117,6 +2117,13 @@ displayed on the first use.
 \item In a series of citation items with contrary-class signals, the word
 ``but'' is omitted from all but the first negative signal.
 \end{enumerate}
+
+Many legal citation systems prescribe an order in which signals are to be given
+within a citation string. \hia* does not mandate any ordering or reorder
+references within a citation string. Rather, it applies the above rules in view
+of whatever order the signals are written in the citation string. This affords
+users greater flexibility in using ordering and signals within a citation string
+to express a desired argument.
 
 %%
 %% \iffalse filename: pages.dtx \fi
@@ -2154,8 +2161,8 @@ system accepts for them, and the rules for formatting.
 Because of the diversity of types of legal document numbering systems, the data
 model and syntax for pin cites are fairly complex. For testing purposes, a
 writer may access the pin cite formatting algorithm using the command
-\DescribeMacro\PageNumber
-\cmd\PageNumber\marg{number}.
+\DescribeMacro\HiParsePin
+\cmd\HiParsePin\marg{number}.
 
 
 \paragraph{Segments}\label{s:pages-segments}
@@ -2381,28 +2388,9 @@ the sky is blue).
 Legal citation uses parentheticals extensively, both in highly structured ways
 to include required bibliographic data about references and more freeform ways
 that allow authors an additional avenue to converse with readers.
-
 This section describes the nature of parentheticals as understood by this
 package, how parentheticals are entered for citation items, and how
 parentheticals are formatted.
-
-\subsection{Data Model}
-
-\paragraph{Types}
-At the time that a citation item is being formatted, the package begins building
-up a list of parentheticals. The parentheticals can originate from two places.
-First, they may be associated with the reference itself, providing bibliographic
-information or commentary to be generally associated with the reference (e.g.,
-publication dates, judicial opinion types, or alternate sources for finding
-references). These parentheticals are typically displayed only with the full
-citation of the reference.
-
-Parentheticals may be provided as part of the citation item input, as described
-in \sec{parse}. These ``citation-level'' parentheticals are generally meant to
-explain the writer's use of the reference in a particular
-citation---characterizing the holding of a case to demonstrate its relevance to
-the writer's argument, quoting the relevant portion of a reference, or
-identifying sources that the reference itself quotes or cites.
 
 ``Parentheticals'' as used in this package are not merely text set inside
 parentheses. They also include items such as URLs, prior and subsequent case
@@ -2418,50 +2406,128 @@ just like parentheses-enclosed text, because the two are intermingled in
 presentation. URLs, for example, appear after the date parenthetical to a
 citation but before parenthetical commentary text.
 
-\paragraph{Content and Ordering}
-Every parenthetical is associated with two items: (1) the text of the
-parenthetical, and (2) a priority number. The priority number serves two
+\subsection{Types of Parentheticals}
+
+There are generally two types of parentheticals: reference-level and
+citation-level.
+Reference-level parentheticals are associated with the reference itself,
+providing bibliographic information or commentary to be generally associated
+with the reference (e.g., publication dates, judicial opinion types, or
+alternate sources for finding references). These parentheticals are determined
+at the time a reference is defined, and they typically are displayed only with
+the full citation of the reference.
+
+Citation-level parentheticals are specified as part of the citation item input,
+as described in \sec{parse}. These parentheticals are generally meant to explain
+the writer's use of the reference in a particular citation---characterizing the
+holding of a case to demonstrate its relevance to the writer's argument, quoting
+the relevant portion of a reference, or identifying sources that the reference
+itself quotes or cites.
+
+\subsection{Content and Ordering}
+
+When typesetting a citation, all of the appropriate parentheticals must be
+combined into a listing to be presented after the citation information.
+Every parenthetical is stored as a structure of two pieces of information:
+\begin{enumerate}
+\item The text of the parenthetical
+\item A priority number
+\end{enumerate}
+The priority number serves two
 purposes. First, it establishes an ordering of parentheticals. For example, the
 date parenthetical for a citation always should precede other parentheticals, so
 it has the lowest priority number. Second, the priority number determines the
-appearance of the parenthetical. Other than hereinafter parentheticals (which
-unusually are set inside square brackets), parentheticals with even priority
-numbers are set inside parentheses while those with odd numbers are set off with
-a comma. As a result, there is consistency among even citations with many
-parentheticals.
+appearance of the parenthetical. Other than a few idiosyncratic parentheticals
+(described below with respect to formatting),
+parentheticals are displayed either in parentheses or as unparenthesized text
+set off by a comma. Internally, \hia* uses odd priority numbers for
+parenthesized parentheticals and even numbers for comma-set ones.
 
 The priority number for any parenthetical is set automatically based on the
-context in which the package receives the parenthetical. Generally writers
+context in which the package receives the parenthetical. Generally users
 should not need to deal with them, but the mechanism may be useful to know for
 authors who wish to change the default ordering or appearances.
 
 
-\subsection{Input Syntax}
+\subsection{List of Parentheticals and Priorities}
 
-For parentheticals entered as parameters to references, the syntaxes are
-explained in \pt{allparams}. This section describes the syntax for
-parentheticals entered as components of citation items, expanding on
-\sec{parse}. These are called ``citation-level'' parentheticals.
+The priority number for each parenthetical type is given, as well as a
+corresponding reference parameter where there is one.
 
-Generally parentheticals are entered in citation items as plain text. Citation
+\def\hi@parens@assign#1#2#3{\expandafter\hi@parens@gobble\string#1&#2&#3\\}
+\expandafter\def\expandafter\hi@parens@gobble\string\hi@paren@{}
+\begin{demo}
+\begin{tabular}{lll}
+\textbf{Type}&\textbf{Priority}&\textbf{Description}\\
+\hline
+\hi@parens@assign\hi@paren@parallel{1}{Parallel citation (\param{parallel})}
+\hi@parens@assign\hi@paren@date{2}{Date parenthetical (\param{year})}
+\hi@parens@assign\hi@paren@origdate{4}{Original date parenthetical
+(\param{origyear})}
+\hi@parens@assign\hi@paren@docno{10}{Court document number
+(\rtype{casedoc})}
+\hi@parens@assign\hi@paren@country{20}{Country name parenthetical
+(\param{country})}
+\hi@parens@assign\hi@paren@casedocdocket{20}{Case docket number
+(\param{docket})}
+\hi@parens@assign\hi@paren@hia{30}{Hereinafter (\param{hereinafter})}
+\hi@parens@assign\hi@paren@casealt{40}{Alternate case name}
+\hi@parens@assign\hi@paren@bookreview{50}{Book review citation
+(\param{bookreview})}
+\hi@parens@assign\hi@paren@opinion{60}{Opinion disposition (\param{enbanc} etc.)}
+\hi@parens@assign\hi@paren@preparedby{70}{``prepared by'' (\rtype{intdoc})}
+\hi@parens@assign\hi@paren@codified{80}{``codified at'' and similar
+(\param{codified})}
+\hi@parens@assign\hi@paren@forthcomingms{80}{Forthcoming article page number}
+\hi@parens@assign\hi@paren@manuscript{90}{``unpublished manuscript''
+(\rtype{manuscript})}
+\hi@parens@assign\hi@paren@doc{100}{Document-level parenthetical
+(\param{paren})}
+\hi@parens@assign\hi@paren@url{111}{URL parenthetical (\param{url})}
+\hi@parens@assign\hi@paren@accessdate{112}{URL access date (\param{accessdate})}
+\hi@parens@assign\hi@paren@permacc{114}{perma.cc URL (\param{permacc})}
+\hi@parens@assign\hi@paren@cite{120}{Citation-level parenthetical
+(\sec{parens-citelevel})}
+\hi@parens@assign\hi@paren@prior{131}{Prior history of case (\param{prior})}
+\hi@parens@assign\hi@paren@subseq{133}{Subsequent history of case
+(\param{subsequent})}
+\hi@parens@assign\hi@paren@comment{205}{Commentary (\sec{parens-citelevel})}
+\hi@parens@assign\hi@paren@reprint{207}{``Reprinted in'' parenthetical
+(\param{reprinted})}
+\end{tabular}
+\end{demo}
+
+\subsection{Parentheticals Inside Citation Strings}
+\label{s:parens-citelevel}
+
+``Citation-level'' parentheticals are those entered as part of a citation
+string, as described in \sec{parse}. Typically, these parentheticals are simply
+explanatory text or a quotation from the source being cited. Citation
 commands may be used inside parentheticals to produce nested citations, as
 described in \sec{iface}. In addition, several special syntaxes are provided to
 allow for different types of common parentheticals.
 
-The following input will convert \meta{cite} to
-|\clause|\marg{cite} and remove the colon. This is a convenient shortcut for the
+Often it is useful to state a relationship between two sources, for example
+where one source quotes another. A parenthetical may be entered using one of the
+following syntactic forms:
+\begin{grammar}
+\begin{tabular}{ll}
+\textbf{Form} & \textbf{Parenthetical type} \\
+\hline
+|(|\meta{verb}|ing: |\meta{cite}|)| & cite \\
+|(|\meta{verb}| in: |\meta{cite}|)| & comment \\
+|(|\meta{verb}| by: |\meta{cite}|)| & comment \\
+|(|\meta{verb}| at: |\meta{cite}|)| & comment \\
+|(codified at: |\meta{cite}|)| & codified \\
+|(codified as amended at: |\meta{cite}|)| & codified \\
+|(footnote: |\meta{cite}|)| & See \sec{parens-deferred} \\
+\end{tabular}
+\end{grammar}
+The \meta{cite} will be converted to a |\clause| citation and placed after the
+words preceding the colon inside a parenthetical. This is a shortcut for the
 common types of parentheticals that start with ``quoting,'' ``cited by,'' or
 ``discussed in'' followed by a citation.
-\begin{demo}
-\begin{tabular}{l}
-|(|\meta{verb}|ing: |\meta{cite}|)| \\
-|(|\meta{verb}| in: |\meta{cite}|)| \\
-|(|\meta{verb}| by: |\meta{cite}|)| \\
-|(|\meta{verb}| at: |\meta{cite}|)| \\
-|(codified at: |\meta{cite}|)| \\
-|(codified as amended at: |\meta{cite}|)| \\
-\end{tabular}
-\end{demo}
+
 For example, the following are largely equivalent:
 \begin{demo}
 |\sentence{ref at 3 (quoting: source at 15)}| \\
@@ -2476,7 +2542,7 @@ As currently defined, the codification parentheticals will come first and
 subsequent commentary (using |in|, |by|, and |at|) comes last, with \meta{verb}|ing|-type parentheticals and other citation-level parentheticals in the middle.
 
 
-\paragraph{Deferred Footnotes}
+\subsection{Deferred Footnotes}
 \label{s:parens-deferred}
 
 A parenthetical starting with |footnote:| creates a ``deferred footnote'' inside
@@ -2495,6 +2561,7 @@ Authorities when that option is requested, as described in \sec{urls}.}
 
 \subsection{Formatting}
 
+As discussed initially, different parentheticals receive different formatting.
 The main task in formatting parentheticals is distinguishing among the different
 types. As discussed above, there are three parenthetical forms:
 \begin{itemize}
@@ -2520,387 +2587,6 @@ in \sec{short}.
 \label{s:parens-permacc}
 These are placed in square brackets. They may be entered with the parameter
 \param{permacc}.
-
-\part{Additional Features}
-\label{p:features}
-%%
-%% \iffalse filename: toa.dtx \fi
-%%
-\input driver
-\thisis{toa}{Table of Authorities}
-
-Legal briefs and other documents often include a Table of Authorities, listing
-all of the references cited and the pages where those citations occur. One of
-the motivations for creating this package was the automatic generation of
-complete, correct, and properly formatted Tables of Authorities.
-
-The table is generated using \LaTeX's auxiliary file feature. Citations generate
-index lines that are written to a |\jobname.toa| file, and those lines are read,
-sorted, and formatted to produce the table. Indexing can be disabled with
-\DescribeMacro\enabletoa
-\DescribeMacro\disabletoa
-|\disabletoa| and enabled with |\enabletoa|.
-
-A Table of Authorities is a complex structure, because it is typically sorted
-into sections based on reference types. This section describes how references
-are sorted into lists, how those lists get their headings, how page numbers in
-the tables are displayed, and finally how the table is formatted.
-
-
-\subsection{Table of Authorities Categories}
-
-\label{s:toa-categories}
-
-Each reference type is associated with a category, used to organize the
-Table of Authorities.
-The category can be altered using the reference
-definition parameter \param{toacat} or by the |\SetTOACategory| macro.
-The categories are used to assemble the headings for the table.
-
-Specifically, every category has three properties:
-\begin{enumerate}
-\item A name for internal use.
-
-\item A ``supercategory'' that associates the category with others that this
-category should be joined with in the Table of Authorities. For example, the
-categories for statutes and regulations should have the same supercategory, so
-that they are placed in a single section with the Table of Authorities.
-Supercategories are presented in alphabetical order.
-
-\item A textual description of the category, for use in constructing the Table
-of Authorities heading. Because both the singular and plural forms are needed,
-the textual description consists of two to three parts, separated by slashes:
-\begin{enumerate}
-\item The base text common to both forms.
-\item \relax[\emph{Optional}] Text to append to the singular form only.
-\item Text to append to the plural form only.
-\end{enumerate}
-\end{enumerate}
-
-\DescribeMacro\NewTOACategory
-A new TOA category may be defined with |\NewTOACategory|. The macro takes
-four parameters, the first three corresponding to the three properties of
-categories above, and the last (being ``Y'' or ``N'') indicating whether to
-include the supercategory in the default table of authorities.
-
-
-\DescribeMacro\DefaultTOACategory
-Each reference type may have a default category, set with the
-|\DefaultTOACategory| macro. The parameters are \#1 the reference type, and
-\#2 the category name. If the category name is blank, then there will be no
-default category. This default category will be used unless another category
-is specified for a particular reference, overriding the default category.
-
-
-\DescribeMacro\SetTOACategory
-The |\SetTOACategory|\marg{reference}\marg{category} macro sets the TOA
-category for \meta{reference}. This macro should be called within the
-reference definer macros to set the category, or it is invoked by the
-\param{toacat} parameter. If it is called multiple times, then the last
-category will prevail. If it is not called, then the reference will not appear
-in the table. If \meta{category} is empty, then any previously set category
-will be removed.
-
-
-The following are the TOA categories, with their supercategories and display
-texts as described above. Note the choice of supercategory names, which
-coincidentally sort alphabetically in the correct order. Because the actual
-supercategory names are never displayed, any new supercategories can be named to
-fit into the existing ordering.
-
-\begin{demo}
-\def\NewTOACategory#1#2#3#4{#1&#2&#3&#4\\}
-\begin{tabular}{llll}
-\textbf{Category} & \textbf{Supercat.} & \textbf{Text} & \textbf{In TOA?} \\
-\hline
-\NewTOACategory{other}{other}{Other Source/s}{Y}
-\NewTOACategory{const}{const}{Constitutional Provision/s}{Y}
-\NewTOACategory{found}{const}{Foundational Document/s}{Y}
-\NewTOACategory{statute}{edict}{Statute/s}{Y}
-\NewTOACategory{regulation}{edict}{Regulation/s}{Y}
-\NewTOACategory{rule}{edict}{Rule/s}{Y}
-\NewTOACategory{case}{case}{Case/s}{Y}
-\NewTOACategory{admin}{case}{Administrative Decision/s}{Y}
-\NewTOACategory{treaty}{edict}{Treat/y/ies}{Y}
-\NewTOACategory{abbrev}{abbrev}{Abbreviation/s}{N}
-\end{tabular}
-\end{demo}
-
-
-\subsection{Altering Categories in a Document}
-
-It may be useful to alter the TOA categories in a document, to create new
-categories or recategorize certain references or reference types. The macros
-described above allow for that. The following is a how-to guide on achieving a
-few such effects.
-
-\textbf{Place one reference in a different part of the TOA}: use the
-\param{toacat} parameter when defining that reference.
-
-\textbf{Remove a reference from the TOA}: use the \param{notoa}
-parameter, or set the \param{toacat} parameter to blank.
-
-\textbf{Place all references of a given type in a different part of the
-TOA} (e.g., treat \rtype{modelcode} references like statutes): Use
-\begin{grammar}
-|\DefaultTOACategory|\marg{type}\marg{category}
-\Example
-|\DefaultTOACategory{modelcode}{statute}|
-\end{grammar}
-where \meta{category} is chosen from the table above.
-
-\textbf{Add a new TOA section} (e.g., put \rtype{film} references in their
-own section): Use
-\begin{grammar}
-|\NewTOACategory|\marg{category}\marg{super}\marg{text}|{Y}|
-|\DefaultTOACategory|\marg{type}\marg{category}
-\Example
-|\NewTOACategory{m}{movies}{Motion Picture/s}{Y}| \\
-|\DefaultTOACategory{film}{m}|
-\end{grammar}
-where \meta{category} and \meta{super} are new names (not in the above table), and \meta{text} is the text of the heading.
-
-\textbf{Add a new type to an existing TOA section} (e.g., add ``Model
-Code'' to Statutes and Regulations): Use
-\begin{grammar}
-|\NewTOACategory|\marg{category}\marg{super}\marg{text}|{Y}| \\
-|\DefaultTOACategory|\marg{type}\marg{category}
-\Example |\NewTOACategory{mc}{edict}{Model Code/s}{Y}| \\
-|\DefaultTOACategory{modelcode}{mc}|
-\end{grammar}
-where \meta{category} is a new name (not in the above table), \marg{super} is
-the supercategory name corresponding to the existing TOA section,
-and \meta{text} is the text of the heading.
-
-\subsection{Indexing References}
-
-References are indexed for the Table of Authorities upon every citation, by
-having entries added to the |\jobname.toa| file automatically for each citation
-command. The command |\addtotoa| described in \sec{iface} can also add an entry
-manually.
-
-An interesting challenge for indexing is that, especially for briefs, references
-may be cited in parts of a document that use different pagination systems. As a
-result, it is necessary to store detailed information about where a reference is
-cited in a document in order to produce a correct listing of pages in the table.
-
-Five pieces of information are written out to the file for each use of a
-reference:
-\begin{enumerate}
-\item The reference name, and possibly the page for references where the page
-number is included in table of authorities entries.
-\item The page number as formatted.
-\item The page number as an arabic number.
-\item The prevailing definition of |\thepage|, so that different page counting
-schemes can be identified.
-\item A comma-separated list of ``tags'' under which the index entry should be
-categorized. Typically this will be up to two tags, one based on the reference's
-category and one based on the reference's location. A tag is a colon-separated
-structure comprising a supercategory name and a textual heading name
-(corresponding to the TOA Categories elements described in
-\sec{toa-categories}).
-\end{enumerate}
-
-
-\subsection{Reading the Index}
-
-Prior to generating a table of authorities, the index file is read and its
-entries are sorted to produce three sets of data structures:
-\begin{itemize}
-\item For each supercategory, a list of references falling within that
-supercategory.
-\item For each supercategory, a list of textual headings for that supercategory.
-\item For each reference, a macro identifying the page numbers associated with
-that reference.
-\end{itemize}
-
-
-\subsubsection{Heading Lists}
-
-For each supercategory, the textual description heading may comprise one or
-more types of references. For example, the ``edict'' supercategory may have
-statutes and/or regulations, and the heading should reflect the particular
-items to be listed. So if one regulation and several statutes have been cited,
-then the heading should read ``Statutes and Regulation,'' for example.
-
-To implement this, for every supercategory there is a ``heading list''
-associated with the supercategory. The heading list contains every textual
-description associated with the supercategory, plus a flag for each textual
-description for whether it should be singular or plural. The first time a
-textual description is encountered for a heading list, the singular form is
-used. If the same description is encountered again, then it is updated to be
-marked as plural.
-
-
-\paragraph{Location-Based Lists}
-It may be desirable to prepare a chapter-by-chapter bibliography, such that
-references are tagged not by type but by location in the document. The macro
-\DescribeMacro\AuthorityTag
-|\AuthorityTag|\marg{tag} will tag all subsequent references cited with the
-given \meta{tag}, which can then be used as a list of the Table of Authorities.
-
-
-\subsection{Composing Page Number Lists}
-
-If a reference is cited on pages 3, 4, 5, 7, 8, and 10, it is desirable to group
-these numbers into compact range forms for presentation in the Table of
-Authorities: ``3--5, 7--8, 10.'' The package does so by reading the page numbers
-in order, keeping a running compilation of the properly formatted aggregate
-number listing and revising the last element of that listing as necessary.
-
-
-\paragraph{Starred References}\label{s:toa-star}
-Some courts ask litigants to insert asterisks in the Table of Authorities before
-references that they rely most heavily on. This can be done automatically by
-counting the number of times each reference has been used.
-
-\DescribeMacro\StarCount
-The macro |\StarCount|\marg{num} sets the minimum number of uses of a reference
-before that reference receives a star. The package option \opt{toastar} sets the
-value to 4. By default it is zero, in which case no stars are displayed.
-
-\DescribeMacro\StarText
-The macro |\StarText| can be defined as text to place at the beginning of the
-Table of Authorities explaining the stars.
-
-\DescribeMacro\StarMark
-The macro |\StarMark| is the actual text of the star; it will be added before
-the relevant TOA entries via |\everypar|.
-
-
-\subsection{Showing the Table}
-
-\DescribeMacro\tableofauthorities
-The Table of Authorities is produced by calling |\tableofauthorities|. This will
-create one section for each reference category as described in \sec{refs}. Each
-heading will be created using whatever
-\DescribeMacro\toaheading
-|\toaheading| is defined as.
-
-
-\DescribeMacro\AuthorityTable
-Alternately, the macro
-|\AuthorityTable|\oarg{heading-text}\marg{list-name} will produce a single Table
-of Authorities list. This can be used for more fine-grained control over what
-tables are displayed.
-
-
-The following affect the appearance of the Table of Authorities:
-\begin{itemize}
-\item \DescribeMacro\toaskip |\toaskip| is a glue specification for how much
-space to put between entries.
-\item \DescribeMacro{passimnum} |passimnum| is a counter for how many items an
-aggregate page listing must have before it is replaced with \emph{passim}.
-\item \DescribeMacro{\PassimText} |\PassimText| is the text to be used if
-|passimnum| is met or exceeded.
-\item \DescribeMacro\toaditto |\toaditto| is the text that
-replaces repeated authors, statutory titles, and other information that can be
-omitted from the table listings.
-\item\DescribeMacro\toahangindentlen |\toahangindentlen| is defined as a length
-for the hanging indent. (It is specified in |em| units so it is defined as macro
-text.)
-\end{itemize}
-
-
-\subsection{Table of Abbreviations}
-
-A table of abbreviations is like a simplified table of authorities, and because
-of \hia*'s support for abbreviations as the reference type \rtype{abbrev},
-such tables can be made automatically. The macro |\tableofabbreviations| takes
-as an argument a two-element callback, which it executes for every abbreviation
-definition and full text. Entries are sorted by abbreviations, ignoring any
-``The''.
-
-%%
-%% \iffalse filename: endnotes.dtx \fi
-%%
-\input driver
-\thisis{endnotes}{Endnotes}
-
-The usual \LaTeX\ endnote option stores the unexecuted text of notes and
-then executes them all at the end of the document. This does not work for legal
-citations because the content of the body text interacts with the content of the
-endnotes: An inline citation in body text can change the appearance of citations
-in the notes, and vice versa.
-
-Instead, it is necessary to typeset endnotes as they are encountered and store
-them to a vertical box that can be displayed upon request.
-
-
-\DescribeMacro\EndnoteText
-
-|\EndnoteText|\marg{text} adds arbitrary text to the endnote list. The text is
-set in vertical mode.
-
-
-\DescribeMacro\EndnoteTextDelayed
-|\EndnoteTextDelayed| reserves a certain text for future adding to the endnote
-list. The text is actually added only if other endnote text is added before
-|\EndnoteTextDelayed| is invoked a second time.
-
-This is useful for adding chapter or section heading markers to and endnote list
-conditionally. If the chapter contains no endnotes, then the chapter heading
-will never be inserted into the endnote list.
-
-Again, the text is set in vertical mode.
-
-
-\DescribeMacro\SectionNote
-|\SectionNote| inserts text into the endnote list indicating where a section
-heading occurred. The section number is inserted automatically, preceded by
-|\SectionName| from \sec{xref}.
-
-
-\DescribeMacro\EndnoteFont
-|\EndnoteFont| can be defined to set the font for endnotes. It must be defined
-before endnotes are added, since once they are added the notes have been
-typeset and cannot be changed.
-
-
-\DescribeMacro\theendnotes
-|\theendnotes| emits the list of endnotes. If the macro is not called, it will
-be automatically executed at the end of the document with a warning.
-
-%%
-%% \iffalse filename: short.dtx \fi
-%%
-\input driver
-\thisis{short}{Short Names}
-
-Many types of reference use a short name to identify the reference after the
-first citation. \unskip\footnote{Short \emph{names} are to be distinguished from
-short \emph{citations}, which are described in \sec{state}. A short name is text
-used to identify a reference the second and subsequent times, and that name may
-be used as part of short citations, but most short (non-inline) citations
-include further information, such as a \emph{supra} note number or locator
-information.} Cases use a distinctive party name, and books and articles use the
-authors' last names, for example. Writers can also choose their own short names
-for references using the |short| and |hereinafter| parameters.
-
-Two problems can arise with these short names. First, two references may use the
-same text for a short name. In this case, the short name is ambiguous, so one or
-the other reference should use a different short name. Second, a writer may
-define a short name for a reference, say using |hereinafter|, but cite that
-reference only once in the document. A hereinafter parenthetical added to that
-first full citation is thus extraneous and unnecessary, and ought to be removed.
-
-This package deals with both of these problems, by issuing warnings about
-ambiguous short names and automatically deleting unnecessary short name
-parentheticals. No user intervention is required other than to respond to
-warnings by adding distinctive short names. \unskip\footnote{A possible future
-improvement would be to generate such short names automatically. To do so,
-though, it would be necessary to build into the package knowledge of
-conventional ways of disambiguating short names: Cases traditionally have roman
-numerals appended to them, while authored works typically have a distinctive
-word from the title added.}
-
-It is worth briefly noting that this short name management feature exemplifies
-the benefit of software-automated legal citations. A human cite-checker wanting
-to solve these two short name problems must keep a table of citations, to be
-searched and cross-referenced for every short name used. In a law review article
-citing hundreds or thousands of references, this task is tedious and
-error-prone, especially since the tabulation must be redone if the document is
-revised. For a computer, though, this task takes a matter of seconds.
 
 \part{Formatting Algorithms}
 \label{p:formatting}
@@ -2974,21 +2660,25 @@ full citation for a reference named |brown|.
 
 Each citation form is given and explained below, along with its
 \meta{prefix}.
-\begin{description}
-\item[Full] (|fc|) The full citation form.
-\item[Short] (|sc|) The non-\emph{id.}\ short form. Defaults to the full form.
-\item[List] (|lc|) The form used in the Table of Authorities. Defaults to the
-full form.
-\item[Pin cite] (|pc|) Some references have special ways of treating pin cite
+\begin{demo}
+\begin{tabular}{llp{0.5\textwidth}}
+\textbf{Type} & \textbf{Prefix} & \textbf{Description}\\
+\hline
+Full & |fc| & The full citation form. \\
+Short & |sc| & The non-\emph{id.}\ short form. Defaults to the full form. \\
+List & |lc| & The form used in the Table of Authorities. Defaults to the
+full form. \\
+Pin cite & |pc| & Some references have special ways of treating pin cite
 numbers. This citation form is used in the pin cite formatting routine (see
-\sec{pages}).
-\item[\emph{Id.}] (|idc|) The form to be used for immediately successive
-citations, if not the standard \emph{id.}~form.
-\item[Inline full] (|ifc|) The inline citation form to be used upon the first
-inline usage.
-\item[Inline short] (|isc|) The inline citation form to be used on subsequent
-inline usages.
-\end{description}
+\sec{pages}). \\
+\emph{Id.} & |idc| & The form to be used for immediately successive
+citations, if not the standard \emph{id.}~form. \\
+Inline full & |ifc| & The inline citation form to be used upon the first
+inline usage. \\
+Inline short & |isc| & The inline citation form to be used on subsequent
+inline usages. \\
+\end{tabular}
+\end{demo}
 
 It may be helpful for debugging to see these macros. To do so, include the
 following in your document:
@@ -3044,9 +2734,7 @@ references, which is displayed at the end of document compilation.
 As a convenience, the package also keeps track of defined references that are
 missing page numbers. The user enters the unknown page number as a question
 mark, and the package displays a list of all unentered page numbers at the end
-of compilation. This tracking is turned on by default; if the
-\DescribeMacro{nomissing} |nomissing| option is given to the package then an
-error will be raised for missing reference definitions.
+of compilation.
 
 %%
 %% \iffalse filename: abbrevs.dtx \fi
@@ -3060,8 +2748,8 @@ abbreviated using different word lists, but with different abbreviation
 algorithms. Knowledge of these will generally not be important to writers, but
 they are discussed briefly below.
 
-\DescribeMacro\AbbreviateFor
-|\AbbreviateFor|\marg{scheme}\marg{text} abbreviates a text based on a given
+\MacroSpec\HiAbbrev \marg{scheme}\marg{text} \\
+Abbreviates a text based on a given
 scheme. The schemes available are described below.
 
 
@@ -3163,6 +2851,7 @@ institutional and subject-matter word dots.
 
 \subsection{Procedural Phrases}
 \label{abbscheme:expl}
+\label{s:abbrevs-expl}
 
 \DescribeAbb{expl}
 Procedural phrases use a unique set of word-based abbreviations, but there is
@@ -3175,8 +2864,8 @@ is issued because the correctness of any trailing comma cannot be established.
 
 The abbreviation scheme is called \abbscheme{expl}.
 
-\DescribeMacro\ExplanatoryPhrase
-The macro |\ExplanatoryPhrase|\marg{phrase} defines a new explanatory phrase.
+\MacroSpec\HiExplPhrase \marg{phrase} \\
+Defines a new explanatory phrase.
 The unabbreviated phrase should be given, including any trailing comma if
 needed.
 
@@ -3256,26 +2945,33 @@ turn internal emph into roman.
 
 
 \subsection{Font Packs}
+\label{s:fonts-pack}
 
-\DescribeMacro\MakeFontPack
 A font pack associates font contexts with font commands. Each context receives
 two font commands: one for use in non-inline citations, and one for use with
-inline texts. The syntax for defining a font pack is as follows:
+inline texts.
+
+\MacroSpec\HiFontPack\marg{name}\marg{font-specs} \\
+Creates a font pack \meta{name}. The specification is as follows:
 \begin{grammar}
-|\MakeFontPack|\marg{name}\marg{font-specs} \\
 \meta{font-specs} := \meta{font-spec} ( \littext{, } \meta{font-spec} )* \\
 \meta{font-spec} := \meta{context} \littext{: } \meta{font} \littext{/}
 \meta{font} \\
 \meta{font} := \littext{emph} \| \littext{empht} \| \littext{rm} \| \littext{sc}
 \\
-\Example |\MakeFontPack{new}{booktitle: sc/empht, bookauthor: sc/rm}|
+\Example |\HiFontPack{new}{|\\
+|    booktitle: sc/empht,|\\
+|    bookauthor: sc/rm|\\
+|}|
 \end{grammar}
+The slash is required, so both the non-inline and inline fonts must be given.
+
 A font pack need not define every font context, since a user can select multiple
 font packs. In the case of two font packs containing the same font context, the
 last selected pack overrides earlier ones.
 
-\DescribeMacro\UseFontPack
-To invoke a font pack, call |\UseFontPack|\marg{name}.
+\MacroSpec\HiUseFontPack\marg{name}\\
+Executes the font definitions given in the named font pack.
 
 
 The following font packs are predefined:
@@ -3288,12 +2984,13 @@ after review or memo.
 
 
 \subsection{Shortcut Commands for Fonts}
+\label{s:fonts-use}
 
-\DescribeMacro\UseFontFor
 Occasionally, the user needs to select a font manually, for example when
 defining a hereinafter form that includes a part of a journal article's title.
-The command |\UseFontFor|\marg{context}\marg{text} selects the font for
-\meta{context} and sets \meta{text} in that font.
+
+\MacroSpec\HiFont\marg{context}\marg{text}\\
+Selects the font for \meta{context} and sets \meta{text} in that font.
 
 %%
 %% \iffalse filename: state.dtx \fi
@@ -3301,23 +2998,35 @@ The command |\UseFontFor|\marg{context}\marg{text} selects the font for
 \input driver
 \thisis{state}{Full, Short, and \emph{Id.}\ Citations}
 
-Except in limited circumstances, \unskip\footnote{These are namely internal
-cross-references and Table of Authorities generation, described in \sec{xref}
-and \sec{toa} respectively, both of which use \LaTeX's aux file system.} this
-package processes citations linearly starting from the beginning of the document
-and never looking backwards or forwards. As a result, it must constantly store
-``state'' information about citations previously seen, in order to generate
-contextually correct citations.
+Legal citations are ``stateful'' insofar as the formatting of any citation
+depends on the context of citations tht preceded it. Citations may take on short
+forms or \emph{id.}~forms may be used on subsequent citations to a reference,
+for example. Inputs to \hia* are designed to be ``stateless,'' meaning that
+declarations of citations, using the input syntax described in \sec{parse},
+generally are independent of prior citations. The statelessness of the input
+syntax is what allows blocks of text to be moved around freely within a document
+without the need to rewrite citation declarations. As a result, \hia* is
+responsible for computing and remembering relevant citation state information so
+that the forms of citations may be selected.
 
-Two types of state information are discussed here: information about where
-references were first or previously cited, and information about the last
-citation shown.
+Statefulness in citation systems is not uncommon, but legal citations are more
+complex than most because the different forms and placements of citations
+(inline, clause, and sentence; in footnotes versus in text; top-level versus
+nested) all have different effects on what citation forms are subsequently
+chosen. Furthermore, due to the nature of \TeX\ compilation, the computation of
+citation state generally occurs in a single forward pass through a document.
+\unskip\footnote{The exceptions are for internal cross-references and the Table
+of Authorities, described in \sec{xref} and \sec{toa} respectively, both of
+which use \LaTeX's aux file system.} Rules like ``look backwards through the
+last five footnotes to determine if a short citation should be used'' must thus
+be restructured in implementation to accommodate this single-pass processing.
 
-If you are looking for commands that change the citation state, for example to
-suppress \emph{id.}\ or short citation forms, those commands are in
-\sec{iface-misc}.
+This section describes how \hia* structures, stores, and updates its internal
+state information about citations. It also provides commands for altering the
+internal state, in order to change the appearance of citations.
 
 \subsection{Short Forms}
+\label{s:state-short}
 
 For most references, there is a full citation form and a short one. The full
 form is used first, and the short one used subsequently according to one of two
@@ -3346,13 +3055,8 @@ This package follows the following rules to determine long and short forms:
    in the last five footnotes.
 \end{enumerate}
 
-\DescribeMacro\resetcitationforms
-The command |\resetcitationforms| resets the aforementioned citation state,
-forcing all citations to be the full form.
-
-
-\DescribeMacro\ShowCitationState
-The macro |\ShowCitationState|\marg{ref} gives a textual account of the state of
+\MacroSpec\HiShowState \marg{ref} \\
+Prints to the terminal a textual account of the state of
 a reference at the point that the macro is called.
 
 
@@ -3571,6 +3275,43 @@ footnote. Legal memoranda, on the other hand, prohibit \emph{id.}\ cites at the
 beginnings of footnotes, to avoid ambiguity as to whether \emph{id.}\ refers to
 the last footnote or the last in-text citation.
 
+
+\subsection{Manipulating Citation State}
+
+\label{s:state-manip}
+
+While \hia* attempts to choose the correct citation form in any context
+automatically, there may be situations where it chooses incorrectly or a writer
+wishes to override the automatically selected form. The following macros allow
+for doing so.
+
+To avoid conflicts with other packages, these macros are all prefixed with
+|\Hi|. This is a change from older versions of \hia*. The legacy macro names are
+given in \sec{legacy}.
+
+\MacroSpec\HiNoId
+Informs the package not to use \emph{id.}\ for the next
+citation, by resetting memory of the last reference cited.
+
+\MacroSpec\HiFullCite \marg{ref} \\
+Informs the package to produce a
+full citation of \meta{ref} by resetting memory of that reference's use.
+
+
+\MacroSpec\HiNoFullCite\marg{ref} \\
+Acts as if \meta{ref} was cited without displaying anything, so that the next
+citation to that reference is a short form.
+
+
+
+\MacroSpec\HiFullTitle\marg{ref}\\
+Resets memory of the last statutory title cited.
+
+
+\MacroSpec\HiResetState
+Resets all citation state, forcing all citations to be the full form and
+discarding memory of previous citations.
+
 %%
 %% \iffalse filename: supra.dtx \fi
 %%
@@ -3582,16 +3323,16 @@ Some citations use a short form that reads ``\meta{desc}, \emph{supra} note
 parameter for a reference, which applies a \emph{supra} short form to that
 reference. This section describes how such citations are produced and managed.
 
-\DescribeMacro\hi@supra@form
-A reference type that uses a \emph{supra} citation should execute:
-\begin{demo}
-|\hi@supra@form|\marg{ref}\marg{desc}
-\end{demo}
-in constructing citation macros. The
+\MacroSpec\hi@supra@form \marg{ref}\marg{desc}\\
+Reference types that uses \emph{supra} short forms must execute the above macro
+in the course of defining a reference. The
 argument \meta{ref} is the reference name, and \meta{desc} is the description
 to precede the word ``\emph{supra}.'' The description is usually the reference
 author's last name, and it may use font shortcut commands as described in
 \sec{fonts}.
+
+The \param{hereinafter} parameter also calls |\hi@supra@form|, overriding any
+other short form defined for the reference.
 
 Setting up a \emph{supra} form involves performing the following tasks:
 \begin{itemize}
@@ -3614,6 +3355,47 @@ then the short citation further includes a cross-reference to the first full
 citation to the reference. The cross-reference is generated using |\hilabel| as
 described in \sec{xref}.
 
+
+%%
+%% \iffalse filename: short.dtx \fi
+%%
+\input driver
+\thisis{short}{Short Names}
+
+Many types of reference use a short name to identify the reference after the
+first citation. \unskip\footnote{Short \emph{names} are to be distinguished from
+short \emph{citations}, which are described in \sec{state}. A short name is text
+used to identify a reference the second and subsequent times, and that name may
+be used as part of short citations, but most short (non-inline) citations
+include further information, such as a \emph{supra} note number or locator
+information.} Cases use a distinctive party name, and books and articles use the
+authors' last names, for example. Writers can also choose their own short names
+for references using the |short| and |hereinafter| parameters.
+
+Two problems can arise with these short names. First, two references may use the
+same text for a short name. In this case, the short name is ambiguous, so one or
+the other reference should use a different short name. Second, a writer may
+define a short name for a reference, say using |hereinafter|, but cite that
+reference only once in the document. A hereinafter parenthetical added to that
+first full citation is thus extraneous and unnecessary, and ought to be removed.
+
+This package deals with both of these problems, by issuing warnings about
+ambiguous short names and automatically deleting unnecessary short name
+parentheticals. No user intervention is required other than to respond to
+warnings by adding distinctive short names. \unskip\footnote{A possible future
+improvement would be to generate such short names automatically. To do so,
+though, it would be necessary to build into the package knowledge of
+conventional ways of disambiguating short names: Cases traditionally have roman
+numerals appended to them, while authored works typically have a distinctive
+word from the title added.}
+
+It is worth briefly noting that this short name management feature exemplifies
+the benefit of software-automated legal citations. A human cite-checker wanting
+to solve these two short name problems must keep a table of citations, to be
+searched and cross-referenced for every short name used. In a law review article
+citing hundreds or thousands of references, this task is tedious and
+error-prone, especially since the tabulation must be redone if the document is
+revised. For a computer, though, this task takes a matter of seconds.
 
 %%
 %% \iffalse filename: format.dtx \fi
@@ -3667,6 +3449,459 @@ inline citations.
 A variety of other macros deal with using citation parameters, differentiating
 between citation contexts (inline, nameless, optional arguments), and spacing.
 
+\part{Additional Features}
+\label{p:features}
+%%
+%% \iffalse filename: toa.dtx \fi
+%%
+\input driver
+\thisis{toa}{Table of Authorities}
+
+Legal briefs and other documents often include a Table of Authorities, listing
+all of the references cited and the pages where those citations occur. One of
+the motivations for creating this package was the automatic generation of
+complete, correct, and properly formatted Tables of Authorities.
+
+The table is generated using \LaTeX's auxiliary file feature. Citations generate
+index lines that are written to a |\jobname.toa| file, and those lines are read,
+sorted, and formatted to produce the table. Indexing can be disabled with
+\DescribeMacro\HiEnableTOA
+\DescribeMacro\HiDisableTOA
+|\HiDisableTOA| and enabled with |\HiEnableTOA|.
+
+A Table of Authorities is a complex structure, because it is typically sorted
+into sections based on reference types. This section describes how references
+are sorted into lists, how those lists get their headings, how page numbers in
+the tables are displayed, and finally how the table is formatted.
+
+
+\subsection{Table of Authorities Categories}
+
+\label{s:toa-categories}
+
+Each reference type is associated with a category, used to organize the
+Table of Authorities.
+The category can be altered using the reference
+definition parameter \param{toacat} or by the |\HiSetTOACat| macro.
+The categories are used to assemble the headings for the table.
+
+Specifically, every category has three properties:
+\begin{enumerate}
+\item A name for internal use.
+
+\item A ``supercategory'' that associates the category with others that this
+category should be joined with in the Table of Authorities. For example, the
+categories for statutes and regulations should have the same supercategory, so
+that they are placed in a single section with the Table of Authorities.
+Supercategories are presented in alphabetical order.
+
+\item A textual description of the category, for use in constructing the Table
+of Authorities heading. Because both the singular and plural forms are needed,
+the textual description consists of two to three parts, separated by slashes:
+\begin{enumerate}
+\item The base text common to both forms.
+\item \relax[\emph{Optional}] Text to append to the singular form only.
+\item Text to append to the plural form only.
+\end{enumerate}
+\end{enumerate}
+
+\MacroSpec\HiNewTOACat\marg{name}\marg{supercat}\meta{text}\meta{include?}\\
+Defines a new TOA category. The macro takes
+four parameters, the first three corresponding to the three properties of
+categories above, and the last (being ``Y'' or ``N'') indicating whether to
+include the supercategory in the default table of authorities.
+
+
+\subsubsection{Setting and Getting Categories}
+
+\label{s:toa-set}
+
+\MacroSpec\HiDefaultTOACat
+Each reference type may have a default category, set with the
+|\HiDefaultTOACat| macro. The parameters are \#1 the reference type, and
+\#2 the category name. If the category name is blank, then there will be no
+default category. This default category will be used unless another category
+is specified for a particular reference, overriding the default category.
+
+
+\MacroSpec\HiSetTOACat
+\marg{reference}\marg{category} \\
+Sets the TOA
+category for \meta{reference}. This macro should be called within the
+reference definer macros to set the category, or it is invoked by the
+\param{toacat} parameter. If it is called multiple times, then the last
+category will prevail. If it is not called, then the reference will not appear
+in the table. If \meta{category} is empty, then any previously set category
+will be removed.
+
+
+The following are the TOA categories, with their supercategories and display
+texts as described above. Note the choice of supercategory names, which
+coincidentally sort alphabetically in the correct order. Because the actual
+supercategory names are never displayed, any new supercategories can be named to
+fit into the existing ordering.
+
+\begin{demo}
+\def\HiNewTOACat#1#2#3#4{#1&#2&#3&#4\\}
+\begin{tabular}{llll}
+\textbf{Category} & \textbf{Supercat.} & \textbf{Text} & \textbf{In TOA?} \\
+\hline
+\HiNewTOACat{other}{other}{Other Source/s}{Y}
+\HiNewTOACat{const}{const}{Constitutional Provision/s}{Y}
+\HiNewTOACat{found}{const}{Foundational Document/s}{Y}
+\HiNewTOACat{statute}{edict}{Statute/s}{Y}
+\HiNewTOACat{regulation}{edict}{Regulation/s}{Y}
+\HiNewTOACat{rule}{edict}{Rule/s}{Y}
+\HiNewTOACat{case}{case}{Case/s}{Y}
+\HiNewTOACat{admin}{case}{Administrative Decision/s}{Y}
+\HiNewTOACat{treaty}{edict}{Treat/y/ies}{Y}
+\HiNewTOACat{abbrev}{abbrev}{Abbreviation/s}{N}
+\end{tabular}
+\end{demo}
+
+
+\subsection{Altering Categories in a Document}
+
+It may be useful to alter the TOA categories in a document, to create new
+categories or recategorize certain references or reference types. The macros
+described above allow for that. The following is a how-to guide on achieving a
+few such effects.
+
+\textbf{Place one reference in a different part of the TOA}: use the
+\param{toacat} parameter when defining that reference.
+
+\textbf{Remove a reference from the TOA}: use the \param{notoa}
+parameter, or set the \param{toacat} parameter to blank.
+
+\textbf{Place all references of a given type in a different part of the
+TOA} (e.g., treat \rtype{modelcode} references like statutes): Use
+\begin{grammar}
+|\HiDefaultTOACat|\marg{type}\marg{category}
+\Example
+|\HiDefaultTOACat{modelcode}{statute}|
+\end{grammar}
+where \meta{category} is chosen from the table above.
+
+\textbf{Add a new TOA section} (e.g., put \rtype{film} references in their
+own section): Use
+\begin{grammar}
+|\HiNewTOACat|\marg{category}\marg{super}\marg{text}|{Y}|
+|\HiDefaultTOACat|\marg{type}\marg{category}
+\Example
+|\HiNewTOACat{m}{movies}{Motion Picture/s}{Y}| \\
+|\HiDefaultTOACat{film}{m}|
+\end{grammar}
+where \meta{category} and \meta{super} are new names (not in the above table), and \meta{text} is the text of the heading.
+
+\textbf{Add a new type to an existing TOA section} (e.g., add ``Model
+Code'' to Statutes and Regulations): Use
+\begin{grammar}
+|\HiNewTOACat|\marg{category}\marg{super}\marg{text}|{Y}| \\
+|\HiDefaultTOACat|\marg{type}\marg{category}
+\Example |\HiNewTOACat{mc}{edict}{Model Code/s}{Y}| \\
+|\HiDefaultTOACat{modelcode}{mc}|
+\end{grammar}
+where \meta{category} is a new name (not in the above table), \marg{super} is
+the supercategory name corresponding to the existing TOA section,
+and \meta{text} is the text of the heading.
+
+\subsection{Indexing References}
+
+\label{s:toa-index}
+
+References are indexed for the Table of Authorities upon every citation, by
+having entries added to the |\jobname.toa| file automatically for each citation
+command. The command |\AddToTOA| described below can also add an entry
+manually.
+
+An interesting challenge for indexing is that, especially for briefs, references
+may be cited in parts of a document that use different pagination systems. As a
+result, it is necessary to store detailed information about where a reference is
+cited in a document in order to produce a correct listing of pages in the table.
+
+Five pieces of information are written out to the file for each use of a
+reference:
+\begin{enumerate}
+\item The reference name, and possibly the page for references where the page
+number is included in table of authorities entries.
+\item The page number as formatted.
+\item The page number as an arabic number.
+\item The prevailing definition of |\thepage|, so that different page counting
+schemes can be identified.
+\item A comma-separated list of ``tags'' under which the index entry should be
+categorized. Typically this will be up to two tags, one based on the reference's
+category and one based on the reference's location. A tag is a colon-separated
+structure comprising a supercategory name and a textual heading name
+(corresponding to the TOA Categories elements described in
+\sec{toa-categories}).
+\end{enumerate}
+
+\MacroSpec\HiAddToTOA\marg{ref} \\
+Adds \meta{ref} to the table of authorities without producing any citation text.
+
+
+\subsection{Reading the Index}
+
+Prior to generating a table of authorities, the index file is read and its
+entries are sorted to produce three sets of data structures:
+\begin{itemize}
+\item For each supercategory, a list of references falling within that
+supercategory.
+\item For each supercategory, a list of textual headings for that supercategory.
+\item For each reference, a macro identifying the page numbers associated with
+that reference.
+\end{itemize}
+
+
+\subsubsection{Heading Lists}
+
+For each supercategory, the textual description heading may comprise one or
+more types of references. For example, the ``edict'' supercategory may have
+statutes and/or regulations, and the heading should reflect the particular
+items to be listed. So if one regulation and several statutes have been cited,
+then the heading should read ``Statutes and Regulation,'' for example.
+
+To implement this, for every supercategory there is a ``heading list''
+associated with the supercategory. The heading list contains every textual
+description associated with the supercategory, plus a flag for each textual
+description for whether it should be singular or plural. The first time a
+textual description is encountered for a heading list, the singular form is
+used. If the same description is encountered again, then it is updated to be
+marked as plural.
+
+
+\paragraph{Location-Based Lists}
+\label{s:toa-tag}
+
+It may be desirable to prepare a chapter-by-chapter bibliography, such that
+references are tagged not by type but by location in the document.
+
+\MacroSpec\HiTOATag \marg{tag} \\
+Indicate that all subsequent references cited should be tagged with \meta{tag},
+which can then be used as a list of the Table of Authorities.
+
+
+\subsection{Composing Page Number Lists}
+
+If a reference is cited on pages 3, 4, 5, 7, 8, and 10, it is desirable to group
+these numbers into compact range forms for presentation in the Table of
+Authorities: ``3--5, 7--8, 10.'' The package does so by reading the page numbers
+in order, keeping a running compilation of the properly formatted aggregate
+number listing and revising the last element of that listing as necessary.
+
+
+\paragraph{Starred References}\label{s:toa-star}
+Some courts ask litigants to insert asterisks in the Table of Authorities before
+references that they rely most heavily on. This can be done automatically by
+counting the number of times each reference has been used.
+
+\MacroSpec\HiStarCount \marg{num} \\
+Sets the minimum number of uses of a reference
+before that reference receives a star. The package option \opt{toastar} sets the
+value to 4. By default it is zero, in which case no stars are displayed.
+
+\DescribeMacro\HiStarText
+This macro may be redefined with text to place at the beginning of the
+Table of Authorities explaining the stars.
+
+\DescribeMacro\HiStarMark
+The macro |\HiStarMark| may be redefined to specify the content of the star
+(by default an asterisk). It will be added before the relevant TOA entries via
+|\everypar|, so it probably should be an |\llap| box so as not to affect the
+alignment.
+
+
+\subsection{Showing the Table}
+\label{s:toa-show}
+
+\DescribeMacro\tableofauthorities
+The Table of Authorities is produced by calling |\tableofauthorities|. This will
+create one section for each reference category as described in \sec{refs}.
+
+\MacroSpec\HiTOAHeading\marg{text}
+This macro may be redefined to specify how to format a heading within the table
+of authorities.
+
+
+\MacroSpec\HiTOATable\oarg{heading-text}\marg{list-name}
+Typesets a single Table of Authorities section based on the authorities in
+\meta{list-name}, with a heading \meta{heading-text}. This macro can be used as
+an alternative to |\tableofauthorities| to provide more fine-grained control
+over which tables are emitted.
+
+
+\MacroSpec\HiTOALeader
+Produces the dots for TOA entries, between the reference text and the page
+numbers. This macro may be redefined to change the appearance of the dots.
+
+
+\MacroSpec\HiTOACite\marg{cite-string}
+Displays a single entry in the Table of Authorities. This is essentially
+another citation command like |\sentence| except it invokes less overhead
+because there is no punctuation at the end of the entry to check. It may be
+useful in section headings within documents as well.
+
+
+The following affect the appearance of the Table of Authorities.
+
+\MacroSpec\HiTOASkip A glue specification for how much
+space to put between entries.
+
+
+\MacroSpec\HiTOAPassimNum A number (defined by |\chardef|), representing many
+items an aggregate page listing must have before it is replaced with
+\emph{passim}. When zero (the default), \emph{passim} is never used.
+
+
+\MacroSpec\HiTOAPassim is the text to be used if
+|\HiTOAPassimNum| is met or exceeded.
+
+
+\MacroSpec\HiTOADitto The text that
+replaces repeated authors, statutory titles, and other information that can be
+omitted from the table listings.
+
+
+\MacroSpec\HiTOAIndent The length for the hanging indent. (It is specified in
+|em| units so it is defined as macro text.)
+
+
+\subsection{Table of Abbreviations}
+
+A table of abbreviations is like a simplified table of authorities, and because
+of \hia*'s support for abbreviations as the reference type \rtype{abbrev},
+such tables can be made automatically. The macro |\tableofabbreviations| takes
+as an argument a two-element callback, which it executes for every abbreviation
+definition and full text. Entries are sorted by abbreviations, ignoring any
+``The''.
+
+%%
+%% \iffalse filename: endnotes.dtx \fi
+%%
+\input driver
+\thisis{endnotes}{Endnotes}
+
+The usual \LaTeX\ endnote option stores the unexecuted text of notes and
+then executes them all at the end of the document. This does not work for legal
+citations because the content of the body text interacts with the content of the
+endnotes: An inline citation in body text can change the appearance of citations
+in the notes, for example.
+Instead, it is necessary to typeset endnotes as they are encountered and store
+them to a vertical box that can be displayed upon request.
+
+To use endnotes, include the option \opt{endnote} with this package. This will
+automatically convert all footnotes to endnotes, including citations using
+|\note|. (Specifically, all footnote texts will be executed with the macro
+|\HiEndNote| described below). The following macros may further be used to
+control the content of the endnotes.
+
+
+\MacroSpec\HiEndNote \marg{text} \\
+Adds arbitrary text to the endnote list. The text is
+set in vertical mode.
+
+
+\MacroSpec\HiENDelay\marg{text}\\
+reserves a certain text for future adding to the endnote
+list. The text is actually added only if other endnote text is added before
+|\HiENDelay| is invoked a second time.
+This is useful for adding chapter or section heading markers to and endnote list
+conditionally. If the chapter contains no endnotes, then the chapter heading
+will never be inserted into the endnote list.
+
+Again, the text is set in vertical mode.
+
+
+\MacroSpec\HiENSection
+Inserts text into the endnote list (using |\HiENDelay|) indicating where a
+section heading occurred. The section number is inserted automatically, preceded
+by ``Section.''
+
+
+\DescribeMacro\HiENFont
+|\HiENFont| can be defined to set the font for endnotes. It must be defined
+before endnotes are added, since once they are added the notes have been
+typeset and cannot be changed.
+
+
+\DescribeMacro\theendnotes
+|\theendnotes| emits the list of endnotes. If the macro is not called, it will
+be automatically executed at the end of the document with a warning.
+
+%%
+%% \iffalse filename: legacy.dtx \fi
+%%
+\input driver
+\thisis{legacy}{Legacy Command Names}
+
+The following are legacy macro names that have been changed to conform to
+\hia*'s naming convention of starting user-level macros with the prefix |\Hi|.
+By default, they will be defined only if they are not previously defined by
+another package, but a warning will be issued if another package has defined
+them. The options \opt{legacy} and \opt{nolegacy} affect this behavior.
+
+
+\def\hi@legacy@cmd#1#2#3{%
+    \texttt{\string#1}& \texttt{\string#2}& \sec{#3}\\
+}
+
+\begin{demo}
+\begin{tabular}{lll}
+\textbf{Legacy name} & \textbf{New Name} & \textbf{See}\\
+\hline
+\hi@legacy@cmd\sic              \HiSic          {iface-misc}
+\hi@legacy@cmd\PageNumber       \HiParsePin     {pages}
+\hi@legacy@cmd\AuthorityTag     \HiTOATag       {toa-tag}
+\hi@legacy@cmd\enabletoa        \HiEnableTOA    {toa}
+\hi@legacy@cmd\disabletoa       \HiDisableTOA   {toa}
+\hi@legacy@cmd\NewTOACategory   \HiNewTOACat    {toa-categories}
+\hi@legacy@cmd\SetTOACategory   \HiSetTOACat    {toa-set}
+\hi@legacy@cmd\DefaultTOACategory \HiDefaultTOACat {toa-set}
+\hi@legacy@cmd\addtotoa         \HiAddToTOA     {toa-index}
+\hi@legacy@cmd\StarCount        \HiStarCount    {toa-star}
+\hi@legacy@cmd\StarText         \HiStarText     {toa-star}
+\hi@legacy@cmd\StarMark         \HiStarMark     {toa-star}
+\hi@legacy@cmd\toaheading       \HiTOAHeading   {toa-show}
+\hi@legacy@cmd\AuthorityTable   \HiTOATable     {toa-show}
+\hi@legacy@cmd\TOALeader        \HiTOALeader    {toa-show}
+\hi@legacy@cmd\toacite          \HiTOACite      {toa-show}
+\hi@legacy@cmd\toaskip          \HiTOASkip      {toa-show}
+\hi@legacy@cmd\PassimText       \HiTOAPassim    {toa-show}
+\hi@legacy@cmd\toahangindentlen \HiTOAIndent    {toa-show}
+\hi@legacy@cmd\AbbreviateFor    \HiAbbrev       {abbrevs}
+\hi@legacy@cmd\ExplanatoryPhrase \HiExplPhrase  {abbrevs-expl}
+\hi@legacy@cmd\MakeFontPack     \HiFontPack     {fonts-pack}
+\hi@legacy@cmd\UseFontPack      \HiUseFontPack  {fonts-pack}
+\hi@legacy@cmd\UseFontFor       \HiFont         {fonts-use}
+\hi@legacy@cmd\noid             \HiNoId         {state-manip}
+\hi@legacy@cmd\fullcite         \HiFullCite     {state-manip}
+\hi@legacy@cmd\nofullcite       \HiNoFullCite   {state-manip}
+\hi@legacy@cmd\fulltitle        \HiFullTitle    {state-manip}
+\hi@legacy@cmd\resetcitationforms \HiResetState {state-manip}
+\hi@legacy@cmd\ShowCitationState \HiShowState   {state-short}
+\hi@legacy@cmd\EndnoteText      \HiEndNote      {endnotes}
+\hi@legacy@cmd\EndnoteTextDelayed \HiENDelay    {endnotes}
+\hi@legacy@cmd\SectionNote      \HiENSection    {endnotes}
+\hi@legacy@cmd\EndnoteFont      \HiENFont       {endnotes}
+\end{tabular}
+\end{demo}
+
+\paragraph{Citation Command Shortcuts}
+\label{s:legacy-short}
+The following are not ``legacy'' commands but rather are shortcuts for the
+citation commands described in \sec{iface}.
+
+\begin{demo}
+\begin{tabular}{lll}
+\textbf{Shortcut name} & \textbf{Full Name} & \textbf{See}\\
+\hi@legacy@cmd\Ct       \sentence       {iface}
+\hi@legacy@cmd\ct       \clause         {iface}
+\hi@legacy@cmd\Ci       \Inline         {iface}
+\hi@legacy@cmd\ci       \inline         {iface}
+\hi@legacy@cmd\cn       \note           {iface}
+\hi@legacy@cmd\cx       \HiAddToTOA     {iface}
+\end{tabular}
+\end{demo}
 
 \clearpage
 \part{Reference Types}
@@ -3927,9 +4162,8 @@ syntax for those parameters is:
 \end{grammar}
 The \meta{phrase} is an explanatory phrase that will be abbreviated and also
 checked against a table of valid explanatory phrases. If a desired phrase is not
-already listed, the macro
-\DescribeMacro\ExplanatoryPhrase
-|\ExplanatoryPhrase|\marg{phrase[,]} is used. Note that the comma at the end of
+already listed, the macro |\HiExplPhrase| (\sec{abbrevs-expl})
+is used. Note that the comma at the end of
 the argument is significant, as some explanatory phrases use a comma and others
 do not.
 
@@ -4258,7 +4492,7 @@ Amendment\\ and ``amendment \meta{number}'' respectively.
         \hi@citeguts{%
             \noexpand\hi@fn@const{\hi@kv@name}%
             \hi@pageordefault{ }{%
-                \hi@ifset\hi@kv@page{ \@format@page@macro\hi@kv@page}{}%
+                \hi@ifset\hi@kv@page{ \hi@fmt@page@macro\hi@kv@page}{}%
             }%
         }%
         \the\hi@param@parens
@@ -4269,7 +4503,7 @@ Amendment\\ and ``amendment \meta{number}'' respectively.
     \hi@newcite@form{lc}{#1}{%
         \noexpand\hi@toa@duptitle{}{\hi@fn@const{\hi@kv@name}}{%
             \hi@pageordefault{ }{%
-                \hi@ifset\hi@kv@page{ \@format@page@macro\hi@kv@page}{}%
+                \hi@ifset\hi@kv@page{ \hi@fmt@page@macro\hi@kv@page}{}%
             }%
             \the\hi@param@parens
             \hi@ifset\hi@kv@year{%
@@ -4277,7 +4511,7 @@ Amendment\\ and ``amendment \meta{number}'' respectively.
             }{}%
         }{%
             \hi@pageordefault{ }{%
-                \hi@ifset\hi@kv@page{ \@format@page@macro\hi@kv@page}{}%
+                \hi@ifset\hi@kv@page{ \hi@fmt@page@macro\hi@kv@page}{}%
             }%
         }%
         \the\hi@param@parens
@@ -4522,7 +4756,7 @@ See \sec{pages-segments} for more on segments in pin cites.
                 \hi@maybepage{ },\space
                 \hi@pstruct@use{vol}\space
                 \hi@pstruct@use@font{rep}\hi@fn@statute\space
-                \hi@pstruct@call{page}{\noexpand\@format@page@macro}%
+                \hi@pstruct@call{page}{\noexpand\hi@fmt@page@macro}%
             }%
             \hi@book@paren
             \the\hi@param@parens
@@ -4553,7 +4787,7 @@ See \sec{pages-segments} for more on segments in pin cites.
                 \noexpand\fi
                 \hi@pstruct@use{vol}\space
                 \hi@pstruct@use@font{rep}\hi@fn@statute\space
-                \hi@pstruct@call{page}{\noexpand\@format@page@macro}%
+                \hi@pstruct@call{page}{\noexpand\hi@fmt@page@macro}%
             }%
             \hi@inline@only{%
                 \hi@ifpage{%
@@ -4577,7 +4811,7 @@ See \sec{pages-segments} for more on segments in pin cites.
                 \hi@maybepage{ },\space
                 \hi@pstruct@use{vol}\space
                 \hi@pstruct@use@font{rep}\hi@fn@statute\space
-                \hi@pstruct@call{page}{\noexpand\@format@page@macro}%
+                \hi@pstruct@call{page}{\noexpand\hi@fmt@page@macro}%
             }%
         }%
     }%
@@ -4621,7 +4855,7 @@ statutes if a particular section number is repeatedly used.
             \hi@ifset\hi@kv@name{\noexpand\@capnext\hi@kv@name, }%
             \noexpand\hi@fn@statute{\hi@kv@rep}%
             \hi@pageordefault{ }{%
-                \hi@ifset\hi@kv@page{ \@format@page@macro\hi@kv@page}{}%
+                \hi@ifset\hi@kv@page{ \hi@fmt@page@macro\hi@kv@page}{}%
             }%
         }%
         \hi@ifeitherset\hi@kv@year\hi@kv@court{%
@@ -4809,7 +5043,7 @@ into the above categories.
             }{}%
             \noexpand\hi@fn@congdoc{\hi@kv@number}%
             \hi@ifset\hi@kv@page{%
-                , \@format@page@macro\hi@kv@page
+                , \hi@fmt@page@macro\hi@kv@page
             }{}%
             \hi@maybepage{, \hi@page@atorsect}%
         }%
@@ -4834,7 +5068,7 @@ into the above categories.
             }{}%
             \noexpand\hi@fn@congdoc{\reserved@a}%
             \hi@ifset\hi@kv@page{%
-                , \@format@page@macro\hi@kv@page
+                , \hi@fmt@page@macro\hi@kv@page
             }{}%
             \hi@maybepage{, \hi@page@atorsect}%
         }%
@@ -4921,7 +5155,7 @@ This is essentially a more structured citation to a book.
         \hi@citeguts{%
             \hi@usevol{\hi@ifset\hi@kv@vol{\hi@kv@vol\space}{}}%
             \noexpand\hi@fn@congdoc{\hi@kv@rep}\space
-            \hi@ifpage{\hi@maybepage{}}{\@format@page@macro\hi@kv@page}%
+            \hi@ifpage{\hi@maybepage{}}{\hi@fmt@page@macro\hi@kv@page}%
         }%
         \hi@book@paren
         \the\hi@param@parens
@@ -5509,7 +5743,7 @@ which are optional (although some reference types will require \param{year}):
     author=David Nimmer,
     title=Nimmer on Copyright,
     year=2014,
-    hereinafter=\UseFontFor{booktitle}{Nimmer},
+    hereinafter=\HiFont{booktitle}{Nimmer},
 }
 \end{verbatim}
 \Produces \textsc{Melville B. Nimmer \& David Nimmer}, \textsc{Nimmer on
@@ -5744,7 +5978,7 @@ complex reference definition that I have constructed.
                 \hi@ifset\hi@kv@useissue{%
                     No.~\hi@kv@issue, at\space
                 }{}%
-                \@format@page@macro\hi@kv@page % First page
+                \hi@fmt@page@macro\hi@kv@page % First page
                 \hi@maybepage{, }% Pin cite page
             }%
         }%
@@ -5843,7 +6077,7 @@ Note the unabbreviated journal name in the input.
                 \noexpand\hi@fn@sig{in}\space
                 \hi@ifset\hi@kv@vol{\hi@kv@vol}{\hi@kv@year} % Volume
                 \noexpand\hi@fn@jrntitle{\hi@kv@rep}%
-                \hi@ifset\hi@kv@page{\space \@format@page@macro\hi@kv@page}{}%
+                \hi@ifset\hi@kv@page{\space \hi@fmt@page@macro\hi@kv@page}{}%
             }%
             \hi@ifset\hi@kv@vol{%
                 \ifx\hi@kv@vol\hi@kv@year\else
@@ -5886,7 +6120,7 @@ following exceptions.
 \hi@newcite{magart}{A magazine article}{other}{%
     \hi@abbrev@journal@check
     \hi@ifset\hi@kv@page{%
-        \protected@edef\hi@kv@page{\@format@page@macro\hi@kv@page}%
+        \protected@edef\hi@kv@page{\hi@fmt@page@macro\hi@kv@page}%
     }{}%
     \hi@newcite@form{fc}{#1}{%
         \hi@citeguts{%
@@ -6130,7 +6364,7 @@ extent it is necessary, use \rtype{verbatim}.
             }{}%
             (\hi@kv@year)\space
             \hi@pageordefault{}{%
-                \@format@page@macro\hi@kv@page
+                \hi@fmt@page@macro\hi@kv@page
             }%
         }%
     }%
@@ -6144,7 +6378,7 @@ extent it is necessary, use \rtype{verbatim}.
             }{}%
             (\hi@kv@year)\space
             \hi@pageordefault{}{%
-                \@format@page@macro\hi@kv@page
+                \hi@fmt@page@macro\hi@kv@page
             }%
         }%
         \the\hi@param@parens
@@ -6179,7 +6413,7 @@ extent it is necessary, use \rtype{verbatim}.
                 % section.
                 \hi@ifset\hi@kv@rep{}{%
                     \hi@ifset\hi@kv@page{%
-                        , \@format@page@macro\hi@kv@page
+                        , \hi@fmt@page@macro\hi@kv@page
                     }{}%
                 }%
             }%
@@ -6187,7 +6421,7 @@ extent it is necessary, use \rtype{verbatim}.
                 ,\space
                 \hi@ifset\hi@kv@vol{\hi@kv@vol\space}{}%
                 \noexpand\hi@fn@statute{\hi@kv@rep}\space
-                \@format@page@macro\hi@kv@page
+                \hi@fmt@page@macro\hi@kv@page
             }{}%
         }%
         \hi@ifset\hi@kv@name{%
@@ -6303,7 +6537,7 @@ difference in \param{page} for each.
                     \hi@ifset\hi@kv@vol{\hi@kv@vol\space}{}%
                     \noexpand\hi@fn@statute{\hi@kv@rep}%
                     \hi@ifset\hi@kv@page{%
-                        \space\@format@page@macro\hi@kv@page
+                        \space\hi@fmt@page@macro\hi@kv@page
                     }{}%
                 }{}%
             }%
@@ -6448,7 +6682,7 @@ Typically these are reports.
 \keyparameters{
     {author, instauth}{The author of the document. The institutional author will
     be separated from the human author, with the latter placed in a
-    parenthetical.}
+    parenthetical starting with ``prepared by.''}
     {name}{Title of the document.}
     {type}{The institution issuing the document control number, default
     ``U.N.''}
@@ -7009,7 +7243,7 @@ that it does not affect \emph{id.}\ citations surrounding it.
         \hi@ifset\hi@kv@page{%
             \noexpand\ifx\noexpand\@this@page\relax
                 \def\noexpand\@this@orig@page{\expandonce\hi@kv@page}%
-                \def\@this@page{\@format@page@macro\hi@kv@page}%
+                \def\@this@page{\hi@fmt@page@macro\hi@kv@page}%
             \noexpand\fi
         }{}%
     }%
@@ -7022,7 +7256,7 @@ that it does not affect \emph{id.}\ citations surrounding it.
             \noexpand\hi@pages@join{\expandonce\hi@kv@page}{##1}%
         }{%
             \noexpand\protected@edef\noexpand\@this@page{%
-                \noexpand\@format@pageno{##1}%
+                \noexpand\hi@fmt@pageno{##1}%
             }%
         }%
     }%
@@ -7135,7 +7369,7 @@ This adds a parenthetical. If no value is given, then the parenthetical reads
 just ``book review.'' Otherwise, the value should be a reference name for the
 book being reviewed, which will be cited in the parenthetical.
 \hi@defparam{toacat}{Table of Authorities category for this citation}{%
-    \@expandarg\SetTOACategory\@this@case{#1}%
+    \@expandarg\HiSetTOACat\@this@case{#1}%
 }
 The valid category types are listed in \sec{toa-categories}.
 \hi@param@alias{comment}{paren}
@@ -7174,7 +7408,7 @@ a reference, and it should not be changed.
 This parameter has no display effect, but advises the package not to issue a
 warning if it detects an name list of three or more entities.
 \hi@defparam@noval{notoa}{Do not include in the table of authorities}{%
-    \SetTOACategory{\@this@case}{}%
+    \HiSetTOACat{\@this@case}{}%
 }
 \hi@newparam{opturl}{Optional URL}
 Generally this parameter is ignored. However, if the package option

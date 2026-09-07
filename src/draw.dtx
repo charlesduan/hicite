@@ -302,7 +302,7 @@ capitalized. That could be the signal or a part of the citation text itself.
 \def\hi@pse@page#1{%
     \def\@this@orig@page{#1}%
     \@ifundefined{pc@\@this@case}{%
-        \protected@edef\@this@page{\@format@pageno{#1}}%
+        \protected@edef\@this@page{\hi@fmt@pageno{#1}}%
     }{%
         \@nameuse{pc@\@this@case}{#1}%
     }%
@@ -335,21 +335,25 @@ full citation for a reference named |brown|.
 
 Each citation form is given and explained below, along with its
 \meta{prefix}.
-\begin{description}
-\item[Full] (|fc|) The full citation form.
-\item[Short] (|sc|) The non-\emph{id.}\ short form. Defaults to the full form.
-\item[List] (|lc|) The form used in the Table of Authorities. Defaults to the
-full form.
-\item[Pin cite] (|pc|) Some references have special ways of treating pin cite
+\begin{demo}
+\begin{tabular}{llp{0.5\textwidth}}
+\textbf{Type} & \textbf{Prefix} & \textbf{Description}\\
+\hline
+Full & |fc| & The full citation form. \\
+Short & |sc| & The non-\emph{id.}\ short form. Defaults to the full form. \\
+List & |lc| & The form used in the Table of Authorities. Defaults to the
+full form. \\
+Pin cite & |pc| & Some references have special ways of treating pin cite
 numbers. This citation form is used in the pin cite formatting routine (see
-\sec{pages}).
-\item[\emph{Id.}] (|idc|) The form to be used for immediately successive
-citations, if not the standard \emph{id.}~form.
-\item[Inline full] (|ifc|) The inline citation form to be used upon the first
-inline usage.
-\item[Inline short] (|isc|) The inline citation form to be used on subsequent
-inline usages.
-\end{description}
+\sec{pages}). \\
+\emph{Id.} & |idc| & The form to be used for immediately successive
+citations, if not the standard \emph{id.}~form. \\
+Inline full & |ifc| & The inline citation form to be used upon the first
+inline usage. \\
+Inline short & |isc| & The inline citation form to be used on subsequent
+inline usages. \\
+\end{tabular}
+\end{demo}
 
 It may be helpful for debugging to see these macros. To do so, include the
 following in your document:
@@ -493,9 +497,7 @@ references, which is displayed at the end of document compilation.
 As a convenience, the package also keeps track of defined references that are
 missing page numbers. The user enters the unknown page number as a question
 mark, and the package displays a list of all unentered page numbers at the end
-of compilation. This tracking is turned on by default; if the
-\DescribeMacro{nomissing} |nomissing| option is given to the package then an
-error will be raised for missing reference definitions.
+of compilation.
 
 %</doc>
 %<*package>

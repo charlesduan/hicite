@@ -216,13 +216,13 @@ those for \rtype{statcode}.
             }%
             \hi@ifset\hi@kv@origsect{%
                 \hi@ifset\hi@kv@page{%
-                    \noexpand\reserved@a\@format@page@macro\hi@kv@page
+                    \noexpand\reserved@a\hi@fmt@page@macro\hi@kv@page
                 }{}%
             }{%
                 \hi@pageordefault{\noexpand\reserved@a}{%
                     \hi@ifset\hi@kv@page{%
                         \noexpand\reserved@a
-                        \@format@page@macro\hi@kv@page
+                        \hi@fmt@page@macro\hi@kv@page
                     }{}%
                 }%
             }%
@@ -244,24 +244,24 @@ those for \rtype{statcode}.
         }{%
             \hi@ifset\hi@kv@origsect{%
                 \hi@ifset\hi@kv@page{%
-                    \space\@format@page@macro\hi@kv@page
+                    \space\hi@fmt@page@macro\hi@kv@page
                 }{}%
             }{%
                 \hi@pageordefault{ }{%
                     \hi@ifset\hi@kv@page{%
-                        \space\@format@page@macro\hi@kv@page
+                        \space\hi@fmt@page@macro\hi@kv@page
                     }{}%
                 }%
             }%
         }{%
             \hi@ifset\hi@kv@origsect{%
                 \hi@pageordefault{ }{%
-                    \space\@format@page@macro\hi@kv@origsect
+                    \space\hi@fmt@page@macro\hi@kv@origsect
                 }%
             }{%
                 \hi@pageordefault{ }{%
                     \hi@ifset\hi@kv@page{%
-                        \space\@format@page@macro\hi@kv@page
+                        \space\hi@fmt@page@macro\hi@kv@page
                     }{}%
                 }%
             }%
@@ -299,7 +299,7 @@ those for \rtype{statcode}.
                 \noexpand\hi@pages@join{\hi@kv@page}{##1}%
             }{%
                 \noexpand\protected@edef\noexpand\@this@page{%
-                    \noexpand\@format@pageno{##1}%
+                    \noexpand\hi@fmt@pageno{##1}%
                 }%
             }%
         }%
@@ -333,7 +333,7 @@ those for \rtype{statcode}.
             % any given page descriptor.
             \hi@pageordefault{\noexpand\reserved@a}{%
                 \noexpand\reserved@a
-                \@capnext\@format@page@macro\hi@kv@origsect
+                \@capnext\hi@fmt@page@macro\hi@kv@origsect
             }%
         }%
         % Set the last title to \hi@kv@inline, which is the title to be
@@ -365,7 +365,7 @@ those for \rtype{statcode}.
             \hi@pageordefault{\noexpand\reserved@a}{%
                 \hi@ifset\hi@kv@page{%
                     \noexpand\reserved@a
-                    \@capnext\@format@page@macro\hi@kv@page
+                    \@capnext\hi@fmt@page@macro\hi@kv@page
                 }{}%
             }%
         }%
@@ -433,7 +433,7 @@ those for \rtype{statcode}.
             \@capnext\hi@kv@name
             \hi@ifset\hi@kv@origsect{%
                 \hi@pageordefault{ }{%
-                    \space\@format@page@macro\hi@kv@origsect
+                    \space\hi@fmt@page@macro\hi@kv@origsect
                 }%
             }{}%
             ,\noexpand\if@hi@in@toa \hfil\break
@@ -503,12 +503,12 @@ those for \rtype{statcode}.
     \protected@edef\reserved@a{%
         \hi@ifset\hi@kv@origsect{%
             \@expand{\find@in{-}}\hi@kv@origsect i{\@gobbletwo}{%
-                \@format@page@macro\hi@kv@origsect
+                \hi@fmt@page@macro\hi@kv@origsect
             }%
         }{%
             \hi@ifset\hi@kv@page{%
                 \@expand{\find@in{-}}\hi@kv@page i{\@gobbletwo}{%
-                    \@format@page@macro\hi@kv@page
+                    \hi@fmt@page@macro\hi@kv@page
                 }%
             }{}%
         }%
@@ -1058,7 +1058,7 @@ See \sec{pages-segments} for more on segments in pin cites.
                 \hi@maybepage{ },\space
                 \hi@pstruct@use{vol}\space
                 \hi@pstruct@use@font{rep}\hi@fn@statute\space
-                \hi@pstruct@call{page}{\noexpand\@format@page@macro}%
+                \hi@pstruct@call{page}{\noexpand\hi@fmt@page@macro}%
             }%
             \hi@book@paren
             \the\hi@param@parens
@@ -1089,7 +1089,7 @@ See \sec{pages-segments} for more on segments in pin cites.
                 \noexpand\fi
                 \hi@pstruct@use{vol}\space
                 \hi@pstruct@use@font{rep}\hi@fn@statute\space
-                \hi@pstruct@call{page}{\noexpand\@format@page@macro}%
+                \hi@pstruct@call{page}{\noexpand\hi@fmt@page@macro}%
             }%
             \hi@inline@only{%
                 \hi@ifpage{%
@@ -1113,7 +1113,7 @@ See \sec{pages-segments} for more on segments in pin cites.
                 \hi@maybepage{ },\space
                 \hi@pstruct@use{vol}\space
                 \hi@pstruct@use@font{rep}\hi@fn@statute\space
-                \hi@pstruct@call{page}{\noexpand\@format@page@macro}%
+                \hi@pstruct@call{page}{\noexpand\hi@fmt@page@macro}%
             }%
         }%
     }%
@@ -1168,7 +1168,7 @@ statutes if a particular section number is repeatedly used.
             \hi@ifset\hi@kv@name{\noexpand\@capnext\hi@kv@name, }%
             \noexpand\hi@fn@statute{\hi@kv@rep}%
             \hi@pageordefault{ }{%
-                \hi@ifset\hi@kv@page{ \@format@page@macro\hi@kv@page}{}%
+                \hi@ifset\hi@kv@page{ \hi@fmt@page@macro\hi@kv@page}{}%
             }%
         }%
         \hi@ifeitherset\hi@kv@year\hi@kv@court{%
@@ -1463,18 +1463,18 @@ inline=OCILLA,
 Limitation Act (OCILLA), \emph{in} Digital Millennium Copyright Act, Pub.~L.
 No.~105-304, tit.~II, 112 \textsc{Stat.}~2860, 2877 (1998).}}
 
-\fullcite{ocilla}
-\fullcite{dmca-sess}
+\HiFullCite{ocilla}
+\HiFullCite{dmca-sess}
 
 \AssertBox{\note{ocilla at S 203 ::stat: 2886}}{\InFootnote{Online Copyright
 Infringement Liability Limitation Act (OCILLA) \S~203, \emph{in} Digital
 Millennium Copyright Act, Pub.~L. No.~105-304, tit.~II, 112
 \textsc{Stat.}~2860, 2886 (1998).}}
 
-\noid
+\HiNoId
 
 \AssertBox{\note{ocilla}}{\InFootnote{OCILLA, 112 \textsc{Stat.}~at 2877.}}
-\noid
+\HiNoId
 
 \AssertBox{\note{ocilla at S 204 ::stat: 2887}}{\InFootnote{OCILLA
 \S~204, 112 \textsc{Stat.}~at 2887.}}
@@ -1491,7 +1491,7 @@ Limitation Act (``OCILLA'')}
 
 \AssertBox{\inline{ocilla at S 203}}{\S~203 of OCILLA}
 
-\fullcite{ocilla}
+\HiFullCite{ocilla}
 
 
 \AssertBox{\inline{dmca-sess}\note{ocilla at S 203 ::stat: 2886}}{the Digital Millennium Copyright Act\InFootnote{Online Copyright

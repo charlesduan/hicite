@@ -10,16 +10,16 @@ Some citations use a short form that reads ``\meta{desc}, \emph{supra} note
 parameter for a reference, which applies a \emph{supra} short form to that
 reference. This section describes how such citations are produced and managed.
 
-\DescribeMacro\hi@supra@form
-A reference type that uses a \emph{supra} citation should execute:
-\begin{demo}
-|\hi@supra@form|\marg{ref}\marg{desc}
-\end{demo}
-in constructing citation macros. The
+\MacroSpec\hi@supra@form \marg{ref}\marg{desc}\\
+Reference types that uses \emph{supra} short forms must execute the above macro
+in the course of defining a reference. The
 argument \meta{ref} is the reference name, and \meta{desc} is the description
 to precede the word ``\emph{supra}.'' The description is usually the reference
 author's last name, and it may use font shortcut commands as described in
 \sec{fonts}.
+
+The \param{hereinafter} parameter also calls |\hi@supra@form|, overriding any
+other short form defined for the reference.
 
 Setting up a \emph{supra} form involves performing the following tasks:
 \begin{itemize}
@@ -70,8 +70,8 @@ citation state described in \sec{state}.
 %
 % Displays the footnote number for the \emph{supra} citation. Following the
 % conventions described in \sec{state}, the number is displayed only if (1) the
-% reference has only been cited in footnotes (|\dfc@|\meta{ref} is positive) and
-% the reference number is not the same as the current footnote number.
+% reference has only been cited in footnotes (|\hi@dfc@|\meta{ref} is positive)
+% and the reference number is not the same as the current footnote number.
 %
 % This macro is not incorporated into |\hi@supra@word| because it is redefined
 % in the tex4ht conversion file or by the cross-reference mechanism as described
@@ -79,9 +79,9 @@ citation state described in \sec{state}.
 %
 %    \begin{macrocode}
 \def\hi@notepos#1{%
-    \ifnum\csname dfc@#1\endcsname=\c@footnote\else
-        \ifnum\csname dfc@#1\endcsname>\z@
-            \space note~\csname dfc@#1\endcsname
+    \ifnum\csname hi@dfc@#1\endcsname=\c@footnote\else
+        \ifnum\csname hi@dfc@#1\endcsname>\z@
+            \space note~\csname hi@dfc@#1\endcsname
         \fi
     \fi
 }%
