@@ -516,42 +516,42 @@ These are placed in square brackets. They may be entered with the parameter
 
 \begingroup
 
-\hi@parens@reset
-\hi@parens@add\@ne{One}
-\hi@parens@add\tw@{Two}
-\hi@parens@add\z@{Zero}
-\AssertMacro\hi@parens{%
-    \@paren{\z@}{Zero}\@paren{\@ne}{One}\@paren{\tw@}{Two}%
-}
+    \hi@parens@reset
+    \hi@parens@add\@ne{One}
+    \hi@parens@add\tw@{Two}
+    \hi@parens@add\z@{Zero}
+    \AssertMacro\hi@parens{%
+        \@paren{\z@}{Zero}\@paren{\@ne}{One}\@paren{\tw@}{Two}%
+    }
 
-\hi@parens@reset
-\hi@paren@parse{generic}
-\AssertMacro\hi@parens{%
-    \@paren{\hi@paren@cite}{generic}%
-}
+    \hi@parens@reset
+    \hi@paren@parse{generic}
+    \AssertMacro\hi@parens{%
+        \@paren{\hi@paren@cite}{generic}%
+    }
 
-\hi@paren@parse{discussed in: a}
-\AssertMacro\hi@parens{%
-    \@paren{\hi@paren@cite}{generic}%
-    \@paren{\hi@paren@comment}{\hi@fn@sig{discussed in} \clause{a}}%
-}
+    \hi@paren@parse{discussed in: a}
+    \AssertMacro\hi@parens{%
+        \@paren{\hi@paren@cite}{generic}%
+        \@paren{\hi@paren@comment}{\hi@fn@sig{discussed in} \clause{a}}%
+    }
 
-\hi@paren@parse{quoting: b}
-\AssertMacro\hi@parens{%
-    \@paren{\hi@paren@cite}{generic}%
-    \@paren{\hi@paren@cite}{quoting \clause{b}}%
-    \@paren{\hi@paren@comment}{\hi@fn@sig{discussed in} \clause{a}}%
-}
+    \hi@paren@parse{quoting: b}
+    \AssertMacro\hi@parens{%
+        \@paren{\hi@paren@cite}{generic}%
+        \@paren{\hi@paren@cite}{quoting \clause{b}}%
+        \@paren{\hi@paren@comment}{\hi@fn@sig{discussed in} \clause{a}}%
+    }
 
-\def\hi@defer@content#1{\def\TestDefer{Deferred #1}}
-\def\TestDefer{failed}
-\hi@paren@parse{footnote: c}
-\AssertMacro\hi@parens{%
-    \@paren{\hi@paren@cite}{generic}%
-    \@paren{\hi@paren@cite}{quoting \clause{b}}%
-    \@paren{\hi@paren@comment}{\hi@fn@sig{discussed in} \clause{a}}%
-}
-\AssertMacro\TestDefer{Deferred c}
+    \def\hi@defer@content#1{\def\TestDefer{Deferred #1}}
+    \def\TestDefer{failed}
+    \hi@paren@parse{footnote: c}
+    \AssertMacro\hi@parens{%
+        \@paren{\hi@paren@cite}{generic}%
+        \@paren{\hi@paren@cite}{quoting \clause{b}}%
+        \@paren{\hi@paren@comment}{\hi@fn@sig{discussed in} \clause{a}}%
+    }
+    \AssertMacro\TestDefer{Deferred c}
 
 \endgroup
 

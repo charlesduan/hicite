@@ -510,7 +510,7 @@ content (see \sec{parens-deferred}), which will be moved to a footnote.
             \hi@linkurl@auxwrite{#1}%
             \hi@url@insertbox{\HiLinkText}{#1}%
             \ifx\HiLinkTrailer\relax\else
-                \hi@defer@content{\HiLinkTrailer}%
+                \@expandarg\hi@defer@content\HiLinkTrailer
                 \global\let\HiLinkTrailer\relax
             \fi
         }%
