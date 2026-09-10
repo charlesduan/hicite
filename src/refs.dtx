@@ -178,18 +178,23 @@ reference types there are shortcuts described in \sec{cparse}.
     }%
 }
 %
-% Special token to set undefined parameters to.
+% Displays an error message about a missing parameter, and also inserts a
+% placeholder text when called inside a citation.
 %
 %    \begin{macrocode}
 \DeclareRobustCommand\hi@param@undef[1]{%
     \PackageError\hi@pkgname{%
-        Citation parameter \noexpand#1 missing in \@this@case
+        Citation parameter #1 missing in \@this@case
     }{Include the missing citation parameter.}%
-    \textbf{???}%
+    \ifnum\hi@citelevel>\z@ \textbf{???}\fi
 }
 %    \end{macrocode}
 %    \begin{macrocode}
-\def\hi@undefine#1{\def#1{\hi@param@undef{\string#1}}}
+\def\hi@undefine#1{%
+    \def#1{\hi@param@undef{\hi@param@gobble#1}}%
+}
+\def\hi@param@gobble#1{\expandafter\hi@param@gobble@\string#1\@stop}
+\expandafter\def\expandafter\hi@param@gobble@\string\hi@kv@#1\@stop{#1}
 %    \end{macrocode}
 %
 % Set all parameters to empty. This will be called after all the
@@ -238,7 +243,6 @@ reference types there are shortcuts described in \sec{cparse}.
 %    \end{macrocode}
 %
 % \paragraph{Setting Parameters}
-% \DescribeMacro\hi@param@set
 % The following macro is used when executing a reference definer, to read and
 % set all the parameters in preparation for constructing the citation macros. It
 % looks for a parseable formatted citation (either by finding a semicolon in the
@@ -246,7 +250,8 @@ reference types there are shortcuts described in \sec{cparse}.
 % otherwise uses |keyval| to read the parameters. It also executes any
 % post-parameter hooks.
 %
-% \#1 is the reference type name, and \#2 is the parameter set.
+% \MacroSpec\hi@param@set\marg{ref-name}\marg{parameters} \\
+% Process parameters for a given reference.
 %
 %    \begin{macrocode}
 \def\hi@param@set#1#2{%
@@ -283,6 +288,9 @@ reference types there are shortcuts described in \sec{cparse}.
 % \paragraph{Testing Parameters in Citation Macros}
 % Commands for testing parameters in citation macros.
 %
+% \MacroSpec\hi@ifset|{\hi@kv@|\meta{param}|}|\marg{if-true}\marg{if-false} \\
+% Tests whether a parameter has been set, and runs the appropriate callback.
+%
 %    \begin{macrocode}
 \def\hi@ifset#1{%
     \expandafter\hi@ifset@#1.\@stop
@@ -292,12 +300,28 @@ reference types there are shortcuts described in \sec{cparse}.
     \else                \expandafter\@firstoftwo   \fi
 }
 %    \end{macrocode}
+%
+% \MacroSpec\hi@ifeitherset\marg{param-1}\marg{param-2}
+% \marg{if-true}\marg{if-false}\\
+% Runs \meta{if-true} if either parameter is set, and \meta{if-false} otherwise.
+% The parameters should be given in |\hi@kv@|\meta{param} form.
+%
 %    \begin{macrocode}
 \def\hi@ifeitherset#1#2{%
     \hi@ifset#1{\@firstoftwo}{\hi@ifset#2}%
 }
 %    \end{macrocode}
 %
+% \MacroSpec\hi@param@required|{\hi@kv@|\meta{param}|}|\\
+% Ensures that the parameter has been set, and raises an error otherwise. This
+% macro is intended to be used inside reference definer macros
+% (|\hi@newcite@form|).
+%
+%    \begin{macrocode}
+\def\hi@param@required#1{%
+    \hi@ifset#1{}{#1}%
+}
+%    \end{macrocode}
 %</package>
 %<*doc>
 
@@ -353,6 +377,24 @@ would define |17usc101| as the statute ``17 U.S.C. \textsection~101'' and so on.
 %<*test>
 
 \section{refs.dtx}
+
+\subsection{Undefining Parameters}
+
+\AssertExpand{\hi@param@gobble\hi@kv@name}{\detokenize{name}}
+
+\begingroup
+    \hi@undefine\hi@kv@journal
+    \AssertMacro\hi@kv@journal{\hi@param@undef{\hi@param@gobble\hi@kv@journal}}%
+
+    \let\emsg\relax
+    \def\@this@case{test}
+    \def\PackageError#1#2#3{#2}%
+    \AssertBox{\hi@kv@journal}{Citation parameter journal missing in test}
+
+    \advance\hi@citelevel\@ne
+    \AssertBox{\hi@kv@journal}{Citation parameter journal missing in
+    test\textbf{???}}
+\endgroup
 
 \subsection{defcitegroup}
 
