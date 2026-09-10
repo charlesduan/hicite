@@ -669,19 +669,7 @@ those for \rtype{statcode}.
 %</package>
 %
 \hi@newcite{statsess}{A statute in session laws}{statute}{%
-    \hi@statsess@name
-    \hi@inlinestatname{#1}%
     \hi@param@required\hi@kv@page
-    \hi@ifset\hi@kv@type{}{\def\hi@kv@type{Pub. L. No.}}%
-    \hi@ifset\hi@kv@rep{\hi@ifset\hi@kv@vol\relax{\let\hi@kv@vol\hi@kv@year}}{}%
-    \hi@ifset\hi@kv@year{%
-        \def\reserved@a{}%
-        \hi@ifset\hi@kv@name{\add@macro@to@macro\reserved@a{\hi@kv@name,}}{}%
-        \hi@ifset\hi@kv@vol{\add@macro@to@macro\reserved@a{\hi@kv@vol,}}{}%
-        \hi@ifset\hi@kv@rep{\add@macro@to@macro\reserved@a{\hi@kv@rep,}}{}%
-        \@expand{\expandafter\in@\expandafter{\hi@kv@year}}\reserved@a i%
-        \ifin@ \hi@undefine\hi@kv@year \fi
-    }{}%
     \hi@ifset\hi@kv@in{%
         \hi@statsess@contained{#1}%
     }{%
@@ -759,6 +747,9 @@ See \sec{pages-segments} for more on segments in pin cites.
 %
 %    \begin{macrocode}
 \def\hi@statsess@contained#1{%
+    \hi@param@required\hi@kv@origsect
+    \hi@param@required\hi@kv@name
+    \hi@inlinestatname{#1}%
     \hi@newcite@form{fc}{#1}{%
         \hi@citeguts{%
             \hi@name@only{%
@@ -879,6 +870,19 @@ See \sec{pages-segments} for more on segments in pin cites.
 %
 %    \begin{macrocode}
 \def\hi@statsess@normal#1{%
+    \hi@statsess@name
+    \hi@inlinestatname{#1}%
+    \hi@ifset\hi@kv@type{}{\def\hi@kv@type{Pub. L. No.}}%
+    \hi@ifset\hi@kv@rep{\hi@ifset\hi@kv@vol\relax{\let\hi@kv@vol\hi@kv@year}}{}%
+    % Remove an extraneous year
+    \hi@ifset\hi@kv@year{%
+        \def\reserved@a{}%
+        \hi@ifset\hi@kv@name{\add@macro@to@macro\reserved@a{\hi@kv@name,}}{}%
+        \hi@ifset\hi@kv@vol{\add@macro@to@macro\reserved@a{\hi@kv@vol,}}{}%
+        \hi@ifset\hi@kv@rep{\add@macro@to@macro\reserved@a{\hi@kv@rep,}}{}%
+        \@expand{\expandafter\in@\expandafter{\hi@kv@year}}\reserved@a i%
+        \ifin@ \hi@undefine\hi@kv@year \fi
+    }{}%
     \hi@newcite@form{ifc}{#1}{%
         \hi@citeguts{%
             \hi@name@only{%
@@ -1495,7 +1499,8 @@ Limitation Act (``OCILLA'')}
 \HiFullCite{ocilla}
 
 
-\AssertBox{\inline{dmca-sess}\note{ocilla at S 203 ::stat: 2886}}{the Digital Millennium Copyright Act\InFootnote{Online Copyright
+\AssertBox{\inline{dmca-sess}\note{ocilla at S 203 ::stat: 2886}}{the Digital
+Millennium Copyright Act\InFootnote{Online Copyright
 Infringement Liability Limitation Act (OCILLA) \S~203,
 \emph{in} Digital Millennium Copyright Act, Pub.~L. No.~105-304, tit.~II, 112
 \textsc{Stat.}~2860, 2886 (1998).}}

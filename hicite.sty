@@ -160,11 +160,15 @@
 }
 \DeclareRobustCommand\hi@param@undef[1]{%
     \PackageError\hi@pkgname{%
-        Citation parameter \noexpand#1 missing in \@this@case
+        Citation parameter #1 missing in \@this@case
     }{Include the missing citation parameter.}%
-    \textbf{???}%
+    \ifnum\hi@citelevel>\z@ \textbf{???}\fi
 }
-\def\hi@undefine#1{\def#1{\hi@param@undef{\string#1}}}
+\def\hi@undefine#1{%
+    \def#1{\hi@param@undef{\hi@param@gobble#1}}%
+}
+\def\hi@param@gobble#1{\expandafter\hi@param@gobble@\string#1\@stop}
+\expandafter\def\expandafter\hi@param@gobble@\string\hi@kv@#1\@stop{#1}
 \def\hi@param@clear{%
     \def\do##1##2{\expandafter\hi@undefine\csname hi@kv@##1\endcsname}%
     \hi@params
@@ -229,6 +233,9 @@
 }
 \def\hi@ifeitherset#1#2{%
     \hi@ifset#1{\@firstoftwo}{\hi@ifset#2}%
+}
+\def\hi@param@required#1{%
+    \hi@ifset#1{}{#1}%
 }
 \newcommand\defcitegroup[4][]{%
     \forcsvlist{\hi@citegroup@{#1}{#2}{#3}}{#4}%
@@ -5879,18 +5886,7 @@
     }%
 }
 \hi@newcite{statsess}{A statute in session laws}{statute}{%
-    \hi@statsess@name
-    \hi@inlinestatname{#1}%
-    \hi@ifset\hi@kv@type{}{\def\hi@kv@type{Pub. L. No.}}%
-    \hi@ifset\hi@kv@rep{\hi@ifset\hi@kv@vol\relax{\let\hi@kv@vol\hi@kv@year}}{}%
-    \hi@ifset\hi@kv@year{%
-        \def\reserved@a{}%
-        \hi@ifset\hi@kv@name{\add@macro@to@macro\reserved@a{\hi@kv@name,}}{}%
-        \hi@ifset\hi@kv@vol{\add@macro@to@macro\reserved@a{\hi@kv@vol,}}{}%
-        \hi@ifset\hi@kv@rep{\add@macro@to@macro\reserved@a{\hi@kv@rep,}}{}%
-        \@expand{\expandafter\in@\expandafter{\hi@kv@year}}\reserved@a i%
-        \ifin@ \hi@undefine\hi@kv@year \fi
-    }{}%
+    \hi@param@required\hi@kv@page
     \hi@ifset\hi@kv@in{%
         \hi@statsess@contained{#1}%
     }{%
@@ -5898,6 +5894,9 @@
     }%
 }
 \def\hi@statsess@contained#1{%
+    \hi@param@required\hi@kv@origsect
+    \hi@param@required\hi@kv@name
+    \hi@inlinestatname{#1}%
     \hi@newcite@form{fc}{#1}{%
         \hi@citeguts{%
             \hi@name@only{%
@@ -5981,6 +5980,19 @@
     \clause{#1 ::stat: #3}%
 }
 \def\hi@statsess@normal#1{%
+    \hi@statsess@name
+    \hi@inlinestatname{#1}%
+    \hi@ifset\hi@kv@type{}{\def\hi@kv@type{Pub. L. No.}}%
+    \hi@ifset\hi@kv@rep{\hi@ifset\hi@kv@vol\relax{\let\hi@kv@vol\hi@kv@year}}{}%
+    % Remove an extraneous year
+    \hi@ifset\hi@kv@year{%
+        \def\reserved@a{}%
+        \hi@ifset\hi@kv@name{\add@macro@to@macro\reserved@a{\hi@kv@name,}}{}%
+        \hi@ifset\hi@kv@vol{\add@macro@to@macro\reserved@a{\hi@kv@vol,}}{}%
+        \hi@ifset\hi@kv@rep{\add@macro@to@macro\reserved@a{\hi@kv@rep,}}{}%
+        \@expand{\expandafter\in@\expandafter{\hi@kv@year}}\reserved@a i%
+        \ifin@ \hi@undefine\hi@kv@year \fi
+    }{}%
     \hi@newcite@form{ifc}{#1}{%
         \hi@citeguts{%
             \hi@name@only{%
